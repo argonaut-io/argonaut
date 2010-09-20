@@ -1,5 +1,5 @@
 package com.ephox.jsondude.api;
 
 public interface Parser {
-    JsonBlob parse(String blob);
+    <T> T parse(Class<T> t, String blob);
 }
