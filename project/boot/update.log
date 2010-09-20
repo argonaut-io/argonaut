@@ -1,0 +1,165 @@
+setting 'ivy.default.settings.dir' to 'jar:file:/home/dev/work/jsondude/sbt-launch-0.7.4.jar!/org/apache/ivy/core/settings'
+setting 'ivy.basedir' to '/home/dev/work/jsondude/.'
+setting 'ivy.default.conf.dir' to 'jar:file:/home/dev/work/jsondude/sbt-launch-0.7.4.jar!/org/apache/ivy/core/settings'
+impossible to define new type: class not found: org.apache.ivy.plugins.version.PatternVersionMatcher in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.trigger.LogTrigger in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.VsftpResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.conflict.RegexpConflictManager in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.SshResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.VfsResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.SFTPResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.packager.PackagerResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.ant.AntCallTrigger in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.plugins.resolver.IvyRepResolver in [] nor Ivy classloader
+impossible to define new type: class not found: org.apache.ivy.ant.AntBuildTrigger in [] nor Ivy classloader
+impossible to define glob matcher: org.apache.ivy.plugins.matcher.GlobPatternMatcher was not found.
+setting 'java.runtime.name' to 'Java(TM) SE Runtime Environment'
+setting 'sun.boot.library.path' to '/usr/java/jdk1.6.0_20/jre/lib/amd64'
+setting 'java.vm.version' to '16.3-b01'
+setting 'java.vm.vendor' to 'Sun Microsystems Inc.'
+setting 'java.vendor.url' to 'http://java.sun.com/'
+setting 'path.separator' to ':'
+setting 'java.vm.name' to 'Java HotSpot(TM) 64-Bit Server VM'
+setting 'file.encoding.pkg' to 'sun.io'
+setting 'sun.java.launcher' to 'SUN_STANDARD'
+setting 'user.country' to 'AU'
+setting 'sun.os.patch.level' to 'unknown'
+setting 'java.vm.specification.name' to 'Java Virtual Machine Specification'
+setting 'user.dir' to '/home/dev/work/jsondude'
+setting 'java.runtime.version' to '1.6.0_20-b02'
+setting 'java.awt.graphicsenv' to 'sun.awt.X11GraphicsEnvironment'
+setting 'java.endorsed.dirs' to '/usr/java/jdk1.6.0_20/jre/lib/endorsed'
+setting 'os.arch' to 'amd64'
+setting 'java.io.tmpdir' to '/tmp'
+setting 'line.separator' to '
+'
+setting 'java.vm.specification.vendor' to 'Sun Microsystems Inc.'
+setting 'os.name' to 'Linux'
+setting 'sun.jnu.encoding' to 'UTF-8'
+setting 'java.library.path' to '/usr/java/jdk1.6.0_20/jre/lib/amd64/server:/usr/java/jdk1.6.0_20/jre/lib/amd64:/usr/java/jdk1.6.0_20/jre/../lib/amd64:/usr/java/packages/lib/amd64:/usr/lib64:/lib64:/lib:/usr/lib'
+setting 'java.specification.name' to 'Java Platform API Specification'
+setting 'java.class.version' to '50.0'
+setting 'sun.management.compiler' to 'HotSpot 64-Bit Server Compiler'
+setting 'os.version' to '2.6.34.6-47.fc13.x86_64'
+setting 'user.home' to '/home/dev'
+setting 'user.timezone' to 'Australia/Brisbane'
+setting 'java.awt.printerjob' to 'sun.print.PSPrinterJob'
+setting 'file.encoding' to 'UTF-8'
+setting 'java.specification.version' to '1.6'
+setting 'java.class.path' to './sbt-launch-0.7.4.jar'
+setting 'user.name' to 'dev'
+setting 'java.vm.specification.version' to '1.0'
+setting 'java.home' to '/usr/java/jdk1.6.0_20/jre'
+setting 'sun.arch.data.model' to '64'
+setting 'user.language' to 'en'
+setting 'java.specification.vendor' to 'Sun Microsystems Inc.'
+setting 'java.vm.info' to 'mixed mode'
+setting 'java.version' to '1.6.0_20'
+setting 'java.ext.dirs' to '/usr/java/jdk1.6.0_20/jre/lib/ext:/usr/java/packages/lib/ext'
+setting 'sun.boot.class.path' to '/usr/java/jdk1.6.0_20/jre/lib/resources.jar:/usr/java/jdk1.6.0_20/jre/lib/rt.jar:/usr/java/jdk1.6.0_20/jre/lib/sunrsasign.jar:/usr/java/jdk1.6.0_20/jre/lib/jsse.jar:/usr/java/jdk1.6.0_20/jre/lib/jce.jar:/usr/java/jdk1.6.0_20/jre/lib/charsets.jar:/usr/java/jdk1.6.0_20/jre/classes'
+setting 'java.vendor' to 'Sun Microsystems Inc.'
+setting 'file.separator' to '/'
+setting 'java.vendor.url.bug' to 'http://java.sun.com/cgi-bin/bugreport.cgi'
+setting 'sun.io.unicode.encoding' to 'UnicodeLittle'
+setting 'sun.cpu.endian' to 'little'
+setting 'sun.desktop' to 'gnome'
+setting 'sun.cpu.isalist' to ''
+setting 'ivy.default.ivy.user.dir' to '/home/dev/.ivy2'
+setting 'ivy.home' to '/home/dev/.ivy2'
+no default ivy user dir defined: set to /home/dev/.ivy2
+setting 'ivy.cache.dir' to '/home/dev/.ivy2/cache'
+no default cache defined: set to /home/dev/.ivy2/cache
+setting 'ivy.basedir' to '/home/dev/work/jsondude/project/boot'
+setting 'basedir' to '/home/dev/work/jsondude/project/boot'
+setting 'scala' to '2.8.0'
+:: resolving dependencies :: org.scala-tools.sbt#boot-scala;1.0
+	confs: [default]
+	validate = true
+	refresh = false
+resolving dependencies for configuration 'default'
+== resolving dependencies for org.scala-tools.sbt#boot-scala;1.0 [default]
+loadData of org.scala-tools.sbt#boot-scala;1.0 of rootConf=default
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.8.0 [default->default]
+loadData of org.scala-lang#scala-compiler;2.8.0 of rootConf=default
+	using redefined-public to resolve org.scala-lang#scala-compiler;2.8.0
+redefined-public: Checking cache for: dependency: org.scala-lang#scala-compiler;2.8.0 {default=[default]}
+redefined-public: no namespace defined: using system
+No entry is found in the ModuleDescriptorCache : /home/dev/.ivy2/cache/org.scala-lang/scala-compiler/ivy-2.8.0.xml
+pre 1.3 ivy file: using exactOrRegexp as default matcher
+	found ivy file in cache for org.scala-lang#scala-compiler;2.8.0 (resolved by Maven Central): /home/dev/.ivy2/cache/org.scala-lang/scala-compiler/ivy-2.8.0.xml
+redefined-public: module revision found in cache: org.scala-lang#scala-compiler;2.8.0
+redefined-public: no latest strategy defined: using default
+	found org.scala-lang#scala-compiler;2.8.0 in Maven Central
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.8.0 [default->runtime]
+loadData of org.scala-lang#scala-compiler;2.8.0 of rootConf=default
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.8.0 [default->compile]
+loadData of org.scala-lang#scala-compiler;2.8.0 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [compile->master(*)]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+	using redefined-public to resolve org.scala-lang#scala-library;2.8.0
+redefined-public: Checking cache for: dependency: org.scala-lang#scala-library;2.8.0 {compile=[compile(*), master(*)], runtime=[runtime(*)]}
+No entry is found in the ModuleDescriptorCache : /home/dev/.ivy2/cache/org.scala-lang/scala-library/ivy-2.8.0.xml
+pre 1.3 ivy file: using exactOrRegexp as default matcher
+	found ivy file in cache for org.scala-lang#scala-library;2.8.0 (resolved by Maven Central): /home/dev/.ivy2/cache/org.scala-lang/scala-library/ivy-2.8.0.xml
+redefined-public: module revision found in cache: org.scala-lang#scala-library;2.8.0
+	found org.scala-lang#scala-library;2.8.0 in Maven Central
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [compile->compile(*)]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [compile->default]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [compile->runtime]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [compile->compile]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [compile->master]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [runtime->runtime(*)]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+== resolving dependencies org.scala-lang#scala-compiler;2.8.0->org.scala-lang#scala-library;2.8.0 [runtime->compile]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-compiler;2.8.0 [default->master]
+loadData of org.scala-lang#scala-compiler;2.8.0 of rootConf=default
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.8.0 [default->default]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.8.0 [default->runtime]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.8.0 [default->compile]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+== resolving dependencies org.scala-tools.sbt#boot-scala;1.0->org.scala-lang#scala-library;2.8.0 [default->master]
+loadData of org.scala-lang#scala-library;2.8.0 of rootConf=default
+default is loaded and no conf to load.  Skip loading
+Nbr of module to sort : 2
+Sort dependencies of : org.scala-lang#scala-compiler;2.8.0 / Number of dependencies = 2
+Sort dependencies of : org.scala-lang#scala-library;2.8.0 / Number of dependencies = 0
+Sort done for : org.scala-lang#scala-library;2.8.0
+Sort done for : org.scala-lang#scala-compiler;2.8.0
+Module descriptor is processed : org.scala-lang#scala-library;2.8.0
+	resolved ivy file produced in /home/dev/.ivy2/cache/resolved-org.scala-tools.sbt-boot-scala-1.0.xml
+:: downloading artifacts ::
+	[NOT REQUIRED] org.scala-lang#scala-compiler;2.8.0!scala-compiler.jar
+	[NOT REQUIRED] org.scala-lang#scala-library;2.8.0!scala-library.jar
+:: resolution report :: resolve 92ms :: artifacts dl 2ms
+Nbr of module to sort : 2
+Sort dependencies of : org.scala-lang#scala-compiler;2.8.0 / Number of dependencies = 2
+Sort dependencies of : org.scala-lang#scala-library;2.8.0 / Number of dependencies = 0
+Sort done for : org.scala-lang#scala-library;2.8.0
+Sort done for : org.scala-lang#scala-compiler;2.8.0
+Module descriptor is processed : org.scala-lang#scala-library;2.8.0
+	report for org.scala-tools.sbt#boot-scala;1.0 default produced in /home/dev/.ivy2/cache/org.scala-tools.sbt-boot-scala-default.xml
+	resolve done (92ms resolve - 2ms download)
+:: retrieving :: org.scala-tools.sbt#boot-scala
+	checkUpToDate=true
+no explicit confs given for retrieve, using ivy file: /home/dev/.ivy2/cache/resolved-org.scala-tools.sbt-boot-scala-1.0.xml
+using ivy parser to parse /home/dev/.ivy2/cache/resolved-org.scala-tools.sbt-boot-scala-1.0.xml
+pre 1.3 ivy file: using exactOrRegexp as default matcher
+	confs: [default]
+	retrieving /home/dev/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.8.0.jar
+		to /home/dev/work/jsondude/project/boot/scala-2.8.0/lib/scala-library.jar
+	retrieving /home/dev/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.8.0.jar
+		to /home/dev/work/jsondude/project/boot/scala-2.8.0/lib/scala-compiler.jar
+	2 artifacts copied, 0 already retrieved (14484kB/192ms)
+	retrieve done (192ms)
