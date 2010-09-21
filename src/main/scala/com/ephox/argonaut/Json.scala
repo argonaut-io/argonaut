@@ -158,15 +158,27 @@ sealed trait Json {
   def objectValue =
     ifObject(_ map (_._2), Nil)
 
+  /**
+   * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
+   */
   def ->:(obj: (String, Json)) =
     jsonObject(ifObject(obj :: _, List(obj)))
 
+  /**
+   * If this is a JSON array, then prepend the given value, otherwise, return a JSON array with only the given value.
+   */
   def -->>:(ar: Json) =
     jsonArray(ifArray(ar :: _, List(ar)))
 
+  /**
+   * If this is a JSON object, then prepend the given value, otherwise, return this.
+   */
   def =>:(obj: (String, Json)) =
     withObject(obj :: _)
 
+  /**
+   * If this is a JSON array, then prepend the given value, otherwise, return this.
+   */
   def ==>>:(ar: Json) =
     withArray(ar :: _)
 }
