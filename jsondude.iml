@@ -15,7 +15,6 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/project/build" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/dependency" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/lib" />
@@ -37,9 +36,12 @@
       <library name="test">
         <CLASSES>
           <root url="file://$MODULE_DIR$/lib/test" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0/compile/scalacheck_2.8.0-1.8-SNAPSHOT.jar!/" />
         </CLASSES>
         <JAVADOC />
-        <SOURCES />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0/compile/scalacheck_2.8.0-1.8-SNAPSHOT-sources.jar!/" />
+        </SOURCES>
         <jarDirectory url="file://$MODULE_DIR$/lib/test" recursive="false" />
       </library>
     </orderEntry>
