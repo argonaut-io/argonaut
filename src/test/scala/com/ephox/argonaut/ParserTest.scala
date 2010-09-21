@@ -9,12 +9,6 @@ import ParserTestData._
 object ParserTest extends Properties("Parser") {
   val subject = new JsonParser
 
-  def ifItPassesIt(parser: subject.Parser[Json], s: String, expectedValue: Json) = {
-    val r = p(parser, s)
-    r.successful && r.getOrElse("dummydefaultvalue") == expectedValue
-  }
-
-
   property("null parses ok") =
           forAll((s: SometimesNullString) => (s == SometimesNullString("null")) == p(subject.xnull, s.s).successful)
 
