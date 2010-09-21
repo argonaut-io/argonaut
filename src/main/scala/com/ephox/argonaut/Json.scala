@@ -403,6 +403,11 @@ object Json {
   }
 
   /**
+   * A JSON value that is a zero number.
+   */
+  val zeroJsonNumber = jsonNumber(0D)
+
+  /**
    * Construct a JSON value that is a string.
    */
   val jsonString: String => Json = (s: String) => new Json {
@@ -415,6 +420,11 @@ object Json {
       jobject: JsonObject => X
     ) = jstring(s)
   }
+
+  /**
+   * A JSON value that is an empty string.
+   */
+  val emptyJsonString = jsonString("")
 
   /**
    * Construct a JSON value that is an array.
