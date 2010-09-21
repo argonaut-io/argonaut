@@ -10,16 +10,16 @@ object ParserTest extends Properties("Parser") {
   val subject = new JsonParser
 
   property("null parses ok") =
-          forAll((s: SometimesNullString) => (s == SometimesNullString("null")) == p(subject.xnull, s.s).successful)
+          forAll((s: SometimesNullString) => (s == SometimesNullString("null")) == p(subject.jnull, s.s).successful)
 
   property("null parses to null") =
-          forAll((s: SometimesNullString) => (s == SometimesNullString("null")) ==> p(subject.xnull, s.s).get.isNull)
+          forAll((s: SometimesNullString) => (s == SometimesNullString("null")) ==> p(subject.jnull, s.s).get.isNull)
 
   property("boolean parses ok") =
-          forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) == p(subject.xboolean, s.s).successful))
+          forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) == p(subject.jboolean, s.s).successful))
 
   property("boolean parses to bool") =
-          forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) ==> p(subject.xboolean, s.s).get.isBool))
+          forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) ==> p(subject.jboolean, s.s).get.isBool))
   
   def p(k: subject.Parser[Json], s: String) = {
     val r = new CharSequenceReader(s)
