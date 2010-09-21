@@ -10,19 +10,19 @@ sealed trait Json {
     jsonObject: List[(String, Json)] => X
   ): X
 
-  /*
-  def foldMMM[X](
-    jsonNull: => X,
-    jsonBool: Boolean => X,
-    jsonNumber: Double => X,
-    jsonString: String => X,
-    jsonArray: List[Json] => X,
-    jsonObject: Map[String, Json] => X
-  ) = fold(jsNull, jsonBool, jsonNumber, jsonString, jsonArray, x => jsonObject(x.toMap))
+  def objectMap: Option[Map[String, Json]] =
+    fold(None,
+         _ => None,
+         _ => None,
+         _ => None,
+         _ => None,
+         x => Some(x.toMap))
 
-  val possibleMap: Option[Map[String, Json]] =
-    foldMMM(None, _ => None, _ => None, _ => None, _ => None, _ => None, Some(_))
-  */
+  def objectMapOr(m: => Map[String, Json]) =
+    objectMap getOrElse m
+
+  def objectMapOrEmpty =
+    objectMapOr(Map.empty)
 
 }
 
@@ -94,5 +94,4 @@ object Json {
   }
 
   val jsonObjectMap = (x: Map[String, Json]) => jsonObject(x.toList)
-
 }
