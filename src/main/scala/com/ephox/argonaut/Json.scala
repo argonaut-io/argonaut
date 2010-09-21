@@ -157,6 +157,12 @@ sealed trait Json {
 
   def objectValue =
     ifObject(_ map (_._2), Nil)
+
+  def ->:(obj: (String, Json)) =
+    jsonObject(ifObject(obj :: _, List(obj)))
+
+  def -->>:(ar: Json) =
+    jsonArray(ifArray(ar :: _, List(ar)))
 }
 
 object Json {
