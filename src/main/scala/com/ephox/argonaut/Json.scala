@@ -95,5 +95,4 @@ object Json {
 
   val jsonObjectMap = (x: Map[String, Json]) => jsonObject(x.toList)
 
-  val jsonBoolString = (s: List[Char]) => jsonBool("true".toList == s)
 }

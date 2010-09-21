@@ -8,10 +8,12 @@ class JsonParser extends Parsers {
   type Elem = Char
 
   val jsonParser = xnull
-  
-  val xnull = acceptSeq("null") ^^^ jsonNull
 
+  val jsonBoolString: List[Char] => Json = (s: List[Char]) => jsonBool(s == "true".toList)
+
+  val xnull = acceptSeq("null") ^^^ jsonNull
   val xboolean = acceptSeq("true") ||| acceptSeq("false") ^^ jsonBoolString
+
 
 }
 
