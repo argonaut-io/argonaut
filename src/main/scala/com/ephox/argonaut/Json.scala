@@ -163,6 +163,12 @@ sealed trait Json {
 
   def -->>:(ar: Json) =
     jsonArray(ifArray(ar :: _, List(ar)))
+
+  def =>:(obj: (String, Json)) =
+    withObject(obj :: _)
+
+  def ==>>:(ar: Json) =
+    withArray(ar :: _)
 }
 
 object Json {
