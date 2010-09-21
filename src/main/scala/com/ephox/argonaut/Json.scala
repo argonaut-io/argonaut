@@ -431,6 +431,11 @@ object Json {
   }
 
   /**
+   * A JSON value that is an empty array.
+   */
+  val emptyJsonArray = jsonArray(Nil)
+
+  /**
    * Construct a JSON value that is an object.
    */
   val jsonObject: JsonObject => Json = (x: JsonObject) => new Json {
@@ -448,4 +453,9 @@ object Json {
    * Construct a JSON value that is an object from an index.
    */
   val jsonObjectMap = (x: JsonObjectMap) => jsonObject(x.toList)
+
+  /**
+   * A JSON value that is an empty object.
+   */
+  val emptyJsonObject = jsonObject(Nil)
 }
