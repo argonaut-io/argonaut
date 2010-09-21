@@ -2,27 +2,36 @@ package com.ephox.argonaut
 
 import util.parsing.combinator._
 import Json._
-import util.parsing.input.CharSequenceReader
 
 class JsonParser extends Parsers {
   type Elem = Char
 
-  val jsonParser = xnull
-
   val jsonBoolString: List[Char] => Json = (s: List[Char]) => jsonBool(s == "true".toList)
 
-  val xnull = acceptSeq("null") ^^^ jsonNull
+  val jnull = acceptSeq("null") ^^^ jsonNull
 
-  val xboolean = (acceptSeq("true") ||| acceptSeq("false")) ^^ jsonBoolString
+  val jboolean = oneOf(List("true", "false")) ^^ jsonBoolString
 
+  val e = oneOf(List("e", "e+", "e-", "E", "E+", "E-"))
 
-}
+  val digit1to9 = '1' ||| '2' ||| '3' ||| '4' ||| '5' ||| '6' ||| '7' ||| '8' ||| '9'
 
-object JsonParser {
-  def parseJson(s: String) = {
-    val r = new CharSequenceReader(s)
-    val p = new JsonParser
-    p.jsonParser(r)
+  val digit = '0' ||| digit1to9
+
+  val digits = digit +
+
+  val exp = e ~ digits
+
+  val frac = '.' ~ digits
+
+  val int = digit ||| (digit1to9 ~ digits) ||| ('-' ~ digit) ||| ('-' ~ digit1to9 ~ digits)
+
+  val jnumber = int ||| (int ~ frac) ||| (int ~ exp) ||| (int ~ frac ~ exp) ^^ {
+    case i:List[Elem] => java.lang.Double.valueOf(i.toString)
+    case x:Any => error("todo: " + x)
   }
-}
 
+
+  def oneOf[ES](seqs: Iterable[ES])(implicit e : ES => Iterable[Elem]) = seqs map (acceptSeq[ES] _) reduceRight(_ ||| _)
+
+}
