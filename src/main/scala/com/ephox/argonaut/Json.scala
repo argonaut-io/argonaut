@@ -151,6 +151,12 @@ sealed trait Json {
 
   def withObject(f: JsonObject => JsonObject) =
     ifObject(jsonObject compose f, this)
+
+  def objectKeys =
+    ifObject(_ map (_._1), Nil)
+
+  def objectValue =
+    ifObject(_ map (_._2), Nil)
 }
 
 object Json {
