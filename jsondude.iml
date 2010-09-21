@@ -4,7 +4,7 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Global" />
-        <option name="compilerLibraryName" value="scala" />
+        <option name="compilerLibraryName" value="scala-compiler-2.8.0" />
       </configuration>
     </facet>
   </component>
@@ -45,7 +45,6 @@
         <jarDirectory url="file://$MODULE_DIR$/lib/test" recursive="false" />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="scala" level="application" />
     <orderEntry type="module-library">
       <library name="sbt">
         <CLASSES>
@@ -59,6 +58,16 @@
           <root url="jar://$MODULE_DIR$/project/boot/scala-2.7.7/org.scala-tools.sbt/sbt/0.7.4/io_2.7.7-0.7.4.jar!/" />
           <root url="jar://$MODULE_DIR$/project/boot/scala-2.7.7/org.scala-tools.sbt/sbt/0.7.4/classpath_2.7.7-0.7.4.jar!/" />
           <root url="jar://$MODULE_DIR$/project/boot/scala-2.7.7/org.scala-tools.sbt/sbt/0.7.4/compile_2.7.7-0.7.4.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library">
+      <library name="scala">
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.0/lib/scala-compiler.jar!/" />
+          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.0/lib/scala-library.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
