@@ -23,7 +23,7 @@ sealed trait Json {
   ): X
 
   /**
-   * If this JSON value is `null` the return the given value, otherwise, the other value.
+   * If this JSON value is `null` the return the given value, otherwise, the other argument.
    *
    * @param t Returned if this JSON value is `null`.
    * @param f Returned if this JSON value is not `null`.
@@ -37,7 +37,7 @@ sealed trait Json {
          _ => f)
 
   /**
-   * If this JSON value is a boolean (`true` or `false`), run the function on it, otherwise, return the other value.
+   * If this JSON value is a boolean (`true` or `false`), run the function on it, otherwise, return the other argument.
    *
    * @param t The function to run if this JSON value is a boolean.
    * @param f Returned if this JSON value is not a boolean.
@@ -51,7 +51,7 @@ sealed trait Json {
          _ => f)
 
    /**
-   * If this JSON value is a number, run the function on it, otherwise, return the other value.
+   * If this JSON value is a number, run the function on it, otherwise, return the other argument.
    *
    * @param t The function to run if this JSON value is a number.
    * @param f Returned if this JSON value is not a number.
@@ -65,7 +65,7 @@ sealed trait Json {
          _ => f)
 
   /**
-   * If this JSON value is a string, run the function on it, otherwise, return the other value.
+   * If this JSON value is a string, run the function on it, otherwise, return the other argument.
    *
    * @param t The function to run if this JSON value is a string.
    * @param f Returned if this JSON value is not a string.
@@ -79,7 +79,7 @@ sealed trait Json {
          _ => f)
 
   /**
-   * If this JSON value is an array, run the function on it, otherwise, return the other value.
+   * If this JSON value is an array, run the function on it, otherwise, return the other argument.
    *
    * @param t The function to run if this JSON value is an array.
    * @param f Returned if this JSON value is not an array.
@@ -93,7 +93,7 @@ sealed trait Json {
          _ => f)
 
   /**
-   * If this JSON value is an object, run the function on it, otherwise, return the other value.
+   * If this JSON value is an object, run the function on it, otherwise, return the other argument.
    *
    * @param t The function to run if this JSON value is an object.
    * @param f Returned if this JSON value is not an object.
@@ -143,13 +143,19 @@ sealed trait Json {
     ifObject(_ => true, false)
 
   /**
-   * Return `true` if this JSON value is a boolean with a `true` value, otherwise, `false`.
+   * Return the first given argument if this JSON value is a boolean with a `true` value, otherwise, the second given argument.
+   *
+   * @param t Returned if this JSON value is a boolean with a `true` value.
+   * @param f Returned if this JSON value is not a boolean or a boolean with a `false` value.
    */
   def ifBoolTrue[X](t: => X, f: => X) =
     ifBool(x => if(x) t else f, f)
 
   /**
-   * Return `true` if this JSON value is a boolean with a `false` value, otherwise, `false`.
+   * Return the first given argument if this JSON value is a boolean with a `false` value, otherwise, the second given argument.
+   *
+   * @param t Returned if this JSON value is a boolean with a `false` value.
+   * @param f Returned if this JSON value is not a boolean or a boolean with a `true` value.
    */
   def ifBoolFalse[X](t: => X, f: => X) =
     ifBool(x => if(x) f else t, f)
@@ -163,7 +169,7 @@ sealed trait Json {
   /**
    * Returns the number of this JSON value, or the given default if this JSON value is not a number.
    *
-   * @param The default number if this JSON value is not a number.
+   * @param d The default number if this JSON value is not a number.
    */
   def numberOr(d: => JsonNumber) =
     number getOrElse d
@@ -180,7 +186,7 @@ sealed trait Json {
   /**
    * Returns the string of this JSON value, or the given default if this JSON value is not a string.
    *
-   * @param The default string if this JSON value is not a string.
+   * @param s The default string if this JSON value is not a string.
    */
   def stringOr(s: => String) =
     string getOrElse s
@@ -200,7 +206,7 @@ sealed trait Json {
   /**
    * Returns the array of this JSON value, or the given default if this JSON value is not an array.
    *
-   * @param The default array if this JSON value is not an array.
+   * @param a The default array if this JSON value is not an array.
    */
   def arrayOr(a: => JsonArray) =
     array getOrElse a
@@ -220,7 +226,7 @@ sealed trait Json {
   /**
    * Returns the object of this JSON value, or the given default if this JSON value is not a object.
    *
-   * @param The default object if this JSON value is not an object.
+   * @param o The default object if this JSON value is not an object.
    */
   def objectOr(o: => JsonObject) =
     objectt getOrElse o
@@ -245,7 +251,7 @@ sealed trait Json {
   /**
    * Returns the object map of this JSON value, or the given default if this JSON value is not an object.
    *
-   * @param The default object map if this JSON value is not an object.
+   * @param m The default object map if this JSON value is not an object.
    */
   def objectMapOr(m: => JsonObjectMap) =
     objectMap getOrElse m
@@ -256,27 +262,63 @@ sealed trait Json {
   def objectMapOrEmpty =
     objectMapOr(Map.empty)
 
-  def objectValue(k: String): Option[Json] =
+  /**
+   * Returns the possible object corresponding to the given key if this JSON value is an object and there is a corresponding value.
+   *
+   * @param k The key to retrieve the corresponding value for.
+   */
+  def objectValue(k: => String): Option[Json] =
     objectMap flatMap (_ get k)
 
-  def objectValueOr(k: String, v: => Json) =
+  /**
+   * Returns the object corresponding to the given key if this JSON value is an object and there is a corresponding value,
+   * or returns the given default value.
+   *
+   * @param k The key to retrieve the corresponding value for.
+   * @param v The default value if this JSON value is not an object or has no corresponding value for the key.
+   */
+  def objectValueOr(k: => String, v: => Json) =
     objectValue(k) getOrElse v
 
+  /**
+   * If this JSON value is a boolean, invert it.
+   */
   def not =
     ifBool(x => jsonBool(!x), this)
 
+  /**
+   * If this JSON value is a number, run the given function on it, otherwise, leave this value unchanged.
+   *
+   * @param The function to run if this JSON value is a number.
+   */
   def withNumber(f: JsonNumber => JsonNumber) =
     ifNumber(jsonNumber compose f, this)
 
+  /**
+   * If this JSON value is an array, run the given function on it, otherwise, leave this value unchanged.
+   *
+   * @param The function to run if this JSON value is an array.
+   */
   def withArray(f: JsonArray => JsonArray) =
     ifArray(jsonArray compose f, this)
 
+  /**
+   * If this JSON value is an object, run the given function on it, otherwise, leave this value unchanged.
+   *
+   * @param The function to run if this JSON value is an object.
+   */
   def withObject(f: JsonObject => JsonObject) =
     ifObject(jsonObject compose f, this)
 
+  /**
+   * Return the object keys if this JSON value is an object, otherwise, return the empty list.
+   */
   def objectKeys =
     ifObject(_ map (_._1), Nil)
 
+  /**
+   * Return the object values if this JSON value is an object, otherwise, return the empty list.
+   */
   def objectValue =
     ifObject(_ map (_._2), Nil)
 
@@ -311,6 +353,9 @@ object Json {
   type JsonObject = List[(String, Json)]
   type JsonObjectMap = Map[String, Json]
 
+  /**
+   * Construct a JSON value that is `null`.
+   */
   val jsonNull: Json = new Json {
     def fold[X](
       jnull: => X,
@@ -322,6 +367,9 @@ object Json {
     ) = jnull 
   }
 
+  /**
+   * Construct a JSON value that is a boolean.
+   */
   val jsonBool: Boolean => Json = (b: Boolean) => new Json {
     def fold[X](
       jnull: => X,
@@ -333,6 +381,9 @@ object Json {
     ) = jbool(b)
   }
 
+  /**
+   * Construct a JSON value that is a number.
+   */
   val jsonNumber: JsonNumber => Json = (n: JsonNumber) => new Json {
     def fold[X](
       jnull: => X,
@@ -344,6 +395,9 @@ object Json {
     ) = jnumber(n)
   }
 
+  /**
+   * Construct a JSON value that is a string.
+   */
   val jsonString: String => Json = (s: String) => new Json {
     def fold[X](
       jnull: => X,
@@ -355,6 +409,9 @@ object Json {
     ) = jstring(s)
   }
 
+  /**
+   * Construct a JSON value that is an array.
+   */
   val jsonArray: JsonArray => Json = (a: JsonArray) => new Json {
     def fold[X](
       jnull: => X,
@@ -366,6 +423,9 @@ object Json {
     ) = jarray(a)
   }
 
+  /**
+   * Construct a JSON value that is an object.
+   */
   val jsonObject: JsonObject => Json = (x: JsonObject) => new Json {
     def fold[X](
       jnull: => X,
@@ -377,5 +437,8 @@ object Json {
     ) = jobject(x) 
   }
 
+  /**
+   * Construct a JSON value that is an object from an index.
+   */
   val jsonObjectMap = (x: JsonObjectMap) => jsonObject(x.toList)
 }
