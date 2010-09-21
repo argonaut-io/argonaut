@@ -10,6 +10,56 @@ sealed trait Json {
     jsonObject: List[(String, Json)] => X
   ): X
 
+  def isNull =
+    fold(true,
+         _ => false,
+         _ => false,
+         _ => false,
+         _ => false,
+         _ => false)
+
+  def isBool =
+    fold(false,
+         _ => true,
+         _ => false,
+         _ => false,
+         _ => false,
+         _ => false)
+
+
+  def isNumber =
+    fold(false,
+         _ => false,
+         _ => true,
+         _ => false,
+         _ => false,
+         _ => false)
+
+  def isString =
+    fold(false,
+         _ => false,
+         _ => false,
+         _ => true,
+         _ => false,
+         _ => false)
+
+  def isArray =
+    fold(false,
+         _ => false,
+         _ => false,
+         _ => false,
+         _ => true,
+         _ => false)
+
+
+  def isObject =
+    fold(false,
+         _ => false,
+         _ => false,
+         _ => false,
+         _ => false,
+         _ => true)
+
   def objectMap: Option[Map[String, Json]] =
     fold(None,
          _ => None,
