@@ -1,8 +1,18 @@
 package com.ephox.argonaut
 
+/**
+ * A data type representing possible <a href="http://www.json.org/">JSON</a> values.
+ *
+ * @author Tony Morris
+ * @author Dylan Just
+ * @author Mark Hibberd
+ */
 sealed trait Json {
   import Json._
 
+  /**
+   * The catamorphism for the JSON value data type.
+   */
   def fold[X](
     jsonNull: => X,
     jsonBool: Boolean => X,
@@ -12,6 +22,12 @@ sealed trait Json {
     jsonObject: JsonObject => X
   ): X
 
+  /**
+   * If this JSON value is `null` the return the given value, otherwise, the other value.
+   *
+   * @param t Returned if this JSON value is `null`.
+   * @param f Returned if this JSON value is not `null`.
+   */
   def ifNull[X](t: => X, f: => X) =
     fold(t,
          _ => f,
@@ -20,6 +36,12 @@ sealed trait Json {
          _ => f,
          _ => f)
 
+  /**
+   * If this JSON value is a boolean (`true` or `false`), run the function on it, otherwise, return the other value.
+   *
+   * @param t The function to run if this JSON value is a boolean.
+   * @param f Returned if this JSON value is not a boolean.
+   */
   def ifBool[X](t: Boolean => X, f: => X) =
     fold(f,
          t(_),
@@ -28,6 +50,12 @@ sealed trait Json {
          _ => f,
          _ => f)
 
+   /**
+   * If this JSON value is a number, run the function on it, otherwise, return the other value.
+   *
+   * @param t The function to run if this JSON value is a number.
+   * @param f Returned if this JSON value is not a number.
+   */
   def ifNumber[X](t: JsonNumber => X, f: => X) =
     fold(f,
          _ => f,
@@ -36,6 +64,12 @@ sealed trait Json {
          _ => f,
          _ => f)
 
+  /**
+   * If this JSON value is a string, run the function on it, otherwise, return the other value.
+   *
+   * @param t The function to run if this JSON value is a string.
+   * @param f Returned if this JSON value is not a string.
+   */
   def ifString[X](t: String => X, f: => X) =
     fold(f,
          _ => f,
@@ -44,6 +78,12 @@ sealed trait Json {
          _ => f,
          _ => f)
 
+  /**
+   * If this JSON value is an array, run the function on it, otherwise, return the other value.
+   *
+   * @param t The function to run if this JSON value is an array.
+   * @param f Returned if this JSON value is not an array.
+   */
   def ifArray[X](t: JsonArray => X, f: => X) =
     fold(f,
          _ => f,
@@ -52,6 +92,12 @@ sealed trait Json {
          t(_),
          _ => f)
 
+  /**
+   * If this JSON value is an object, run the function on it, otherwise, return the other value.
+   *
+   * @param t The function to run if this JSON value is an object.
+   * @param f Returned if this JSON value is not an object.
+   */
   def ifObject[X](t: JsonObject => X, f: => X) =
     fold(f,
          _ => f,
