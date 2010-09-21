@@ -2,9 +2,8 @@ package com.ephox.argonaut
 
 import org.scalacheck.Prop._
 import util.parsing.input.CharSequenceReader
-import org.scalacheck.{Gen, Arbitrary, Properties}
-import Json._
-import ParserTestData._
+import org.scalacheck.Properties
+import Data._
 
 object ParserTest extends Properties("Parser") {
   val subject = new JsonParser
