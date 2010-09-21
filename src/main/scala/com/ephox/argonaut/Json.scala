@@ -76,6 +76,55 @@ sealed trait Json {
   def isObject =
     ifObject(_ => true, false)
 
+  def ifBoolTrue[X](t: => X, f: => X) =
+    ifBool(x => if(x) t else f, f)
+
+  def ifBoolFalse[X](t: => X, f: => X) =
+    ifBool(x => if(x) f else t, f)
+
+  def number =
+    ifNumber(Some(_), None)
+
+  def numberOr(d: => Double) =
+    number getOrElse d
+
+  def numberOrZero =
+    numberOr(0D)
+
+  def string =
+    ifString(Some(_), None)
+
+  def stringOr(s: => String) =
+    string getOrElse s
+
+  def stringOrEmpty =
+    stringOr("")
+
+    /*
+      jsonString: String => X,
+      jsonArray: List[Json] => X,
+      jsonObject: List[(String, Json)] => X
+
+     */
+
+  def array =
+    ifArray(Some(_), None)
+
+  def arrayOr(a: => List[Json]) =
+    array getOrElse a
+
+  def arrayOrEmpty =
+    arrayOr(Nil)
+
+  def objectt =
+    ifObject(Some(_), None)
+
+  def objectOr(o: => List[(String, Json)]) =
+    objectt getOrElse o
+
+  def objectOrEmpty =
+    objectOr(Nil)
+  
   def objectMap: Option[Map[String, Json]] =
     fold(None,
          _ => None,
@@ -89,7 +138,6 @@ sealed trait Json {
 
   def objectMapOrEmpty =
     objectMapOr(Map.empty)
-
 }
 
 object Json {
