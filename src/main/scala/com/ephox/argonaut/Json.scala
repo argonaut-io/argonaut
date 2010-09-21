@@ -10,55 +10,71 @@ sealed trait Json {
     jsonObject: List[(String, Json)] => X
   ): X
 
+  def ifNull[X](t: => X, f: => X) =
+    fold(t,
+         _ => f,
+         _ => f,
+         _ => f,
+         _ => f,
+         _ => f)
+
+  def ifBool[X](t: Boolean => X, f: => X) =
+    fold(f,
+         t(_),
+         _ => f,
+         _ => f,
+         _ => f,
+         _ => f)
+
+  def ifNumber[X](t: Double => X, f: => X) =
+    fold(f,
+         _ => f,
+         t(_),
+         _ => f,
+         _ => f,
+         _ => f)
+
+  def ifString[X](t: String => X, f: => X) =
+    fold(f,
+         _ => f,
+         _ => f,
+         t(_),
+         _ => f,
+         _ => f)
+
+  def ifArray[X](t: List[Json] => X, f: => X) =
+    fold(f,
+         _ => f,
+         _ => f,
+         _ => f,
+         t(_),
+         _ => f)
+
+  def ifObject[X](t: List[(String, Json)] => X, f: => X) =
+    fold(f,
+         _ => f,
+         _ => f,
+         _ => f,
+         _ => f,
+         t(_))
+
   def isNull =
-    fold(true,
-         _ => false,
-         _ => false,
-         _ => false,
-         _ => false,
-         _ => false)
+    ifNull(true, false)
 
   def isBool =
-    fold(false,
-         _ => true,
-         _ => false,
-         _ => false,
-         _ => false,
-         _ => false)
-
+    ifBool(_ => true, false)
 
   def isNumber =
-    fold(false,
-         _ => false,
-         _ => true,
-         _ => false,
-         _ => false,
-         _ => false)
+    ifNumber(_ => true, false)
 
   def isString =
-    fold(false,
-         _ => false,
-         _ => false,
-         _ => true,
-         _ => false,
-         _ => false)
+    ifString(_ => true, false)
 
   def isArray =
-    fold(false,
-         _ => false,
-         _ => false,
-         _ => false,
-         _ => true,
-         _ => false)
-
+    ifArray(_ => true, false)
 
   def isObject =
-    fold(false,
-         _ => false,
-         _ => false,
-         _ => false,
-         _ => false,
-         _ => true)
+    ifObject(_ => true, false)
 
   def objectMap: Option[Map[String, Json]] =
     fold(None,
