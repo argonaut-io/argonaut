@@ -87,7 +87,7 @@ sealed trait Json {
   def number =
     ifNumber(Some(_), None)
 
-  def numberOr(d: => Number) =
+  def numberOr(d: => JsonNumber) =
     number getOrElse d
 
   def numberOrZero =
