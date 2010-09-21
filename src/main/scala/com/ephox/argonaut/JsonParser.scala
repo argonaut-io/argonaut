@@ -16,12 +16,13 @@ class JsonParser extends Parsers {
     case x:Any => error("todo: " + x)
   }
 
+  // FIX Pull out lexer, so the underlying constructs are easier  to work with (spaces in particular)
 
 //  def jobject: Parser[Json] = acceptSeq("{}") ||| ('{' ~ members ~ '}')
 //  def members = pair ||| (pair ~ ',' ~ members)
 //  def pair = string ~ ':' ~ value
 //  def array: Parser[Json] = acceptSeq("[]") ||| ('[' ~ elements ~ ']')
-//  def elements = value ||| ('[' ~ elements ~ ']')
+//  def elements = value ||| (value ~ ',' ~ elements)
   def value = jstring  ||| jboolean ||| jnull // ||| array ||| jobject
 
   def jstring = string ^^ jsonString
