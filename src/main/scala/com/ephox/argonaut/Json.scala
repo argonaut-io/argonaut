@@ -1,13 +1,15 @@
 package com.ephox.argonaut
 
 sealed trait Json {
+  import Json._
+
   def fold[X](
     jsonNull: => X,
     jsonBool: Boolean => X,
-    jsonNumber: Double => X,
+    jsonNumber: JsonNumber => X,
     jsonString: String => X,
-    jsonArray: List[Json] => X,
-    jsonObject: List[(String, Json)] => X
+    jsonArray: JsonArray => X,
+    jsonObject: JsonObject => X
   ): X
 
   def ifNull[X](t: => X, f: => X) =
@@ -26,7 +28,7 @@ sealed trait Json {
          _ => f,
          _ => f)
 
-  def ifNumber[X](t: Double => X, f: => X) =
+  def ifNumber[X](t: JsonNumber => X, f: => X) =
     fold(f,
          _ => f,
          t(_),
@@ -42,7 +44,7 @@ sealed trait Json {
          _ => f,
          _ => f)
 
-  def ifArray[X](t: List[Json] => X, f: => X) =
+  def ifArray[X](t: JsonArray => X, f: => X) =
     fold(f,
          _ => f,
          _ => f,
@@ -50,7 +52,7 @@ sealed trait Json {
          t(_),
          _ => f)
 
-  def ifObject[X](t: List[(String, Json)] => X, f: => X) =
+  def ifObject[X](t: JsonObject => X, f: => X) =
     fold(f,
          _ => f,
          _ => f,
@@ -85,7 +87,7 @@ sealed trait Json {
   def number =
     ifNumber(Some(_), None)
 
-  def numberOr(d: => Double) =
+  def numberOr(d: => Number) =
     number getOrElse d
 
   def numberOrZero =
@@ -103,7 +105,7 @@ sealed trait Json {
   def array =
     ifArray(Some(_), None)
 
-  def arrayOr(a: => List[Json]) =
+  def arrayOr(a: => JsonArray) =
     array getOrElse a
 
   def arrayOrEmpty =
@@ -112,13 +114,13 @@ sealed trait Json {
   def objectt =
     ifObject(Some(_), None)
 
-  def objectOr(o: => List[(String, Json)]) =
+  def objectOr(o: => JsonObject) =
     objectt getOrElse o
 
   def objectOrEmpty =
     objectOr(Nil)
   
-  lazy val objectMap: Option[Map[String, Json]] =
+  lazy val objectMap: Option[JsonObjectMap] =
     fold(None,
          _ => None,
          _ => None,
@@ -126,7 +128,7 @@ sealed trait Json {
          _ => None,
          x => Some(x.toMap))
 
-  def objectMapOr(m: => Map[String, Json]) =
+  def objectMapOr(m: => JsonObjectMap) =
     objectMap getOrElse m
 
   def objectMapOrEmpty =
@@ -137,17 +139,34 @@ sealed trait Json {
 
   def objectValueOr(k: String, v: => Json) =
     objectValue(k) getOrElse v
+
+  def not =
+    ifBool(x => jsonBool(!x), this)
+
+  def withNumber(f: JsonNumber => JsonNumber) =
+    ifNumber(jsonNumber compose f, this)
+
+  def withArray(f: JsonArray => JsonArray) =
+    ifArray(jsonArray compose f, this)
+
+  def withObject(f: JsonObject => JsonObject) =
+    ifObject(jsonObject compose f, this)
 }
 
 object Json {
+  type JsonNumber = Double
+  type JsonArray = List[Json]
+  type JsonObject = List[(String, Json)]
+  type JsonObjectMap = Map[String, Json]
+
   val jsonNull: Json = new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
-      jnumber: Double => X,
+      jnumber: JsonNumber => X,
       jstring: String => X,
-      jarray: List[Json] => X,
-      jobject: List[(String, Json)] => X
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
     ) = jnull 
   }
 
@@ -155,21 +174,21 @@ object Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
-      jnumber: Double => X,
+      jnumber: JsonNumber => X,
       jstring: String => X,
-      jarray: List[Json] => X,
-      jobject: List[(String, Json)] => X
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
     ) = jbool(b)
   }
 
-  val jsonNumber: Double => Json = (n: Double) => new Json {
+  val jsonNumber: JsonNumber => Json = (n: JsonNumber) => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
-      jnumber: Double => X,
+      jnumber: JsonNumber => X,
       jstring: String => X,
-      jarray: List[Json] => X,
-      jobject: List[(String, Json)] => X
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
     ) = jnumber(n)
   }
 
@@ -177,34 +196,34 @@ object Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
-      jnumber: Double => X,
+      jnumber: JsonNumber => X,
       jstring: String => X,
-      jarray: List[Json] => X,
-      jobject: List[(String, Json)] => X
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
     ) = jstring(s)
   }
 
-  val jsonArray: List[Json] => Json = (a: List[Json]) => new Json {
+  val jsonArray: JsonArray => Json = (a: JsonArray) => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
-      jnumber: Double => X,
+      jnumber: JsonNumber => X,
       jstring: String => X,
-      jarray: List[Json] => X,
-      jobject: List[(String, Json)] => X
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
     ) = jarray(a)
   }
 
-  val jsonObject: List[(String, Json)] => Json = (x: List[(String, Json)]) => new Json {
+  val jsonObject: JsonObject => Json = (x: JsonObject) => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
-      jnumber: Double => X,
+      jnumber: JsonNumber => X,
       jstring: String => X,
-      jarray: List[Json] => X,
-      jobject: List[(String, Json)] => X
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
     ) = jobject(x) 
   }
 
-  val jsonObjectMap = (x: Map[String, Json]) => jsonObject(x.toList)
+  val jsonObjectMap = (x: JsonObjectMap) => jsonObject(x.toList)
 }
