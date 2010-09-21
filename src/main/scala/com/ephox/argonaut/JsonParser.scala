@@ -12,7 +12,8 @@ class JsonParser extends Parsers {
   val jsonBoolString: List[Char] => Json = (s: List[Char]) => jsonBool(s == "true".toList)
 
   val xnull = acceptSeq("null") ^^^ jsonNull
-  val xboolean = acceptSeq("true") ||| acceptSeq("false") ^^ jsonBoolString
+
+  val xboolean = (acceptSeq("true") ||| acceptSeq("false")) ^^ jsonBoolString
 
 
 }
