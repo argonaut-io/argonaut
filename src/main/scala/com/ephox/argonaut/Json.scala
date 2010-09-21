@@ -347,6 +347,13 @@ sealed trait Json {
     withArray(ar :: _)
 }
 
+/**
+ * Constructors and other utilities for JSON values.
+ *
+ * @author Tony Morris
+ * @author Dylan Just
+ * @author Mark Hibberd
+ */
 object Json {
   type JsonNumber = Double
   type JsonArray = List[Json]
