@@ -1,28 +1,25 @@
 package com.ephox.argonaut
 
 import util.parsing.combinator._
-import util.parsing.input.CharSequenceReader
 import Json._
-import java.io.CharArrayReader
+import util.parsing.input.CharSequenceReader
 
 class JsonParser extends Parsers {
   type Elem = Char
 
+  val jsonParser = xnull
+  
   val xnull = acceptSeq("null") ^^^ jsonNull
 
-//  val xboolean =  elem("true") ||| elem("false")
+  val xboolean = acceptSeq("true") ||| acceptSeq("false") ^^ jsonBoolString
 
 }
 
+object JsonParser {
+  def parseJson(s: String) = {
+    val r = new CharSequenceReader(s)
+    val p = new JsonParser
+    p.jsonParser(r)
+  }
+}
 
-
-/*
-
-expr = jsobject
-
-jsobject = { [key: value,] [key,value] }
-
-key: "blah"
-
-
-*/
