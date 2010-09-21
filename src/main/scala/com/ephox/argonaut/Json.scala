@@ -100,13 +100,6 @@ sealed trait Json {
   def stringOrEmpty =
     stringOr("")
 
-    /*
-      jsonString: String => X,
-      jsonArray: List[Json] => X,
-      jsonObject: List[(String, Json)] => X
-
-     */
-
   def array =
     ifArray(Some(_), None)
 
@@ -125,7 +118,7 @@ sealed trait Json {
   def objectOrEmpty =
     objectOr(Nil)
   
-  def objectMap: Option[Map[String, Json]] =
+  lazy val objectMap: Option[Map[String, Json]] =
     fold(None,
          _ => None,
          _ => None,
@@ -138,6 +131,12 @@ sealed trait Json {
 
   def objectMapOrEmpty =
     objectMapOr(Map.empty)
+
+  def objectValue(k: String): Option[Json] =
+    objectMap flatMap (_ get k)
+
+  def objectValueOr(k: String, v: => Json) =
+    objectValue(k) getOrElse v
 }
 
 object Json {
