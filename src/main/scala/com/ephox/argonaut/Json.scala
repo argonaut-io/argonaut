@@ -161,6 +161,18 @@ sealed trait Json {
     ifBool(x => if(x) f else t, f)
 
   /**
+   * Returns this JSON boolean value or `true` if it is not a boolean.
+   */
+  def boolOrTrue =
+    ifBool(x => x, true)
+
+  /**
+   * Returns this JSON boolean value or `false` if it is not a boolean.
+   */
+  def boolOrFalse =
+    ifBool(x => x, false)
+
+  /**
    * Returns the possible number of this JSON value.
    */
   def number =
@@ -174,6 +186,9 @@ sealed trait Json {
   def numberOr(d: => JsonNumber) =
     number getOrElse d
 
+  /**
+   * Returns this JSON number object or the value `0` if it is not a number.
+   */
   def numberOrZero =
     numberOr(0D)
 
@@ -337,14 +352,54 @@ sealed trait Json {
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return this.
    */
-  def =>:(obj: (String, Json)) =
+  def ~>:(obj: (String, Json)) =
     withObject(obj :: _)
 
   /**
    * If this is a JSON array, then prepend the given value, otherwise, return this.
    */
-  def ==>>:(ar: Json) =
+  def ~~>>:(ar: Json) =
     withArray(ar :: _)
+
+  /**
+   * Compare two JSON values for equality.
+   */
+  override def equals(o: Any) =
+    o.isInstanceOf[Json] && o.asInstanceOf[Json].fold(
+      isNull,
+      b => b == boolOrFalse,
+      n => number exists (_ == n),
+      s => string exists (_ == s),
+      a => array exists (_ == a),
+      o => objectt exists (_ == o)
+    )
+
+  /**
+   * Compute a hash-code for this JSON value.
+   */
+  override def hashCode =
+    fold(
+      0,
+      _.hashCode,
+      _.hashCode,
+      _.hashCode,
+      _.hashCode,
+      _.hashCode
+    )
+
+  /**
+   * Compute a `String` representation for this JSON value.
+   */
+  override def toString =
+    "Json { " +
+        fold(
+          "null",
+          "bool   [" + _ + "]",
+          "number [" + _ + "]",
+          "string [" + _ + "]",
+          "array  [" + _ + "]",
+          "object [" + _ + "]"
+        ) + " }"
 }
 
 /**
@@ -403,6 +458,11 @@ object Json {
   }
 
   /**
+   * A JSON value that is a zero number.
+   */
+  val zeroJsonNumber = jsonNumber(0D)
+
+  /**
    * Construct a JSON value that is a string.
    */
   val jsonString: String => Json = (s: String) => new Json {
@@ -417,6 +477,11 @@ object Json {
   }
 
   /**
+   * A JSON value that is an empty string.
+   */
+  val emptyJsonString = jsonString("")
+
+  /**
    * Construct a JSON value that is an array.
    */
   val jsonArray: JsonArray => Json = (a: JsonArray) => new Json {
@@ -429,6 +494,11 @@ object Json {
       jobject: JsonObject => X
     ) = jarray(a)
   }
+
+  /**
+   * A JSON value that is an empty array.
+   */
+  val emptyJsonArray = jsonArray(Nil)
 
   /**
    * Construct a JSON value that is an object.
@@ -448,4 +518,9 @@ object Json {
    * Construct a JSON value that is an object from an index.
    */
   val jsonObjectMap = (x: JsonObjectMap) => jsonObject(x.toList)
+
+  /**
+   * A JSON value that is an empty object.
+   */
+  val emptyJsonObject = jsonObject(Nil)
 }
