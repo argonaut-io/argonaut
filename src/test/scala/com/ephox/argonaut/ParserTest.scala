@@ -20,10 +20,6 @@ object ParserTest extends Properties("Parser") {
   property("boolean parses to bool") =
           forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) ==> p(subject.jboolean, s.s).get.isBool))
   
-  def p(k: subject.Parser[Json], s: String) = {
-    val r = new CharSequenceReader(s)
-    k(r)
-  }
-
-
+  def p(k: subject.Parser[Json], s: String) =
+    k(new CharSequenceReader(s))
 }
