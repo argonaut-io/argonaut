@@ -161,6 +161,18 @@ sealed trait Json {
     ifBool(x => if(x) f else t, f)
 
   /**
+   * Returns this JSON boolean value or `true` if it is not a boolean.
+   */
+  def boolOrTrue =
+    ifBool(x => x, true)
+
+  /**
+   * Returns this JSON boolean value or `false` if it is not a boolean.
+   */
+  def boolOrFalse =
+    ifBool(x => x, false)
+
+  /**
    * Returns the possible number of this JSON value.
    */
   def number =
@@ -174,6 +186,9 @@ sealed trait Json {
   def numberOr(d: => JsonNumber) =
     number getOrElse d
 
+  /**
+   * Returns this JSON number object or the value `0` if it is not a number.
+   */
   def numberOrZero =
     numberOr(0D)
 
@@ -352,7 +367,7 @@ sealed trait Json {
   override def equals(o: Any) =
     o.isInstanceOf[Json] && o.asInstanceOf[Json].fold(
       isNull,
-      b => ifBool(_ == b, false),
+      b => b == boolOrFalse,
       n => number exists (_ == n),
       s => string exists (_ == s),
       a => array exists (_ == a),
