@@ -345,6 +345,46 @@ sealed trait Json {
    */
   def ~~>>:(ar: Json) =
     withArray(ar :: _)
+
+  /**
+   * Compare two JSON values for equality.
+   */
+  override def equals(o: Any) =
+    o.isInstanceOf[Json] && o.asInstanceOf[Json].fold(
+      isNull,
+      b => ifBool(_ == b, false),
+      n => number exists (_ == n),
+      s => string exists (_ == s),
+      a => array exists (_ == a),
+      o => objectt exists (_ == o)
+    )
+
+  /**
+   * Compute a hash-code for this JSON value.
+   */
+  override def hashCode =
+    fold(
+      0,
+      _.hashCode,
+      _.hashCode,
+      _.hashCode,
+      _.hashCode,
+      _.hashCode
+    )
+
+  /**
+   * Compute a `String` representation for this JSON value.
+   */
+  override def toString =
+    "Json { " +
+        fold(
+          "null",
+          "bool   [" + _ + "]",
+          "number [" + _ + "]",
+          "string [" + _ + "]",
+          "array  [" + _ + "]",
+          "object [" + _ + "]"
+        ) + " }"
 }
 
 /**
