@@ -407,8 +407,8 @@ sealed trait Json {
     _.toString,
     _.toString,
     '"' + _ + '"',
-    "["+_.map(_.emit).mkString(",")+"]",
-    "{"+_.map({case (k, v) => '"' + k + "\":" + v.emit}).mkString(",")+"}"
+    "[ "+_.map(_.emit).mkString(", ")+" ]",
+    "{ "+_.map({case (k, v) => '"' + k + "\" : " + v.emit}).mkString(", ")+" }"
   )
 }
 

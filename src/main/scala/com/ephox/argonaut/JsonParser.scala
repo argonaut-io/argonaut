@@ -6,11 +6,11 @@ import Json._
 class JsonParser extends Parsers {
   type Elem = Char
 
-  def jobject: Parser[Json] = '{' ~> repsep(pair, ',') <~ '}' ^^ jsonObject
+  def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ closeobject ^^ jsonObject
 
-  def jarray: Parser[Json] = '[' ~> repsep(jvalue, ',') <~ ']' ^^ jsonArray
+  def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ closearray ^^ jsonArray
 
-  def jvalue = jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber  
+  def jvalue = whitespace ~> (jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber) <~ whitespace  
 
   def jstring = string ^^ jsonString
 
@@ -22,7 +22,19 @@ class JsonParser extends Parsers {
 
   //---------------------------------------------------------------------------
 
-  def pair: Parser[(String, Json)] = (string <~ ':') ~ jvalue ^^ { case k ~ v => (k, v)}
+  def openarray = '[' ~ whitespace
+
+  def closearray = whitespace ~ ']'
+
+  def openobject = '{' ~ whitespace
+
+  def closeobject = whitespace ~ '}'
+
+  def separator = whitespace ~ ',' ~ whitespace
+
+  def colanSeparator = whitespace ~ ':' ~ whitespace
+
+  def pair: Parser[(String, Json)] = (string <~ colanSeparator) ~ jvalue ^^ { case k ~ v => (k, v)}
 
   def f = acceptSeq("false") ^^^ false
 
@@ -32,7 +44,11 @@ class JsonParser extends Parsers {
 
   def chars = (char*) ^^ {_.mkString}
 
-  // FIX has top be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how/if this hangs together
+  def whitespaceChar = elem("whitespace", c => Character.isWhitespace(c))
+
+  def whitespace = (whitespaceChar*)
+
+  // FIX has to be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how/if this hangs together
   // FIX need to test for escape sequences
   // FIX also how does this work for emit
   def char =
