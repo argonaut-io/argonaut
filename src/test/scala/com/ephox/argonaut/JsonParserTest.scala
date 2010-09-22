@@ -19,7 +19,14 @@ object JsonParserTest extends Properties("Parser") {
 
   property("boolean parses to bool") =
           forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) ==> p(subject.jboolean, s.s).get.isBool))
-  
+
+  // FIX Strings create an infinite loop... fix it...
+//  property("all that encodes can be decoded") =
+//          forAll({(j: Json) =>
+//              val parsed = p(subject.jvalue, j.emit)
+//              parsed.successful && parsed.get == j
+//            })
+
   def p(k: subject.Parser[Json], s: String) =
     k(new CharSequenceReader(s))
 }

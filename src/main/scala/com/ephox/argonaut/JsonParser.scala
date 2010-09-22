@@ -34,7 +34,8 @@ class JsonParser extends Parsers {
 
   // has top be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how/if this hangs together
   def char =
-          (escape ~ '\"' ^^^ "\""
+          (elem("char", (ch: Char) => ch != '\\') ^^ { (ch: Char) => ch.toString }
+          |escape ~ '\"' ^^^ "\""
     	    |escape ~ '\\' ^^^ "\\"
     	    |escape ~ '/'  ^^^ "/"
     	    |escape ~ 'b'  ^^^ "\b"
@@ -50,7 +51,7 @@ class JsonParser extends Parsers {
 
   def hex = digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 
-  def number = (int | intfrac | intexp | intfracexp) ^^ {_.toString.toDouble}
+  def number = (int ||| intfrac ||| intexp ||| intfracexp) ^^ {_.mkString("").toDouble}
 
   def intexp = int ~ exp ^^ {case a ~ b => a ++ b}
 

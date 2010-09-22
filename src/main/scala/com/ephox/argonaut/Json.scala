@@ -400,6 +400,15 @@ sealed trait Json {
           "array  [" + _ + "]",
           "object [" + _ + "]"
         ) + " }"
+
+  def emit: String = fold (
+    "null",
+    _.toString,
+    _.toString,
+    '"' + _ + '"',
+    _.map(_.emit).mkString(", "),
+    _.map({case (k, v) => '"' + k + "\" : " + v.emit}).mkString(",\n")
+  )
 }
 
 /**
