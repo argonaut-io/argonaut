@@ -12,7 +12,7 @@ object ParserTest extends Properties("Parser") {
           forAll((s: SometimesNullString) => (s == SometimesNullString("null")) == p(subject.jnull, s.s).successful)
 
   property("null parses to null") =
-          forAll((s: SometimesNullString) => (s == SometimesNullString("null")) ==> p(subject.jnull, s.s).get.isNull)
+          forAll((s: SometimesNullString) => s != SometimesNullString("null") || p(subject.jnull, s.s).get.isNull)
 
   property("boolean parses ok") =
           forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) == p(subject.jboolean, s.s).successful))
