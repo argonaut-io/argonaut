@@ -12,7 +12,7 @@ class JsonParser extends Parsers {
   def jtrue = acceptSeq("true") ^^^ true
 
   def number = int ||| (int ~ frac) ||| (int ~ exp) ||| (int ~ frac ~ exp) ^^ {
-    case i:List[Elem] => java.lang.Double.valueOf(i.toString)
+    case i:List[_] => java.lang.Double.valueOf(i.toString)
     case x:Any => error("todo: " + x)
   }
 
