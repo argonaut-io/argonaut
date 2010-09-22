@@ -10,7 +10,7 @@ class JsonParser extends Parsers {
 
   def jarray: Parser[Json] = '[' ~> repsep(jvalue, ',') <~ ']' ^^ jsonArray
 
-  def jvalue = jstring | jboolean | jnull | jarray | jnumber //| jobject
+  def jvalue = jstring | jboolean | jnull | jarray | jnumber | jobject
 
   def jstring = string ^^ jsonString
 
@@ -28,19 +28,25 @@ class JsonParser extends Parsers {
 
   def t = acceptSeq("true") ^^^ true
 
-  def string = '"' ~> (char*) <~ '"' ^^ {_.toString}
+  def string = '"' ~> chars <~ '"'
 
-  def char = basicchar ||| escapedchar
+  def chars = (char*) ^^ {_.mkString}
 
-  def basicchar  = elem("char", (c: Char) => c != '"' && c != '\\')
+  // has top be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how this hangs together
+  def char =
+          ('\\' ~ '\"' ^^^ "\""
+    	    |'\\' ~ '\\' ^^^ "\\"
+    	    |'\\' ~ '/'  ^^^ "/"
+    	    |'\\' ~ 'b'  ^^^ "\b"
+    	    |'\\' ~ 'f'  ^^^ "\f"
+    	    |'\\' ~ 'n'  ^^^ "\n"
+    	    |'\\' ~ 'r'  ^^^ "\r"
+    	    |'\\' ~ 't'  ^^^ "\t"
+    	    |'\\' ~> 'u' ~> unicode)
 
-  def escapedchar  = '\\' ~> escapecode ^^ {(c: Char) => c}
+  def unicode = repN(4, hex) ^^ unicodeMaker
 
-  def escapecode = '"' ||| '\\' ||| '/' ||| 'b' ||| 'f' ||| 'n' ||| 'r' ||| 't' ||| unicode
-
-  def unicode: Parser[Char]  = ('u' ~ repN(4, hex)) ^^^ '?' // FIX evaluate....
-
-  def hex = digit0to9 ||| 'a' ||| 'b' ||| 'c' ||| 'd' ||| 'e' ||| 'f'
+  def hex = digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 
   def number = (int | intfrac | intexp | intfracexp) ^^ {_.toString.toDouble}
 
@@ -61,17 +67,28 @@ class JsonParser extends Parsers {
 
   def sign = ('-'?)
 
-  def digits = digit0to9+
+  def digits = digit+
 
-  def digitSeries: Parser[List[Char]] = digit1to9 ~ (digit0to9*) ^^ {case a ~ b => a :: b}
+  def digitSeries = nonzero ~ (digit*) ^^ {case a ~ b => a :: b}
 
-  def digitSingle: Parser[List[Char]] = digit0to9 map (List(_))
+  def digitSingle = digit map (List(_))
 
-  def digit0to9: Parser[Char] = '0' ||| digit1to9
+  def digit = elem("digit", _.isDigit)
 
-  def digit1to9: Parser[Char] = ('1' to '9' toList) map accept reduceRight (_ | _)
+  def nonzero = elem("nonzero", d => d.isDigit && d != '0')
 
-  def e = oneOf(List("e", "e+", "e-", "E", "E+", "E-"))
+  def e = choice(List("e", "e+", "e-", "E", "E+", "E-") map (acceptSeq (_:String)))
 
-  def oneOf[ES](seqs: Iterable[ES])(implicit e : ES => Iterable[Elem]) = seqs map (acceptSeq[ES] _) reduceRight(_ ||| _)
+  // FIX talk with tony about ways to prevent this.... Alternative http://paste.pocoo.org/show/265567/
+  def choice[T](ps: List[Parser[T]]) = ps.reduceRight(_ ||| _)
+  // FIX making this work failure is Parser[None] ????
+  //  def choice[T](ps: List[Parser[T]]) = ps.foldRight(failure[T](""))(_ ||| _)
+
+  // FIX has to be a better way...
+  // FIX pull this out somewhere.
+  def unicodeMaker(code: List[Char]) = {
+    val i = Integer.parseInt(code mkString "", 16)
+    val cs = Character.toChars(i)
+    cs mkString ""
+  }
 }
