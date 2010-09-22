@@ -102,8 +102,6 @@ class JsonParser extends Parsers {
 
   // FIX talk with tony about ways to prevent this.... Alternative http://paste.pocoo.org/show/265567/
   def choice[T](ps: List[Parser[T]]) = ps.reduceRight(_ ||| _)
-  // FIX making this work failure is Parser[None] ????
-  //  def choice[T](ps: List[Parser[T]]) = ps.foldRight(failure[T](""))(_ ||| _)
 
   // FIX has to be a better way...
   // FIX pull this out somewhere.
