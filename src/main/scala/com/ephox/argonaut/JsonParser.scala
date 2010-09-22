@@ -89,8 +89,8 @@ class JsonParser extends Parsers {
   // FIX has to be a better way...
   // FIX pull this out somewhere.
   def unicodeMaker(code: List[Char]) = {
-    val i = Integer.parseInt(code mkString "", 16)
+    val i = Integer.parseInt(code toString, 16)
     val cs = Character.toChars(i)
-    cs mkString ""
+    new String(cs)
   }
 }
