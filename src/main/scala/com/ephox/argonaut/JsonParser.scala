@@ -32,17 +32,19 @@ class JsonParser extends Parsers {
 
   def chars = (char*) ^^ {_.mkString}
 
-  // has top be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how this hangs together
+  // has top be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how/if this hangs together
   def char =
-          ('\\' ~ '\"' ^^^ "\""
-    	    |'\\' ~ '\\' ^^^ "\\"
-    	    |'\\' ~ '/'  ^^^ "/"
-    	    |'\\' ~ 'b'  ^^^ "\b"
-    	    |'\\' ~ 'f'  ^^^ "\f"
-    	    |'\\' ~ 'n'  ^^^ "\n"
-    	    |'\\' ~ 'r'  ^^^ "\r"
-    	    |'\\' ~ 't'  ^^^ "\t"
-    	    |'\\' ~> 'u' ~> unicode)
+          (escape ~ '\"' ^^^ "\""
+    	    |escape ~ '\\' ^^^ "\\"
+    	    |escape ~ '/'  ^^^ "/"
+    	    |escape ~ 'b'  ^^^ "\b"
+    	    |escape ~ 'f'  ^^^ "\f"
+    	    |escape ~ 'n'  ^^^ "\n"
+    	    |escape ~ 'r'  ^^^ "\r"
+    	    |escape ~ 't'  ^^^ "\t"
+    	    |escape ~> 'u' ~> unicode)
+
+  def escape = '\\'
 
   def unicode = repN(4, hex) ^^ unicodeMaker
 
