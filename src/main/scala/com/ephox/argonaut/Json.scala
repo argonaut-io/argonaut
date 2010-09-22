@@ -401,13 +401,14 @@ sealed trait Json {
           "object [" + _ + "]"
         ) + " }"
 
+  // FIX Naive emit to get some testing happening... delete. Replace with some pp utility functions.
   def emit: String = fold (
     "null",
     _.toString,
     _.toString,
     '"' + _ + '"',
-    _.map(_.emit).mkString(", "),
-    _.map({case (k, v) => '"' + k + "\" : " + v.emit}).mkString(",\n")
+    "["+_.map(_.emit).mkString(",")+"]",
+    "{"+_.map({case (k, v) => '"' + k + "\":" + v.emit}).mkString(",")+"}"
   )
 }
 

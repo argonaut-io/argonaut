@@ -10,7 +10,7 @@ class JsonParser extends Parsers {
 
   def jarray: Parser[Json] = '[' ~> repsep(jvalue, ',') <~ ']' ^^ jsonArray
 
-  def jvalue = jstring | jboolean | jnull | jarray | jnumber | jobject
+  def jvalue = jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber  
 
   def jstring = string ^^ jsonString
 
@@ -32,9 +32,11 @@ class JsonParser extends Parsers {
 
   def chars = (char*) ^^ {_.mkString}
 
-  // has top be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how/if this hangs together
+  // FIX has top be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how/if this hangs together
+  // FIX need to test for escape sequences
+  // FIX also how does this work for emit
   def char =
-          (elem("char", (ch: Char) => ch != '\\') ^^ { (ch: Char) => ch.toString }
+          (elem("char", (ch: Char) => ch != '\\' && ch != '"') ^^ { (ch: Char) => ch.toString }
           |escape ~ '\"' ^^^ "\""
     	    |escape ~ '\\' ^^^ "\\"
     	    |escape ~ '/'  ^^^ "/"
@@ -51,7 +53,7 @@ class JsonParser extends Parsers {
 
   def hex = digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 
-  def number = (int ||| intfrac ||| intexp ||| intfracexp) ^^ {_.mkString("").toDouble}
+  def number = (int ||| intfrac ||| intexp ||| intfracexp) ^^ {_.mkString.toDouble}
 
   def intexp = int ~ exp ^^ {case a ~ b => a ++ b}
 
