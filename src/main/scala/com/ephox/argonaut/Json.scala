@@ -337,13 +337,13 @@ sealed trait Json {
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return this.
    */
-  def =>:(obj: (String, Json)) =
+  def ~>:(obj: (String, Json)) =
     withObject(obj :: _)
 
   /**
    * If this is a JSON array, then prepend the given value, otherwise, return this.
    */
-  def ==>>:(ar: Json) =
+  def ~~>>:(ar: Json) =
     withArray(ar :: _)
 }
 
