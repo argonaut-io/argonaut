@@ -6,22 +6,27 @@ import Json._
 class JsonParser extends Parsers {
   type Elem = Char
 
-  def jnull = acceptSeq("null") ^^^ jsonNull
-  def jboolean = (f | t) ^^ jsonBool
-  def f = acceptSeq("false") ^^^ false
-  def t = acceptSeq("true") ^^^ true
+  def jobject: Parser[Json] = '{' ~> repsep(pair, ',') <~ '}' ^^ jsonObject
 
+  def jarray: Parser[Json] = '[' ~> repsep(jvalue, ',') <~ ']' ^^ jsonArray
 
-  // FIX Pull out lexer, so the underlying constructs are easier  to work with (spaces in particular)
-
-//  def jobject: Parser[Json] = acceptSeq("{}") ||| ('{' ~ members ~ '}')
-//  def members = pair ||| (pair ~ ',' ~ members)
-//  def pair = string ~ ':' ~ value
-//  def array: Parser[Json] = acceptSeq("[]") ||| ('[' ~ elements ~ ']')
-//  def elements = value ||| (value ~ ',' ~ elements)
-//  def value = jstring  ||| jboolean ||| jnull // ||| array ||| jobject
+  def jvalue = jstring | jboolean | jnull | jarray | jnumber //| jobject
 
   def jstring = string ^^ jsonString
+
+  def jnumber = number ^^ jsonNumber
+
+  def jnull = acceptSeq("null") ^^^ jsonNull
+
+  def jboolean = (f | t) ^^ jsonBool
+
+  //---------------------------------------------------------------------------
+
+  def pair: Parser[(String, Json)] = (string <~ ':') ~ jvalue ^^ { case k ~ v => (k, v)}
+
+  def f = acceptSeq("false") ^^^ false
+
+  def t = acceptSeq("true") ^^^ true
 
   def string = '"' ~> (char*) <~ '"' ^^ {_.toString}
 
@@ -37,7 +42,7 @@ class JsonParser extends Parsers {
 
   def hex = digit0to9 ||| 'a' ||| 'b' ||| 'c' ||| 'd' ||| 'e' ||| 'f'
 
-  def number = int | intfrac | intexp | intfracexp ^^ {_.toString.toDouble}
+  def number = (int | intfrac | intexp | intfracexp) ^^ {_.toString.toDouble}
 
   def intexp = int ~ exp ^^ {case a ~ b => a ++ b}
 
