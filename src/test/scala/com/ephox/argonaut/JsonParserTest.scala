@@ -5,7 +5,7 @@ import util.parsing.input.CharSequenceReader
 import org.scalacheck.Properties
 import Data._
 
-object ParserTest extends Properties("Parser") {
+object JsonParserTest extends Properties("Parser") {
   val subject = new JsonParser
 
   property("null parses ok") =
