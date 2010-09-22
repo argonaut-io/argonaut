@@ -3,6 +3,7 @@ package com.ephox.argonaut
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
 import Data._
+import Json._
 
 object JsonTest extends Properties("Json") {
   property("One and only one is* satisfies (disjoint)") =
@@ -28,4 +29,24 @@ object JsonTest extends Properties("Json") {
   property("If is an object, then has an object value") =
       forAll((j: Json) =>
         j.objectt.isDefined == j.isObject)
+
+  property("A boolean value isBool") =
+      forAll((b: Boolean) =>
+        jsonBool(b).isBool)
+
+  property("A number value isNumber") =
+      forAll((n: JsonNumber) =>
+        jsonNumber(n).isNumber)
+
+  property("A string value isString") =
+      forAll((s: String) =>
+        jsonString(s).isString)
+
+  property("An array value isArray") =
+      forAll((a: List[Json]) =>
+        jsonArray(a).isArray)
+
+  property("An object value isObject") =
+      forAll((o: List[(String, Json)]) =>
+        jsonObject(o).isObject)
 }
