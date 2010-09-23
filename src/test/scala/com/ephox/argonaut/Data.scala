@@ -31,8 +31,11 @@ object Data {
   }
 
   implicit val ArbitrarySometimesNullString: Arbitrary[SometimesNullString] =
-      Arbitrary(Gen.frequency((1, Gen.value("null")), (9, Arbitrary.arbitrary[String])) map (SometimesNullString(_)))
+      Arbitrary(Gen.frequency((1, value("null")), (9, Arbitrary.arbitrary[String])) map (SometimesNullString(_)))
 
   implicit val ArbitrarySometimesBoolString: Arbitrary[SometimesBoolString] =
-      Arbitrary(Gen.frequency((1, Gen.value("true")), (1, Gen.value("false")), (8, Arbitrary.arbitrary[String])) map (SometimesBoolString(_)))
+      Arbitrary(Gen.frequency((1, value("true")), (1, value("false")), (8, Arbitrary.arbitrary[String])) map (SometimesBoolString(_)))
+
+  implicit val ArbitraryCannedData: Arbitrary[CannedData] = 
+      Arbitrary(Gen.oneOf(value(CannedData.webradarQuery), value(CannedData.webradarReport), value(CannedData.bookmarks)))
 }
