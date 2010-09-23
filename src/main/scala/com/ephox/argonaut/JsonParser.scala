@@ -47,7 +47,7 @@ class JsonParser extends Parsers {
 
   def chars = (char*) ^^ {_.mkString}
 
-  def whitespaceChar = elem("whitespace", c => Character.isWhitespace(c))
+  def whitespaceChar = elem("whitespace", Character.isWhitespace(_))
 
   def whitespace = (whitespaceChar*)
 

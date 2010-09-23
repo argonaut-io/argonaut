@@ -38,7 +38,7 @@ object JsonPrinter extends Application{
         entries(xs, "[", "]", recurse(_:Json)),
       xs =>
         // FIX why does the inferencer fail here, but not for `map`.
-        entries(xs, "{", "}", {case (k, v) => printString(k) + ": " + recurse(v)}:Function[(String, Json), String])
+        entries(xs, "{", "}", {case (k, v) => printString(k) + ": " + recurse(v)}: (((String, Json)) => String))
     )
   }
 }
