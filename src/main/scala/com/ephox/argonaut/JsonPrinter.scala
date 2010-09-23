@@ -6,19 +6,29 @@ object JsonPrinter extends Application{
   def pretty(json: Json): String = prettyPrint(json, "    ", "\n",  "")
 
   // FIX Naive test to get some testing happening... delete. Clean up.  
-  def prettyPrint(json: Json, tab:String, delimbreak: String, currentindent: String): String =
+  def prettyPrint(json: Json, tab:String, delimbreak: String, currentindent: String): String = {
+
+    def join(s: List[String]) = s.mkString("," + delimbreak + currentindent + tab)
+
+    def recurse(json: Json) = prettyPrint(json, tab, delimbreak, currentindent + tab)
+
     json.fold (
       "null",
       _.toString,
       _.toString,
-      '"' + escape(_) + '"',
-      "[" + delimbreak + currentindent + tab +
-          _.map(prettyPrint(_, tab, delimbreak, currentindent + tab)).mkString("," + delimbreak + currentindent + tab) +
+      printString,
+      xs => "[" + delimbreak + currentindent + tab +
+          join(xs.map(recurse(_))) +
        delimbreak + currentindent + "]",
-      "{" + delimbreak + currentindent + tab +
-          _.map({case (k, v) => '"' + escape(k) + "\": " + prettyPrint(v, tab, delimbreak, currentindent + tab)}).mkString("," + delimbreak + currentindent + tab) +
+      xs => "{" + delimbreak + currentindent + tab +
+          join(xs.map({case (k, v) => printString(k) + ": " + recurse(v)})) +
        delimbreak + currentindent + "}"
     )
+  }
+
+  def printString(s: String) =  '"' + escape(s) + '"'
+
+
 
   def escape(s: String) =
     s.replace("\\", "\\\\").
