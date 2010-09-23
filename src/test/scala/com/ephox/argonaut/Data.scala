@@ -18,7 +18,8 @@ object Data {
                 j <- listOfN(n, arbitrary[(String, Json)]))
             yield jsonObject(j)
 
-    Arbitrary(frequency((10, n), (10, b), (10, m), (10, s), (1, a), (1, o)))
+    // FIX Would like to pump up the level of complex objects being generated, but it falls over sometimes.
+    Arbitrary(frequency((10, n), (10, b), (10, m), (10, s), (1, a), (4, o)))
   }
   
   case class SometimesNullString(s: String) {

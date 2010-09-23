@@ -42,7 +42,9 @@
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
-  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false" />
+  <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
+    <file url="file://$PROJECT_DIR$/src/main/scala/com/ephox/argonaut/JsonPrinter.scala" charset="UTF-8" />
+  </component>
   <component name="IdProvider" IDEtalkID="7ED604527F2BA33356137CEB99958100" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
