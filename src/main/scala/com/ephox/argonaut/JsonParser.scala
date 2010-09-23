@@ -2,6 +2,7 @@ package com.ephox.argonaut
 
 import util.parsing.combinator._
 import Json._
+import util.parsing.input.CharSequenceReader
 
 class JsonParser extends Parsers {
   type Elem = Char
@@ -111,5 +112,13 @@ class JsonParser extends Parsers {
     val i = Integer.parseInt(code mkString, 16)
     val cs = Character.toChars(i)
     cs.mkString
+  }
+}
+
+object JsonParser {
+  def parse(s: String) = {
+    val p = new JsonParser()
+    val r = new CharSequenceReader(s)
+    p.jvalue(r)
   }
 }

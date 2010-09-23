@@ -4,8 +4,10 @@ import org.scalacheck.Prop._
 import util.parsing.input.CharSequenceReader
 import org.scalacheck.Properties
 import Data._
+import JsonParser._
+import JsonPrinter._
 
-object JsonParserTest extends Properties("Parser") {
+object JsonParserTest extends Properties("JsonParser") {
   val subject = new JsonParser
 
   property("null parses ok") =
@@ -21,24 +23,22 @@ object JsonParserTest extends Properties("Parser") {
           forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) ==> p(subject.jboolean, s.s).get.isBool))
 
   // FIX unicode escaped chars? don't think they are being generated at the moment
-  // FIX break this property apart, testing a few things at the moment.
   property("all that encodes can be decoded") =
           forAll({(j: Json) =>
-              val pretty = p(subject.jvalue, JsonPrinter.pretty(j))
-              val compact = p(subject.jvalue, JsonPrinter.compact(j))
-              pretty.successful && pretty.get == j && compact.successful && compact.get == j
+              val parsed = parse(pretty(j))
+              parsed.successful && parsed.get == j
             })
 
   property("known json decodes") = 
           forAll({(c: CannedData) =>
-              p(subject.jvalue, c.s).successful
+              parse(c.s).successful
             })
 
   property("known json, re-encodes") =
           forAll({(c: CannedData) =>
-              val first = p(subject.jvalue, c.s).get
-              val second = p(subject.jvalue, JsonPrinter.pretty(first)).get
-              first == second && JsonPrinter.pretty(first) == JsonPrinter.pretty(second)
+              val first = parse(c.s).get
+              val second = parse(pretty(first)).get
+              first == second
             })
 
 
