@@ -4,7 +4,7 @@ import util.parsing.combinator._
 import Json._
 import util.parsing.input.CharSequenceReader
 
-class JsonParser extends Parsers {
+class JsonParser extends Parsers with ParserTools {
   type Elem = Char
 
   def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ trailingcomma <~ closeobject ^^ jsonObject
@@ -102,9 +102,6 @@ class JsonParser extends Parsers {
   def nonzero = elem("nonzero", d => d.isDigit && d != '0')
 
   def e = choice(List("e", "e+", "e-", "E", "E+", "E-") map (acceptSeq (_:String)))
-
-  // FIX talk with tony about ways to prevent this.... Alternative http://paste.pocoo.org/show/265567/
-  def choice[T](ps: List[Parser[T]]) = ps.reduceRight(_ ||| _)
 
   // FIX has to be a better way...
   // FIX pull this out somewhere.
