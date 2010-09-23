@@ -1,7 +1,7 @@
 package com.ephox.argonaut
 
 import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.Gen.{frequency, choose, listOfN, value}
+import org.scalacheck.Gen.{frequency, choose, listOfN, value, oneOf}
 import Json._
 import org.scalacheck.{Gen, Arbitrary}
 
@@ -31,11 +31,11 @@ object Data {
   }
 
   implicit val ArbitrarySometimesNullString: Arbitrary[SometimesNullString] =
-      Arbitrary(Gen.frequency((1, value("null")), (9, Arbitrary.arbitrary[String])) map (SometimesNullString(_)))
+      Arbitrary(frequency((1, value("null")), (9, arbitrary[String])) map (SometimesNullString(_)))
 
   implicit val ArbitrarySometimesBoolString: Arbitrary[SometimesBoolString] =
-      Arbitrary(Gen.frequency((1, value("true")), (1, value("false")), (8, Arbitrary.arbitrary[String])) map (SometimesBoolString(_)))
+      Arbitrary(frequency((1, value("true")), (1, value("false")), (8, arbitrary[String])) map (SometimesBoolString(_)))
 
   implicit val ArbitraryCannedData: Arbitrary[CannedData] = 
-      Arbitrary(Gen.oneOf(CannedData.all))
+      Arbitrary(oneOf(CannedData.all))
 }
