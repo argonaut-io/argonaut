@@ -41,9 +41,4 @@ object JsonPrinter extends Application{
         entries(xs, "{", "}", {case (k, v) => printString(k) + ": " + recurse(v)}:Function[(String, Json), String])
     )
   }
-
-
-
-
-
 }
