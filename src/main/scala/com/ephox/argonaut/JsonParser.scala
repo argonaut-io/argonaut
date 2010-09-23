@@ -6,9 +6,9 @@ import Json._
 class JsonParser extends Parsers {
   type Elem = Char
 
-  def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ closeobject ^^ jsonObject
+  def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ trailingcomma <~ closeobject ^^ jsonObject
 
-  def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ closearray ^^ jsonArray
+  def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ trailingcomma <~ closearray ^^ jsonArray
 
   def jvalue = whitespace ~> (jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber) <~ whitespace  
 
@@ -21,6 +21,8 @@ class JsonParser extends Parsers {
   def jboolean = (f | t) ^^ jsonBool
 
   //---------------------------------------------------------------------------
+
+  def trailingcomma = ((whitespace ~ ',')?) // FIX: non standard, but common. Support, yay or nah?
 
   def openarray = '[' ~ whitespace
 

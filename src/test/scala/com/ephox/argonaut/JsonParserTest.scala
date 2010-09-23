@@ -20,16 +20,27 @@ object JsonParserTest extends Properties("Parser") {
   property("boolean parses to bool") =
           forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) ==> p(subject.jboolean, s.s).get.isBool))
 
+  // FIX unicode escaped chars? don't think they are being generated at the moment
+  // FIX break this property apart, testing a few things at the moment.
   property("all that encodes can be decoded") =
           forAll({(j: Json) =>
-              val parsed = p(subject.jvalue, j.emit)
-              parsed.successful && parsed.get == j
+              val pretty = p(subject.jvalue, JsonPrinter.pretty(j))
+              val compact = p(subject.jvalue, JsonPrinter.compact(j))
+              pretty.successful && pretty.get == j && compact.successful && compact.get == j
             })
 
   property("known json decodes") = 
-          forall({(c: CannedData) =>
+          forAll({(c: CannedData) =>
               p(subject.jvalue, c.s).successful
             })
+
+  property("known json, re-encodes") =
+          forAll({(c: CannedData) =>
+              val first = p(subject.jvalue, c.s).get
+              val second = p(subject.jvalue, JsonPrinter.pretty(first)).get
+              first == second && JsonPrinter.pretty(first) == JsonPrinter.pretty(second)
+            })
+
 
   def p(k: subject.Parser[Json], s: String) =
     k(new CharSequenceReader(s))

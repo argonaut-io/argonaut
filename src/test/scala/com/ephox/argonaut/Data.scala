@@ -37,5 +37,5 @@ object Data {
       Arbitrary(Gen.frequency((1, value("true")), (1, value("false")), (8, Arbitrary.arbitrary[String])) map (SometimesBoolString(_)))
 
   implicit val ArbitraryCannedData: Arbitrary[CannedData] = 
-      Arbitrary(Gen.oneOf(value(CannedData.webradarQuery), value(CannedData.webradarReport), value(CannedData.bookmarks)))
+      Arbitrary(Gen.oneOf(CannedData.all))
 }
