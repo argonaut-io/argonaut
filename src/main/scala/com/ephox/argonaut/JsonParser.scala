@@ -23,7 +23,8 @@ class JsonParser extends Parsers with ParserTools {
 
   //---------------------------------------------------------------------------
 
-  def trailingcomma = ((whitespace ~ ',')?) // FIX: non standard, but common. Support, yay or nah?
+  // FIX: This is non-standard. Pull out functions to make building custom parsers easy. i.e. with or without non-standard hacks.
+  def trailingcomma = ((whitespace ~ ',')?)
 
   def openarray = '[' ~ whitespace
 
