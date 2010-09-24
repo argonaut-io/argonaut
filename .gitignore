@@ -6,3 +6,7 @@ lib
 dependency
 target
 lib_managed
+project/boot
+src_managed
+target
+*~
