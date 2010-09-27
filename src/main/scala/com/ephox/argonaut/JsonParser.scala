@@ -1,6 +1,5 @@
 package com.ephox.argonaut
 
-import j.Interpret
 import util.parsing.combinator._
 import Json._
 import util.parsing.input.CharSequenceReader
@@ -121,10 +120,21 @@ object JsonParser {
     p.jvalue(r)
   }
 
+
+  def parseTo[T](i: Json => T, s: String) = parse(s).map(i.apply(_))
+
+  def parseToOrDie[T](i: Json => T, s: String): T = {
+    val r = parseTo(i, s)
+    if (r.successful) r.get else throw new ArgonautException
+  }
+
+  // FIX 17924 27/09/2010 these are the java versions...
+  /*
   def parseTo[T](i: Interpret[T], s: String) = parse(s).map(i.apply(_))
 
   def parseToOrDie[T](i: Interpret[T], s: String): T = {
     val r = parseTo(i, s)
     if (r.successful) r.get else throw new ArgonautException
   }
+  */
 }

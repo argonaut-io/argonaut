@@ -1,28 +1,28 @@
 package com.ephox.argonaut
 
-import com.ephox.argonaut._
 import com.ephox.argonaut.ScalaToJava._
-import j.Interpret
+import com.ephox.argonaut._
 
+// FIX 17924 27/09/2010 this guy is scala-friendly - make one that's java-friendly
 object JsonInterpreter {
 
-  // FIX 17924 27/09/2010 get these to return Option[T] or some Result[T]... or some other technique to make them fail without exploding
+  // FIX 17924 27/09/2010 do we want to do something like this for java?
+  // type Q[T] = Json => T
 
-  implicit def mk[T](f: Json => T) = new Interpret[T] {
-    override def apply(j: Json): T = f(j)
-  }
+  def scalaList[T](sub: Json => T): (Json => List[T]) =
+    (j: Json) => j.array.get.map(sub.apply(_))
 
-  def scalaList[T](sub: Interpret[T]): Interpret[scala.List[T]] = (j: Json) =>
-    j.array.get.map(sub.apply(_))
+  def javaList[T](sub: Json => T): (Json => java.util.List[T]) =
+    (j: Json) => toJavaList(j.array.get.map(sub.apply(_)))
 
-  def javaList[T](sub: Interpret[T]): Interpret[java.util.List[T]] = (j: Json) =>
-    toJavaList(j.array.get.map(sub.apply(_)))
+  def scalaTuples[T](sub: Json => T): (Json => List[(String, T)]) =
+    (j: Json) => j.objectt.get.map { case (key, value) => (key, sub(value)) }
 
-  val string: Interpret[String] = (j: Json) => j.string.get
-  val number: Interpret[Double] = (j: Json) => j.number.get
+  val string = (_:Json).string.get
+  val number = (_:Json).number.get
 
-  val scalaListString = scalaList(string)
-  val javaListString = javaList(string)
+  val scalaListString: (Json) => List[String] = scalaList(string)
+  val javaListString: (Json) => java.util.List[String] = javaList(string)
 
   val scalaListNumber = scalaList(number)
   val javaListNumber = javaList(number)

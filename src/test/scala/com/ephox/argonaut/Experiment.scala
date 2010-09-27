@@ -5,7 +5,9 @@ import JsonParser._
 
 object Experiment {
   def main(args: Array[String]) {
-    val y = parseTo(scalaListString, "[\"a\", \"b\", \"c\"]");
+
+
+    val y = parseTo(javaListString, "[\"a\", \"b\", \"c\"]");
     println(y.successful)
     println(y.get)
 
