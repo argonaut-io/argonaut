@@ -16,12 +16,18 @@ object JsonInterpreter {
     override def apply(j: Json): java.util.List[T] = toJavaList(j.array.get.map(subbie.apply(_)))
   }
 
-  def string: Interpret[String] = new Interpret[String] {
+  val string: Interpret[String] = new Interpret[String] {
     override def apply(j: Json): String = j.string.get
   }
 
-  def scalaListString = scalaList(string)
-  def javaListString = javaList(string)
+  val number: Interpret[Double] = new Interpret[Double] {
+    override def apply(j: Json): Double = j.number.get
+  }
 
-  
+  val scalaListString = scalaList(string)
+  val javaListString = javaList(string)
+
+  val scalaListNumber = scalaList(number)
+  val javaListNumber = javaList(number)
+
 }

@@ -16,5 +16,7 @@ object Experiment {
     } catch {
       case x: Exception => x.printStackTrace()
     }
+
+    val q = parseTo(scalaList(number), "[")
   }
 }
