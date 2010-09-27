@@ -1,5 +1,6 @@
 package com.ephox.argonaut
 
+import j.Interpret
 import util.parsing.combinator._
 import Json._
 import util.parsing.input.CharSequenceReader
@@ -11,7 +12,7 @@ class JsonParser extends Parsers with ParserTools {
 
   def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ trailingcomma <~ closearray ^^ jsonArray
 
-  def jvalue = whitespace ~> (jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber) <~ whitespace  
+  def jvalue: Parser[Json] = whitespace ~> (jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber) <~ whitespace
 
   def jstring = string ^^ jsonString
 
@@ -118,5 +119,12 @@ object JsonParser {
     val p = new JsonParser()
     val r = new CharSequenceReader(s)
     p.jvalue(r)
+  }
+
+  def parseTo[T](i: Interpret[T], s: String) = parse(s).map(i.apply(_))
+
+  def parseToOrDie[T](i: Interpret[T], s: String): T = {
+    val r = parseTo(i, s)
+    if (r.successful) r.get else throw new ArgonautException
   }
 }

@@ -3,8 +3,8 @@
   <component name="FacetManager">
     <facet type="scala" name="Scala">
       <configuration>
-        <option name="compilerLibraryLevel" value="Global" />
-        <option name="compilerLibraryName" value="scala-compiler-2.8.0" />
+        <option name="compilerLibraryLevel" value="Project" />
+        <option name="compilerLibraryName" value="scala" />
       </configuration>
     </facet>
   </component>
@@ -15,6 +15,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src/test/scala" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/dependency" />
       <excludeFolder url="file://$MODULE_DIR$/dist" />
       <excludeFolder url="file://$MODULE_DIR$/lib" />
@@ -63,16 +64,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="module-library">
-      <library name="scala">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.0/lib/scala-compiler.jar!/" />
-          <root url="jar://$MODULE_DIR$/project/boot/scala-2.8.0/lib/scala-library.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="scala" level="project" />
   </component>
 </module>
 
