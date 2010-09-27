@@ -114,10 +114,27 @@ class JsonParser extends Parsers with ParserTools {
 }
 
 object JsonParser {
+
+  // todo not the most general but hey?
+  // todo name?
+  def makeParser[X](s: String, success: Json => X, nosuccess: String => X) = {
+    val p = new JsonParser()
+    val r = new CharSequenceReader(s)
+    p.jvalue(r) match {
+      case p.Success(j, _) => success(j)
+      case p.Error(e, _) => nosuccess(e)
+      case p.Failure(e, _) => nosuccess(e)
+    }
+  }
+
   def parse(s: String) = {
     val p = new JsonParser()
     val r = new CharSequenceReader(s)
     p.jvalue(r)
+  }
+
+  def parseOptional(s: String) = {
+    makeParser(s, Some(_), _ => None)
   }
 
 

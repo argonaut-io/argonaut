@@ -46,6 +46,22 @@
     <file url="file://$PROJECT_DIR$/src/main/scala/com/ephox/argonaut/JsonPrinter.scala" charset="UTF-8" />
   </component>
   <component name="IdProvider" IDEtalkID="7ED604527F2BA33356137CEB99958100" />
+  <component name="InspectionProjectProfileManager">
+    <profiles>
+      <profile version="1.0" is_locked="false">
+        <option name="myName" value="Project Default" />
+        <option name="myLocal" value="false" />
+        <inspection_tool class="SpellCheckingInspection" enabled="false" level="TYPO" enabled_by_default="false">
+          <option name="processCode" value="true" />
+          <option name="processLiterals" value="true" />
+          <option name="processComments" value="true" />
+        </inspection_tool>
+      </profile>
+    </profiles>
+    <option name="PROJECT_PROFILE" value="Project Default" />
+    <option name="USE_PROJECT_PROFILE" value="true" />
+    <version value="1.0" />
+  </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
     <option name="OPTION_SCOPE" value="protected" />

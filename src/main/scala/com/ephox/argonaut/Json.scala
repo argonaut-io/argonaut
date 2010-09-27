@@ -173,7 +173,19 @@ sealed trait Json {
     ifBool(x => x, false)
 
   /**
-   * Returns the possible number of this JSON value.
+   * Returns a possible unit if this is a `null` value.
+   */
+  def nulll =
+    ifNull(Some(()), None)
+  
+  /**
+   * Returns this as a possible JSON boolean.
+   */
+  def bool =
+    ifBool(Some(_), None)
+
+  /**
+   *  Returns the possible number of this JSON value.
    */
   def number =
     ifNumber(Some(_), None)
@@ -285,6 +297,12 @@ sealed trait Json {
   def objectValue(k: => String): Option[Json] =
     objectMap flatMap (_ get k)
 
+  def objectValueType[T](k: => String, t: Json => Option[T]) = objectValue(k) flatMap t
+
+  def objectValueString(k: => String): Option[String] = objectValueType(k, _.string)
+
+  def objectValueNumber(k: => String): Option[JsonNumber] = objectValueType(k, _.number)
+
   /**
    * Returns the object corresponding to the given key if this JSON value is an object and there is a corresponding value,
    * or returns the given default value.
@@ -334,7 +352,7 @@ sealed trait Json {
   /**
    * Return the object values if this JSON value is an object, otherwise, return the empty list.
    */
-  def objectValue =
+  def objectValues =
     ifObject(_ map (_._2), Nil)
 
   /**

@@ -18,6 +18,10 @@ object JsonInterpreter {
   def scalaTuples[T](sub: Json => T): (Json => List[(String, T)]) =
     (j: Json) => j.objectt.get.map { case (key, value) => (key, sub(value)) }
 
+//  def scalaMap[T](sub: Json => T): (Json => Map[String, T]) =
+//    (j: Json) => scalaTuples(sub)(j).
+
+
   val string = (_:Json).string.get
   val number = (_:Json).number.get
 
