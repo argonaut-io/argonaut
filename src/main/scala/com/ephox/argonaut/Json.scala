@@ -294,12 +294,12 @@ sealed trait Json {
    *
    * @param k The key to retrieve the corresponding value for.
    */
-  def objectValue(k: => String): Option[Json] =
+  def objectValue(k: => JsonField): Option[Json] =
     objectMap flatMap (_ get k)
 
   def objectValueType[T](k: => String, t: Json => Option[T]) = objectValue(k) flatMap t
 
-  def objectValueString(k: => String): Option[String] = objectValueType(k, _.string)
+  def objectValueString(k: => JsonField): Option[String] = objectValueType(k, _.string)
 
   def objectValueNumber(k: => String): Option[JsonNumber] = objectValueType(k, _.number)
 
@@ -358,7 +358,7 @@ sealed trait Json {
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
    */
-  def ->:(obj: (String, Json)) =
+  def ->:(obj: (JsonField, Json)) =
     jsonObject(ifObject(obj :: _, List(obj)))
 
   /**
@@ -430,8 +430,9 @@ sealed trait Json {
 object Json {
   type JsonNumber = Double
   type JsonArray = List[Json]
-  type JsonObject = List[(String, Json)]
-  type JsonObjectMap = Map[String, Json]
+  type JsonField = String
+  type JsonObject = List[(JsonField, Json)]
+  type JsonObjectMap = Map[JsonField, Json]
 
   /**
    * Construct a JSON value that is `null`.
@@ -555,8 +556,8 @@ Functions
 - etc. etc.
 
 2)
-- string :: Field -> Option[String]
-- number :: Field -> Option[Number]
+- string :: Json -> Field -> Option[String]
+- number :: Json -> Field -> Option[Number]
 - etc. etc.
 
 */
