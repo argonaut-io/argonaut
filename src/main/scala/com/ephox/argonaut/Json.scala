@@ -297,12 +297,6 @@ sealed trait Json {
   def objectValue(k: => JsonField): Option[Json] =
     objectMap flatMap (_ get k)
 
-  def objectValueType[T](k: => String, t: Json => Option[T]) = objectValue(k) flatMap t
-
-  def objectValueString(k: => JsonField): Option[String] = objectValueType(k, _.string)
-
-  def objectValueNumber(k: => String): Option[JsonNumber] = objectValueType(k, _.number)
-
   /**
    * Returns the object corresponding to the given key if this JSON value is an object and there is a corresponding value,
    * or returns the given default value.
@@ -378,6 +372,49 @@ sealed trait Json {
    */
   def ~~>>:(ar: Json) =
     withArray(ar :: _)
+
+  /**
+   * Returns true if this is a JSON object with the given field that is a JSON null.
+   *
+   * @param f The field to determine if this is an associated JSON null value.
+   */
+  def isNullField(f: JsonField): Boolean = objectValue(f) exists (_.isNull)
+
+  /**
+   * Returns a possible JSON boolean value if this is a JSON object with the given field.
+   *
+   * @param The field to find the associated JSON boolean value for in this JSON object.
+   */
+  def boolField(f: JsonField): Option[Boolean] = objectValue(f) flatMap (_.bool)
+
+  /**
+   * Returns a possible JSON number value if this is a JSON object with the given field.
+   *
+   * @param The field to find the associated JSON number value for in this JSON object.
+   */
+  def numberField(f: JsonField): Option[JsonNumber] = objectValue(f) flatMap (_.number)
+
+  /**
+   * Returns a possible JSON string value if this is a JSON object with the given field.
+   *
+   * @param The field to find the associated JSON string value for in this JSON object.
+   */
+  def stringField(f: JsonField): Option[String] = objectValue(f) flatMap (_.string)
+
+  /**
+   * Returns a possible JSON array value if this is a JSON object with the given field.
+   *
+   * @param The field to find the associated JSON array value for in this JSON object.
+   */
+  def arrayField(f: JsonField): Option[JsonArray] = objectValue(f) flatMap (_.array)
+
+  /**
+   * Returns a possible JSON object value if this is a JSON object with the given field.
+   *
+   * @param The field to find the associated JSON object value for in this JSON object. 
+   */
+  def objectField(f: JsonField): Option[JsonObject] = objectValue(f) flatMap (_.objectt)
+
 
   /**
    * Compare two JSON values for equality.
