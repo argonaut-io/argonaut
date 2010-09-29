@@ -542,3 +542,21 @@ object Json {
    */
   val emptyJsonObject = jsonObject(Nil)
 }
+
+/*
+TODO
+
+Functions
+- type Field = String
+
+1)
+- string[T] :: Json -> Field -> (String -> T) -> Option[T]
+- number[T] :: Json -> Field -> (Number -> T) -> Option[T]
+- etc. etc.
+
+2)
+- string :: Field -> Option[String]
+- number :: Field -> Option[Number]
+- etc. etc.
+
+*/
