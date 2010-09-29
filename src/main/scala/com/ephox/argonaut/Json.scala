@@ -386,6 +386,10 @@ sealed trait Json {
    * @param The field to find the associated JSON boolean value for in this JSON object.
    */
   def boolField(f: JsonField): Option[Boolean] = objectValue(f) flatMap (_.bool)
+  def boolFieldOr(f: JsonField, k: => Boolean) = boolField(f) getOrElse k
+  def isBoolField(f: JsonField) = boolField(f).isDefined
+  def boolFieldOrTrue(f: JsonField) = boolFieldOr(f, true)
+  def boolFieldOrFalse(f: JsonField) = boolFieldOr(f, false)
 
   /**
    * Returns a possible JSON number value if this is a JSON object with the given field.
@@ -393,6 +397,9 @@ sealed trait Json {
    * @param The field to find the associated JSON number value for in this JSON object.
    */
   def numberField(f: JsonField): Option[JsonNumber] = objectValue(f) flatMap (_.number)
+  def numberFieldOr(f: JsonField, k: => JsonNumber) = numberField(f) getOrElse k
+  def isNumberField(f: JsonField) = numberField(f).isDefined
+  def numberFieldOrZero(f: JsonField) = numberFieldOr(f, 0D)
 
   /**
    * Returns a possible JSON string value if this is a JSON object with the given field.
@@ -400,6 +407,9 @@ sealed trait Json {
    * @param The field to find the associated JSON string value for in this JSON object.
    */
   def stringField(f: JsonField): Option[String] = objectValue(f) flatMap (_.string)
+  def stringFieldOr(f: JsonField, k: => String) = stringField(f) getOrElse k
+  def isStringField(f: JsonField) = stringField(f).isDefined
+  def stringFieldOrEmpty(f: JsonField) = stringFieldOr(f, "")
 
   /**
    * Returns a possible JSON array value if this is a JSON object with the given field.
@@ -407,6 +417,9 @@ sealed trait Json {
    * @param The field to find the associated JSON array value for in this JSON object.
    */
   def arrayField(f: JsonField): Option[JsonArray] = objectValue(f) flatMap (_.array)
+  def arrayFieldOr(f: JsonField, k: => JsonArray) = arrayField(f) getOrElse k
+  def isArrayField(f: JsonField) = arrayField(f).isDefined
+  def arrayFieldOrEmpty(f: JsonField) = arrayFieldOr(f, Nil)
 
   /**
    * Returns a possible JSON object value if this is a JSON object with the given field.
@@ -414,7 +427,9 @@ sealed trait Json {
    * @param The field to find the associated JSON object value for in this JSON object. 
    */
   def objectField(f: JsonField): Option[JsonObject] = objectValue(f) flatMap (_.objectt)
-
+  def objectFieldOr(f: JsonField, k: => JsonObject) = objectField(f) getOrElse k
+  def isObjectField(f: JsonField) = objectField(f).isDefined
+  def objectFieldOrEmpty(f: JsonField) = objectFieldOr(f, Nil)
 
   /**
    * Compare two JSON values for equality.
@@ -580,21 +595,3 @@ object Json {
    */
   val emptyJsonObject = jsonObject(Nil)
 }
-
-/*
-TODO
-
-Functions
-- type Field = String
-
-1)
-- string[T] :: Json -> Field -> (String -> T) -> Option[T]
-- number[T] :: Json -> Field -> (Number -> T) -> Option[T]
-- etc. etc.
-
-2)
-- string :: Json -> Field -> Option[String]
-- number :: Json -> Field -> Option[Number]
-- etc. etc.
-
-*/
