@@ -177,7 +177,7 @@ sealed trait Json {
    */
   def nulll =
     ifNull(Some(()), None)
-  
+
   /**
    * Returns this as a possible JSON boolean.
    */
@@ -263,7 +263,7 @@ sealed trait Json {
    */
   def objectOrEmpty =
     objectOr(Nil)
-  
+
   /**
    * Returns the possible object map of this JSON value.
    */
@@ -401,11 +401,19 @@ sealed trait Json {
    * @param The field to determine if it is an associated JSON boolean in this possible JSON object.
    */
   def isBoolField(f: JsonField) = boolField(f).isDefined
+
+  /**
+   * Returns `false` if this is a JSON object with the given JSON boolean field with a value of `false`, otherwise, `true`. 
+   */
   def boolFieldOrTrue(f: JsonField) = boolFieldOr(f, true)
+
+  /**
+   * Returns `true` if this is a JSON object with the given JSON boolean field with a value of `true`, otherwise, `false`.
+   */
   def boolFieldOrFalse(f: JsonField) = boolFieldOr(f, false)
 
   /**
-   *   Returns a possible JSON number value if this is a JSON object with the given field.
+   * Returns a possible JSON number value if this is a JSON object with the given field.
    *
    * @param f The field to find the associated JSON number value for in this JSON object.
    */
@@ -425,6 +433,10 @@ sealed trait Json {
    * @param The field to determine if it is an associated JSON number in this possible JSON object.
    */
   def isNumberField(f: JsonField) = numberField(f).isDefined
+
+  /**
+   * Returns the number value if this is a JSON object with a JSON number field, otherwise, returns `0`.
+   */
   def numberFieldOrZero(f: JsonField) = numberFieldOr(f, 0D)
 
   /**
@@ -448,6 +460,10 @@ sealed trait Json {
    * @param The field to determine if it is an associated JSON string in this possible JSON object.
    */
   def isStringField(f: JsonField) = stringField(f).isDefined
+  
+  /**
+   * Returns the string value if this is a JSON object with a JSON number field, otherwise, returns `""`.
+   */
   def stringFieldOrEmpty(f: JsonField) = stringFieldOr(f, "")
 
   /**
@@ -471,6 +487,10 @@ sealed trait Json {
    * @param The field to determine if it is an associated JSON array in this possible JSON object.
    */
   def isArrayField(f: JsonField) = arrayField(f).isDefined
+
+  /**
+   * Returns the array value if this is a JSON object with a JSON number field, otherwise, returns the empty list.
+   */
   def arrayFieldOrEmpty(f: JsonField) = arrayFieldOr(f, Nil)
 
   /**
@@ -491,9 +511,13 @@ sealed trait Json {
   /**
    * Returns `true` if this is a JSON object and the given field is an associated JSON object.
    *
-   * @param The field to determine if it is an associated JSON object in this possible JSON object. 
+   * @param The field to determine if it is an associated JSON object in this possible JSON object.
    */
   def isObjectField(f: JsonField) = objectField(f).isDefined
+
+  /**
+   * Returns the object value if this is a JSON object with a JSON number field, otherwise, returns the empty list.
+   */
   def objectFieldOrEmpty(f: JsonField) = objectFieldOr(f, Nil)
 
   /**
@@ -562,7 +586,7 @@ object Json {
       jstring: String => X,
       jarray: JsonArray => X,
       jobject: JsonObject => X
-    ) = jnull 
+    ) = jnull
   }
 
   /**
@@ -647,7 +671,7 @@ object Json {
       jstring: String => X,
       jarray: JsonArray => X,
       jobject: JsonObject => X
-    ) = jobject(x) 
+    ) = jobject(x)
   }
 
   /**
