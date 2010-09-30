@@ -56,7 +56,7 @@ class JsonParser extends Parsers with ParserTools {
   // FIX need to test for escape sequences
   // FIX also how does this work for emit
   def char =
-          (elem("char", (ch: Char) => ch != '\\' && ch != '"') ^^ { (ch: Char) => ch.toString }
+          (elem("char", List('\\', '"') contains (_: Char)) ^^ (_.toString)
           |escape ~ '\"' ^^^ "\""
     	    |escape ~ '\\' ^^^ "\\"
     	    |escape ~ '/'  ^^^ "/"
@@ -118,7 +118,7 @@ object JsonParser {
   // todo not the most general but hey?
   // todo name?
   def makeParser[X](s: String, success: Json => X, nosuccess: String => X) = {
-    val p = new JsonParser()
+    val p = new JsonParser
     val r = new CharSequenceReader(s)
     p.jvalue(r) match {
       case p.Success(j, _) => success(j)
@@ -128,7 +128,7 @@ object JsonParser {
   }
 
   def parse(s: String) = {
-    val p = new JsonParser()
+    val p = new JsonParser
     val r = new CharSequenceReader(s)
     p.jvalue(r)
   }

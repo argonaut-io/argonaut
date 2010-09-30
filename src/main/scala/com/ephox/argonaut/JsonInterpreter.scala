@@ -1,7 +1,7 @@
 package com.ephox.argonaut
 
-import com.ephox.argonaut.ScalaToJava._
 import com.ephox.argonaut._
+import collection.JavaConversions._
 
 // FIX 17924 27/09/2010 this guy is scala-friendly - make one that's java-friendly
 object JsonInterpreter {
@@ -13,7 +13,7 @@ object JsonInterpreter {
     (j: Json) => j.array.get.map(sub.apply(_))
 
   def javaList[T](sub: Json => T): (Json => java.util.List[T]) =
-    (j: Json) => toJavaList(j.array.get.map(sub.apply(_)))
+    (j: Json) => j.array.get.map(sub.apply(_))
 
   def scalaTuples[T](sub: Json => T): (Json => List[(String, T)]) =
     (j: Json) => j.objectt.get.map { case (key, value) => (key, sub(value)) }
