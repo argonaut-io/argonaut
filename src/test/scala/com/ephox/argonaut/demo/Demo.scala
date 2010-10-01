@@ -38,7 +38,9 @@ object Demo {
     // If it is a JSON number, return a List containing "cuisine" that many times, otherwise List("brochure", "bakery")
     val i: List[String] = j usingNumber (n => List.fill(n.toInt)("cuisine"), List("brochure", "bakery"))
 
-    List(("a", a), ("b", b), ("c", c), ("d", d), ("e", e), ("f", f), ("g", g), ("h", h), ("i", i)) foreach { case (x, y) => println(x + " : " + y) }
+    List(("a", a), ("b", b), ("c", c), ("d", d), ("e", e), ("f", f), ("g", g), ("h", h), ("i", i))
+      foreach { case (x, y) => println(x + " : " + y) }
+    
     println
   }
 
