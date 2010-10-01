@@ -142,7 +142,7 @@ object JsonParser {
 
   def parseToOrDie[T](i: Json => T, s: String): T = {
     val r = parseTo(i, s)
-    if (r.successful) r.get else throw new ArgonautException
+    if (r.successful) r.get else error("Unsuccessful parse result: " + r)
   }
 
   // FIX 17924 27/09/2010 these are the java versions...
