@@ -15,13 +15,13 @@ object Demo {
     val a: Option[JsonNumber] = j -| "abc" -| "def" number
 
     // searches down through objects with the list of keys and returns the JSON string value or the empty string
-    val b: JsonString = j -|| List("abc", "def", "ghi") stringOrEmpty
+    val b: JsonString = j -|| List("ghi", "jkl", "mno") stringOrEmpty
 
     // If it is a JSON object a "abc" field
-    val c: Boolean = j hasField "abc"
+    val c: Boolean = j hasField "pqr"
 
-    // If it is a number, add one to it
-    val d: PossibleJson = j withNumber (1+)
+    // If it is a number, add ten to it
+    val d: PossibleJson = j withNumber (10+)
 
     // If it is a JSON array, return it, or default to List(jNull, jTrue)
     val e: JsonArray = j arrayOr (List(jNull, jTrue))
@@ -49,14 +49,30 @@ object Demo {
   def main(args: Array[String]) {
     val jsons = List(
       "true"
-    , "[\"chook1\", \"chook2\"]"
+    , "[ true ]"
+    , "8"
+    , """[ "chook1", "chook2" ]"""
+    , """{ "chook1" : "chook2" }"""
     , """
       {
-        "field": "title",
+        "abc" :
+          {
+            "def" : 7
+          },
+        "ghi" :
+          {
+            "ata" : null,
+            "jkl" :
+              {
+                "mno" : "argo"
+              }
+          },
+        "pqr" : false,
         "operator": "is",
-        "values": ["cat", "dog", "rabbit"]
+        "values": ["cat", "dog", "rabbit"],
+        "xyz" : 24
       }
-      """      
+      """
     )
 
     demo(jsons)

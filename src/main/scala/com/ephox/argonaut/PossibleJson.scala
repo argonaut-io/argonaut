@@ -314,7 +314,7 @@ sealed trait PossibleJson {
    * If this is a JSON string value, run the given function on the value, otherwise, leave unchanged.
    */
   def withString(k: JsonString => JsonString) = string match {
-    case Some(s) => pJson(jString(s))
+    case Some(s) => pJson(jString(k(s)))
     case None => this
   }
 
@@ -322,7 +322,7 @@ sealed trait PossibleJson {
    * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
    */
   def withArray(k: JsonArray => JsonArray) = array match {
-    case Some(a) => pJson(jArray(a))
+    case Some(a) => pJson(jArray(k(a)))
     case None => this
   }
 
@@ -330,7 +330,7 @@ sealed trait PossibleJson {
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
   def withObject(k: JsonObject => JsonObject) = objectt match {
-    case Some(o) => pJson(jObject(o))
+    case Some(o) => pJson(jObject(k(o)))
     case None => this
   }
 
@@ -356,7 +356,7 @@ sealed trait PossibleJson {
   /**
    * Returns a possible JSON value after traversing through JSON object values using the given field names.
    */
-  def -||(fs: => Iterable[JsonField]) = fs.foldRight(this)((f, p) => p -| f)
+  def -||(fs: => Iterable[JsonField]) = fs.foldLeft(this)(_ -| _)
 
   /**
    * Compare two possible JSON values for equality.

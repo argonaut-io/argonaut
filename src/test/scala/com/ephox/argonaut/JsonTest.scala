@@ -47,7 +47,6 @@ object JsonTest extends Properties("Json") {
         jObject(o).isObject)
 
   /*
-  // todo failing tests
   property("Prepending an object value results in a Json object") =
       forAll((v: (String, Json), j: Json) =>
         (v ->: j).objectt exists (_.length >= 1))

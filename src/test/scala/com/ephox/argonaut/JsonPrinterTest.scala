@@ -7,8 +7,6 @@ import JsonPrinter._
 import Data._
 
 object JsonPrinterTest extends Properties("JsonPrinter") {
-  /*
-  // todo failing tests
   property("json prints consistently, compact -> pretty") =
           forAll({(j: Json) =>
               pretty(j) == pretty(parse(compact(j)).get)
@@ -18,6 +16,5 @@ object JsonPrinterTest extends Properties("JsonPrinter") {
           forAll({(j: Json) =>
               compact(j) == compact(parse(pretty(j)).get)
             })
-  */
 }
 
