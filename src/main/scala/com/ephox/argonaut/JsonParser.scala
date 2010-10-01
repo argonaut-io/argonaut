@@ -56,7 +56,7 @@ class JsonParser extends Parsers with ParserTools {
   // FIX need to test for escape sequences
   // FIX also how does this work for emit
   def char =
-          (elem("char", List('\\', '"') contains (_: Char)) ^^ (_.toString)
+          (elem("char", (ch: Char) => ch != '\\' && ch != '"') ^^ { (ch: Char) => ch.toString }
           |escape ~ '\"' ^^^ "\""
     	    |escape ~ '\\' ^^^ "\\"
     	    |escape ~ '/'  ^^^ "/"
