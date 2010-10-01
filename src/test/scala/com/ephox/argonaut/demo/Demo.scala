@@ -43,7 +43,7 @@ object Demo {
   }
 
   def demo(j: List[String]) {
-    j map (_.parse) foreach (d(_))
+    j map (_.pparse) foreach (d(_))
   }
 
   def main(args: Array[String]) {

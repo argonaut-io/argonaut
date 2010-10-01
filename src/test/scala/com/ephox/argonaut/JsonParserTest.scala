@@ -4,8 +4,8 @@ import org.scalacheck.Prop._
 import util.parsing.input.CharSequenceReader
 import org.scalacheck.Properties
 import Data._
-import JsonParser._
 import JsonPrinter._
+import StringWrap._
 
 object JsonParserTest extends Properties("JsonParser") {
   val subject = new JsonParser
@@ -26,18 +26,18 @@ object JsonParserTest extends Properties("JsonParser") {
   property("all that encodes can be decoded") =
           forAll({(j: Json) =>
               val g = pretty(j)
-              val parsed = parse(g)
+              val parsed = g.parse
               parsed.successful && parsed.get == j
             })
   property("known json decodes") =
           forAll({(c: CannedData) =>
-              parse(c.s).successful
+              c.s.parse.successful
             })
 
   property("known json, re-encodes") =
           forAll({(c: CannedData) =>
-              val first = parse(c.s).get
-              val second = parse(pretty(first)).get
+              val first = c.s.parse.get
+              val second = pretty(first).parse.get
               first == second
             })
 
