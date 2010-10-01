@@ -7,19 +7,19 @@ import util.parsing.input.CharSequenceReader
 class JsonParser extends Parsers with ParserTools {
   type Elem = Char
 
-  def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ trailingcomma <~ closeobject ^^ jsonObject
+  def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ trailingcomma <~ closeobject ^^ jObject
 
-  def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ trailingcomma <~ closearray ^^ jsonArray
+  def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ trailingcomma <~ closearray ^^ jArray
 
   def jvalue: Parser[Json] = whitespace ~> (jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber) <~ whitespace
 
-  def jstring = string ^^ jsonString
+  def jstring = string ^^ jString
 
-  def jnumber = number ^^ jsonNumber
+  def jnumber = number ^^ jNumber
 
-  def jnull = acceptSeq("null") ^^^ jsonNull
+  def jnull = acceptSeq("null") ^^^ jNull
 
-  def jboolean = (f | t) ^^ jsonBool
+  def jboolean = (f | t) ^^ jBool
 
   //---------------------------------------------------------------------------
 

@@ -32,23 +32,23 @@ object JsonTest extends Properties("Json") {
 
   property("A boolean value isBool") =
       forAll((b: Boolean) =>
-        jsonBool(b).isBool)
+        jBool(b).isBool)
 
   property("A number value isNumber") =
       forAll((n: JsonNumber) =>
-        jsonNumber(n).isNumber)
+        jNumber(n).isNumber)
 
   property("A string value isString") =
       forAll((s: String) =>
-        jsonString(s).isString)
+        jString(s).isString)
 
   property("An array value isArray") =
       forAll((a: List[Json]) =>
-        jsonArray(a).isArray)
+        jArray(a).isArray)
 
   property("An object value isObject") =
       forAll((o: List[(String, Json)]) =>
-        jsonObject(o).isObject)
+        jObject(o).isObject)
 
   property("Prepending an object value results in a Json object") =
       forAll((v: (String, Json), j: Json) =>

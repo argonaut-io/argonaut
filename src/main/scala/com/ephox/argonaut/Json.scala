@@ -311,7 +311,7 @@ sealed trait Json {
    * If this JSON value is a boolean, invert it.
    */
   def not =
-    ifBool(x => jsonBool(!x), this)
+    ifBool(x => jBool(!x), this)
 
   /**
    * If this JSON value is a number, run the given function on it, otherwise, leave this value unchanged.
@@ -319,7 +319,7 @@ sealed trait Json {
    * @param The function to run if this JSON value is a number.
    */
   def withNumber(f: JsonNumber => JsonNumber) =
-    ifNumber(jsonNumber compose f, this)
+    ifNumber(jNumber compose f, this)
 
   /**
    * If this JSON value is an array, run the given function on it, otherwise, leave this value unchanged.
@@ -327,7 +327,7 @@ sealed trait Json {
    * @param The function to run if this JSON value is an array.
    */
   def withArray(f: JsonArray => JsonArray) =
-    ifArray(jsonArray compose f, this)
+    ifArray(jArray compose f, this)
 
   /**
    * If this JSON value is an object, run the given function on it, otherwise, leave this value unchanged.
@@ -335,7 +335,7 @@ sealed trait Json {
    * @param The function to run if this JSON value is an object.
    */
   def withObject(f: JsonObject => JsonObject) =
-    ifObject(jsonObject compose f, this)
+    ifObject(jObject compose f, this)
 
   /**
    * Return the object keys if this JSON value is an object, otherwise, return the empty list.
@@ -353,13 +353,13 @@ sealed trait Json {
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
    */
   def ->:(obj: (JsonField, Json)) =
-    jsonObject(ifObject(obj :: _, List(obj)))
+    jObject(ifObject(obj :: _, List(obj)))
 
   /**
    * If this is a JSON array, then prepend the given value, otherwise, return a JSON array with only the given value.
    */
   def -->>:(ar: Json) =
-    jsonArray(ifArray(ar :: _, List(ar)))
+    jArray(ifArray(ar :: _, List(ar)))
 
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return this.
@@ -571,14 +571,16 @@ sealed trait Json {
 object Json {
   type JsonNumber = Double
   type JsonArray = List[Json]
+  type JsonString = String
   type JsonField = String
-  type JsonObject = List[(JsonField, Json)]
+  type JsonAssoc = (JsonField, Json)
+  type JsonObject = List[JsonAssoc]
   type JsonObjectMap = Map[JsonField, Json]
 
   /**
    * Construct a JSON value that is `null`.
    */
-  val jsonNull: Json = new Json {
+  val jNull: Json = new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
@@ -592,7 +594,7 @@ object Json {
   /**
    * Construct a JSON value that is a boolean.
    */
-  val jsonBool: Boolean => Json = (b: Boolean) => new Json {
+  val jBool: Boolean => Json = b => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
@@ -604,9 +606,19 @@ object Json {
   }
 
   /**
+   * Construct a JSON boolean value of `true`.
+   */
+  def jTrue = jBool(true)
+
+  /**
+   * Construct a JSON boolean value of `false`.
+   */
+  def jFalse = jBool(false)
+
+  /**
    * Construct a JSON value that is a number.
    */
-  val jsonNumber: JsonNumber => Json = (n: JsonNumber) => new Json {
+  val jNumber: JsonNumber => Json = n => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
@@ -620,12 +632,12 @@ object Json {
   /**
    * A JSON value that is a zero number.
    */
-  val zeroJsonNumber = jsonNumber(0D)
+  val jZero = jNumber(0D)
 
   /**
    * Construct a JSON value that is a string.
    */
-  val jsonString: String => Json = (s: String) => new Json {
+  val jString: String => Json = s => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
@@ -639,12 +651,12 @@ object Json {
   /**
    * A JSON value that is an empty string.
    */
-  val emptyJsonString = jsonString("")
+  val jEmptyString = jString("")
 
   /**
    * Construct a JSON value that is an array.
    */
-  val jsonArray: JsonArray => Json = (a: JsonArray) => new Json {
+  val jArray: JsonArray => Json = a => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
@@ -658,12 +670,17 @@ object Json {
   /**
    * A JSON value that is an empty array.
    */
-  val emptyJsonArray = jsonArray(Nil)
+  val jEmptyArray = jArray(Nil)
+
+  /**
+   * Returns a function that takes a single value and produces a JSON array that contains only that value.
+   */
+  val jSingleArray: Json => Json = j => jArray(List(j))
 
   /**
    * Construct a JSON value that is an object.
    */
-  val jsonObject: JsonObject => Json = (x: JsonObject) => new Json {
+  val jObject: JsonObject => Json = x => new Json {
     def fold[X](
       jnull: => X,
       jbool: Boolean => X,
@@ -675,12 +692,17 @@ object Json {
   }
 
   /**
-   * Construct a JSON value that is an object from an index.
-   */
-  val jsonObjectMap = (x: JsonObjectMap) => jsonObject(x.toList)
-
-  /**
    * A JSON value that is an empty object.
    */
-  val emptyJsonObject = jsonObject(Nil)
+  val jEmptyObject = jObject(Nil)
+
+  /**
+   * Returns a function that takes an association value and produces a JSON object that contains only that value.
+   */
+  val jSingleObject: JsonField => Json => Json = k => v => jObject(List((k, v)))
+
+  /**
+   * Construct a JSON value that is an object from an index.
+   */
+  val jObjectMap = (x: JsonObjectMap) => jObject(x.toList)
 }
