@@ -10,10 +10,6 @@ object JsonTest extends Properties("Json") {
       forAll((j: Json) =>
         (List(j.isNull, j.isBool, j.isNumber, j.isString, j.isArray, j.isObject) filter (z => z) length) == 1)
 
-  property("If is a boolean, then has a boolean value") =
-      forAll((j: Json) =>
-        j.ifBool(_ => true, false) == j.isBool)
-
   property("If is a number, then has a number value") =
       forAll((j: Json) =>
         j.number.isDefined == j.isNumber)
@@ -57,14 +53,4 @@ object JsonTest extends Properties("Json") {
   property("Prepending an array value results in a Json object") =
       forAll((v: Json, j: Json) =>
         (v -->>: j).array exists (_.length >= 1))
-
-  property("Prepending an object to a non-object value results in the same Json value") =
-      forAll((v: (String, Json), j: Json) =>
-        (!j.isObject) ==>
-        ((v ~>: j) == j))
-
-  property("Prepending an array to a non-array Json value results in the same Json value") =
-      forAll((v: Json, j: Json) =>
-        (!j.isArray) ==>
-        ((v ~~>>: j) == j))
 }
