@@ -27,7 +27,8 @@ object JsonParserTest extends Properties("JsonParser") {
   // todo failing tests
   property("all that encodes can be decoded") =
           forAll({(j: Json) =>
-              val parsed = parse(pretty(j))
+              val g = pretty(j)
+              val parsed = parse(g)
               parsed.successful && parsed.get == j
             })
 

@@ -25,6 +25,12 @@ sealed trait PossibleJson {
   ): X
 
   /**
+   * Run the first function if this is not empty (has a JSON value), otherwise, return the other value.
+   */
+  def json[X](is: Json => X, isnt: => X) =
+    fold(is(jNull), x => is(jBool(x)), x => is(jNumber(x)), x => is(jString(x)), x => is(jArray(x)), x => is(jObject(x)), isnt)
+
+  /**
    *  Returns the possible boolean of this JSON value.
    */
   def bool: Option[Boolean] =
