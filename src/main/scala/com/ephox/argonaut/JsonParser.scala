@@ -2,7 +2,6 @@ package com.ephox.argonaut
 
 import util.parsing.combinator._
 import Json._
-import util.parsing.input.CharSequenceReader
 
 class JsonParser extends Parsers with ParserTools {
   type Elem = Char

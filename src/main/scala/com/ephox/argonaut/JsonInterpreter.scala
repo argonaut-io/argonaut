@@ -1,6 +1,5 @@
 package com.ephox.argonaut
 
-import com.ephox.argonaut._
 import collection.JavaConversions._
 
 // FIX 17924 27/09/2010 this guy is scala-friendly - make one that's java-friendly
