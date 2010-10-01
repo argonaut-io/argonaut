@@ -342,7 +342,10 @@ sealed trait PossibleJson {
    * Returns a possible JSON value for the given field. If this JSON value is not an object or does not have a value
    * associated with the given field, then an empty possible JSON is returned.
    */
-  def -|(f: => JsonField): PossibleJson = field(f) 
+  def -|(f: => JsonField): PossibleJson = field(f) match {
+    case Some(a) => PossibleJson.pJson(a)
+    case None    => PossibleJson.eJson
+  }
 
   /**
    * Returns a possible JSON value after traversing through JSON object values using the given field names.
@@ -432,13 +435,5 @@ object PossibleJson {
       jsonObject: JsonObject => X,
       none: => X
     ) = k.fold(jsonNull, jsonBool, jsonNumber, jsonString, jsonArray, jsonObject)
-  }
-
-  /**
-   * Implicitly convert an `Option[Json]` to a `PossibleJson`.
-   */
-  implicit def OptionPossibleJson(o: Option[Json]): PossibleJson = o match {
-    case Some(a) => pJson(a)
-    case None    => eJson
   }
 }
