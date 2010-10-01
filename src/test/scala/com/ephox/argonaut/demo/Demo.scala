@@ -2,7 +2,7 @@ package com.ephox.argonaut.demo
 
 import com.ephox.argonaut.StringWrap._
 import com.ephox.argonaut.Identity._
-import com.ephox.argonaut.{ContraPossibleJson, Json, PossibleJson}
+import com.ephox.argonaut.{Json, PossibleJson, ContraPossibleJson}
 
 object Demo {
 
