@@ -9,7 +9,7 @@ object Demo {
   def d[A : ContraPossibleJson](k: A) {
     import Json._
 
-    val j = k.copjson
+    val j = k.pjson
 
     // searches down through objects with the keys and obtains the number value at that level
     val a: Option[JsonNumber] = j -| "abc" -| "def" number

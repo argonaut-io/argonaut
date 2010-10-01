@@ -3,7 +3,7 @@ package com.ephox.argonaut
 sealed trait Identity[A] {
   val value: A
 
-  def copjson(implicit c: ContraPossibleJson[A]) = c.copjson(value)
+  def pjson(implicit c: ContraPossibleJson[A]) = c.copjson(value)
 }
 
 object Identity {
