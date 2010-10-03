@@ -17,7 +17,7 @@ object Demo {
     // searches down through objects with the list of keys and returns the JSON string value or the empty string
     val b: JsonString = j -|| List("ghi", "jkl", "mno") stringOrEmpty
 
-    // If it is a JSON object a "abc" field
+    // If it is a JSON object a "pqr" field
     val c: Boolean = j hasField "pqr"
 
     // If it is a number, add ten to it
