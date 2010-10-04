@@ -162,12 +162,12 @@ object Json {
   /**
    * Construct a JSON boolean value of `true`.
    */
-  def jTrue = jBool(true)
+  val jTrue = jBool(true)
 
   /**
    * Construct a JSON boolean value of `false`.
    */
-  def jFalse = jBool(false)
+  val jFalse = jBool(false)
 
   /**
    * Construct a JSON value that is a number.
