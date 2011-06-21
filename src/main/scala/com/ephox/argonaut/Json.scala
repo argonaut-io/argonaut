@@ -35,34 +35,38 @@ sealed trait Json {
   /**
    * If this is a JSON number value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withNumber(k: JsonNumber => JsonNumber) = p.number match {
-    case Some(d) => jNumber(k(d))
-    case None => this
-  }
+  val withNumber: (JsonNumber => JsonNumber) => Json =
+    k => p.number match {
+      case Some(d) => jNumber(k(d))
+      case None => this
+    }
 
   /**
    * If this is a JSON string value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withString(k: JsonString => JsonString) = p.string match {
-    case Some(s) => jString(k(s))
-    case None => this
-  }
+  val withString: (JsonString => JsonString) => Json =
+    k => p.string match {
+      case Some(s) => jString(k(s))
+      case None => this
+    }
 
   /**
    * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withArray(k: JsonArray => JsonArray) = p.array match {
-    case Some(a) => jArray(k(a))
-    case None => this
-  }
+  val withArray: (JsonArray => JsonArray) => Json =
+    k => p.array match {
+      case Some(a) => jArray(k(a))
+      case None => this
+    }
 
   /**
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withObject(k: JsonObject => JsonObject) = p.objectt match {
-    case Some(o) => jObject(k(o))
-    case None => this
-  }
+  val withObject: (JsonObject => JsonObject) => Json =
+    k => p.objectt match {
+      case Some(o) => jObject(k(o))
+      case None => this
+    }
 
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
