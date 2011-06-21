@@ -44,7 +44,7 @@ sealed trait Json {
    * If this is a JSON string value, run the given function on the value, otherwise, leave unchanged.
    */
   def withString(k: JsonString => JsonString) = p.string match {
-    case Some(s) => jString(s)
+    case Some(s) => jString(k(s))
     case None => this
   }
 
@@ -52,7 +52,7 @@ sealed trait Json {
    * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
    */
   def withArray(k: JsonArray => JsonArray) = p.array match {
-    case Some(a) => jArray(a)
+    case Some(a) => jArray(k(a))
     case None => this
   }
 
@@ -60,7 +60,7 @@ sealed trait Json {
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
   def withObject(k: JsonObject => JsonObject) = p.objectt match {
-    case Some(o) => jObject(o)
+    case Some(o) => jObject(k(o))
     case None => this
   }
 
