@@ -24,26 +24,15 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">
-      <library name="prod">
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/lib/run" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-        <jarDirectory url="file://$MODULE_DIR$/lib/run" recursive="false" />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
       <library name="test">
         <CLASSES>
-          <root url="file://$MODULE_DIR$/lib/test" />
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0/compile/scalacheck_2.8.0-1.8-SNAPSHOT.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/compile/test-interface-0.5.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/compile/scalacheck_2.8.1-1.8.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
-          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.0/compile/scalacheck_2.8.0-1.8-SNAPSHOT-sources.jar!/" />
+          <root url="jar://$MODULE_DIR$/lib_managed/scala_2.8.1/compile/scalacheck_2.8.1-1.8-sources.jar!/" />
         </SOURCES>
-        <jarDirectory url="file://$MODULE_DIR$/lib/test" recursive="false" />
       </library>
     </orderEntry>
     <orderEntry type="module-library">
