@@ -45,6 +45,9 @@
   <component name="Encoding" useUTFGuessing="true" native2AsciiForPropertiesFiles="false">
     <file url="file://$PROJECT_DIR$/src/main/scala/com/ephox/argonaut/JsonPrinter.scala" charset="UTF-8" />
   </component>
+  <component name="EntryPointsManager">
+    <entry_points version="2.0" />
+  </component>
   <component name="HighlightingAdvisor">
     <option name="SUGGEST_TYPE_AWARE_HIGHLIGHTING" value="false" />
   </component>
@@ -87,7 +90,11 @@
     <option name="myDefaultNotNull" value="org.jetbrains.annotations.NotNull" />
     <option name="myNullables">
       <value>
-        <list size="0" />
+        <list size="3">
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
+          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
+        </list>
       </value>
     </option>
     <option name="myNotNulls">
@@ -254,7 +261,10 @@
         <root url="jar://$PROJECT_DIR$/project/boot/scala-2.8.1/lib/scala-library.jar!/" />
       </CLASSES>
       <JAVADOC />
-      <SOURCES />
+      <SOURCES>
+        <root url="jar://$PROJECT_DIR$/project/boot/scala-2.8.1/lib/scala-library-sources.jar!/" />
+        <root url="jar://$PROJECT_DIR$/project/boot/scala-2.8.1/lib/scala-compiler-sources.jar!/" />
+      </SOURCES>
     </library>
   </component>
 </project>
