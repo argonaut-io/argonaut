@@ -120,6 +120,8 @@ sealed trait Json {
         ) + " }"
 }
 
+object Json extends Jsons
+
 /**
  * Constructors and other utilities for JSON values.
  *
@@ -127,7 +129,7 @@ sealed trait Json {
  * @author Dylan Just
  * @author Mark Hibberd
  */
-object Json {
+trait Jsons {
   type JsonNumber = Double
   type JsonArray = List[Json]
   type JsonString = String

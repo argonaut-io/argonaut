@@ -3,8 +3,10 @@ package argonaut
 
 import collection.JavaConversions._
 
+object JsonInterpreter extends JsonInterpreters
+
 // FIX 17924 27/09/2010 this guy is scala-friendly - make one that's java-friendly
-object JsonInterpreter {
+trait JsonInterpreters {
 
   // FIX 17924 27/09/2010 do we want to do something like this for java?
   // type Q[T] = Json => T

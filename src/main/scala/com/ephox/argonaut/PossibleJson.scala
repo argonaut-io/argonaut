@@ -453,6 +453,8 @@ sealed trait PossibleJson {
 
 }
 
+object PossibleJson extends PossibleJsons
+
 /**
  * Constructors and other utilities for possible JSON values.
  *
@@ -460,7 +462,7 @@ sealed trait PossibleJson {
  * @author Dylan Just
  * @author Mark Hibberd
  */
-object PossibleJson {
+trait PossibleJsons {
   import Json._
 
   /**

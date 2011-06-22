@@ -84,12 +84,14 @@ sealed trait StringWrap {
   def pparse: PossibleJson = parseIgnoreError(pJson, eJson)
 }
 
+object StringWrap extends StringWraps
+
 /**
  * Constructors and other utilities for wrapped string values.
  *
  * @author Tony Morris
  */
-object StringWrap {
+trait StringWraps {
   /**
    * Implicitly wraps the given string value.
    */

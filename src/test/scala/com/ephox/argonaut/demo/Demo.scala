@@ -1,8 +1,7 @@
 package com.ephox
 package argonaut.demo
 
-import com.ephox.argonaut.StringWrap._
-import com.ephox.argonaut.{Json, PossibleJson}
+import com.ephox.argonaut._, Argonaut._
 
 object Demo {
 
