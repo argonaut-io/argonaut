@@ -1,5 +1,5 @@
 var p = Ent.Project.create("argonaut", "external");
-p.setVersion(1, 0, 0);
+p.setVersion(2, 0, 0);
 
 function getVersionString() {
     var v = p.version;
@@ -8,6 +8,6 @@ function getVersionString() {
 
 p.setConfig({
     command: ["./sbt", getVersionString, "clean", "update", "compile", "test", "package"],
-    dist: "target/scala_2.8.0",
+    dist: "target/scala_2.8.1",
     distInclude: "*.jar"
 });
