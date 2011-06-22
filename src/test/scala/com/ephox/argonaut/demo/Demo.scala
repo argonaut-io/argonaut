@@ -1,15 +1,12 @@
 package com.ephox.argonaut.demo
 
 import com.ephox.argonaut.StringWrap._
-import com.ephox.argonaut.Identity._
-import com.ephox.argonaut.{Json, PossibleJson, ContraPossibleJson}
+import com.ephox.argonaut.{Json, PossibleJson}
 
 object Demo {
 
-  def d[A : ContraPossibleJson](k: A) {
+  def d(j: PossibleJson) {
     import Json._
-
-    val j = k.pjson
 
     // searches down through objects with the keys and obtains the number value at that level
     val a: Option[JsonNumber] = j -| "abc" -| "def" number
