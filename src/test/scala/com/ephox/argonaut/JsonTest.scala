@@ -7,6 +7,43 @@ import Data._
 import Json._
 
 object JsonTest extends Properties("Json") {
+  property("not compose not is id") =
+      forAll((j: Json) =>
+        j.not.not == j)
+
+  property("no-effect not equals !isBool") =
+      forAll((j: Json) =>
+        (j.not == j) != j.isBool)
+
+  property("effect not equals isBool") =
+      forAll((j: Json) =>
+        (j.not != j) == j.isBool)
+
+  property("effect withNumber implies isNumber") =
+      forAll((j: Json, k: JsonNumber => JsonNumber) =>
+        ((j withNumber k) == j) || j.isNumber)
+
+  property("effect withString implies isString") =
+      forAll((j: Json, k: JsonString => JsonString) =>
+        ((j withString k) == j) || j.isString)
+
+  property("effect withArray implies isArray") =
+      forAll((j: Json, k: JsonArray => JsonArray) =>
+        ((j withArray k) == j) || j.isArray)
+
+  property("effect withObject implies isObject") =
+      forAll((j: Json, k: JsonObject => JsonObject) =>
+        ((j withObject k) == j) || j.isObject)
+
+  property("Object prepend puts element on head") =
+      forAll((j: Json, e: JsonAssoc) =>
+        !j.isObject || (e ->: j).objectt.map(_.head) == Some(e))
+
+
+
+
+
+
   property("One and only one is* satisfies (disjoint)") =
       forAll((j: Json) =>
         (List(j.isNull, j.isBool, j.isNumber, j.isString, j.isArray, j.isObject) filter (z => z) length) == 1)
