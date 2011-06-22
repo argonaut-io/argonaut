@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 /**
  * A data type that represents either a [[com.ephox.argonaut.Json]] or no value.

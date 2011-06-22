@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 object JsonPrinter extends Application{
   def compact(json: Json): String = prettyPrint(json, "", "", "")

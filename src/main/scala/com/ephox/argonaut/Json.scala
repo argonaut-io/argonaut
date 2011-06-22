@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 /**
  * A data type representing possible <a href="http://www.json.org/">JSON</a> values.

@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 case class CannedData(s: String) {
   override def toString = s

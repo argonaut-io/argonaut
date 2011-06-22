@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
