@@ -68,7 +68,14 @@ class JsonParser extends Parsers {
 
   def escape = '\\'
 
-  def unicode = repN(4, hex) ^^ unicodeMaker
+  def unicode = repN(4, hex) flatMap (code =>
+    try {
+      val i = Integer.parseInt(code mkString, 16)
+      val cs = Character.toChars(i)
+      success(cs.mkString)
+    } catch {
+      case e => failure(e.toString)
+    })
 
   def hex = digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 
@@ -102,12 +109,4 @@ class JsonParser extends Parsers {
   def nonzero = elem("nonzero", d => d.isDigit && d != '0')
 
   def e = List("e", "e+", "e-", "E", "E+", "E-") map (acceptSeq (_:String)) reduceRight (_ ||| _)
-
-  // FIX has to be a better way...
-  // FIX pull this out somewhere.
-  def unicodeMaker(code: List[Char]) = {
-    val i = Integer.parseInt(code mkString, 16)
-    val cs = Character.toChars(i)
-    cs.mkString
-  }
 }
