@@ -3,7 +3,7 @@ package com.ephox.argonaut
 import util.parsing.combinator._
 import Json._
 
-class JsonParser extends Parsers with ParserTools {
+class JsonParser extends Parsers {
   type Elem = Char
 
   def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ trailingcomma <~ closeobject ^^ jObject
@@ -101,7 +101,7 @@ class JsonParser extends Parsers with ParserTools {
 
   def nonzero = elem("nonzero", d => d.isDigit && d != '0')
 
-  def e = choice(List("e", "e+", "e-", "E", "E+", "E-") map (acceptSeq (_:String)))
+  def e = List("e", "e+", "e-", "E", "E+", "E-") map (acceptSeq (_:String)) reduceRight (_ ||| _)
 
   // FIX has to be a better way...
   // FIX pull this out somewhere.
