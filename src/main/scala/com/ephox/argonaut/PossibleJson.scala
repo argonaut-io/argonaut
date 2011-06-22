@@ -11,6 +11,7 @@ package argonaut
  */
 sealed trait PossibleJson {
   import Json._
+  import PossibleJson._
 
   /**
    * The catamorphism for the possible JSON value data type.
@@ -290,6 +291,26 @@ sealed trait PossibleJson {
   def fieldOrFalse(f: => JsonField) = fieldOr(f, jFalse)
 
   /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns a JSON number with the value `0`.
+   */
+  def fieldOrZero(f: => JsonField) = fieldOr(f, jZero)
+
+  /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns an empty JSON.
+   */
+  def fieldOrEmptyString(f: => JsonField) = fieldOr(f, jEmptyString)
+
+  /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns an empty JSON array.
+   */
+  def fieldOrEmptyArray(f: => JsonField) = fieldOr(f, jEmptyArray)
+
+  /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns an empty JSON object.
+   */
+  def fieldOrEmptyObject(f: => JsonField) = fieldOr(f, jEmptyObject)
+
+  /**
    * Folds-right the given accumulator function and element over this possible JSON array value.
    */
   def foldRightArray[B](b: => B): B => ((Json, B) => B) => B =
@@ -337,8 +358,6 @@ sealed trait PossibleJson {
    */
   def lengthObject(n: => Int): Int =
     foldLeftObject[Int](n)(0)((x, _) => x + 1)
-
-  import PossibleJson._
 
   /**
    * If this is a JSON boolean value, invert the `true` and `false` values, otherwise, leave unchanged.
@@ -423,8 +442,8 @@ sealed trait PossibleJson {
    * associated with the given field, then an empty possible JSON is returned.
    */
   def -|(f: => JsonField): PossibleJson = field(f) match {
-    case Some(a) => PossibleJson.pJson(a)
-    case None    => PossibleJson.eJson
+    case Some(a) => pJson(a)
+    case None    => eJson
   }
 
   /**
