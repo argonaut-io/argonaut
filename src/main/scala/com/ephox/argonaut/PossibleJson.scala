@@ -385,6 +385,30 @@ sealed trait PossibleJson {
     }
 
   /**
+   * If this is a JSON number value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsNumber(ns: (JsonNumber => JsonNumber)*): PossibleJson =
+    withNumber(ns.foldRight[JsonNumber => JsonNumber](x => x)(_ compose _))
+
+  /**
+   * If this is a JSON string value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsString(ns: (JsonString => JsonString)*): PossibleJson =
+    withString(ns.foldRight[JsonString => JsonString](x => x)(_ compose _))
+
+  /**
+   * If this is a JSON array value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsArray(ns: (JsonArray => JsonArray)*): PossibleJson =
+    withArray(ns.foldRight[JsonArray => JsonArray](x => x)(_ compose _))
+
+  /**
+   * If this is a JSON array value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsObject(ns: (JsonObject => JsonObject)*): PossibleJson =
+    withObject(ns.foldRight[JsonObject => JsonObject](x => x)(_ compose _))
+
+  /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
    */
   def ->:(j: => JsonAssoc) = withObject(j :: _)
