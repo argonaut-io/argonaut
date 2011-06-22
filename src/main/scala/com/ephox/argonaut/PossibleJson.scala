@@ -31,6 +31,12 @@ sealed trait PossibleJson {
     fold(is(jNull), x => is(jBool(x)), x => is(jNumber(x)), x => is(jString(x)), x => is(jArray(x)), x => is(jObject(x)), isnt)
 
   /**
+   * Return the Json if this is not empty, or the given value.
+   */
+  def jsonOr(j: => Json) =
+    json(x => x, j)
+
+  /**
    *  Returns the possible boolean of this JSON value.
    */
   def bool: Option[Boolean] =
@@ -283,14 +289,24 @@ sealed trait PossibleJson {
   def fieldOrFalse(f: => JsonField) = fieldOr(f, jFalse)
 
   /**
-   * Folds the given accumulator function and element over this possible JSON array value.
+   * Folds-right the given accumulator function and element over this possible JSON array value.
    */
-  def foldArray[B](z: B, f: (Json, B) => B) = arrayOrEmpty.foldRight(z)(f)
+  def foldRightArray[B](z: B, f: (Json, B) => B) = arrayOrEmpty.foldRight(z)(f)
 
   /**
-   * Folds the given accumulator function and element over this possible JSON object value.
+   * Folds-right the given accumulator function and element over this possible JSON object value.
    */
-  def foldObject[B](z: B, f: (JsonAssoc, B) => B) = objectOrEmpty.foldRight(z)(f)
+  def foldRightObject[B](z: B, f: (JsonAssoc, B) => B) = objectOrEmpty.foldRight(z)(f)
+
+  /**
+   * Folds-right the given accumulator function and element over this possible JSON array value.
+   */
+  def foldLeftArray[B](z: B, f: (B, Json) => B) = arrayOrEmpty.foldLeft(z)(f)
+
+  /**
+   * Folds-right the given accumulator function and element over this possible JSON object value.
+   */
+  def foldLeftObject[B](z: B, f: (B, JsonAssoc) => B) = objectOrEmpty.foldLeft(z)(f)
 
   import PossibleJson._
 
@@ -305,34 +321,38 @@ sealed trait PossibleJson {
   /**
    * If this is a JSON number value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withNumber(k: JsonNumber => JsonNumber) = number match {
-    case Some(d) => pJson(jNumber(k(d)))
-    case None => this
-  }
+  val withNumber: (JsonNumber => JsonNumber) => PossibleJson =
+    k => number match {
+      case Some(d) => pJson(jNumber(k(d)))
+      case None => this
+    }
 
   /**
    * If this is a JSON string value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withString(k: JsonString => JsonString) = string match {
-    case Some(s) => pJson(jString(k(s)))
-    case None => this
-  }
+  val withString: (JsonString => JsonString) => PossibleJson =
+    k => string match {
+      case Some(s) => pJson(jString(k(s)))
+      case None => this
+    }
 
   /**
    * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withArray(k: JsonArray => JsonArray) = array match {
-    case Some(a) => pJson(jArray(k(a)))
-    case None => this
-  }
+  val withArray: (JsonArray => JsonArray) => PossibleJson =
+    k => array match {
+      case Some(a) => pJson(jArray(k(a)))
+      case None => this
+    }
 
   /**
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withObject(k: JsonObject => JsonObject) = objectt match {
-    case Some(o) => pJson(jObject(k(o)))
-    case None => this
-  }
+  val withObject: (JsonObject => JsonObject) => PossibleJson =
+    k => objectt match {
+      case Some(o) => pJson(jObject(k(o)))
+      case None => this
+    }
 
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
