@@ -291,22 +291,51 @@ sealed trait PossibleJson {
   /**
    * Folds-right the given accumulator function and element over this possible JSON array value.
    */
-  def foldRightArray[B](z: B, f: (Json, B) => B) = arrayOrEmpty.foldRight(z)(f)
+  def foldRightArray[B](b: => B): B => ((Json, B) => B) => B =
+    z => f => array match {
+      case None => b
+      case Some(a) => a.foldRight(z)(f)
+    }
 
   /**
    * Folds-right the given accumulator function and element over this possible JSON object value.
    */
-  def foldRightObject[B](z: B, f: (JsonAssoc, B) => B) = objectOrEmpty.foldRight(z)(f)
+  def foldRightObject[B](b: => B): B => ((JsonAssoc, B) => B) => B =
+    z => f => objectt match {
+      case None => b
+      case Some(o) => o.foldRight(z)(f)
+    }
 
   /**
    * Folds-right the given accumulator function and element over this possible JSON array value.
    */
-  def foldLeftArray[B](z: B, f: (B, Json) => B) = arrayOrEmpty.foldLeft(z)(f)
+  def foldLeftArray[B](b: => B): B => ((B, Json) => B) => B =
+    z => f => array match {
+      case None => b
+      case Some(a) => a.foldLeft(z)(f)
+    }
 
   /**
    * Folds-right the given accumulator function and element over this possible JSON object value.
    */
-  def foldLeftObject[B](z: B, f: (B, JsonAssoc) => B) = objectOrEmpty.foldLeft(z)(f)
+  def foldLeftObject[B](b: => B): B => ((B, JsonAssoc) => B) => B =
+    z => f => objectt match {
+      case None => b
+      case Some(o) => o.foldLeft(z)(f)
+    }
+
+  /**
+   * Returns the number of elements in the JSON array, or the default if this is not a JSON array.
+   */
+  def lengthArray(n: => Int): Int =
+    foldLeftArray[Int](n)(0)((x, _) => x + 1)
+
+
+  /**
+   * Returns the number of elements in the JSON array, or the default if this is not a JSON array.
+   */
+  def lengthObject(n: => Int): Int =
+    foldLeftObject[Int](n)(0)((x, _) => x + 1)
 
   import PossibleJson._
 
