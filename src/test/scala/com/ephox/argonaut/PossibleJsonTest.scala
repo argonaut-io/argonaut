@@ -25,7 +25,7 @@ object PossibleJsonTest extends Properties("PossibleJson") {
 
   property("If is an object, then has an object value") =
       forAll((j: Json) =>
-        j.objectt.isDefined == j.isObject)
+        j.obj.isDefined == j.isObject)
 
   property("A boolean value isBool") =
       forAll((b: Boolean) =>
