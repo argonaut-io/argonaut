@@ -39,48 +39,35 @@ object JsonTest extends Properties("Json") {
       forAll((j: Json, e: JsonAssoc) =>
         !j.isObject || (e ->: j).objectt.map(_.head) == Some(e))
 
+  property("Array prepend puts element on head") =
+      forAll((j: Json, e: Json) =>
+        !j.isArray || (e -->>: j).array.map(_.head) == Some(e))
 
-
-
-
-
-  property("One and only one is* satisfies (disjoint)") =
-      forAll((j: Json) =>
-        (List(j.isNull, j.isBool, j.isNumber, j.isString, j.isArray, j.isObject) filter (z => z) length) == 1)
-
-  property("If is a number, then has a number value") =
-      forAll((j: Json) =>
-        j.number.isDefined == j.isNumber)
-
-  property("If is a string, then has a string value") =
-      forAll((j: Json) =>
-        j.string.isDefined == j.isString)
-
-  property("If is an array, then has an array value") =
-      forAll((j: Json) =>
-        j.array.isDefined == j.isArray)
-
-  property("If is an object, then has an object value") =
-      forAll((j: Json) =>
-        j.objectt.isDefined == j.isObject)
-
-  property("A boolean value isBool") =
+  property("jBool isBool") =
       forAll((b: Boolean) =>
         jBool(b).isBool)
 
-  property("A number value isNumber") =
+  property("jNumber isNumber") =
       forAll((n: JsonNumber) =>
         jNumber(n).isNumber)
 
-  property("A string value isString") =
+  property("jString isString") =
       forAll((s: String) =>
         jString(s).isString)
 
-  property("An array value isArray") =
-      forAll((a: List[Json]) =>
+  property("jArray isArray") =
+      forAll((a: JsonArray) =>
         jArray(a).isArray)
 
-  property("An object value isObject") =
-      forAll((o: List[(String, Json)]) =>
-        jObject(o).isObject)
+  property("jSingleArray is single array") =
+      forAll((j: Json) =>
+        jSingleArray(j).array == Some(List(j)))
+
+  property("jObject isObject") =
+      forAll((a: JsonObject) =>
+        jObject(a).isObject)
+
+  property("jSingleObject is single object") =
+      forAll((f: JsonField, j: Json) =>
+        jSingleObject(f)(j).objectt == Some(List((f, j))))
 }
