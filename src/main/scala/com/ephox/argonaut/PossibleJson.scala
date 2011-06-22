@@ -464,14 +464,14 @@ sealed trait PossibleJson {
    * Compute a `String` representation for this possible JSON value.
    */
   override def toString =
-    "PossibleJson { " +
+    "PossibleJson{" +
         fold(
           "null",
-          "bool   [" + _ + "]",
-          "number [" + _ + "]",
-          "string [" + _ + "]",
-          "array  [" + _ + "]",
-          "object [" + _ + "]",
+          "bool[" + _ + "]",
+          "number[" + _ + "]",
+          "string[" + _ + "]",
+          "array[" + _ + "]",
+          "object[" + _ + "]",
           "empty"
         ) + " }"
 

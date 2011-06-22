@@ -109,15 +109,15 @@ sealed trait Json {
    * Compute a `String` representation for this JSON value.
    */
   override def toString =
-    "Json { " +
+    "Json{" +
         fold(
           "null",
-          "bool   [" + _ + "]",
-          "number [" + _ + "]",
-          "string [" + _ + "]",
-          "array  [" + _ + "]",
-          "object [" + _ + "]"
-        ) + " }"
+          "bool[" + _ + "]",
+          "number[" + _ + "]",
+          "string[" + _ + "]",
+          "array[" + _ + "]",
+          "object[" + _ + "]"
+        ) + "}"
 }
 
 object Json extends Jsons
