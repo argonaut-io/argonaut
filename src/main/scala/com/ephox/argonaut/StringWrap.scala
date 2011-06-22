@@ -13,7 +13,7 @@ sealed trait StringWrap {
    */
   val value: String
 
-  import Identity._
+  import PossibleJson._
 
   /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome. To understand the
@@ -44,6 +44,16 @@ sealed trait StringWrap {
     parse(success, nosuccess, nosuccess)
 
   /**
+   * Parses this string value and executes one of the given functions, depending on the parse outcome. The distinction
+   * between a parse `error` and a `failure` is not made by this function. Any error message is ignored.
+   *
+   * @param success Run this function if the parse succeeds.
+   * @param nosuccess Run this function if the parse produces an error or a failure.
+   */
+  def parseIgnoreError[X](success: Json => X, nosuccess: => X) =
+    parseIgnoreErrorType(success, _ => nosuccess)
+
+  /**
    * A parser for this string value to a JSON value.
    */
   def parse = {
@@ -69,7 +79,7 @@ sealed trait StringWrap {
   /**
    * Parses this string value to a possible JSON value.
    */
-  def pparse: PossibleJson = parseIgnoreErrorType(Some(_), _ => None).pjson
+  def pparse: PossibleJson = parseIgnoreError(pJson, eJson)
 }
 
 /**

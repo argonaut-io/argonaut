@@ -465,7 +465,7 @@ object PossibleJson {
   /**
    * An empty possible JSON value.
    */
-  val eJson = new PossibleJson {
+  val eJson: PossibleJson = new PossibleJson {
     def fold[X](
       jsonNull: => X,
       jsonBool: Boolean => X,
