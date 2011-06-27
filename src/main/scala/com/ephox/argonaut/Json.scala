@@ -75,9 +75,19 @@ sealed trait Json {
   def ->:(j: => JsonAssoc) = withObject(j :: _)
 
   /**
+   * If this is a JSON object, and the association is set, then prepend the given value, otherwise, return a JSON object with only the given value.
+   */
+  def ->?:(o: => Option[JsonAssoc]) = o.map(j => withObject(j :: _)).getOrElse(this)
+
+  /**
    * If this is a JSON array, then prepend the given value, otherwise, return a JSON array with only the given value.
    */
   def -->>:(j: => Json) = withArray(j :: _)
+
+  /**
+   * If this is a JSON array, and the element is set, then prepend the given value, otherwise, return a JSON array with only the given value.
+   */
+  def -->>?:(o: => Option[Json]) = o.map(j => withArray(j :: _)).getOrElse(this)
 
   /**
    * Compare two JSON values for equality.
