@@ -30,17 +30,6 @@ object JsonParserTest extends Properties("JsonParser") {
               val parsed = g.parse
               parsed.successful && parsed.get == j
             })
-  property("known json decodes") =
-          forAll({(c: CannedData) =>
-              c.s.parse.successful
-            })
-
-  property("known json, re-encodes") =
-          forAll({(c: CannedData) =>
-              val first = c.s.parse.get
-              val second = pretty(first).parse.get
-              first == second
-            })
 
   def p(k: subject.Parser[Json], s: String) =
     k(new CharSequenceReader(s))

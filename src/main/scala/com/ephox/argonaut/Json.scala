@@ -64,7 +64,7 @@ sealed trait Json {
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
   val withObject: (JsonObject => JsonObject) => Json =
-    k => p.objectt match {
+    k => p.obj match {
       case Some(o) => jObject(k(o))
       case None => this
     }
@@ -99,7 +99,7 @@ sealed trait Json {
       n => p.number exists (_ == n),
       s => p.string exists (_ == s),
       a => p.array exists (_ == a),
-      o => p.objectt exists (_ == o)
+      o => p.obj exists (_ == o)
     )
 
   /**
@@ -119,15 +119,15 @@ sealed trait Json {
    * Compute a `String` representation for this JSON value.
    */
   override def toString =
-    "Json { " +
+    "Json{" +
         fold(
           "null",
-          "bool   [" + _ + "]",
-          "number [" + _ + "]",
-          "string [" + _ + "]",
-          "array  [" + _ + "]",
-          "object [" + _ + "]"
-        ) + " }"
+          "bool[" + _ + "]",
+          "number[" + _ + "]",
+          "string[" + _ + "]",
+          "array[" + _ + "]",
+          "object[" + _ + "]"
+        ) + "}"
 }
 
 object Json extends Jsons

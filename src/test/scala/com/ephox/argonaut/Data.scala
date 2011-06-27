@@ -36,7 +36,4 @@ object Data {
 
   implicit val ArbitrarySometimesBoolString: Arbitrary[SometimesBoolString] =
       Arbitrary(frequency((1, value("true")), (1, value("false")), (8, arbitrary[String])) map (SometimesBoolString(_)))
-
-  implicit val ArbitraryCannedData: Arbitrary[CannedData] = 
-      Arbitrary(oneOf(CannedData.all))
 }

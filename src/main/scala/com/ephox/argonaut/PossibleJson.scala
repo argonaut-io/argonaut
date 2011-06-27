@@ -11,6 +11,7 @@ package argonaut
  */
 sealed trait PossibleJson {
   import Json._
+  import PossibleJson._
 
   /**
    * The catamorphism for the possible JSON value data type.
@@ -64,7 +65,7 @@ sealed trait PossibleJson {
   /**
    * Returns the possible object of this JSON value.
    */
-  def objectt: Option[JsonObject] =
+  def obj: Option[JsonObject] =
     fold(None, _ => None, _ => None, _ => None, _ => None, Some(_), None)
 
   /**
@@ -114,7 +115,7 @@ sealed trait PossibleJson {
   /**
    * Return `true` if this JSON value is a object.
    */
-  def isObject = objectt.isDefined
+  def isObject = obj.isDefined
 
   /**
    * Returns the number of this JSON value, or the given default if this JSON value is not a number.
@@ -142,7 +143,7 @@ sealed trait PossibleJson {
    *
    * @param o The default object if this JSON value is not an object.
    */
-  def objectOr(d: => JsonObject) = objectt getOrElse d
+  def objectOr(d: => JsonObject) = obj getOrElse d
 
   /**
    * Returns this JSON number object or the value `0` if it is not a number.
@@ -203,7 +204,7 @@ sealed trait PossibleJson {
    * @param The function to run if this JSON value is an object.
    */
   def usingObject[X](k: JsonObject => X, z: => X) =
-    objectt match {
+    obj match {
       case Some(a) => k(a)
       case None    => z
     }
@@ -211,7 +212,7 @@ sealed trait PossibleJson {
   /**
    * Returns the possible object map of this JSON value.
    */
-  lazy val objectMap: Option[JsonObjectMap] = objectt map (_.toMap)
+  lazy val objectMap: Option[JsonObjectMap] = obj map (_.toMap)
 
   /**
    * Returns the object map of this JSON value, or the given default if this JSON value is not an object.
@@ -290,6 +291,26 @@ sealed trait PossibleJson {
   def fieldOrFalse(f: => JsonField) = fieldOr(f, jFalse)
 
   /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns a JSON number with the value `0`.
+   */
+  def fieldOrZero(f: => JsonField) = fieldOr(f, jZero)
+
+  /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns an empty JSON.
+   */
+  def fieldOrEmptyString(f: => JsonField) = fieldOr(f, jEmptyString)
+
+  /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns an empty JSON array.
+   */
+  def fieldOrEmptyArray(f: => JsonField) = fieldOr(f, jEmptyArray)
+
+  /**
+   * Returns the value for the given JSON object field if this is an object with the given field, otherwise, returns an empty JSON object.
+   */
+  def fieldOrEmptyObject(f: => JsonField) = fieldOr(f, jEmptyObject)
+
+  /**
    * Folds-right the given accumulator function and element over this possible JSON array value.
    */
   def foldRightArray[B](b: => B): B => ((Json, B) => B) => B =
@@ -302,7 +323,7 @@ sealed trait PossibleJson {
    * Folds-right the given accumulator function and element over this possible JSON object value.
    */
   def foldRightObject[B](b: => B): B => ((JsonAssoc, B) => B) => B =
-    z => f => objectt match {
+    z => f => obj match {
       case None => b
       case Some(o) => o.foldRight(z)(f)
     }
@@ -320,7 +341,7 @@ sealed trait PossibleJson {
    * Folds-right the given accumulator function and element over this possible JSON object value.
    */
   def foldLeftObject[B](b: => B): B => ((B, JsonAssoc) => B) => B =
-    z => f => objectt match {
+    z => f => obj match {
       case None => b
       case Some(o) => o.foldLeft(z)(f)
     }
@@ -337,8 +358,6 @@ sealed trait PossibleJson {
    */
   def lengthObject(n: => Int): Int =
     foldLeftObject[Int](n)(0)((x, _) => x + 1)
-
-  import PossibleJson._
 
   /**
    * If this is a JSON boolean value, invert the `true` and `false` values, otherwise, leave unchanged.
@@ -379,10 +398,34 @@ sealed trait PossibleJson {
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
   val withObject: (JsonObject => JsonObject) => PossibleJson =
-    k => objectt match {
+    k => obj match {
       case Some(o) => pJson(jObject(k(o)))
       case None => this
     }
+
+  /**
+   * If this is a JSON number value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsNumber(ns: (JsonNumber => JsonNumber)*): PossibleJson =
+    withNumber(ns.foldRight[JsonNumber => JsonNumber](x => x)(_ compose _))
+
+  /**
+   * If this is a JSON string value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsString(ns: (JsonString => JsonString)*): PossibleJson =
+    withString(ns.foldRight[JsonString => JsonString](x => x)(_ compose _))
+
+  /**
+   * If this is a JSON array value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsArray(ns: (JsonArray => JsonArray)*): PossibleJson =
+    withArray(ns.foldRight[JsonArray => JsonArray](x => x)(_ compose _))
+
+  /**
+   * If this is a JSON array value, run the given functions on the value, otherwise, leave unchanged.
+   */
+  def withsObject(ns: (JsonObject => JsonObject)*): PossibleJson =
+    withObject(ns.foldRight[JsonObject => JsonObject](x => x)(_ compose _))
 
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
@@ -399,8 +442,8 @@ sealed trait PossibleJson {
    * associated with the given field, then an empty possible JSON is returned.
    */
   def -|(f: => JsonField): PossibleJson = field(f) match {
-    case Some(a) => PossibleJson.pJson(a)
-    case None    => PossibleJson.eJson
+    case Some(a) => pJson(a)
+    case None    => eJson
   }
 
   /**
@@ -418,7 +461,7 @@ sealed trait PossibleJson {
       n => number exists (_ == n),
       s => string exists (_ == s),
       a => array exists (_ == a),
-      o => objectt exists (_ == o),
+      o => obj exists (_ == o),
       isEmpty
     )
 
@@ -440,14 +483,14 @@ sealed trait PossibleJson {
    * Compute a `String` representation for this possible JSON value.
    */
   override def toString =
-    "PossibleJson { " +
+    "PossibleJson{" +
         fold(
           "null",
-          "bool   [" + _ + "]",
-          "number [" + _ + "]",
-          "string [" + _ + "]",
-          "array  [" + _ + "]",
-          "object [" + _ + "]",
+          "bool[" + _ + "]",
+          "number[" + _ + "]",
+          "string[" + _ + "]",
+          "array[" + _ + "]",
+          "object[" + _ + "]",
           "empty"
         ) + " }"
 

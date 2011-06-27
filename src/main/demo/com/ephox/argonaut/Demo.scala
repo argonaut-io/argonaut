@@ -1,5 +1,4 @@
-package com.ephox
-package argonaut.demo
+package com.ephox.argonaut
 
 import com.ephox.argonaut._, Argonaut._
 
