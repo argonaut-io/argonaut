@@ -7,5 +7,9 @@ trait Argonauts extends
 Jsons with
 JsonPrinters with
 PossibleJsons with
-StringWraps
+StringWraps with
+AsJsons with
+FromJsons with
+ToJsons with
+JsonDatas
 
