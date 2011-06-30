@@ -7,6 +7,18 @@ trait AsJsons {
     def json = f
   }
 
+  implicit def JIntegerAsJson(v: java.lang.Integer) =
+    IntAsJson(v.intValue)
+
+  implicit def JLongAsJson(v: java.lang.Long) =
+    LongAsJson(v.longValue())
+
+  implicit def JBooleanAsJson(v: java.lang.Boolean) =
+    BooleanAsJson(v.booleanValue)
+
+  implicit def BooleanAsJson(v: Boolean) =
+    asJson(jBool(v))
+
   implicit def IntAsJson(v: Int) =
     asJson(jNumber(v.toDouble))
 
