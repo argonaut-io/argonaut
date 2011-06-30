@@ -90,6 +90,12 @@ sealed trait Json {
   def -->>?:(o: => Option[Json]) = o.map(j => withArray(j :: _)).getOrElse(this)
 
   /**
+   * Extract a value (if possible) from this json structure, based upon the FromJson type class.
+   */
+  def to[A](implicit from: FromJson[A]) =
+    from(this)
+
+  /**
    * Compare two JSON values for equality.
    */
   override def equals(o: Any) =
