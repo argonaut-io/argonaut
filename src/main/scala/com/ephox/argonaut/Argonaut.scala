@@ -11,5 +11,6 @@ StringWraps with
 AsJsons with
 FromJsons with
 ToJsons with
-JsonDatas
+JsonDatas with
+JsonQuerys
 

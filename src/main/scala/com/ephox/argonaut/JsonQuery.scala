@@ -7,6 +7,9 @@ import JsonValue._
 trait JsonQuery {
   val json: Json
 
+  def as[A](implicit from: FromJson[A]) =
+    from(json)
+
   def option[A](path: String*)(implicit from: FromJson[A]) = for {
     j <- find(json, path.toList).map[Option[Json]](v => Some(v)).flatMapError(_ => jsonValue(None))
     r <- j.traverse(x => from.apply(x))
