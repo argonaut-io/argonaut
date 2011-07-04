@@ -13,12 +13,12 @@ trait JsonQuery {
 
   def value[A](path: String*)(implicit from: FromJson[A]) = for {
     j <- findjson(json, path.toList)
-    r <- j.as[A]
+    r <- j.as[A].flatMapError(m => error(json, path.toList, m))
   } yield r
 
   def option[A](path: String*)(implicit from: FromJson[A]) = for {
     j <- findjson(json, path.toList).map[Option[Json]](v => Some(v)).flatMapError(_ => jsonValue(None))
-    r <- j.traverse(x => from.apply(x))
+    r <- j.traverse(x => from.apply(x)).flatMapError(m => error(json, path.toList, m))
   } yield r
 
   def findjson(json: Json, path: List[String]): JsonValue[Json] =
