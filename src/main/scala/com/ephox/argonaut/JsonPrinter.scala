@@ -36,7 +36,7 @@ trait JsonPrinters {
       "null",
       _.toString,
       n =>
-        if (math.floor(n) == n)
+        if (math.floor(n) == n && math.round(n).toDouble == n)
           math.round(n).toString
         else
           n.toString,
