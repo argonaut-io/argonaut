@@ -11,22 +11,17 @@ trait JsonQuery {
   def as[A](implicit from: FromJson[A]) =
     from(json)
 
-  def option[A](path: String*)(implicit from: FromJson[A]) = for {
-    j <- find(json, path.toList).map[Option[Json]](v => Some(v)).flatMapError(_ => jsonValue(None))
-    r <- j.traverse(x => from.apply(x))
-  } yield r
-
   def value[A](path: String*)(implicit from: FromJson[A]) = for {
-    j <- find(json, path.toList)
+    j <- findjson(json, path.toList)
     r <- j.as[A]
   } yield r
 
-  def list[A](path: String*)(implicit from: FromJson[A]): JsonValue[List[A]] = for {
-    j <- find(json, path.toList)
-    r <- j.as[List[A]]
+  def option[A](path: String*)(implicit from: FromJson[A]) = for {
+    j <- findjson(json, path.toList).map[Option[Json]](v => Some(v)).flatMapError(_ => jsonValue(None))
+    r <- j.traverse(x => from.apply(x))
   } yield r
 
-  def find(json: Json, path: List[String]): JsonValue[Json] =
+  def findjson(json: Json, path: List[String]): JsonValue[Json] =
     (json -|| path).json(
       j => jsonValue(j),
       error(json, path, "does not exist")
@@ -35,7 +30,6 @@ trait JsonQuery {
   def error[A](json: Json, path: List[String], note: String): JsonValue[A] =
     jsonError[A]("Path [" + path.mkString("/") + "] " + note + ", in json [\n" + JsonPrinter.pretty(json)+ "\n]")
 }
-
 
 object JsonQuery extends JsonQuerys
 
