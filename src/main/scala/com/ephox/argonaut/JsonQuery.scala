@@ -3,6 +3,7 @@ package com.ephox.argonaut
 import scalaz._, Scalaz._
 import Json._
 import JsonValue._
+import JsonQuery._
 
 trait JsonQuery {
   val json: Json
@@ -17,12 +18,12 @@ trait JsonQuery {
 
   def value[A](path: String*)(implicit from: FromJson[A]) = for {
     j <- find(json, path.toList)
-    r <- j.to[A]
+    r <- j.as[A]
   } yield r
 
   def list[A](path: String*)(implicit from: FromJson[A]): JsonValue[List[A]] = for {
     j <- find(json, path.toList)
-    r <- j.to[List[A]]
+    r <- j.as[List[A]]
   } yield r
 
   def find(json: Json, path: List[String]): JsonValue[Json] =
