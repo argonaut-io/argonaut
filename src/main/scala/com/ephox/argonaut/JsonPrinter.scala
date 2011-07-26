@@ -35,7 +35,11 @@ trait JsonPrinters {
     json.fold (
       "null",
       _.toString,
-      _.toString,
+      n =>
+        if (math.floor(n) == n && math.round(n).toDouble == n)
+          math.round(n).toString
+        else
+          n.toString,
       printString,
       entries(_, "[", "]", recurse(_:Json)),
 
