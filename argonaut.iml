@@ -4,7 +4,7 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
-        <option name="compilerLibraryName" value="scala" />
+        <option name="compilerLibraryName" value="scala-2.8.1" />
       </configuration>
     </facet>
   </component>
@@ -54,7 +54,7 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" name="scala" level="project" />
+    <orderEntry type="library" name="scala-2.8.1" level="project" />
   </component>
 </module>
 
