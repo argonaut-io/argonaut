@@ -20,9 +20,6 @@ class JsonParser extends Parsers {
 
   def jboolean = (f | t) ^^ jBool
 
-  //---------------------------------------------------------------------------
-
-  // FIX: This is non-standard. Pull out functions to make building custom parsers easy. i.e. with or without non-standard hacks.
   def trailingcomma = ((whitespace ~ ',')?)
 
   def openarray = '[' ~ whitespace
@@ -51,9 +48,6 @@ class JsonParser extends Parsers {
 
   def whitespace = (whitespaceChar*)
 
-  // FIX has to be a Parser[List[Char]] as unicode char may be more than one java char...? not really sure how/if this hangs together
-  // FIX need to test for escape sequences
-  // FIX also how does this work for emit
   def char =
           (elem("char", (ch: Char) => ch != '\\' && ch != '"') ^^ { (ch: Char) => ch.toString }
           |escape ~ '\"' ^^^ "\""
