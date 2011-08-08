@@ -75,7 +75,7 @@ sealed trait StringWrap {
    */
   def parseToOrDie[T](i: Json => T): T = {
     val r = parseTo(i)
-    if (r.successful) r.get else error("Unsuccessful parse result: " + r)
+    if (r.successful) r.get else sys.error("Unsuccessful parse result: " + r)
   }
 
   /**
