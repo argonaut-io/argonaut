@@ -36,7 +36,7 @@ trait FromJsons {
 
   implicit def ListFromJson[A](implicit from: FromJson[A]): FromJson[List[A]] =
     fromJson(j => j.array.fold(
-      js => js.traverse(from(_)).mapError(e => "array contains an unexpected element [" + e + "]"),
+      js => (js: List[Json]).traverse[JsonValue, A](z => from.apply(z)).mapError(e => "array contains an unexpected element [" + e + "]"),
       jsonError("not an array")
     ))
 
