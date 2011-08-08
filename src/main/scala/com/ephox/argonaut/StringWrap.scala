@@ -30,7 +30,7 @@ sealed trait StringWrap {
     val r = new CharSequenceReader(value)
     p.jvalue(r) match {
       case p.Success(j, _) => success(j)
-      case p.Error(e, _) => error("Could not parse json, error [" + e + "] in [\n" + value + "\n]")
+      case p.Error(e, _) => sys.error("Could not parse json, error [" + e + "] in [\n" + value + "\n]")
       case p.Failure(e, _) => failure("Could not parse json, failure [" + e + "] in [\n" + value + "\n]")
     }
   }
