@@ -4,16 +4,16 @@ package argonaut
 object JsonPrinter extends JsonPrinters
 
 trait JsonPrinters {
-  def compact(json: Json): String = prettyPrint(json, "", "", "")
+  def compact(json: Json): String = prettyPrint(json, "", "", ":", "")
 
-  def pretty(json: Json): String = prettyPrint(json, "    ", "\n",  "")
+  def pretty(json: Json): String = prettyPrint(json, "    ", "\n", ": ", "")
 
   // FIX simplify this fugly duckling
-  def prettyPrint(json: Json, tab:String, delimbreak: String, currentindent: String): String = {
+  def prettyPrint(json: Json, tab:String, delimbreak: String, colon: String, currentindent: String): String = {
 
     def join(s: List[String]) = s.mkString("," + delimbreak + currentindent + tab)
 
-    def recurse(json: Json) = prettyPrint(json, tab, delimbreak, currentindent + tab)
+    def recurse(json: Json) = prettyPrint(json, tab, delimbreak, colon, currentindent + tab)
 
     def bracket(s: String, open: String, close: String) =
         open + delimbreak + currentindent + tab + s +  delimbreak + currentindent + close
@@ -43,8 +43,9 @@ trait JsonPrinters {
       printString,
       entries(_, "[", "]", recurse(_:Json)),
 
-      // FIX why does the inferencer fail here, but not for `map`.
-      entries(_, "{", "}", {case (k, v) => printString(k) + ": " + recurse(v)}: (((String, Json)) => String))
+      entries(_, "{", "}", {
+        case (k, v) => printString(k) + colon + recurse(v)
+      }: (((String, Json)) => String))
     )
   }
 }
