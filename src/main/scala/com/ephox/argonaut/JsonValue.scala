@@ -10,6 +10,12 @@ trait JsonValue[A] {
     value: A => X
   ): X
 
+  def toOption =
+    fold(_ => None, Some(_))
+
+  def getOr(v: => A) =
+    toOption.getOrElse(v)
+
   def map[B](f: A => B): JsonValue[B] = fold(
     e => jsonError(e),
     a => jsonValue(f(a))
