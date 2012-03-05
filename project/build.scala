@@ -18,7 +18,7 @@ object build extends Build {
       )
     , libraryDependencies ++= Seq(
         "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test" withSources
-      , "org.scalaz" %% "scalaz-core" % "6.0.3" withSources
+      , "org.scalaz" %% "scalaz-core" % "6.0.4" withSources
       )
     )
   )
