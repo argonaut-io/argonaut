@@ -3,7 +3,7 @@ p.setVersion(3, 0, 0);
 
 function getVersionString() {
     var v = p.version;
-    return "set project.version " + [v.major, v.minor, v.point, v.buildNumber].join(".");
+    return "set projectVersion := \"" + [v.major, v.minor, v.point, v.buildNumber].join(".") + "\"";
 }
 
 p.setConfig({
