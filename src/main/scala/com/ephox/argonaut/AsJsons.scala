@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 trait AsJsons {
   implicit def ToJsonAsJson[A](a: A)(implicit to: ToJson[A]) = new {

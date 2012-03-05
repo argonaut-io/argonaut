@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 import util.parsing.combinator._
 import Json._

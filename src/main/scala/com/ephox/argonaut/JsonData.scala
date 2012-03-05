@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 trait JsonData[A] {
   def toJson(a: A): Json

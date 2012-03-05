@@ -1,4 +1,5 @@
-package com.ephox.argonaut
+package com.ephox
+package argonaut
 
 trait ToJson[A] {
   def apply(a: A): Json
