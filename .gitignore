@@ -1,3 +1,5 @@
+.idea
+.idea_modules
 dist
 *.iws
 out
