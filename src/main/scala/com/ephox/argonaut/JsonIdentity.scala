@@ -60,6 +60,7 @@ trait JsonIdentity[J] {
    */
   def -->>?:(o: => Option[Json])(implicit l: JsonLike[J]): J =
     o.map(j => withArray(j :: _)).getOrElse(j)
+
 }
 
 object JsonIdentity extends JsonIdentitys

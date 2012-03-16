@@ -48,5 +48,5 @@ trait ToJsons {
     toJson(jObjectMap)
 
   implicit def ToJsonListAsJson[A](implicit to: ToJson[A]): ToJson[List[A]] =
-    toJson(as => as.foldRight(jEmptyArray)((a, acc) => to(a) -->>: acc))
+    error("") // todo toJson(as => as.foldRight(jEmptyArray)((a, acc) => to(a) -->>: acc))
 }

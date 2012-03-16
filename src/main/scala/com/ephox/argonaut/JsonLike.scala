@@ -2,8 +2,7 @@ package com.ephox
 package argonaut
 
 import Json._
-import PossibleJson._
-import scalaz._, PLens._, CoStateT._
+import scalaz._, PLens._
 
 trait JsonLike[J] {
   /**
@@ -65,78 +64,6 @@ trait JsonLike[J] {
 object JsonLike extends JsonLikes
 
 trait JsonLikes {
-
-  implicit def PossibleJsonJsonLike: JsonLike[PossibleJson] =
-    new JsonLike[PossibleJson] {
-      def jBoolL: PossibleJson @-? Boolean =
-        PLens(_.bool map (coState(jBool, _)))
-    
-      def jNumberL: PossibleJson @-? JsonNumber =
-        PLens(_.number map (coState(jNumber, _)))
-    
-      def jStringL: PossibleJson @-? JsonString =
-        PLens(_.string map (coState(jString, _)))
-    
-      def jArrayL: PossibleJson @-? JsonArray =
-        PLens(_.array map (coState(jArray, _)))
-    
-      def jObjectL: PossibleJson @-? JsonObject =
-        PLens(_.obj map (coState(jObject, _)))
-
-      def jNull =
-        pJson(jjNull)
-
-      def jBool =
-        pJson compose jjBool
-
-      def jNumber =
-        pJson compose jjNumber
-
-      def jString =
-        pJson compose jjString
-
-      def jArray =
-        pJson compose jjArray
-
-      def jObject =
-        pJson compose jjObject
-    }
-
-  implicit def JsonJsonLike: JsonLike[Json] =
-    new JsonLike[Json] {
-      def jBoolL: Json @-? Boolean =
-        PLens(_.bool map (coState(jBool, _)))
-    
-      def jNumberL: Json @-? JsonNumber =
-        PLens(_.number map (coState(jNumber, _)))
-    
-      def jStringL: Json @-? JsonString =
-        PLens(_.string map (coState(jString, _)))
-    
-      def jArrayL: Json @-? JsonArray =
-        PLens(_.array map (coState(jArray, _)))
-    
-      def jObjectL: Json @-? JsonObject =
-        PLens(_.obj map (coState(jObject, _)))
-
-      def jNull =
-        jjNull
-
-      def jBool =
-        jjBool
-
-      def jNumber =
-        jjNumber
-
-      def jString =
-        jjString
-
-      def jArray =
-        jjArray
-
-      def jObject =
-        jjObject
-    }
   
   /**
    * A partial lens for JSON boolean values.

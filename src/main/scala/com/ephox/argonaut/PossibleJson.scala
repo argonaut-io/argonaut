@@ -537,4 +537,43 @@ trait PossibleJsons {
       none: => X
     ) = k.fold(jsonNull, jsonBool, jsonNumber, jsonString, jsonArray, jsonObject)
   }
+
+  import scalaz._, PLens._, CoStateT._
+
+  implicit def PossibleJsonJsonLike: JsonLike[PossibleJson] =
+    new JsonLike[PossibleJson] {
+      def jBoolL: PossibleJson @-? Boolean =
+        PLens(_.bool map (coState(jBool, _)))
+
+      def jNumberL: PossibleJson @-? JsonNumber =
+        PLens(_.number map (coState(jNumber, _)))
+
+      def jStringL: PossibleJson @-? JsonString =
+        PLens(_.string map (coState(jString, _)))
+
+      def jArrayL: PossibleJson @-? JsonArray =
+        PLens(_.array map (coState(jArray, _)))
+
+      def jObjectL: PossibleJson @-? JsonObject =
+        PLens(_.obj map (coState(jObject, _)))
+
+      def jNull =
+        pJson(jjNull)
+
+      def jBool =
+        pJson compose jjBool
+
+      def jNumber =
+        pJson compose jjNumber
+
+      def jString =
+        pJson compose jjString
+
+      def jArray =
+        pJson compose jjArray
+
+      def jObject =
+        pJson compose jjObject
+    }
+
 }

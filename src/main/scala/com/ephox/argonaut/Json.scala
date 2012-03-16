@@ -300,6 +300,44 @@ trait Jsons {
    */
   val jObjectMap = (x: JsonObjectMap) => jObject(x.toList)
 
+  import scalaz._, PLens._, CoStateT._
+
+  implicit def JsonJsonLike: JsonLike[Json] =
+    new JsonLike[Json] {
+      def jBoolL: Json @-? Boolean =
+        PLens(_.fold(None, z => Some(coState(jjBool, z)), _ => None, _ => None, _ => None, _ => None))
+
+      def jNumberL: Json @-? JsonNumber =
+        PLens(_.fold(None, _ => None, z => Some(coState(jjNumber, z)), _ => None, _ => None, _ => None))
+
+      def jStringL: Json @-? JsonString =
+        PLens(_.fold(None, _ => None, _ => None, z => Some(coState(jjString, z)), _ => None, _ => None))
+
+      def jArrayL: Json @-? JsonArray =
+        PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(coState(jjArray, z)), _ => None))
+
+      def jObjectL: Json @-? JsonObject =
+        PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(coState(jjObject, z))))
+
+      def jNull =
+        jjNull
+
+      def jBool =
+        jjBool
+
+      def jNumber =
+        jjNumber
+
+      def jString =
+        jjString
+
+      def jArray =
+        jjArray
+
+      def jObject =
+        jjObject
+    }
+
   /**
    * Implicitly convert to a possible JSON.
    */
