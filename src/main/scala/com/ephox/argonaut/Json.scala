@@ -26,70 +26,6 @@ sealed trait Json {
   private val p = PossibleJson.pJson(this)
 
   /**
-   * If this is a JSON boolean value, invert the `true` and `false` values, otherwise, leave unchanged.
-   */
-  def not =
-    if(p.isTrue) jFalse
-    else if(p.isFalse) jTrue
-    else this
-
-  /**
-   * If this is a JSON number value, run the given function on the value, otherwise, leave unchanged.
-   */
-  val withNumber: (JsonNumber => JsonNumber) => Json =
-    k => p.number match {
-      case Some(d) => jNumber(k(d))
-      case None => this
-    }
-
-  /**
-   * If this is a JSON string value, run the given function on the value, otherwise, leave unchanged.
-   */
-  val withString: (JsonString => JsonString) => Json =
-    k => p.string match {
-      case Some(s) => jString(k(s))
-      case None => this
-    }
-
-  /**
-   * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
-   */
-  val withArray: (JsonArray => JsonArray) => Json =
-    k => p.array match {
-      case Some(a) => jArray(k(a))
-      case None => this
-    }
-
-  /**
-   * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
-   */
-  val withObject: (JsonObject => JsonObject) => Json =
-    k => p.obj match {
-      case Some(o) => jObject(k(o))
-      case None => this
-    }
-
-  /**
-   * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
-   */
-  def ->:(j: => JsonAssoc) = withObject(j :: _)
-
-  /**
-   * If this is a JSON object, and the association is set, then prepend the given value, otherwise, return a JSON object with only the given value.
-   */
-  def ->?:(o: => Option[JsonAssoc]) = o.map(j => withObject(j :: _)).getOrElse(this)
-
-  /**
-   * If this is a JSON array, then prepend the given value, otherwise, return a JSON array with only the given value.
-   */
-  def -->>:(j: => Json) = withArray(j :: _)
-
-  /**
-   * If this is a JSON array, and the element is set, then prepend the given value, otherwise, return a JSON array with only the given value.
-   */
-  def -->>?:(o: => Option[Json]) = o.map(j => withArray(j :: _)).getOrElse(this)
-
-  /**
    * Compare two JSON values for equality.
    */
   override def equals(o: Any) =
@@ -148,37 +84,92 @@ trait Jsons {
   type JsonObject = List[JsonAssoc]
   type JsonObjectMap = Map[JsonField, Json]
 
-  import scalaz._, Scalaz._, PLens._, CoStateT._
+  /**
+   * Construct a JSON value that is `null`.
+   */
+  private[argonaut] val jjNull: Json = new Json {
+    def fold[X](
+      jnull: => X,
+      jbool: Boolean => X,
+      jnumber: JsonNumber => X,
+      jstring: String => X,
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
+    ) = jnull
+  }
 
   /**
-   * A partial lens for JSON boolean values.
+   * Construct a JSON value that is a boolean.
    */
-  val jBoolL: Json @-? Boolean =
-    PLens(_.bool map (coState(jBool, _)))
+  private[argonaut] val jjBool: Boolean => Json = b => new Json {
+    def fold[X](
+      jnull: => X,
+      jbool: Boolean => X,
+      jnumber: JsonNumber => X,
+      jstring: String => X,
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
+    ) = jbool(b)
+  }
 
   /**
-   * A partial lens for JSON number values.
+   * Construct a JSON value that is a number.
    */
-  val jNumberL: Json @-? JsonNumber =
-    PLens(_.number map (coState(jNumber, _)))
+  private[argonaut] val jjNumber: JsonNumber => Json = n => new Json {
+    def fold[X](
+      jnull: => X,
+      jbool: Boolean => X,
+      jnumber: JsonNumber => X,
+      jstring: String => X,
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
+    ) = jnumber(n)
+  }
 
   /**
-   * A partial lens for JSON string values.
+   * Construct a JSON value that is a string.
    */
-  val jStringL: Json @-? JsonString =
-    PLens(_.string map (coState(jString, _)))
+  private[argonaut] val jjString: String => Json = s => new Json {
+    def fold[X](
+      jnull: => X,
+      jbool: Boolean => X,
+      jnumber: JsonNumber => X,
+      jstring: String => X,
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
+    ) = jstring(s)
+  }
 
   /**
-   * A partial lens for JSON string values.
+   * Construct a JSON value that is an array.
    */
-  val jArrayL: Json @-? JsonArray =
-    PLens(_.array map (coState(jArray, _)))
+  private[argonaut] val jjArray: JsonArray => Json = a => new Json {
+    def fold[X](
+      jnull: => X,
+      jbool: Boolean => X,
+      jnumber: JsonNumber => X,
+      jstring: String => X,
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
+    ) = jarray(a)
+  }
 
   /**
-   * A partial lens for JSON string values.
+   * Construct a JSON value that is an object.
    */
-  val jObjectL: Json @-? JsonObject =
-    PLens(_.obj map (coState(jObject, _)))
+  private[argonaut] val jjObject: JsonObject => Json = x => new Json {
+    def fold[X](
+      jnull: => X,
+      jbool: Boolean => X,
+      jnumber: JsonNumber => X,
+      jstring: String => X,
+      jarray: JsonArray => X,
+      jobject: JsonObject => X
+    ) = jobject(x)
+  }
+
+
+  // todo delete all below
 
   /**
    * Construct a JSON value that is `null`.
