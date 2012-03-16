@@ -148,6 +148,38 @@ trait Jsons {
   type JsonObject = List[JsonAssoc]
   type JsonObjectMap = Map[JsonField, Json]
 
+  import scalaz._, Scalaz._, PLens._, CoStateT._
+
+  /**
+   * A partial lens for JSON boolean values.
+   */
+  val jBoolL: Json @-? Boolean =
+    PLens(_.bool map (coState(jBool, _)))
+
+  /**
+   * A partial lens for JSON number values.
+   */
+  val jNumberL: Json @-? JsonNumber =
+    PLens(_.number map (coState(jNumber, _)))
+
+  /**
+   * A partial lens for JSON string values.
+   */
+  val jStringL: Json @-? JsonString =
+    PLens(_.string map (coState(jString, _)))
+
+  /**
+   * A partial lens for JSON string values.
+   */
+  val jArrayL: Json @-? JsonArray =
+    PLens(_.array map (coState(jArray, _)))
+
+  /**
+   * A partial lens for JSON string values.
+   */
+  val jObjectL: Json @-? JsonObject =
+    PLens(_.obj map (coState(jObject, _)))
+
   /**
    * Construct a JSON value that is `null`.
    */
