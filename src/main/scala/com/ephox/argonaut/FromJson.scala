@@ -37,8 +37,8 @@ trait FromJsons {
 
   implicit def ListFromJson[A](implicit from: FromJson[A]): FromJson[List[A]] =
     fromJson(j => j.array.fold(
-      js => (js: List[Json]).traverse[JsonValue, A](z => from.apply(z)).mapError(e => "array contains an unexpected element [" + e + "]"),
-      jsonError("not an array")
+      js => (js: List[Json]).traverse[JsonValue, A](z => from.apply(z)).mapError(e => "array contains an unexpected element [" + e + "]")
+    , jsonError("not an array")
     ))
 
   implicit def StringFromJson: FromJson[String] =
@@ -65,15 +65,9 @@ trait FromJsons {
   implicit def JBooleanFromJson: FromJson[java.lang.Boolean] =
     BooleanFromJson.map(z => z)
 
-  implicit def FromJsonPure: Pure[FromJson] = new Pure[FromJson] {
-    def pure[A](a: => A) = fromJson(_ => jsonValue(a))
-  }
-
-  implicit def FromJsonFunctor: Functor[FromJson] = new Functor[FromJson] {
-    def fmap[A, B](a: FromJson[A], f: A => B) = a map f
-  }
-
-  implicit def FromJsonBind: Bind[FromJson] = new Bind[FromJson] {
-    def bind[A, B](a: FromJson[A], f: A => FromJson[B]) = a flatMap f
+  implicit def FromJsonMonad: Monad[FromJson] = new Monad[FromJson] {
+    def point[A](a: => A) = fromJson(_ => jsonValue(a))
+    def bind[A, B](a: FromJson[A])(f: A => FromJson[B]) = a flatMap f
+    override def map[A, B](a: FromJson[A])(f: A => B) = a map f
   }
 }

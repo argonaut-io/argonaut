@@ -51,15 +51,9 @@ object JsonValue {
     ): X = error(message)
   }
 
-  implicit def JsonValuePure: Pure[JsonValue] = new Pure[JsonValue] {
-    def pure[A](a: => A) = jsonValue(a)
-  }
-
-  implicit def JsonValueFunctor: Functor[JsonValue] = new Functor[JsonValue] {
-    def fmap[A, B](a: JsonValue[A], f: (A) => B) = a map f
-  }
-
-  implicit def JsonValueBind: Bind[JsonValue] = new Bind[JsonValue] {
-    def bind[A, B](a: JsonValue[A], f: (A) => JsonValue[B]) = a flatMap f
+  implicit def JsonValueMonad: Monad[JsonValue] = new Monad[JsonValue] {
+    def point[A](a: => A) = jsonValue(a)
+    def bind[A, B](a: JsonValue[A])(f: A => JsonValue[B]) = a flatMap f
+    override def map[A, B](a: JsonValue[A])(f: A => B) = a map f
   }
 }

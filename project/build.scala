@@ -9,6 +9,7 @@ object build extends Build {
   , base = file(".")
   , settings = Defaults.defaultSettings ++ Seq[Sett](
       name := "argonaut"
+    , resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
     , organization := "com.ephox"
     , version := "1.0"
     , scalaVersion := "2.9.1"
@@ -18,7 +19,7 @@ object build extends Build {
       )
     , libraryDependencies ++= Seq(
         "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test" withSources
-      , "org.scalaz" %% "scalaz-core" % "6.0.4" withSources
+      , "org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT" withSources
       )
     )
   )
