@@ -300,24 +300,24 @@ trait Jsons {
    */
   val jObjectMap = (x: JsonObjectMap) => jObject(x.toList)
 
-  import scalaz._, PLens._, CoStateT._
+  import scalaz._, PLens._, CostateT._
 
   implicit def JsonJsonLike: JsonLike[Json] =
     new JsonLike[Json] {
       def jBoolL: Json @-? Boolean =
-        PLens(_.fold(None, z => Some(coState(jjBool, z)), _ => None, _ => None, _ => None, _ => None))
+        PLens(_.fold(None, z => Some(costate(jjBool, z)), _ => None, _ => None, _ => None, _ => None))
 
       def jNumberL: Json @-? JsonNumber =
-        PLens(_.fold(None, _ => None, z => Some(coState(jjNumber, z)), _ => None, _ => None, _ => None))
+        PLens(_.fold(None, _ => None, z => Some(costate(jjNumber, z)), _ => None, _ => None, _ => None))
 
       def jStringL: Json @-? JsonString =
-        PLens(_.fold(None, _ => None, _ => None, z => Some(coState(jjString, z)), _ => None, _ => None))
+        PLens(_.fold(None, _ => None, _ => None, z => Some(costate(jjString, z)), _ => None, _ => None))
 
       def jArrayL: Json @-? JsonArray =
-        PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(coState(jjArray, z)), _ => None))
+        PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(costate(jjArray, z)), _ => None))
 
       def jObjectL: Json @-? JsonObject =
-        PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(coState(jjObject, z))))
+        PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(costate(jjObject, z))))
 
       def jNull =
         jjNull
