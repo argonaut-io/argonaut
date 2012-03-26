@@ -6,6 +6,7 @@ import util.parsing.input.CharSequenceReader
 import org.scalacheck.Properties
 import Data._
 import JsonPrinter._
+import JsonIdentity._
 import StringWrap._
 
 object JsonParserTest extends Properties("JsonParser") {

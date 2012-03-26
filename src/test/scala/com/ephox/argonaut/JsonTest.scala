@@ -5,6 +5,8 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 import Data._
 import Json._
+import JsonIdentity._
+import JsonLike._
 
 object JsonTest extends Properties("Json") {
   property("not compose not is id") =
@@ -45,29 +47,30 @@ object JsonTest extends Properties("Json") {
 
   property("jBool isBool") =
       forAll((b: Boolean) =>
-        jBool(b).isBool)
+        jBool[Json](b).isBool)
 
   property("jNumber isNumber") =
       forAll((n: JsonNumber) =>
-        jNumber(n).isNumber)
+        jNumber[Json](n).isNumber)
 
   property("jString isString") =
       forAll((s: String) =>
-        jString(s).isString)
+        jString[Json](s).isString)
 
   property("jArray isArray") =
       forAll((a: JsonArray) =>
-        jArray(a).isArray)
+        jArray[Json](a).isArray)
 
   property("jSingleArray is single array") =
       forAll((j: Json) =>
-        jSingleArray(j).array == Some(List(j)))
+        jSingleArray[Json](j).array == Some(List(j)))
 
   property("jObject isObject") =
       forAll((a: JsonObject) =>
-        jObject(a).isObject)
+        jObject[Json](a).isObject)
 
   property("jSingleObject is single object") =
       forAll((f: JsonField, j: Json) =>
-        jSingleObject(f)(j).obj == Some(List((f, j))))
+        jSingleObject[Json](f, j).obj == Some(List((f, j))))
+
 }

@@ -5,8 +5,11 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 import Data._
 import Json._
+import JsonIdentity._
+import JsonLike._
 
 object PossibleJsonTest extends Properties("PossibleJson") {
+
   property("One and only one is* satisfies (disjoint)") =
       forAll((j: Json) =>
         (List(j.isNull, j.isBool, j.isNumber, j.isString, j.isArray, j.isObject) filter (z => z) length) == 1)
@@ -29,21 +32,22 @@ object PossibleJsonTest extends Properties("PossibleJson") {
 
   property("A boolean value isBool") =
       forAll((b: Boolean) =>
-        jBool(b).isBool)
+        jBool[PossibleJson](b).isBool)
 
   property("A number value isNumber") =
       forAll((n: JsonNumber) =>
-        jNumber(n).isNumber)
+        jNumber[PossibleJson](n).isNumber)
 
   property("A string value isString") =
       forAll((s: String) =>
-        jString(s).isString)
+        jString[PossibleJson](s).isString)
 
   property("An array value isArray") =
       forAll((a: List[Json]) =>
-        jArray(a).isArray)
+        jArray[PossibleJson](a).isArray)
 
   property("An object value isObject") =
       forAll((o: List[(String, Json)]) =>
-        jObject(o).isObject)
+        jObject[PossibleJson](o).isObject)
+
 }
