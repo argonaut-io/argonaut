@@ -15,8 +15,6 @@ sealed trait StringWrap {
    */
   val value: String
 
-  import PossibleJson._
-
   /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome. To understand the
    * distinction between an `error` and a `failure` consult the Scala parser combinator API.
@@ -77,11 +75,12 @@ sealed trait StringWrap {
     val r = parseTo(i)
     if (r.successful) r.get else sys.error("Unsuccessful parse result: " + r)
   }
-
+       
   /**
    * Parses this string value to a possible JSON value.
    */
-  def pparse: PossibleJson = parseIgnoreError(pJson, eJson)
+  def pparse: Option[Json] = parseIgnoreError(Some(_), None)
+  
 }
 
 object StringWrap extends StringWraps

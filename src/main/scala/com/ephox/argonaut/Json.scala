@@ -10,6 +10,7 @@ package argonaut
  */
 sealed trait Json {
   import Json._
+  import JsonIdentity._
 
   /**
    * The catamorphism for the JSON value data type.
@@ -23,19 +24,17 @@ sealed trait Json {
     jsonObject: JsonObject => X
   ): X
 
-  private val p = PossibleJson.pJson(this)
-
   /**
    * Compare two JSON values for equality.
    */
   override def equals(o: Any) =
     o.isInstanceOf[Json] && o.asInstanceOf[Json].fold(
-      p.isNull,
-      b => p.bool.exists(_ == b),
-      n => p.number exists (_ == n),
-      s => p.string exists (_ == s),
-      a => p.array exists (_ == a),
-      o => p.obj exists (_ == o)
+      this.isNull,
+      b => this.bool exists (_ == b),
+      n => this.number exists (_ == n),
+      s => this.string exists (_ == s),
+      a => this.array exists (_ == a),
+      o => this.obj exists (_ == o)
     )
 
   /**
@@ -64,6 +63,7 @@ sealed trait Json {
           "array[" + _ + "]",
           "object[" + _ + "]"
         ) + "}"
+
 }
 
 object Json extends Jsons
@@ -83,6 +83,9 @@ trait Jsons {
   type JsonAssoc = (JsonField, Json)
   type JsonObject = List[JsonAssoc]
   type JsonObjectMap = Map[JsonField, Json]
+
+  type PossibleJson =
+    Option[Json]
 
   /**
    * Construct a JSON value that is `null`.
@@ -168,142 +171,13 @@ trait Jsons {
     ) = jobject(x)
   }
 
-
-  // todo delete all below
-
-  /**
-   * Construct a JSON value that is `null`.
-   */
-  val jNull: Json = new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jnull
-  }
-
-  /**
-   * Construct a JSON value that is a boolean.
-   */
-  val jBool: Boolean => Json = b => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jbool(b)
-  }
-
-  /**
-   * Construct a JSON boolean value of `true`.
-   */
-  val jTrue = jBool(true)
-
-  /**
-   * Construct a JSON boolean value of `false`.
-   */
-  val jFalse = jBool(false)
-
-  /**
-   * Construct a JSON value that is a number.
-   */
-  val jNumber: JsonNumber => Json = n => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jnumber(n)
-  }
-
-  /**
-   * A JSON value that is a zero number.
-   */
-  val jZero = jNumber(0D)
-
-  /**
-   * Construct a JSON value that is a string.
-   */
-  val jString: String => Json = s => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jstring(s)
-  }
-
-  /**
-   * A JSON value that is an empty string.
-   */
-  val jEmptyString = jString("")
-
-  /**
-   * Construct a JSON value that is an array.
-   */
-  val jArray: JsonArray => Json = a => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jarray(a)
-  }
-
-  /**
-   * A JSON value that is an empty array.
-   */
-  val jEmptyArray = jArray(Nil)
-
-  /**
-   * Returns a function that takes a single value and produces a JSON array that contains only that value.
-   */
-  val jSingleArray: Json => Json = j => jArray(List(j))
-
-  /**
-   * Construct a JSON value that is an object.
-   */
-  val jObject: JsonObject => Json = x => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jobject(x)
-  }
-
-  /**
-   * A JSON value that is an empty object.
-   */
-  val jEmptyObject = jObject(Nil)
-
-  /**
-   * Returns a function that takes an association value and produces a JSON object that contains only that value.
-   */
-  val jSingleObject: JsonField => Json => Json = k => v => jObject(List((k, v)))
-
-  /**
-   * Construct a JSON value that is an object from an index.
-   */
-  val jObjectMap = (x: JsonObjectMap) => jObject(x.toList)
-
   import scalaz._, PLens._, CostateT._
 
   implicit def JsonJsonLike: JsonLike[Json] =
     new JsonLike[Json] {
+      def isNull: Json => Boolean =
+        _.fold(true, _ => false, _ => false, _ => false, _ => false, _ => false)
+
       def jBoolL: Json @-? Boolean =
         PLens(_.fold(None, z => Some(costate(jjBool, z)), _ => None, _ => None, _ => None, _ => None))
 
@@ -338,8 +212,43 @@ trait Jsons {
         jjObject
     }
 
-  /**
-   * Implicitly convert to a possible JSON.
-   */
-  implicit def JsonPossible(j: Json): PossibleJson = PossibleJson.pJson(j)
+  implicit def PossibleJsonJsonLike: JsonLike[PossibleJson] =
+    new JsonLike[PossibleJson] {
+      import JsonIdentity._
+      def isNull: PossibleJson => Boolean =
+        _.isEmpty
+
+      def jBoolL: PossibleJson @-? Boolean =
+        PLens(_ flatMap (_.bool map (costate(jBool, _))))
+
+      def jNumberL: PossibleJson @-? JsonNumber =
+        PLens(_ flatMap (_.number map (costate(jNumber, _))))
+
+      def jStringL: PossibleJson @-? JsonString =
+        PLens(_ flatMap (_.string map (costate(jString, _))))
+
+      def jArrayL: PossibleJson @-? JsonArray =
+        PLens(_ flatMap (_.array map (costate(jArray, _))))
+
+      def jObjectL: PossibleJson @-? JsonObject =
+        PLens(_ flatMap (_.obj map (costate(jObject, _))))
+
+      def jNull =
+        Some(jjNull)
+
+      def jBool: Boolean => PossibleJson =
+        x => Some(jjBool(x))
+
+      def jNumber =
+        x => Some(jjNumber(x))
+
+      def jString =
+        x => Some(jjString(x))
+
+      def jArray =
+        x => Some(jjArray(x))
+
+      def jObject =
+        x => Some(jjObject(x))
+    }
 }

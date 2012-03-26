@@ -2,24 +2,24 @@ package com.ephox
 package argonaut
 
 import util.parsing.combinator._
-import Json._
+import JsonLike._
 
 class JsonParser extends Parsers {
   type Elem = Char
 
-  def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ trailingcomma <~ closeobject ^^ jObject
+  def jobject: Parser[Json] = openobject ~> repsep(pair, separator) <~ trailingcomma <~ closeobject ^^ jObject[Json]
 
-  def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ trailingcomma <~ closearray ^^ jArray
+  def jarray: Parser[Json] = openarray ~> repsep(jvalue, separator) <~ trailingcomma <~ closearray ^^ jArray[Json]
 
   def jvalue: Parser[Json] = whitespace ~> (jobject ||| jarray ||| jstring ||| jboolean ||| jnull |||  jnumber) <~ whitespace
 
-  def jstring = string ^^ jString
+  def jstring = string ^^ jString[Json]
 
-  def jnumber = number ^^ jNumber
+  def jnumber = number ^^ jNumber[Json]
 
-  def jnull = acceptSeq("null") ^^^ jNull
+  def jnull = acceptSeq("null") ^^^ jNull[Json]
 
-  def jboolean = (f | t) ^^ jBool
+  def jboolean = (f | t) ^^ jBool[Json]
 
   def trailingcomma = ((whitespace ~ ',')?)
 

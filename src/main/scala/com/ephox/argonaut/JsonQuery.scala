@@ -5,6 +5,7 @@ import scalaz._, Scalaz._
 import Json._
 import JsonValue._
 import JsonQuery._
+import JsonIdentity._
 
 trait JsonQuery {
   val json: Json
@@ -23,10 +24,10 @@ trait JsonQuery {
   } yield r
 
   def findjson(json: Json, path: List[String]): JsonValue[Json] =
-    (json -|| path).json(
-      j => jsonValue(j),
-      error(json, path, "does not exist")
-    )
+    json -|| path match {
+      case Some(j) => jsonValue(j)
+      case None => error(json, path, "does not exist")
+    }
 
   def error[A](json: Json, path: List[String], note: String): JsonValue[A] =
     jsonError[A]("Path [" + path.mkString("/") + "] " + note + ", in json [\n" + JsonPrinter.pretty(json)+ "\n]")

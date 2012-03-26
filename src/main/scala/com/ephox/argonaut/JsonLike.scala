@@ -6,6 +6,11 @@ import scalaz._, PLens._
 
 trait JsonLike[J] {
   /**
+   * Return `true` if this JSON value is `null`, otherwise, `false`.
+   */
+  def isNull: J => Boolean
+
+  /**
    * A partial lens for JSON boolean values.
    */
   def jBoolL: J @-? Boolean
@@ -104,8 +109,8 @@ trait JsonLikes {
   /**
    * Construct a JSON value that is a boolean.
    */
-  def jBool[J](implicit l: JsonLike[J]): Boolean => J =
-    l.jBool
+  def jBool[J](b: Boolean)(implicit l: JsonLike[J]): J =
+    l.jBool(b)
 
   /**
    * Construct a JSON boolean value of `true`.
@@ -122,8 +127,8 @@ trait JsonLikes {
   /**
    * Construct a JSON value that is a number.
    */
-  def jNumber[J](implicit l: JsonLike[J]): JsonNumber => J =
-    l.jNumber
+  def jNumber[J](n: JsonNumber)(implicit l: JsonLike[J]): J =
+    l.jNumber(n)
 
   /**
    * A JSON value that is a zero number.
@@ -134,8 +139,8 @@ trait JsonLikes {
   /**
    * Construct a JSON value that is a string.
    */
-  def jString[J](implicit l: JsonLike[J]): String => J =
-    l.jString
+  def jString[J](s: String)(implicit l: JsonLike[J]): J =
+    l.jString(s)
 
   /**
    * A JSON value that is an empty string.
@@ -146,8 +151,8 @@ trait JsonLikes {
   /**
    * Construct a JSON value that is an array.
    */
-  def jArray[J](implicit l: JsonLike[J]): JsonArray => J =
-    l.jArray
+  def jArray[J](a: JsonArray)(implicit l: JsonLike[J]): J =
+    l.jArray(a)
 
   /**
    * A JSON value that is an empty array.
@@ -158,14 +163,14 @@ trait JsonLikes {
   /**
    * Returns a function that takes a single value and produces a JSON array that contains only that value.
    */
-  def jSingleArray[J](implicit l: JsonLike[J]): Json => J =
-    j => l.jArray(List(j))
+  def jSingleArray[J](j: Json)(implicit l: JsonLike[J]): J =
+    l.jArray(List(j))
 
   /**
    * Construct a JSON value that is an object.
    */
-  def jObject[J](implicit l: JsonLike[J]): JsonObject => J =
-    l.jObject
+  def jObject[J](o: JsonObject)(implicit l: JsonLike[J]): J =
+    l.jObject(o)
 
   /**
    * A JSON value that is an empty object.
@@ -176,13 +181,13 @@ trait JsonLikes {
   /**
    * Returns a function that takes an association value and produces a JSON object that contains only that value.
    */
-  def jSingleObject[J](implicit l: JsonLike[J]): JsonField => Json => J =
-    k => v => l.jObject(List((k, v)))
+  def jSingleObject[J](k: JsonField, v: Json)(implicit l: JsonLike[J]): J =
+    l.jObject(List((k, v)))
 
   /**
    * Construct a JSON value that is an object from an index.
    */
-  def jObjectMap[J](implicit l: JsonLike[J]): JsonObjectMap => J =
-    x => l.jObject(x.toList)
+  def jObjectMap[J](x: JsonObjectMap)(implicit l: JsonLike[J]): J =
+    l.jObject(x.toList)
   
 }

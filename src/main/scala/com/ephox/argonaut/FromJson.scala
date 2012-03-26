@@ -3,6 +3,7 @@ package argonaut
 
 import scalaz._, Scalaz._
 import JsonValue._
+import JsonIdentity._
 
 trait FromJson[A] {
   import FromJson._

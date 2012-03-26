@@ -12,41 +12,42 @@ trait ToJsons {
     def apply(a: A) = f(a)
   }
 
-  import Json._
+  import JsonLike._
+  import JsonIdentity._
 
   implicit def JIntegerToJson: ToJson[java.lang.Integer] =
-    toJson(v => jNumber(v.intValue.toDouble))
+    toJson(v => jNumber[Json](v.intValue.toDouble))
 
   implicit def JLongToJson: ToJson[java.lang.Long] =
-    toJson(v => jNumber(v.longValue.toDouble))
+    toJson(v => jNumber[Json](v.longValue.toDouble))
 
   implicit def JBooleanToJson: ToJson[java.lang.Boolean] =
-    toJson(v => jBool(v.booleanValue))
+    toJson(v => jBool[Json](v.booleanValue))
 
   implicit def BooleanToJson: ToJson[Boolean] =
-    toJson(jBool)
+    toJson(jBool[Json])
 
   implicit def IntToJson: ToJson[Int] =
-    toJson(v => jNumber(v.toDouble))
+    toJson(v => jNumber[Json](v.toDouble))
 
   implicit def LongToJson: ToJson[Long] =
-    toJson(v => jNumber(v.toDouble))
+    toJson(v => jNumber[Json](v.toDouble))
 
   implicit def DoubleToJson: ToJson[Double] =
-    toJson(jNumber)
+    toJson(jNumber[Json])
 
   implicit def StringToJson: ToJson[String] =
-    toJson(jString)
+    toJson(jString[Json])
 
   implicit def ListToJsonArray: ToJson[List[Json]] =
-    toJson(jArray)
+    toJson(jArray[Json])
 
   implicit def ListToJsonObject: ToJson[List[(String, Json)]] =
-    toJson(jObject)
+    toJson(jObject[Json])
 
   implicit def MapToJsonObject: ToJson[Map[String, Json]] =
-    toJson(jObjectMap)
+    toJson(jObjectMap[Json])
 
   implicit def ToJsonListAsJson[A](implicit to: ToJson[A]): ToJson[List[A]] =
-    error("") // todo toJson(as => as.foldRight(jEmptyArray)((a, acc) => to(a) -->>: acc))
+    toJson(as => as.foldRight(jEmptyArray[Json])((a, acc) => to(a) -->>: acc))
 }
