@@ -33,32 +33,6 @@ sealed trait Json {
     }
 
   /**
-   * Compare two JSON values for equality.
-   */
-  override def equals(o: Any) =
-    o.isInstanceOf[Json] && o.asInstanceOf[Json].fold(
-      this.isNull,
-      b => this.bool exists (_ == b),
-      n => this.number exists (_ == n),
-      s => this.string exists (_ == s),
-      a => this.array exists (_ == a),
-      o => this.obj exists (_ == o)
-    )
-
-  /**
-   * Compute a hash-code for this JSON value.
-   */
-  override def hashCode =
-    fold(
-      0,
-      _.hashCode,
-      _.hashCode,
-      _.hashCode,
-      _.hashCode,
-      _.hashCode
-    )
-
-  /**
    * Compute a `String` representation for this JSON value.
    */
   override def toString =
