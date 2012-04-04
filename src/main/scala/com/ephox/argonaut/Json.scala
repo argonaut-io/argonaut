@@ -56,21 +56,6 @@ private case class JString(s: String) extends Json
 private case class JArray(a: JsonArray) extends Json
 private case class JObject(o: JsonObject) extends Json
 
-/*
-
-  /**
-   * The catamorphism for the JSON value data type.
-   */
-  def fold[X](
-    jsonNull: => X,
-    jsonBool: Boolean => X,
-    jsonNumber: JsonNumber => X,
-    jsonString: String => X,
-    jsonArray: JsonArray => X,
-    jsonObject: JsonObject => X
-  ): X
-
- */
 object Json extends Jsons
 
 /**
