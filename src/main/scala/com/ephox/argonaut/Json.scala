@@ -161,24 +161,23 @@ trait Jsons {
 
   implicit def PossibleJsonJsonLike: JsonLike[PossibleJson] =
     new JsonLike[PossibleJson] {
-      import JsonIdentity._
       def isNull: PossibleJson => Boolean =
         _.isEmpty
 
       def jBoolL: PossibleJson @-? Boolean =
-        PLens(_ flatMap (_.bool map (costate(jBool, _))))
+        JsonLike.jBoolL[Json].option
 
       def jNumberL: PossibleJson @-? JsonNumber =
-        PLens(_ flatMap (_.number map (costate(jNumber, _))))
+        JsonLike.jNumberL[Json].option
 
       def jStringL: PossibleJson @-? JsonString =
-        PLens(_ flatMap (_.string map (costate(jString, _))))
+        JsonLike.jStringL[Json].option
 
       def jArrayL: PossibleJson @-? JsonArray =
-        PLens(_ flatMap (_.array map (costate(jArray, _))))
+        JsonLike.jArrayL[Json].option
 
       def jObjectL: PossibleJson @-? JsonObject =
-        PLens(_ flatMap (_.obj map (costate(jObject, _))))
+        JsonLike.jObjectL[Json].option
 
       def jNull =
         Some(JNull)
