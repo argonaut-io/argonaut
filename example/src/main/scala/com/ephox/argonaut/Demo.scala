@@ -20,21 +20,18 @@ object Demo {
     val d: PossibleJson = j withNumber (10+)
 
     // If it is a JSON array, return it, or default to List(jNull, jTrue)
-    val e: JsonArray = j arrayOr (List(jNull, jTrue))
+    val e: JsonArray = j arrayOr (List(jNull[Json], jTrue[Json]))
 
     // If it is a JSON object, with a field "xyz" that is a JSON number, return it, otherwise, default to 42
     val f: JsonNumber = j -| "xyz" numberOr 42D
 
     // If it is a JSON object, prepend the given key/value pairs to it
-    val g: PossibleJson = ("k1", jString("v1")) ->: ("k2", jTrue) ->: j
+    val g: PossibleJson = ("k1", jString[Json]("v1")) ->: ("k2", jTrue[Json]) ->: j
 
     // If it is a JSON array, prepend the given JSON values to it
-    val h: PossibleJson = jFalse -->>: jString("boo") -->>: j
+    val h: PossibleJson = jFalse[Json] -->>: jString[Json]("boo") -->>: j
 
-    // If it is a JSON number, return a List containing "cuisine" that many times, otherwise List("brochure", "bakery")
-    val i: List[String] = j usingNumber (n => List.fill(n.toInt)("cuisine"), List("brochure", "bakery"))
-
-    List(("a", a), ("b", b), ("c", c), ("d", d), ("e", e), ("f", f), ("g", g), ("h", h), ("i", i)).
+    List(("a", a), ("b", b), ("c", c), ("d", d), ("e", e), ("f", f), ("g", g), ("h", h)).
         foreach { case (x, y) => println(x + " : " + y) }
     
     println

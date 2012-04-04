@@ -13,27 +13,27 @@ trait JsonLike[J] {
   /**
    * A partial lens for JSON boolean values.
    */
-  def jBoolL: J @-? Boolean
+  def jBoolL: J @?> Boolean
 
   /**
    * A partial lens for JSON number values.
    */
-  def jNumberL: J @-? JsonNumber
+  def jNumberL: J @?> JsonNumber
 
   /**
    * A partial lens for JSON string values.
    */
-  def jStringL: J @-? JsonString
+  def jStringL: J @?> JsonString
 
   /**
    * A partial lens for JSON string values.
    */
-  def jArrayL: J @-? JsonArray
+  def jArrayL: J @?> JsonArray
 
   /**
    * A partial lens for JSON string values.
    */
-  def jObjectL: J @-? JsonObject
+  def jObjectL: J @?> JsonObject
 
   /**
    * Construct a JSON value that is `null`.
@@ -73,31 +73,31 @@ trait JsonLikes {
   /**
    * A partial lens for JSON boolean values.
    */
-  def jBoolL[J](implicit l: JsonLike[J]): J @-? Boolean =
+  def jBoolL[J](implicit l: JsonLike[J]): J @?> Boolean =
     l.jBoolL
 
   /**
    * A partial lens for JSON number values.
    */
-  def jNumberL[J](implicit l: JsonLike[J]): J @-? JsonNumber =
+  def jNumberL[J](implicit l: JsonLike[J]): J @?> JsonNumber =
     l.jNumberL
 
   /**
    * A partial lens for JSON string values.
    */
-  def jStringL[J](implicit l: JsonLike[J]): J @-? JsonString =
+  def jStringL[J](implicit l: JsonLike[J]): J @?> JsonString =
     l.jStringL
 
   /**
    * A partial lens for JSON string values.
    */
-  def jArrayL[J](implicit l: JsonLike[J]): J @-? JsonArray =
+  def jArrayL[J](implicit l: JsonLike[J]): J @?> JsonArray =
     l.jArrayL
 
   /**
    * A partial lens for JSON string values.
    */
-  def jObjectL[J](implicit l: JsonLike[J]): J @-? JsonObject =
+  def jObjectL[J](implicit l: JsonLike[J]): J @?> JsonObject =
     l.jObjectL
 
   /**

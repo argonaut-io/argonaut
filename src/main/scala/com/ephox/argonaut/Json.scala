@@ -84,19 +84,19 @@ trait Jsons {
       def isNull: Json => Boolean =
         _.fold(true, _ => false, _ => false, _ => false, _ => false, _ => false)
 
-      def jBoolL: Json @-? Boolean =
+      def jBoolL: Json @?> Boolean =
         PLens(_.fold(None, z => Some(costate(JBool, z)), _ => None, _ => None, _ => None, _ => None))
 
-      def jNumberL: Json @-? JsonNumber =
+      def jNumberL: Json @?> JsonNumber =
         PLens(_.fold(None, _ => None, z => Some(costate(JNumber, z)), _ => None, _ => None, _ => None))
 
-      def jStringL: Json @-? JsonString =
+      def jStringL: Json @?> JsonString =
         PLens(_.fold(None, _ => None, _ => None, z => Some(costate(JString, z)), _ => None, _ => None))
 
-      def jArrayL: Json @-? JsonArray =
+      def jArrayL: Json @?> JsonArray =
         PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(costate(JArray, z)), _ => None))
 
-      def jObjectL: Json @-? JsonObject =
+      def jObjectL: Json @?> JsonObject =
         PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(costate(JObject, z))))
 
       def jNull =
@@ -123,19 +123,19 @@ trait Jsons {
       def isNull: PossibleJson => Boolean =
         _.isEmpty
 
-      def jBoolL: PossibleJson @-? Boolean =
+      def jBoolL: PossibleJson @?> Boolean =
         JsonLike.jBoolL[Json].option
 
-      def jNumberL: PossibleJson @-? JsonNumber =
+      def jNumberL: PossibleJson @?> JsonNumber =
         JsonLike.jNumberL[Json].option
 
-      def jStringL: PossibleJson @-? JsonString =
+      def jStringL: PossibleJson @?> JsonString =
         JsonLike.jStringL[Json].option
 
-      def jArrayL: PossibleJson @-? JsonArray =
+      def jArrayL: PossibleJson @?> JsonArray =
         JsonLike.jArrayL[Json].option
 
-      def jObjectL: PossibleJson @-? JsonObject =
+      def jObjectL: PossibleJson @?> JsonObject =
         JsonLike.jObjectL[Json].option
 
       def jNull =
