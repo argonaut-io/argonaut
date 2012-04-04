@@ -22,7 +22,15 @@ sealed trait Json {
     jsonString: String => X,
     jsonArray: JsonArray => X,
     jsonObject: JsonObject => X
-  ): X
+  ): X =
+    this match {
+      case JNull      => jsonNull
+      case JBool(b)   => jsonBool(b)
+      case JNumber(n) => jsonNumber(n)
+      case JString(s) => jsonString(s)
+      case JArray(a)  => jsonArray(a)
+      case JObject(o) => jsonObject(o)
+    }
 
   /**
    * Compare two JSON values for equality.
@@ -65,7 +73,30 @@ sealed trait Json {
         ) + "}"
 
 }
+import Json._
 
+private case object JNull extends Json
+private case class JBool(b: Boolean) extends Json
+private case class JNumber(n: JsonNumber) extends Json
+private case class JString(s: String) extends Json
+private case class JArray(a: JsonArray) extends Json
+private case class JObject(o: JsonObject) extends Json
+
+/*
+
+  /**
+   * The catamorphism for the JSON value data type.
+   */
+  def fold[X](
+    jsonNull: => X,
+    jsonBool: Boolean => X,
+    jsonNumber: JsonNumber => X,
+    jsonString: String => X,
+    jsonArray: JsonArray => X,
+    jsonObject: JsonObject => X
+  ): X
+
+ */
 object Json extends Jsons
 
 /**
@@ -87,90 +118,6 @@ trait Jsons {
   type PossibleJson =
     Option[Json]
 
-  /**
-   * Construct a JSON value that is `null`.
-   */
-  private[argonaut] val jjNull: Json = new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jnull
-  }
-
-  /**
-   * Construct a JSON value that is a boolean.
-   */
-  private[argonaut] val jjBool: Boolean => Json = b => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jbool(b)
-  }
-
-  /**
-   * Construct a JSON value that is a number.
-   */
-  private[argonaut] val jjNumber: JsonNumber => Json = n => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jnumber(n)
-  }
-
-  /**
-   * Construct a JSON value that is a string.
-   */
-  private[argonaut] val jjString: String => Json = s => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jstring(s)
-  }
-
-  /**
-   * Construct a JSON value that is an array.
-   */
-  private[argonaut] val jjArray: JsonArray => Json = a => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jarray(a)
-  }
-
-  /**
-   * Construct a JSON value that is an object.
-   */
-  private[argonaut] val jjObject: JsonObject => Json = x => new Json {
-    def fold[X](
-      jnull: => X,
-      jbool: Boolean => X,
-      jnumber: JsonNumber => X,
-      jstring: String => X,
-      jarray: JsonArray => X,
-      jobject: JsonObject => X
-    ) = jobject(x)
-  }
-
   import scalaz._, PLens._, CostateT._
 
   implicit def JsonJsonLike: JsonLike[Json] =
@@ -179,37 +126,37 @@ trait Jsons {
         _.fold(true, _ => false, _ => false, _ => false, _ => false, _ => false)
 
       def jBoolL: Json @-? Boolean =
-        PLens(_.fold(None, z => Some(costate(jjBool, z)), _ => None, _ => None, _ => None, _ => None))
+        PLens(_.fold(None, z => Some(costate(JBool, z)), _ => None, _ => None, _ => None, _ => None))
 
       def jNumberL: Json @-? JsonNumber =
-        PLens(_.fold(None, _ => None, z => Some(costate(jjNumber, z)), _ => None, _ => None, _ => None))
+        PLens(_.fold(None, _ => None, z => Some(costate(JNumber, z)), _ => None, _ => None, _ => None))
 
       def jStringL: Json @-? JsonString =
-        PLens(_.fold(None, _ => None, _ => None, z => Some(costate(jjString, z)), _ => None, _ => None))
+        PLens(_.fold(None, _ => None, _ => None, z => Some(costate(JString, z)), _ => None, _ => None))
 
       def jArrayL: Json @-? JsonArray =
-        PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(costate(jjArray, z)), _ => None))
+        PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(costate(JArray, z)), _ => None))
 
       def jObjectL: Json @-? JsonObject =
-        PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(costate(jjObject, z))))
+        PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(costate(JObject, z))))
 
       def jNull =
-        jjNull
+        JNull
 
       def jBool =
-        jjBool
+        JBool
 
       def jNumber =
-        jjNumber
+        JNumber
 
       def jString =
-        jjString
+        JString
 
       def jArray =
-        jjArray
+        JArray
 
       def jObject =
-        jjObject
+        JObject
     }
 
   implicit def PossibleJsonJsonLike: JsonLike[PossibleJson] =
@@ -234,21 +181,21 @@ trait Jsons {
         PLens(_ flatMap (_.obj map (costate(jObject, _))))
 
       def jNull =
-        Some(jjNull)
+        Some(JNull)
 
       def jBool: Boolean => PossibleJson =
-        x => Some(jjBool(x))
+        x => Some(JBool(x))
 
       def jNumber =
-        x => Some(jjNumber(x))
+        x => Some(JNumber(x))
 
       def jString =
-        x => Some(jjString(x))
+        x => Some(JString(x))
 
       def jArray =
-        x => Some(jjArray(x))
+        x => Some(JArray(x))
 
       def jObject =
-        x => Some(jjObject(x))
+        x => Some(JObject(x))
     }
 }
