@@ -9,13 +9,13 @@ var dependencies = [
     // ==== Third Party - Production - REQUIRES LICENSE ====
     { name : "scala",
         repository : "thirdpartyrepo",
-        version : "2.9.1",
-        source : "scala-2.9.1.final.zip",
+        version : "2.9.2",
+        source : "scala-2.9.2.zip",
         targets : [
-            { name : "scala-2.9.1.final/doc/LICENSE", path : licenses + "scala" },
-            { name : "scala-2.9.1.final/lib/scala-library.jar", path : "lib" },
-            { name : "scala-2.9.1.final/src/scala-library-src.jar", path : "lib" },
-            { name : "scala-2.9.1.final/*", path : "lib/tools/scala" }
+            { name : "scala-2.9.2/doc/LICENSE", path : licenses + "scala" },
+            { name : "scala-2.9.2/lib/scala-library.jar", path : "lib" },
+            { name : "scala-2.9.2/src/scala-library-src.jar", path : "lib" },
+            { name : "scala-2.9.2/*", path : "lib/tools/scala" }
         ],
         executables : [
             "lib/tools/scala/bin/scala",
@@ -43,18 +43,18 @@ var dependencies = [
     },
     { name : "scalacheck",
         repository : "thirdpartyrepo",
-        version : "2.9.0-1.9",
-        source : "scalacheck_2.9.0-1.9.jar",
+        version : "2.9.2-1.9",
+        source : "scalacheck_2.9.2-1.9.jar",
         targets : [
-            { name : "scalacheck_2.9.0-1.9.jar", path : "lib" }
+            { name : "scalacheck_2.9.2-1.9.jar", path : "lib" }
         ]
     },
     { name : "scalacheck",
         repository : "thirdpartyrepo",
-        version : "2.9.0-1.9",
-        source : "scalacheck_2.9.0-1.9-sources.jar",
+        version : "2.9.2-1.9",
+        source : "scalacheck_2.9.2-1.9-sources.jar",
         targets : [
-            { name : "scalacheck_2.9.0-1.9-sources.jar", path : "lib" }
+            { name : "scalacheck_2.9.2-1.9-sources.jar", path : "lib" }
         ]
     }
 ];
