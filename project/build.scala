@@ -11,13 +11,13 @@ object build extends Build {
       name := "argonaut"
     , organization := "com.ephox"
     , version := "1.0"
-    , scalaVersion := "2.9.1"
+    , scalaVersion := "2.9.2"
     , scalacOptions := Seq(
         "-deprecation"
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test" withSources
+        "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
       )
     )
   )
@@ -30,13 +30,13 @@ object build extends Build {
       name := "example"
     , organization := "com.ephox"
     , version := "1.0"
-    , scalaVersion := "2.9.1"
+    , scalaVersion := "2.9.2"
     , scalacOptions := Seq(
         "-deprecation"
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        "org.scala-tools.testing" %% "scalacheck" % "1.9" % "test" withSources
+        "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
       )
     )
   )
