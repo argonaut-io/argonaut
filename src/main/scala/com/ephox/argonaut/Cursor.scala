@@ -117,12 +117,4 @@ trait Cursors {
       val rights = z
     }, w.rights))
 
-  def fieldL: (String, Cursor) @?> Cursor =
-    PLens {
-      case (f, c) => {
-        val z = c.focus
-
-        error("")
-      }
-    }
 }
