@@ -2,7 +2,7 @@ var cleanDirs = ['lib'];
 
 var licenses = "lib/run/licenses/";
 
-var scalazV = "2012-04-19_15-03-13";
+var scalazV = "2012-04-23_06-03-13";
 
 var dependencies = [
     // ==== Ephox - Production ====

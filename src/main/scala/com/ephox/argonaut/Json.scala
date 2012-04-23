@@ -141,7 +141,7 @@ trait Jsons {
       def jNull =
         Some(JNull)
 
-      def jBool: Boolean => PossibleJson =
+      def jBool =
         x => Some(JBool(x))
 
       def jNumber =
