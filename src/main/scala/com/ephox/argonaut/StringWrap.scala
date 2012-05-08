@@ -15,6 +15,8 @@ sealed trait StringWrap {
    */
   val value: String
 
+  import PossibleJson._
+
   /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome. To understand the
    * distinction between an `error` and a `failure` consult the Scala parser combinator API.
@@ -23,12 +25,12 @@ sealed trait StringWrap {
    * @param error Run this function if the parse produces an error.
    * @param failure Run this function if the parse produces a failure.
    */
-  def parse[X](success: Json => X, error: String => X, failure: String => X) = {
+  def parse[X](success: Json => X, err: String => X, failure: String => X) = {
     val p = new JsonParser
     val r = new CharSequenceReader(value)
     p.jvalue(r) match {
       case p.Success(j, _) => success(j)
-      case p.Error(e, _) => sys.error("Could not parse json, error [" + e + "] in [\n" + value + "\n]")
+      case p.Error(e, _) => err("Could not parse json, error [" + e + "] in [\n" + value + "\n]")
       case p.Failure(e, _) => failure("Could not parse json, failure [" + e + "] in [\n" + value + "\n]")
     }
   }
@@ -75,12 +77,11 @@ sealed trait StringWrap {
     val r = parseTo(i)
     if (r.successful) r.get else sys.error("Unsuccessful parse result: " + r)
   }
-       
+
   /**
    * Parses this string value to a possible JSON value.
    */
-  def pparse: Option[Json] = parseIgnoreError(Some(_), None)
-  
+  def pparse: PossibleJson = parseIgnoreError(pJson, eJson)
 }
 
 object StringWrap extends StringWraps
