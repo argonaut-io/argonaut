@@ -15,14 +15,14 @@ sealed trait StringWrap {
    */
   val value: String
 
-  import PossibleJson._
+  import Json._
 
   /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome. To understand the
    * distinction between an `error` and a `failure` consult the Scala parser combinator API.
    *
    * @param success Run this function if the parse succeeds.
-   * @param error Run this function if the parse produces an error.
+   * @param err Run this function if the parse produces an error.
    * @param failure Run this function if the parse produces a failure.
    */
   def parse[X](success: Json => X, err: String => X, failure: String => X) = {
@@ -81,7 +81,7 @@ sealed trait StringWrap {
   /**
    * Parses this string value to a possible JSON value.
    */
-  def pparse: PossibleJson = parseIgnoreError(pJson, eJson)
+  def pparse: PossibleJson = parseIgnoreError(Some(_), None)
 }
 
 object StringWrap extends StringWraps
