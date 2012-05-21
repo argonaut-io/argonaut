@@ -86,7 +86,7 @@ object Cursor extends Cursors
 
 trait Cursors {
   def parentL: Cursor @?> Cursor =
-    PLens(_.parent map (w => costate(z => new Cursor {
+    PLens(_.parent map (w => Costate(z => new Cursor {
       val parent = Some(z)
       val lefts = w.lefts
       val focus = w.focus
@@ -94,7 +94,7 @@ trait Cursors {
     }, w)))
 
   val leftsL: Cursor @> List[Json] =
-    Lens(w => costate(z => new Cursor {
+    Lens(w => Costate(z => new Cursor {
       val parent = w.parent
       val lefts = z
       val focus = w.focus
@@ -102,7 +102,7 @@ trait Cursors {
     }, w.lefts))
 
   def focusL: Cursor @> Json =
-    Lens(w => costate(z => new Cursor {
+    Lens(w => Costate(z => new Cursor {
       val parent = w.parent
       val lefts = w.lefts
       val focus = z
@@ -110,7 +110,7 @@ trait Cursors {
     }, w.focus))
 
   def rightsL: Cursor @> List[Json] =
-    Lens(w => costate(z => new Cursor {
+    Lens(w => Costate(z => new Cursor {
       val parent = w.parent
       val lefts = w.lefts
       val focus = w.focus

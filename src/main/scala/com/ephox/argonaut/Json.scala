@@ -85,19 +85,19 @@ trait Jsons {
         _.fold(true, _ => false, _ => false, _ => false, _ => false, _ => false)
 
       def jBoolL: Json @?> Boolean =
-        PLens(_.fold(None, z => Some(costate(JBool, z)), _ => None, _ => None, _ => None, _ => None))
+        PLens(_.fold(None, z => Some(Costate(JBool, z)), _ => None, _ => None, _ => None, _ => None))
 
       def jNumberL: Json @?> JsonNumber =
-        PLens(_.fold(None, _ => None, z => Some(costate(JNumber, z)), _ => None, _ => None, _ => None))
+        PLens(_.fold(None, _ => None, z => Some(Costate(JNumber, z)), _ => None, _ => None, _ => None))
 
       def jStringL: Json @?> JsonString =
-        PLens(_.fold(None, _ => None, _ => None, z => Some(costate(JString, z)), _ => None, _ => None))
+        PLens(_.fold(None, _ => None, _ => None, z => Some(Costate(JString, z)), _ => None, _ => None))
 
       def jArrayL: Json @?> JsonArray =
-        PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(costate(JArray, z)), _ => None))
+        PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(Costate(JArray, z)), _ => None))
 
       def jObjectL: Json @?> JsonObject =
-        PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(costate(JObject, z))))
+        PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(Costate(JObject, z))))
 
       def jNull =
         JNull
