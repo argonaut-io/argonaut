@@ -81,7 +81,7 @@ sealed trait StringWrap {
   /**
    * Parses this string value to a possible JSON value.
    */
-  def pparse: PossibleJson = parseIgnoreError(Some(_), None)
+  def pparse: Option[Json] = parseIgnoreError(Some(_), None)
 }
 
 object StringWrap extends StringWraps

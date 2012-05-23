@@ -8,6 +8,7 @@ import Data._
 import JsonPrinter._
 import JsonIdentity._
 import StringWrap._
+import scalaz._, Scalaz._
 
 object JsonParserTest extends Properties("JsonParser") {
   val subject = new JsonParser
@@ -27,11 +28,11 @@ object JsonParserTest extends Properties("JsonParser") {
   // FIX unicode escaped chars? don't think they are being generated at the moment
   property("all that encodes can be decoded") =
           forAll({(j: Json) =>
-              val g = pretty(j)
-              val parsed = g.parse
-              parsed.successful && parsed.get == j
+              val parsed =  pretty(j).parse
+              parsed.successful && parsed.get === j
             })
 
   def p(k: subject.Parser[Json], s: String) =
     k(new CharSequenceReader(s))
+
 }

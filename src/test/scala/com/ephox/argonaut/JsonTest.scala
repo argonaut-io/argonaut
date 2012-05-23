@@ -5,8 +5,6 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 import Data._
 import Json._
-import JsonIdentity._
-import JsonLike._
 
 object JsonTest extends Properties("Json") {
   property("not compose not is id") =
@@ -37,40 +35,36 @@ object JsonTest extends Properties("Json") {
       forAll((j: Json, k: JsonObject => JsonObject) =>
         ((j withObject k) == j) || j.isObject)
 
-  property("Object prepend puts element on head") =
-      forAll((j: Json, e: JsonAssoc) =>
-        !j.isObject || (e ->: j).obj.map(_.head) == Some(e))
-
   property("Array prepend puts element on head") =
       forAll((j: Json, e: Json) =>
         !j.isArray || (e -->>: j).array.map(_.head) == Some(e))
 
   property("jBool isBool") =
       forAll((b: Boolean) =>
-        jBool[Json](b).isBool)
+        jBool(b).isBool)
 
   property("jNumber isNumber") =
       forAll((n: JsonNumber) =>
-        jNumber[Json](n).isNumber)
+        jNumber(n).isNumber)
 
   property("jString isString") =
       forAll((s: String) =>
-        jString[Json](s).isString)
+        jString(s).isString)
 
   property("jArray isArray") =
       forAll((a: JsonArray) =>
-        jArray[Json](a).isArray)
+        jArray(a).isArray)
 
   property("jSingleArray is single array") =
       forAll((j: Json) =>
-        jSingleArray[Json](j).array == Some(List(j)))
+        jSingleArray(j).array == Some(List(j)))
 
   property("jObject isObject") =
       forAll((a: JsonObject) =>
-        jObject[Json](a).isObject)
+        jObject(a).isObject)
 
   property("jSingleObject is single object") =
       forAll((f: JsonField, j: Json) =>
-        jSingleObject[Json](f, j).obj == Some(List((f, j))))
+        (jSingleObject(f, j).obj map (_.toList)) == Some(List((f, j))))
 
 }
