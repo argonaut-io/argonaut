@@ -123,20 +123,27 @@ trait Jsons {
       def isNull: PossibleJson => Boolean =
         _.isEmpty
 
+      // FIX de-dupe.
+      def x[A](pj: PossibleJson, pl: Json => Option[Costate[A, Json]]): Option[Costate[A, PossibleJson]] =
+        for {
+          j <- pj
+          l <- pl(j)
+        } yield l.map(v => Some(v))
+
       def jBoolL: PossibleJson @?> Boolean =
-        JsonLike.jBoolL[Json].option
+        PLens(v => x(v, _.fold(None, z => Some(Costate(JBool, z)), _ => None, _ => None, _ => None, _ => None)))
 
       def jNumberL: PossibleJson @?> JsonNumber =
-        JsonLike.jNumberL[Json].option
+        PLens(v => x(v, _.fold(None, _ => None, z => Some(Costate(JNumber, z)), _ => None, _ => None, _ => None)))
 
       def jStringL: PossibleJson @?> JsonString =
-        JsonLike.jStringL[Json].option
+        PLens(v => x(v, _.fold(None, _ => None, _ => None, z => Some(Costate(JString, z)), _ => None, _ => None)))
 
       def jArrayL: PossibleJson @?> JsonArray =
-        JsonLike.jArrayL[Json].option
+        PLens(v => x(v, _.fold(None, _ => None, _ => None, _ => None, z => Some(Costate(JArray, z)), _ => None)))
 
       def jObjectL: PossibleJson @?> JsonObject =
-        JsonLike.jObjectL[Json].option
+        PLens(v => x(v, _.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(Costate(JObject, z)))))
 
       def jNull =
         Some(JNull)

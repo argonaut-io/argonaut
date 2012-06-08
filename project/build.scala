@@ -4,6 +4,14 @@ import Keys._
 object build extends Build {
   type Sett = Project.Setting[_]
 
+  override lazy val settings = super.settings ++
+        Seq(resolvers := Seq(
+          "mth.io snapshots"  at "http://repo.mth.io/snapshots"
+        , "mth.io releases"  at "http://repo.mth.io/releases"
+        , "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
+        , "releases"  at "http://oss.sonatype.org/content/repositories/releases"
+        ))
+
   val argonaut = Project(
     id = "argonaut"
   , base = file(".")
@@ -17,7 +25,8 @@ object build extends Build {
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
+        "org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT" withSources
+      , "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
       )
     )
   )
@@ -36,7 +45,8 @@ object build extends Build {
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
+        "org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT" withSources
+      , "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
       )
     )
   )
