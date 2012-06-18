@@ -4,6 +4,9 @@ package argonaut
 trait JsonIdentity[J] {
   val j: J
 
+  /**
+   * Encode to a JSON value using the given implicit encoder.
+   */
   def encode(implicit e: EncodeJson[J]): Json =
     e(j)
 }

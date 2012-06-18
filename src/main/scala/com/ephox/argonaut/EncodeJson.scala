@@ -5,11 +5,22 @@ import scalaz._, Scalaz._, LensT._
 
 import Json._
 
+/**
+ * Encode an arbitrary value as a JSON value.
+ *
+ * @author Tony Morris
+ */
 trait EncodeJson[-A] {
   def name: String
 
+  /**
+   * Encode the given value.
+   */
   def apply(a: A): Json
 
+  /**
+   * Contravariant functor.
+   */
   def contramap[B](f: B => A): EncodeJson[B] =
     EncodeJson(b => apply(f(b)), name)
 }
