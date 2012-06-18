@@ -29,7 +29,7 @@ trait Contexts {
       def equal(c1: Context, c2: Context) =
         Equal.equalBy((_: Context).toList).equal(c1, c2)
       def show(c: Context) =
-        c.toList.map(_.show).intersperse(List('\\')).join
+        c.toList.map(_.show).intersperse(List('.')).join
     }
 }
 
@@ -58,11 +58,29 @@ private case class ObjectContext(f: JsonField, j: Json) extends ContextElement
 object ContextElement extends ContextElements
 
 trait ContextElements {
-  def arrayC(n: Int, j: Json): ContextElement =
+  def arrayContext(n: Int, j: Json): ContextElement =
     ArrayContext(n, j)
 
-  def objectC(f: JsonField, j: Json): ContextElement =
+  def objectContext(f: JsonField, j: Json): ContextElement =
     ObjectContext(f, j)
+
+  def arrayContextL: ContextElement @?> (Int, Json) =
+    PLens {
+      case ArrayContext(n, j) => Some(Store(x => ArrayContext(x._1, x._2), (n, j)))
+      case ObjectContext(_, j) => None
+    }
+
+  def objectContextL: ContextElement @?> (JsonField, Json) =
+    PLens {
+      case ObjectContext(f, j) => Some(Store(x => ObjectContext(x._1, x._2), (f, j)))
+      case ArrayContext(n, j) => None
+    }
+
+  def jsonContextL: ContextElement @> Json =
+    Lens {
+      case ObjectContext(f, j) => Store(ObjectContext(f, _), j)
+      case ArrayContext(n, j) => Store(ArrayContext(n, _), j)
+    }
 
   implicit val ContextElementInstances: Equal[ContextElement] with Show[ContextElement] =
     new Equal[ContextElement] with Show[ContextElement] {
@@ -80,8 +98,8 @@ trait ContextElements {
 
       def show(c: ContextElement) =
         c match {
-          case ArrayContext(n, j) => ("!" + n).toList
-          case ObjectContext(f, j) => ("@" + f).toList
+          case ArrayContext(n, j) => ("[" + n + "]").toList
+          case ObjectContext(f, j) => ("{" + f + "}").toList
         }
     }
 

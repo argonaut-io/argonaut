@@ -5,7 +5,35 @@ import Json._
 import scalaz._, Scalaz._
 
 sealed trait ShiftHistoryElement {
+  def isLeft: Boolean =
+    this == ShiftLeft
 
+  def isRight: Boolean =
+    this == ShiftRight
+
+  def isFirst: Boolean =
+    this == ShiftFirst
+
+  def isLast: Boolean =
+    this == ShiftLast
+
+  def isUp: Boolean =
+    this == ShiftUp
+
+  def isDeleteGoParent: Boolean =
+    this == ShiftDeleteGoParent
+
+  def isDeleteGoLeft: Boolean =
+    this == ShiftDeleteGoLeft
+
+  def isDeleteGoRight: Boolean =
+    this == ShiftDeleteGoRight
+
+  def isDeleteGoFirst: Boolean =
+    this == ShiftDeleteGoFirst
+
+  def isDeleteGoLast: Boolean =
+    this == ShiftDeleteGoLast
 }
 case object ShiftLeft extends ShiftHistoryElement
 case object ShiftRight extends ShiftHistoryElement
@@ -62,4 +90,66 @@ trait ShiftHistoryElements {
       def equal(e1: ShiftHistoryElement, e2: ShiftHistoryElement) =
         e1 == e2
     }
+
+  def shiftLeftNL: ShiftHistoryElement @?> Int =
+    PLens {
+      case ShiftLeftN(n) => Some(Store(ShiftLeftN(_), n))
+      case _ => None
+    }
+
+  def shiftRightNL: ShiftHistoryElement @?> Int =
+    PLens {
+      case ShiftRightN(n) => Some(Store(ShiftRightN(_), n))
+      case _ => None
+    }
+
+  def shiftLeftAtL: ShiftHistoryElement @?> (Json => Boolean) =
+    PLens {
+      case ShiftLeftAt(p) => Some(Store(ShiftLeftAt(_), p))
+      case _ => None
+    }
+
+  def shiftRightAtL: ShiftHistoryElement @?> (Json => Boolean) =
+    PLens {
+      case ShiftRightAt(p) => Some(Store(ShiftRightAt(_), p))
+      case _ => None
+    }
+
+  def shiftFieldL: ShiftHistoryElement @?> JsonField =
+    PLens {
+      case ShiftField(f) => Some(Store(ShiftField(_), f))
+      case _ => None
+    }
+
+  def shiftDownFieldL: ShiftHistoryElement @?> JsonField =
+    PLens {
+      case ShiftDownField(f) => Some(Store(ShiftDownField(_), f))
+      case _ => None
+    }
+
+  def shiftDownAtL: ShiftHistoryElement @?> (Json => Boolean) =
+    PLens {
+      case ShiftDownAt(p) => Some(Store(ShiftDownAt(_), p))
+      case _ => None
+    }
+
+  def shiftDownNL: ShiftHistoryElement @?> Int =
+    PLens {
+      case ShiftDownN(n) => Some(Store(ShiftDownN(_), n))
+      case _ => None
+    }
+
+  def shiftDeleteGoFieldL: ShiftHistoryElement @?> JsonField =
+    PLens {
+      case ShiftDeleteGoField(f) => Some(Store(ShiftDeleteGoField(_), f))
+      case _ => None
+    }
+
+  def shiftCustomL: ShiftHistoryElement @?> String =
+    PLens {
+      case ShiftCustom(s) => Some(Store(ShiftCustom(_), s))
+      case _ => None
+    }
+
+
 }

@@ -13,7 +13,6 @@ object ShiftDemo {
             {
               "def" : 7
             },
-          "wiggle" : true,
           "ghi" :
             {
               "ata" : null,
@@ -37,14 +36,13 @@ object ShiftDemo {
                     , "rabbit"
                     ],
           "xyz" : 24,
-          "xxyyzz" : 36
         }
       """
 
     val r1 = shift.when(_ hasField "wiggle").downField("xyz")
     val r2 = shift.downField("values").downArray.downArray.right.withFocus(jStringL =>= (_.reverse)).up.right
     val r = (r1 ||| r2) := jString("cat")
-    val s = r <| j.pparse
+    val s = r.up.downArray.downArray <| j.pparse
     s.cursor map (c => (-c).spaces2) foreach println
     s.println
   }

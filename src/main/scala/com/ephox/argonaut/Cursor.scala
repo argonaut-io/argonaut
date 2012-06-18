@@ -16,8 +16,8 @@ sealed trait Cursor {
   def context: Context =
     this match {
       case CJson(_) => Context.empty
-      case CArray(p, _, l, j, _) => arrayC(l.length, j) +: p.context
-      case CObject(p, _, _, (f, j)) => objectC(f, j) +: p.context
+      case CArray(p, _, l, j, _) => arrayContext(l.length, j) +: p.context
+      case CObject(p, _, _, (f, j)) => objectContext(f, j) +: p.context
     }
 
   /** Set the focus to the given value. */
@@ -301,20 +301,12 @@ sealed trait Cursor {
         None
     }
 
-  /** Move the cursor to the given sibling field in a JSON object */
+  /** Deletes the JSON value at focus and moves to the given sibling field in a JSON object. */
   def deleteGoField(q: JsonField): Option[Cursor] =
     this match {
       case CObject(p, _, o, (f, _)) =>
         o(q) map (jj => CObject(p, true, o - f, (q, jj)))
       case _ => None
-    }
-
-  /** Delete the given field in a JSON object */
-  def deleteField(q: JsonField): Cursor =
-    this match {
-      case CObject(p, _, o, (f, j)) =>
-        CObject(p, true, o - q, (f, j))
-      case _ => this
     }
 
   /** Move the cursor up one step to the parent context. */

@@ -3,13 +3,32 @@ package argonaut
 
 import scalaz._, Scalaz._
 
+/**
+ * The pair of cursor-shift history and the current cursor position.
+ *
+ * @see Shift
+ * @author Tony Morris
+ */
 sealed trait ShiftResult {
+  /**
+   * The cursor-shift history.
+   */
   val history: ShiftHistory
+
+  /**
+   * The current cursor position if it has succeeded.
+   */
   val cursor: Option[Cursor]
 
+  /**
+   * Return whether or not the current cursor position has succeeded.
+   */
   def hasCursor =
     cursor.isDefined
 
+  /**
+   * Return the succeeded cursor position or the given default.
+   */
   def cursorOr(c: => Cursor): Cursor =
     cursor getOrElse c
 }
@@ -34,12 +53,21 @@ trait ShiftResults {
         }) + " }").toList
     }
 
+  /**
+   * The lens on the cursor-shift history.
+   */
   def resultHistoryL: ShiftResult @> ShiftHistory =
     Lens(r => Store(ShiftResult(_, r.cursor), r.history))
 
+  /**
+   * The lens on the cursor-shift cursor position.
+   */
   def resultCursorL: ShiftResult @> Option[Cursor] =
     Lens(r => Store(ShiftResult(r.history, _), r.cursor))
 
+  /**
+   * The partial lens on the cursor-shift cursor position.
+   */
   def resultCursorPL: ShiftResult @?> Cursor =
     PLensT.somePLens compose ~resultCursorL
 

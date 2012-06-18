@@ -390,15 +390,7 @@ sealed trait Json {
    * Compute a `String` representation for this JSON value.
    */
   override def toString =
-    "Json<" +
-        fold(
-          "null"
-        , "bool(" + _ + ")"
-        , "number(" + _ + ")"
-        , "string(" + _ + ")"
-        , "array" + _.shows
-        , "object" + _.toList.shows
-        ) + ">"
+    nospaces
 
 }
 import Json._

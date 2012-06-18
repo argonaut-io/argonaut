@@ -3,9 +3,21 @@ package argonaut
 
 import scalaz._, Scalaz._
 
+/**
+ * A list of elements denoting the history of a cursor-shift.
+ *
+ * @see Shift
+ * @author Tony Morris
+ */
 sealed trait ShiftHistory {
+  /**
+   * Convert to a list.
+   */
   val toList: DList[ShiftHistoryElement]
 
+  /**
+   * Append two lists of cursor-shift history.
+   */
   def ++(h: ShiftHistory): ShiftHistory =
     ShiftHistory.build(toList ++ h.toList)
 
