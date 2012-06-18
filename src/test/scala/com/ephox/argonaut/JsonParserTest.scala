@@ -5,9 +5,7 @@ import org.scalacheck.Prop._
 import util.parsing.input.CharSequenceReader
 import org.scalacheck.Properties
 import Data._
-import JsonPrinter._
-import JsonIdentity._
-import StringWrap._
+import Argonaut._
 import scalaz._, Scalaz._
 
 object JsonParserTest extends Properties("JsonParser") {
@@ -24,14 +22,7 @@ object JsonParserTest extends Properties("JsonParser") {
 
   property("boolean parses to bool") =
           forAll((s: SometimesBoolString) => (List("true", "false").contains(s.s) ==> p(subject.jboolean, s.s).get.isBool))
-                              /*
-  // FIX unicode escaped chars? don't think they are being generated at the moment
-  property("all that encodes can be decoded") =
-          forAll({(j: Json) =>
-              val parsed =  pretty(j).parse
-              parsed.successful && parsed.get === j
-            })
-                                */
+
   def p(k: subject.Parser[Json], s: String) =
     k(new CharSequenceReader(s))
 
