@@ -3,44 +3,72 @@ package argonaut
 
 import scalaz._, Scalaz._, LensT._
 
+/**
+ * The result of decoding a JSON value to a value of the type `A`, which may not succeed.
+ *
+ * @author Tony Morris
+ */
 sealed trait DecodeResult[+A] {
+  /**
+   * Return the JSON value the caused a decoding failure.
+   */
   def json: Option[Json] =
     this match {
       case DecodeError(j, _) => Some(j)
       case DecodeValue(_) => None
     }
 
+  /**
+   * Return the decoding failure message or the decoded value.
+   */
   def toEither: Either[String, A] =
     this match {
       case DecodeError(_, e) => Left(e)
       case DecodeValue(a) => Right(a)
     }
 
+  /**
+   * Return the decoding failure message or the decoded value.
+   */
   def toValidation: Validation[String, A] =
     this match {
       case DecodeError(_, e) => Failure(e)
       case DecodeValue(a) => Success(a)
     }
 
+  /**
+   * Return the decoded value.
+   */
   def value: Option[A] =
     toEither.right.toOption
 
+  /**
+   * Return the error message.
+   */
   def error: Option[String] =
     toEither.left.toOption
 
-  // Runs with a pretty English error message using the mismatched JSON value.
+  /**
+   * Returns either a pretty-printed English message or a decoded value.
+   */
   def run: Either[String, A] =
     this match {
       case DecodeError(j, e) => Left("Expected: \"" + e + "\" Actual \"" + j.name + "\"")
       case DecodeValue(a) => Right(a)
     }
 
+  /**
+   * Covariant functor.
+   */
   def map[B](f: A => B): DecodeResult[B] =
     this match {
       case DecodeError(j, e) => DecodeError(j, e)
       case DecodeValue(a) => DecodeValue(f(a))
     }
 
+  /**
+   * Monad.
+   */
   def flatMap[B](f: A => DecodeResult[B]): DecodeResult[B] =
     this match {
       case DecodeError(j, e) => DecodeError(j, e)
@@ -57,21 +85,36 @@ object DecodeResult extends DecodeResults {
 }
 
 trait DecodeResults {
+  /**
+   * Constructor an error result.
+   */
   def decodeError[A](j: Json, s: String): DecodeResult[A] =
     DecodeError(j, s)
 
+  /**
+   * The decoding error partial lens.
+   */
   def decodeErrorL[A]: DecodeResult[A] @?> (Json, String) =
     PLens {
       case DecodeError(j, e) => Some(Costate(q => DecodeError(q._1, q._2), (j, e)))
       case DecodeValue(_) => None
     }
 
+  /**
+   * The decoding error partial lens to the JSON value.
+   */
   def decodeErrorJL[A]: DecodeResult[A] @?> Json =
     decodeErrorL >=> ~firstLens
 
+  /**
+   * The decoding error partial lens to the error message.
+   */
   def decodeErrorSL[A]: DecodeResult[A] @?> String =
     decodeErrorL >=> ~secondLens
 
+  /**
+   * The decoding value partial lens.
+   */
   def decodeValueL[A]: DecodeResult[A] @?> A =
     PLens(_.value map (a => Costate(DecodeValue(_), a)))
 
@@ -82,31 +125,63 @@ trait DecodeResults {
   }
 }
 
+/**
+ * Decodes a JSON value to an arbitrary value (may not succeed).
+ *
+ * @author Tony Morris
+ */
 trait DecodeJson[+A] {
   import DecodeJson._
 
   def apply(j: Json): DecodeResult[A]
 
+  /**
+   * Covariant functor.
+   */
   def map[B](f: A => B): DecodeJson[B] =
     DecodeJson(apply(_) map f)
 
+  /**
+   * Monad.
+   */
   def flatMap[B](f: A => DecodeJson[B]): DecodeJson[B] =
     DecodeJson(j => apply(j) flatMap (f(_)(j)))
 
+  /**
+   * Isomorphism to kleisli.
+   */
   def kleisli: Kleisli[DecodeResult, Json, A] =
     Kleisli(apply(_))
 
+  /**
+   * Combine two decoders.
+   */
   def &&&[B](x: DecodeJson[B]): DecodeJson[(A, B)] =
     DecodeJson(j => for {
       a <- this(j)
       b <- x(j)
     } yield (a, b))
 
+  /**
+   * Choose the first succeeding decoder.
+   */
+  def |||[AA >: A](x: => DecodeJson[AA]): DecodeJson[AA] =
+    DecodeJson(j => apply(j) match {
+      case DecodeError(_, _) => x(j)
+      case r@DecodeValue(_) => r
+    })
+
+  /**
+   * Run one or another decoder.
+   */
   def split[B](x: DecodeJson[B]): Either[Json, Json] => DecodeResult[Either[A, B]] = {
     case Left(j) => this(j) map (Left(_))
     case Right(j) => x(j) map (Right(_))
   }
 
+  /**
+   * Run two decoders.
+   */
   def product[B](x: DecodeJson[B]): (Json, Json) => DecodeResult[(A, B)] = {
     case (j1, j2) => for {
       a <- this(j1)
@@ -126,6 +201,9 @@ trait DecodeJsons {
   import JsonIdentity._
   import DecodeResult._
 
+  /**
+   * Construct a decoder that if fails, uses the given error message.
+   */
   def decodej[A](f: Json => Option[A], n: String): DecodeJson[A] =
     DecodeJson(j =>
       f(j) match {
@@ -134,6 +212,9 @@ trait DecodeJsons {
       }
     )
 
+  /**
+   * Construct a succeeding decoder from the given function.
+   */
   def decodeArr[A](f: Json => A): DecodeJson[A] =
     DecodeJson(j => DecodeResult(f(j)))
 
