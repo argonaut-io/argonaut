@@ -3,7 +3,7 @@ package com.ephox.argonaut
 import com.ephox.argonaut._, Argonaut._
 import scalaz._, Scalaz._
 
-object Demo {
+object CursorDemo {
   def main(args: Array[String]) {
     val j =
       """
@@ -31,7 +31,7 @@ object Demo {
         }
       """
 
-    val c =
+    val c1 =
       j.pparse flatMap (k =>
         +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) map (-_)
       )
@@ -51,12 +51,6 @@ object Demo {
         +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) flatMap (_.right) flatMap (_.right) map (_ := jBool(true)) map (-_)
       )
 
-    val c5 =
-      j.pparse flatMap (k =>
-        +k --\ "values" flatMap (_.downArray) flatMap (_.right) flatMap (_.right)
-      )
-
-    c5.println
-    println(c3 map (JsonPrinter.pretty(_)))
+    List(c1, c2, c3, c4) map (_ map (_.spaces2)) foreach println
   }
 }
