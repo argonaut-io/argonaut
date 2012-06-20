@@ -96,7 +96,7 @@ trait DecodeResults {
    */
   def decodeErrorL[A]: DecodeResult[A] @?> (Json, String) =
     PLens {
-      case DecodeError(j, e) => Some(Costate(q => DecodeError(q._1, q._2), (j, e)))
+      case DecodeError(j, e) => Some(Store(q => DecodeError(q._1, q._2), (j, e)))
       case DecodeValue(_) => None
     }
 
@@ -116,7 +116,7 @@ trait DecodeResults {
    * The decoding value partial lens.
    */
   def decodeValueL[A]: DecodeResult[A] @?> A =
-    PLens(_.value map (a => Costate(DecodeValue(_), a)))
+    PLens(_.value map (a => Store(DecodeValue(_), a)))
 
   implicit def DecodeResultMonad: Monad[DecodeResult] = new Monad[DecodeResult] {
     def point[A](a: => A) = DecodeValue(a)

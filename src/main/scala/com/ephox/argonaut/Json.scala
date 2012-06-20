@@ -427,37 +427,37 @@ trait Jsons {
   type JsonAssoc = (JsonField, Json)
   type JsonObjectMap = scalaz.InsertionMap[JsonField, Json]
 
-  import scalaz._, Scalaz._, PLens._, CostateT._
+  import scalaz._, Scalaz._, PLens._, StoreT._
 
   /**
    * A partial lens for JSON boolean values.
    */
   def jBoolL: Json @?> Boolean =
-    PLens(_.fold(None, z => Some(Costate(JBool, z)), _ => None, _ => None, _ => None, _ => None))
+    PLens(_.fold(None, z => Some(Store(JBool, z)), _ => None, _ => None, _ => None, _ => None))
 
   /**
    * A partial lens for JSON number values.
    */
   def jNumberL: Json @?> JsonNumber =
-    PLens(_.fold(None, _ => None, z => Some(Costate(JNumber, z)), _ => None, _ => None, _ => None))
+    PLens(_.fold(None, _ => None, z => Some(Store(JNumber, z)), _ => None, _ => None, _ => None))
 
   /**
    * A partial lens for JSON string values.
    */
   def jStringL: Json @?> JsonString =
-    PLens(_.fold(None, _ => None, _ => None, z => Some(Costate(JString, z)), _ => None, _ => None))
+    PLens(_.fold(None, _ => None, _ => None, z => Some(Store(JString, z)), _ => None, _ => None))
 
   /**
    * A partial lens for JSON string values.
    */
   def jArrayL: Json @?> JsonArray =
-    PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(Costate(JArray, z)), _ => None))
+    PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(Store(JArray, z)), _ => None))
 
   /**
    * A partial lens for JSON string values.
    */
   def jObjectL: Json @?> JsonObject =
-    PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(Costate(JObject, z))))
+    PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(Store(JObject, z))))
 
   /**
    * Construct a JSON value that is `null`.

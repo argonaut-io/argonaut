@@ -399,11 +399,11 @@ trait Cursors {
   val focusL: Cursor @> Json =
     Lens {
       case CJson(j) =>
-        Costate(CJson(_), j)
+        Store(CJson(_), j)
       case CArray(p, _, l, j, r) =>
-        Costate(CArray(p, true, l, _, r), j)
+        Store(CArray(p, true, l, _, r), j)
       case CObject(p, _, x, (f, j)) =>
-        Costate(jj => CObject(p, true, x, (f, jj)), j)
+        Store(jj => CObject(p, true, x, (f, jj)), j)
     }
 
   implicit val CursorInstances: Equal[Cursor] with Show[Cursor] = new Equal[Cursor] with Show[Cursor] {

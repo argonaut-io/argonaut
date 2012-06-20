@@ -35,10 +35,10 @@ trait ShiftResults {
     }
 
   def resultHistoryL: ShiftResult @> ShiftHistory =
-    Lens(r => Costate(ShiftResult(_, r.cursor), r.history))
+    Lens(r => Store(ShiftResult(_, r.cursor), r.history))
 
   def resultCursorL: ShiftResult @> Option[Cursor] =
-    Lens(r => Costate(ShiftResult(r.history, _), r.cursor))
+    Lens(r => Store(ShiftResult(r.history, _), r.cursor))
 
   def resultCursorPL: ShiftResult @?> Cursor =
     PLensT.somePLens compose ~resultCursorL
