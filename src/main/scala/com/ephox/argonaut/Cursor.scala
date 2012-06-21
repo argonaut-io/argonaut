@@ -4,6 +4,7 @@ package argonaut
 import scalaz._, Scalaz._
 import Json._
 import ContextElement._
+import javax.swing.plaf.OptionPaneUI
 
 /**
  * Represents a position in a JSON value and allows moving around the JSON value. Also known as a "zipper." The cursor has a focus representing the current position being referred to by the cursor. Users may update the focus using `withFocus` (or the `>->` alias) and move the cursor around with `left`, `right`, `field`, `downArray`, `downField` and `up`.
@@ -41,6 +42,21 @@ sealed trait Cursor {
         CArray(p, true, l, k(j), r)
       case CObject(p, _, x, (f, j)) =>
         CObject(p, true, x, (f, k(j)))
+    }
+
+  /** Update the focus with the given function in a functor (alias for `>-->`). */
+  def >-->[F[_]: Functor](k: Json => F[Json]): F[Cursor] =
+    withFocusM(k)
+
+  /** Update the focus with the given function in a functor (alias for `>-->`). */
+  def withFocusM[F[_]: Functor](k: Json => F[Json]): F[Cursor] =
+    this match {
+      case CJson(j) =>
+        Functor[F].map(k(j))(CJson(_))
+      case CArray(p, _, l, j, r) =>
+        Functor[F].map(k(j))(CArray(p, true, l, _, r))
+      case CObject(p, _, x, (f, j)) =>
+        Functor[F].map(k(j))(q => CObject(p, true, x, (f, q)))
     }
 
   /** Set the focus to the given value (alias for `:=`). */
@@ -308,6 +324,8 @@ sealed trait Cursor {
         o(q) map (jj => CObject(p, true, o - f, (q, jj)))
       case _ => None
     }
+
+  // todo deleteField, deleteSiblings, setSiblings
 
   /** Move the cursor up one step to the parent context. */
   def up: Option[Cursor] =
