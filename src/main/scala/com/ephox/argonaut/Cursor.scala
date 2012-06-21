@@ -299,6 +299,14 @@ sealed trait Cursor {
       case _ => None
     }
 
+  /** Deletes the JSON value at focus and moves to the given sibling field in a JSON object. */
+  def deleteGoField(q: JsonField): Option[Cursor] =
+    this match {
+      case CObject(p, _, o, (f, _)) =>
+        o(q) map (jj => CObject(p, true, o - f, (q, jj)))
+      case _ => None
+    }
+
   /** Deletes all JSON values to left of focus in a JSON array. */
   def deleteLefts: Option[Cursor] =
     this match {
@@ -317,15 +325,31 @@ sealed trait Cursor {
         None
     }
 
-  /** Deletes the JSON value at focus and moves to the given sibling field in a JSON object. */
-  def deleteGoField(q: JsonField): Option[Cursor] =
+  /** Delete all sibling fields in a JSON object. */
+  def deleteFields: Option[Cursor] =
     this match {
-      case CObject(p, _, o, (f, _)) =>
-        o(q) map (jj => CObject(p, true, o - f, (q, jj)))
+      case CObject(p, _, _, (f, j)) =>
+        Some(CObject(p, true, JsonObject.empty, (f, j)))
       case _ => None
     }
 
-  // todo deleteField, deleteSiblings, setSiblings
+  /** Delete all sibling fields in a JSON object or JSON array. */
+  def deleteSiblings: Option[Cursor] =
+    this match {
+      case CObject(p, _, _, (f, j)) =>
+        Some(CObject(p, true, JsonObject.empty + (f, j), (f, j)))
+      case CArray(p, _, _, j, _) =>
+        Some(CArray(p, true, Nil, j, Nil))
+      case CJson(_) =>
+        None
+    }
+
+  def setFields(o: JsonObject): Option[Cursor] =
+    this match {
+      case CObject(p, _, _, (f, j)) =>
+        Some(CObject(p, true, o, (f, j)))
+      case _ => None
+    }
 
   /** Move the cursor up one step to the parent context. */
   def up: Option[Cursor] =
