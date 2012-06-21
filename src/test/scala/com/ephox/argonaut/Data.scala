@@ -26,6 +26,19 @@ object Data {
   implicit def ArbitraryJsonObject: Arbitrary[JsonObject] =
     Arbitrary(arbitrary[List[(JsonField, Json)]] map (as => JsonObject(scalaz.InsertionMap(as: _*))))
 
+  implicit def ArbitraryCursor: Arbitrary[Cursor] = {
+    val r = for {
+      j <- arbitrary[Json]
+      l <- arbitrary[List[Json]]
+      r <- arbitrary[List[Json]]
+      o <- arbitrary[JsonObject]
+    } yield (+j)
+    Arbitrary(arbitrary[Json] map (j => {
+
+      error("")
+    }))
+  }
+
   case class SometimesNullString(s: String) {
     override def toString = s
   }
