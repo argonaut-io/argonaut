@@ -82,6 +82,12 @@ sealed trait JsonObject {
     toMap.keys
 
   /**
+   * Returns all association keys in arbitrary order.
+   */
+  def fieldSet: Set[JsonField] =
+    toMap.keySet
+
+  /**
    * Returns the number of associations.
    */
   def size: Int =

@@ -295,7 +295,6 @@ sealed trait Shift {
 
   /**
    * Shift to immediate parent.
-   * @return
    */
   def up: Shift =
     this compose Shift.tramps(c => (ShiftUp, c.up))

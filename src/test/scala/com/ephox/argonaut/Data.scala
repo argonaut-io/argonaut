@@ -28,11 +28,13 @@ object Data {
 
   implicit def ArbitraryCursor: Arbitrary[Cursor] = {
     val r = for {
-      j <- arbitrary[Json]
+      j <- arbitrary[JsonArray]
       l <- arbitrary[List[Json]]
       r <- arbitrary[List[Json]]
-      o <- arbitrary[JsonObject]
-    } yield (+j)
+    } yield {
+      val x = jArray(j)
+      error("")
+    }
     Arbitrary(arbitrary[Json] map (j => {
 
       error("")

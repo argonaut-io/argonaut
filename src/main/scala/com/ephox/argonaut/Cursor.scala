@@ -67,6 +67,33 @@ sealed trait Cursor {
   def :=(j: Json): Cursor =
     set(j)
 
+  /**
+   * Return the values left of focus in a JSON array.
+   */
+  def lefts: Option[JsonArray] =
+    this match {
+      case CArray(_, _, l, _, _) => Some(l)
+      case _ => None
+    }
+
+  /**
+   * Return the right left of focus in a JSON array.
+   */
+  def rights: Option[JsonArray] =
+    this match {
+      case CArray(_, _, _, _, r) => Some(r)
+      case _ => None
+    }
+
+  /**
+   * todo
+   */
+  def fields: Option[Set[JsonField]] =
+    this match {
+      case CObject(_, _, o, _) => Some(o.fieldSet)
+      case _ => None
+    }
+
   /** Move the cursor left in a JSON array. */
   def left: Option[Cursor] =
     this match {
@@ -325,30 +352,20 @@ sealed trait Cursor {
         None
     }
 
-  /** Delete all sibling fields in a JSON object. */
-  def deleteFields: Option[Cursor] =
+  def setLefts(x: List[Json]): Option[Cursor] =
     this match {
-      case CObject(p, _, _, (f, j)) =>
-        Some(CObject(p, true, JsonObject.empty, (f, j)))
-      case _ => None
-    }
-
-  /** Delete all sibling fields in a JSON object or JSON array. */
-  def deleteSiblings: Option[Cursor] =
-    this match {
-      case CObject(p, _, _, (f, j)) =>
-        Some(CObject(p, true, JsonObject.empty + (f, j), (f, j)))
-      case CArray(p, _, _, j, _) =>
-        Some(CArray(p, true, Nil, j, Nil))
-      case CJson(_) =>
+      case CArray(p, _, _, j, r) =>
+        Some(CArray(p, true, x, j, r))
+      case _ =>
         None
     }
 
-  def setFields(o: JsonObject): Option[Cursor] =
+  def setRights(x: List[Json]): Option[Cursor] =
     this match {
-      case CObject(p, _, _, (f, j)) =>
-        Some(CObject(p, true, o, (f, j)))
-      case _ => None
+      case CArray(p, _, l, j, _) =>
+        Some(CArray(p, true, l, j, x))
+      case _ =>
+        None
     }
 
   /** Move the cursor up one step to the parent context. */
@@ -438,6 +455,52 @@ trait Cursors {
         Store(CArray(p, true, l, _, r), j)
       case CObject(p, _, x, (f, j)) =>
         Store(jj => CObject(p, true, x, (f, jj)), j)
+    }
+
+  /**
+   * A partial lens of the lefts of a cursor at a JSON array.
+   */
+  val leftsL: Cursor @?> JsonArray =
+    PLens {
+      case CArray(p, _, l, j, r) =>
+        Some(Store(CArray(p, true, _, j, r), l))
+      case _ => None
+    }
+
+  /**
+   * A partial lens of the left of a cursor at a JSON array.
+   */
+  val leftL: Cursor @?> Json =
+    PLens {
+      case CArray(p, _, l, j, r) =>
+        l match {
+          case Nil => None
+          case h::t => Some(Store(q => CArray(p, true, q::t, j, r), h))
+        }
+      case _ => None
+    }
+
+  /**
+   * A partial lens of the rights of a cursor at a JSON array.
+   */
+  val rightsL: Cursor @?> JsonArray =
+    PLens {
+      case CArray(p, _, l, j, r) =>
+        Some(Store(CArray(p, true, _, j, r), l))
+      case _ => None
+    }
+
+  /**
+   * A partial lens of the right of a cursor at a JSON array.
+   */
+  val rightL: Cursor @?> Json =
+    PLens {
+      case CArray(p, _, l, j, r) =>
+        l match {
+          case Nil => None
+          case h::t => Some(Store(q => CArray(p, true, q::t, j, r), h))
+        }
+      case _ => None
     }
 
   implicit val CursorInstances: Equal[Cursor] with Show[Cursor] = new Equal[Cursor] with Show[Cursor] {
