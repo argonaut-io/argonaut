@@ -17,19 +17,25 @@ sealed trait ShiftResult {
 
   val previousOrCursor: Either[Cursor, Cursor]
 
+  /**
+   * Return either previous cursor or cursor.
+   */
   def collapse: Cursor =
     previousOrCursor match {
       case Left(c) => c
       case Right(c) => c
     }
 
-  val previous: Option[Cursor] =
+  /**
+   * The previous cursor if there is no current cursor.
+   */
+  def previous: Option[Cursor] =
     previousOrCursor.left.toOption
 
   /**
    * The current cursor position if it has succeeded.
    */
-  val cursor: Option[Cursor] =
+  def cursor: Option[Cursor] =
     previousOrCursor.right.toOption
 
   /**
