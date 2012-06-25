@@ -15,10 +15,22 @@ sealed trait ShiftResult {
    */
   val history: ShiftHistory
 
+  val previousOrCursor: Either[Cursor, Cursor]
+
+  def collapse: Cursor =
+    previousOrCursor match {
+      case Left(c) => c
+      case Right(c) => c
+    }
+
+  val previous: Option[Cursor] =
+    previousOrCursor.left.toOption
+
   /**
    * The current cursor position if it has succeeded.
    */
-  val cursor: Option[Cursor]
+  val cursor: Option[Cursor] =
+    previousOrCursor.right.toOption
 
   /**
    * Return whether or not the current cursor position has succeeded.
@@ -31,13 +43,22 @@ sealed trait ShiftResult {
    */
   def cursorOr(c: => Cursor): Cursor =
     cursor getOrElse c
+
+  /**
+   * Swap the cursor with the previous.
+   */
+  def unary_~ : ShiftResult =
+    new ShiftResult {
+      val history = ShiftResult.this.history
+      val previousOrCursor = ShiftResult.this.previousOrCursor.swap
+    }
 }
 
 object ShiftResult extends ShiftResults {
-  def apply(h: ShiftHistory, c: Option[Cursor]): ShiftResult =
+  def apply(h: ShiftHistory, c: Cursor): ShiftResult =
     new ShiftResult {
       val history = h
-      val cursor = c
+      val previousOrCursor = Right(c)
     }
 }
 
@@ -53,22 +74,37 @@ trait ShiftResults {
         }) + " }").toList
     }
 
+  private[argonaut] def shiftResult(h: ShiftHistory, c: Either[Cursor, Cursor]): ShiftResult =
+    new ShiftResult {
+      val history = h
+      val previousOrCursor = c
+    }
+
+  /**
+   * Construct a cursor-shift result without a cursor, using the given previous.
+   */
+  def previousResult(h: ShiftHistory, c: Cursor): ShiftResult =
+    new ShiftResult {
+      val history = h
+      val previousOrCursor = Left(c)
+    }
+
   /**
    * The lens on the cursor-shift history.
    */
-  def resultHistoryL: ShiftResult @> ShiftHistory =
-    Lens(r => Store(ShiftResult(_, r.cursor), r.history))
+  val resultHistoryL: ShiftResult @> ShiftHistory =
+    Lens(r => Store(shiftResult(_, r.previousOrCursor), r.history))
 
   /**
    * The lens on the cursor-shift cursor position.
    */
-  def resultCursorL: ShiftResult @> Option[Cursor] =
-    Lens(r => Store(ShiftResult(r.history, _), r.cursor))
+  val resultCursorL: ShiftResult @?> Cursor =
+    PLens(r => r.cursor map (q => Store(ShiftResult(r.history, _), q)))
 
   /**
-   * The partial lens on the cursor-shift cursor position.
+   * The lens on the cursor-shift previous cursor position.
    */
-  def resultCursorPL: ShiftResult @?> Cursor =
-    PLensT.somePLens compose ~resultCursorL
+  val resultPreviousL: ShiftResult @?> Cursor =
+    PLens(r => r.cursor map (q => Store(previousResult(r.history, _), q)))
 
 }

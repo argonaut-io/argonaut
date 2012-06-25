@@ -4,6 +4,42 @@ package argonaut
 import scalaz._, Scalaz._, Free._
 import Json._
 
+case class S2(sh: Cursor => Option[Cursor]) {
+  def compose(s: S2): S2 =
+    S2(c => sh(c) flatMap (cc => s.sh(cc)))
+}
+
+case class S(sh: Cursor => Either[Cursor, Cursor]) {
+  def compose(s: S): S =
+    S(c => sh(c).right flatMap (s sh _))
+
+  def left: S =
+    this compose S.ss(_.left)
+
+
+  def repeat: S =
+    S(c => {
+      @annotation.tailrec
+      def loop(cc: Cursor): Either[Cursor, Cursor] =
+        sh(cc) match {
+          case Left(p) => Left(p)
+          case Right(q) => loop(q)
+        }
+      loop(c)
+    })
+
+  def oops: S =
+    S(c => Right(sh(c) /* .codiag */ match {
+      case Left(p) => p
+      case Right(d) => d
+    }))
+}
+
+object S {
+  def ss(sh: Cursor => Option[Cursor]): S =
+    S(c => sh(c).toRight(c))
+}
+
 /**
  * A data structure that shifts a JSON cursor around, while keeping history.
  *
@@ -11,7 +47,7 @@ import Json._
  * @author Tony Morris
  */
 sealed trait Shift {
-  private[argonaut] def shift(c: Cursor): Trampoline[ShiftResult]
+  def shift(c: Cursor): Trampoline[ShiftResult]
 
   /**
    * Run with the given cursor.
@@ -20,13 +56,10 @@ sealed trait Shift {
     shift(c).run
 
   /**
-   * Return with the potential JSON value as the cursor.
+   * Run with a cursor on the given JSON value.
    */
-  def <|(j: Option[Json]): ShiftResult =
-    j match {
-      case None => ShiftResult(ShiftHistory.build(DList()), None)
-      case Some(k) => run(+k)
-    }
+  def <|(j: Json): ShiftResult =
+    run(+j)
 
   /**
    * Run with the given cursor and see only history.
@@ -52,7 +85,8 @@ sealed trait Shift {
 
   /** Update the focus with the given function (alias for `>->`). */
   def withFocus(k: Json => Json): Shift =
-    Shift.build(c => shift(c) map (r => ShiftResult(r.history, r.cursor map (_ >-> k))))
+    Shift(c =>
+      shift(c) map ((ShiftResult.resultCursorL andThen ~Cursor.focusL) =>= k))
 
   /** Set the focus to the given value (alias for `set`). */
   def :=(q: => Json): Shift =
@@ -61,17 +95,15 @@ sealed trait Shift {
   /** Set the focus to the given value (alias for `:=`). */
   def set(q: => Json): Shift =
     withFocus(_ => q)
-
   /**
    * Run this cursor-shift then the given cursor-shift.
    */
   def compose(s: => Shift): Shift =
-    Shift.build(c =>
-      shift(c) flatMap (
-        q => q.cursor match {
-          case None => implicitly[Monad[Trampoline]].point(q)
-          case Some(cc) => s shift cc map (r => ShiftResult(q.history ++ r.history, r.cursor))
-        }))
+    Shift(c =>
+      shift(c) flatMap (q => q.cursor match {
+        case None => implicitly[Monad[Trampoline]].point(q)
+        case Some(cc) => s shift cc map (ShiftResult.resultHistoryL =>= (q.history ++ _))
+      }))
 
   /**
    * Run the given cursor-shift and then this cursor-shift.
@@ -80,29 +112,33 @@ sealed trait Shift {
     s compose this
 
   /**
+   * Repeat this cursor-shift until last point before failure.
+   */
+  def repeat: Shift =
+    this compose repeat ||| this
+
+  /**
+   * Run the cursor-shift and always succeed, with the original cursor if it has to (alias for `unary_~`).
+   */
+  def attempt: Shift =
+    Shift(c => shift(c) map (i => ShiftResult(i.history, i.collapse)))
+
+  /**
    * Run the cursor-shift and always succeed, with the original cursor if it has to (alias for `attempt`).
    */
   def unary_~ : Shift =
     attempt
 
   /**
-   * Run the cursor-shift and always succeed, with the original cursor if it has to (alias for `unary_~`).
-   */
-  def attempt: Shift =
-    Shift.build(c =>
-      shift(c) map (r => ShiftResult(r.history, r.cursor orElse Some(c)))
-    )
-
-  /**
-   * Run the cursor-shift the given number of times (alias for `repeat`).
+   * Run the cursor-shift the given number of times (alias for `times`).
    */
   def %(n: Int): Shift =
-    repeat(n)
+    times(n)
 
   /**
    * Run the cursor-shift the given number of times (alias for `%`).
    */
-  def repeat(n: Int): Shift = {
+  def times(n: Int): Shift = {
     @annotation.tailrec
     def go(n: Int, acc: Shift): Shift =
       if (n <= 0)
@@ -303,16 +339,21 @@ sealed trait Shift {
    * Try this cursor-shift. If it fails, try the given one.
    */
   def |||(s: => Shift): Shift =
-    Shift.build(c => shift(c) flatMap (r => r.cursor match {
-      case Some(_) => implicitly[Monad[Trampoline]].point(r)
-      case None => s.shift(c)
-    }))
+    Shift(c =>
+      shift(c) flatMap (z => z.previousOrCursor match {
+        case Left(d) => s shift d
+        case Right(_) => implicitly[Monad[Trampoline]].point(z)
+      }))
 
   /**
    * Fail the cursor-shift if the given predicate fails.
    */
   def whenC(p: Cursor => Boolean): Shift =
-    Shift.build(c => if(p(c)) shift(c) else implicitly[Monad[Trampoline]].point(ShiftResult(Monoid[ShiftHistory].zero, None)))
+    Shift(c =>
+      if(p(c))
+        shift(c)
+      else
+        implicitly[Monad[Trampoline]].point(ShiftResult.previousResult(Monoid[ShiftHistory].zero, c)))
 
   /**
    * Fail the cursor-shift if the given predicate fails (alias for `?`).
@@ -343,31 +384,28 @@ sealed trait Shift {
    */
   def !?(p: Json => Boolean): Shift =
     unless(p)
-
 }
 
 object Shift extends Shifts {
-  def apply(k: Cursor => ShiftResult): Shift =
-    build(c => implicitly[Monad[Trampoline]].point(k(c)))
-}
-
-trait Shifts {
-  private[argonaut] def build(f: Cursor => Trampoline[ShiftResult]): Shift =
+  def apply(k: Cursor => Trampoline[ShiftResult]): Shift =
     new Shift {
-      def shift(c: Cursor) = f(c)
+      def shift(c: Cursor) = k(c)
     }
 
   private[argonaut] def tramps(f: Cursor => (ShiftHistoryElement, Option[Cursor])): Shift =
-    build(c => {
+    Shift(c => {
       val (e, q) = f(c)
-      implicitly[Monad[Trampoline]].point(ShiftResult(ShiftHistory(e), q))
+      implicitly[Monad[Trampoline]].point(ShiftResult.shiftResult(ShiftHistory(e), q.toRight(c)))
     })
+}
+
+trait Shifts {
 
   /**
    * A succeeding cursor-shift with no history.
    */
   def shift: Shift =
-    build(c => implicitly[Monad[Trampoline]].point(ShiftResult(Monoid[ShiftHistory].zero, Some(c))))
+    Shift(c => implicitly[Monad[Trampoline]].point(ShiftResult(Monoid[ShiftHistory].zero, c)))
 
   implicit val ShiftInstances: Monoid[Shift] =
     new Monoid[Shift] {
