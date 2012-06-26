@@ -511,14 +511,14 @@ trait Cursors {
            case CJson(j2) => j1 === j2
            case _ => false
          }
-       case CArray(p1, u1, l1, j1, r1) =>
+       case CArray(p1, _, l1, j1, r1) =>
          c2 match {
-           case CArray(p2, u2, l2, j2, r2) => p1 === p2 && u1 === u2 && l1 === l2 && j1 === j2 && r1 === r2
+           case CArray(p2, _, l2, j2, r2) => p1 === p2 && l1 === l2 && j1 === j2 && r1 === r2
            case _ => false
          }
-       case CObject(p1, u1, x1, (f1, j1)) =>
+       case CObject(p1, _, x1, (f1, j1)) =>
          c2 match {
-           case CObject(p2, u2, x2, (f2, j2)) => p1 === p2 && u1 === u2 && x1 === x2 && f1 === f2 && j1 === j2
+           case CObject(p2, _, x2, (f2, j2)) => p1 === p2 && x1 === x2 && f1 === f2 && j1 === j2
            case _ => false
          }
      }

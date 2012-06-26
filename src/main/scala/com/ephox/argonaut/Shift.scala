@@ -4,42 +4,6 @@ package argonaut
 import scalaz._, Scalaz._, Free._
 import Json._
 
-case class S2(sh: Cursor => Option[Cursor]) {
-  def compose(s: S2): S2 =
-    S2(c => sh(c) flatMap (cc => s.sh(cc)))
-}
-
-case class S(sh: Cursor => Either[Cursor, Cursor]) {
-  def compose(s: S): S =
-    S(c => sh(c).right flatMap (s sh _))
-
-  def left: S =
-    this compose S.ss(_.left)
-
-
-  def repeat: S =
-    S(c => {
-      @annotation.tailrec
-      def loop(cc: Cursor): Either[Cursor, Cursor] =
-        sh(cc) match {
-          case Left(p) => Left(p)
-          case Right(q) => loop(q)
-        }
-      loop(c)
-    })
-
-  def oops: S =
-    S(c => Right(sh(c) /* .codiag */ match {
-      case Left(p) => p
-      case Right(d) => d
-    }))
-}
-
-object S {
-  def ss(sh: Cursor => Option[Cursor]): S =
-    S(c => sh(c).toRight(c))
-}
-
 /**
  * A data structure that shifts a JSON cursor around, while keeping history.
  *

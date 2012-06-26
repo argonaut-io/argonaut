@@ -1,6 +1,7 @@
 package com.ephox
 package argonaut
 
+import scalaz._, Scalaz._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.{frequency, choose, listOfN, value, oneOf}
 import Json._
@@ -24,20 +25,23 @@ object Data {
   }
 
   implicit def ArbitraryJsonObject: Arbitrary[JsonObject] =
-    Arbitrary(arbitrary[List[(JsonField, Json)]] map (as => JsonObject(scalaz.InsertionMap(as: _*))))
+    Arbitrary(arbitrary[List[(JsonField, Json)]] map (as => JsonObject(InsertionMap(as: _*))))
 
   implicit def ArbitraryCursor: Arbitrary[Cursor] = {
-    val r = for {
-      j <- arbitrary[JsonArray]
-      l <- arbitrary[List[Json]]
-      r <- arbitrary[List[Json]]
-    } yield {
-      val x = jArray(j)
-      error("")
-    }
-    Arbitrary(arbitrary[Json] map (j => {
-
-      error("")
+    Arbitrary(arbitrary[Json] flatMap (j => {
+      val c = +j
+      j.arrayOrObject(
+        Gen.value(c)
+      , _ =>
+          for {
+            r <- frequency((90, arbitrary[Cursor]), (10, c))
+          } yield c.right getOrElse r
+      , o =>
+          for {
+            r <- frequency((90, arbitrary[Cursor]), (10, c))
+            q <- frequency((90, oneOf(o.fields)), (10, arbitrary[JsonField]))
+          } yield c downField q getOrElse r
+      )
     }))
   }
 

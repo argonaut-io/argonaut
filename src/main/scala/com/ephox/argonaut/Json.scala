@@ -35,6 +35,23 @@ sealed trait Json {
     }
 
   /**
+   * Run on an array or object or return the given default.
+   */
+  def arrayOrObject[X](
+    or: => X,
+    jsonArray: JsonArray => X,
+    jsonObject: JsonObject => X
+  ): X =
+    this match {
+      case JNull      => or
+      case JBool(_)   => or
+      case JNumber(_) => or
+      case JString(_) => or
+      case JArray(a)  => jsonArray(a)
+      case JObject(o) => jsonObject(o)
+    }
+
+  /**
    * Constructor a cursor from this JSON value.
    */
   def unary_+ : Cursor =
