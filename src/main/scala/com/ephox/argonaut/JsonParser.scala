@@ -3,6 +3,7 @@ package argonaut
 
 import util.parsing.combinator._
 import Json._
+import JsonNumber._
 
 class JsonParser extends Parsers {
   type Elem = Char
@@ -74,7 +75,11 @@ class JsonParser extends Parsers {
 
   def hex = digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 
-  def number = (int ||| intfrac ||| intexp ||| intfracexp) ^^ {_.mkString.toDouble}
+  def number: Parser[JsonNumber] =  {
+    val i = int ^^ (q => jIntegralNumber(BigInt(q.mkString)))
+    val d = (intfrac ||| intexp ||| intfracexp) ^^ {q => JsonNumber(q.mkString.toDouble)}
+    i ||| d
+  }
 
   def intexp = int ~ exp ^^ {case a ~ b => a ++ b}
 

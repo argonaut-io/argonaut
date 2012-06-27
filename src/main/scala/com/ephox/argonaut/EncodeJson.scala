@@ -47,16 +47,16 @@ trait EncodeJsons {
     EncodeJson(jString, "String")
 
   implicit def DoubleEncodeJson: EncodeJson[Double] =
-    EncodeJson(jNumber, "Double")
+    EncodeJson(jDouble, "Double")
 
   implicit def FloatEncodeJson: EncodeJson[Float] =
-    EncodeJson(a => jNumber(a.toFloat), "Float")
+    EncodeJson(a => jDouble(a), "Float")
 
   implicit def IntEncodeJson: EncodeJson[Int] =
-    EncodeJson(a => jNumber(a.toInt), "Int")
+    EncodeJson(a => jIntegral(a), "Int")
 
   implicit def LongEncodeJson: EncodeJson[Long] =
-    EncodeJson(a => jNumber(a.toLong), "Long")
+    EncodeJson(a => jIntegral(a), "Long")
 
   implicit def BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool, "Boolean")
@@ -65,21 +65,21 @@ trait EncodeJsons {
     EncodeJson(a => jString(a.toString), "Char")
 
   implicit def JDoubleEncodeJson: EncodeJson[java.lang.Double] =
-    EncodeJson(a => jNumber(a.doubleValue), "java.lang.Double")
+    EncodeJson(a => jDouble(a.doubleValue), "java.lang.Double")
 
   implicit def JFloatEncodeJson: EncodeJson[java.lang.Float] =
-    EncodeJson(a => jNumber(a.floatValue.toDouble), "java.lang.Float")
+    EncodeJson(a => jDouble(a.floatValue.toDouble), "java.lang.Float")
 
   implicit def JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
-    EncodeJson(a => jNumber(a.intValue.toDouble), "java.lang.Integer")
+    EncodeJson(a => jIntegral(a.intValue), "java.lang.Integer")
 
   implicit def JLongEncodeJson: EncodeJson[java.lang.Long] =
-    EncodeJson(a => jNumber(a.longValue.toDouble), "java.lang.Long")
+    EncodeJson(a => jIntegral(a.longValue), "java.lang.Long")
 
   implicit def JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =
     EncodeJson(a => jBool(a.booleanValue), "java.lang.Boolean")
 
-  implicit def JCharacterEncodeJson: EncodeJson[Char] =
+  implicit def JCharacterEncodeJson: EncodeJson[java.lang.Character] =
     EncodeJson(a => jString(a.toString), "java.lang.Character")
 
   implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] =
@@ -101,7 +101,11 @@ trait EncodeJsons {
     ), "[E, A]Validation[E, A]")
 
   implicit def MapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[Map[String, V]] =
-    EncodeJson(ListEncodeJson[(String, V)] contramap ((_: Map[String, V]).toList) apply _, "[V]Map[String, V]")
+    EncodeJson(x => jObjectAssocList(
+      x.toList map {
+        case (k, v) => (k, e(v))
+      }
+    ), "[V]Map[String, V]")
 
   implicit def SetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Set[A]] =
     EncodeJson(ListEncodeJson[A] contramap ((_: Set[A]).toList) apply _, "[A]Set[A]")

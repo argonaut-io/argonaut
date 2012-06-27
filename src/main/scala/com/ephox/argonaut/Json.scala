@@ -240,7 +240,7 @@ sealed trait Json {
    * Returns this JSON number object or the value `0` if it is not a number.
    */
   def numberOrZero: JsonNumber =
-    numberOr(0D)
+    numberOr(JsonNumber(0D))
 
   /**
    * Returns the string of this JSON value, or an empty string if this JSON value is not a string.
@@ -429,7 +429,6 @@ object Json extends Jsons
  * @author Mark Hibberd
  */
 trait Jsons {
-  type JsonNumber = Double
   type JsonArray = List[Json]
   type JsonString = String
   type JsonField = String
@@ -487,6 +486,18 @@ trait Jsons {
     JNumber(_)
 
   /**
+   * Construct a JSON value that is an integral number.
+   */
+  val jIntegral: BigInt => Json =
+    i => JNumber(JsonNumber.jIntegralNumber(i))
+
+  /**
+   * Construct a JSON value that is an integral number.
+   */
+  val jDouble: Double => Json =
+    d => JNumber(JsonNumber(d))
+
+  /**
    * Construct a JSON value that is a string.
    */
   val jString: JsonString => Json =
@@ -520,7 +531,7 @@ trait Jsons {
    * A JSON value that is a zero number.
    */
   val jZero: Json =
-    JNumber(0D)
+    JNumber(JsonNumber(0D))
 
   /**
    * A JSON value that is an empty string.

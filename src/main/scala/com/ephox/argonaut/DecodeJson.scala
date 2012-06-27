@@ -132,6 +132,7 @@ trait DecodeResults {
  */
 trait DecodeJson[+A] {
   import DecodeJson._
+  import JsonNumber._
 
   def apply(j: Json): DecodeResult[A]
 
@@ -241,7 +242,7 @@ trait DecodeJsons {
     decodej(_.string, "String")
 
   implicit def DoubleDecodeJson: DecodeJson[Double] =
-    decodej(x => if(x.isNull) Some(Double.NaN) else x.number, "Double")
+    decodej(x => if(x.isNull) Some(Double.NaN) else x.number map (_.toDouble), "Double")
 
   implicit def FloatDecodeJson: DecodeJson[Float] =
     decodej(x => if(x.isNull) Some(Float.NaN) else x.number map (_.toFloat), "Float")
@@ -256,10 +257,10 @@ trait DecodeJsons {
     decodej(_.bool, "Boolean")
 
   implicit def CharDecodeJson: DecodeJson[Char] =
-    decodej(_.string flatMap (s => if(s == 1) Some(s(0)) else None), "Char")
+    decodej(_.string flatMap (s => if(s.length == 1) Some(s(0)) else None), "Char")
 
   implicit def JDoubleDecodeJson: DecodeJson[java.lang.Double] =
-    decodej(_.number map (q => q), "java.lang.Double")
+    decodej(_.number map (_.toDouble), "java.lang.Double")
 
   implicit def JFloatDecodeJson: DecodeJson[java.lang.Float] =
     decodej(_.number map (_.toFloat), "java.lang.Float")
@@ -279,7 +280,7 @@ trait DecodeJsons {
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] =
     DecodeJson(j =>
       if(j.isNull)
-        decodeError(j, "[A]Option[A]")
+        DecodeResult(None)
       else
         e(j) map (Some(_))
     )
