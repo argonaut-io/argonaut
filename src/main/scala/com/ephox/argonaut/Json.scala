@@ -486,13 +486,7 @@ trait Jsons {
     JNumber(_)
 
   /**
-   * Construct a JSON value that is an integral number.
-   */
-  val jIntegral: BigInt => Json =
-    i => JNumber(JsonNumber.jIntegralNumber(i))
-
-  /**
-   * Construct a JSON value that is an integral number.
+   * Construct a JSON value that is a double.
    */
   val jDouble: Double => Json =
     d => JNumber(JsonNumber(d))

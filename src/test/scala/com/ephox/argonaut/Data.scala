@@ -5,15 +5,11 @@ import scalaz._, Scalaz._
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Gen.{frequency, choose, listOfN, value, oneOf}
 import Json._
-import JsonNumber._
 import org.scalacheck.{Gen, Arbitrary}
 
 object Data {
   implicit def ArbitraryJsonNumber: Arbitrary[JsonNumber] =
-    Arbitrary(arbitrary[Either[BigInt, Double]] map {
-      case Left(i) => jIntegralNumber(i)
-      case Right(d) => JsonNumber(d)
-    })
+    Arbitrary(arbitrary[Double] map (JsonNumber(_)))
 
   implicit def ArbitraryJson: Arbitrary[Json] = {
     val n = value(jNull)

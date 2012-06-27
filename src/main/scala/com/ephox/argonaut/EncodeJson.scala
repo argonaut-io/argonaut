@@ -53,10 +53,10 @@ trait EncodeJsons {
     EncodeJson(a => jDouble(a), "Float")
 
   implicit def IntEncodeJson: EncodeJson[Int] =
-    EncodeJson(a => jIntegral(a), "Int")
+    EncodeJson(a => jString(a.toString), "Int")
 
   implicit def LongEncodeJson: EncodeJson[Long] =
-    EncodeJson(a => jIntegral(a), "Long")
+    EncodeJson(a => jString(a.toString), "Long")
 
   implicit def BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool, "Boolean")
@@ -71,10 +71,10 @@ trait EncodeJsons {
     EncodeJson(a => jDouble(a.floatValue.toDouble), "java.lang.Float")
 
   implicit def JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
-    EncodeJson(a => jIntegral(a.intValue), "java.lang.Integer")
+    EncodeJson(a => jString(a.toString), "java.lang.Integer")
 
   implicit def JLongEncodeJson: EncodeJson[java.lang.Long] =
-    EncodeJson(a => jIntegral(a.longValue), "java.lang.Long")
+    EncodeJson(a => jString(a.toString), "java.lang.Long")
 
   implicit def JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =
     EncodeJson(a => jBool(a.booleanValue), "java.lang.Boolean")

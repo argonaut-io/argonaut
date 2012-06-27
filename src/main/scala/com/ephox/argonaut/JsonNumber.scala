@@ -3,144 +3,81 @@ package argonaut
 
 import scalaz._, Scalaz._
 
+/**
+ * A value representation a JSON number according to ECMA-262.
+ *
+ * @author Tony Morris
+ */
 sealed trait JsonNumber {
-  def toEither: Either[BigInt, Double] =
-    this match {
-      case IntJsonNumber(i) => Left(i)
-      case DoubleJsonNumber(d) => Right(d)
-    }
+  val toDouble: Double
 
   def +(n: JsonNumber): JsonNumber =
-    binary((x, y) => IntJsonNumber(x + y), (x, y) => DoubleJsonNumber(x + y), n)
+    binary(_ + _, n)
 
   def -(n: JsonNumber): JsonNumber =
-    binary((x, y) => IntJsonNumber(x - y), (x, y) => DoubleJsonNumber(x - y), n)
+    binary(_ - _, n)
 
   def *(n: JsonNumber): JsonNumber =
-    binary((x, y) => IntJsonNumber(x * y), (x, y) => DoubleJsonNumber(x * y), n)
+    binary(_ * _, n)
 
   def compare(n: JsonNumber): Ordering =
-    binary(Order[BigInt].order(_, _), Order[Double].order(_, _), n)
+    Order[Double].order(toDouble, n.toDouble)
 
   def abs: JsonNumber =
-    this match {
-      case IntJsonNumber(i) => IntJsonNumber(i.abs)
-      case DoubleJsonNumber(d) => DoubleJsonNumber(d.abs)
-    }
+    JsonNumber(toDouble.abs)
 
   def unary_- : JsonNumber =
-    this match {
-      case IntJsonNumber(i) => IntJsonNumber(-i)
-      case DoubleJsonNumber(d) => DoubleJsonNumber(-d)
-    }
+    JsonNumber(-toDouble)
 
   def signum: JsonNumber =
-    this match {
-      case IntJsonNumber(i) => IntJsonNumber(i.signum)
-      case DoubleJsonNumber(d) => DoubleJsonNumber(d.signum)
-    }
+    JsonNumber(toDouble.signum)
 
   def round: JsonNumber =
-    this match {
-      case IntJsonNumber(i) => IntJsonNumber(i)
-      case DoubleJsonNumber(d) => DoubleJsonNumber(d.round)
-    }
+    JsonNumber(toDouble.round)
 
   def ceil: JsonNumber =
-    this match {
-      case IntJsonNumber(i) => IntJsonNumber(i)
-      case DoubleJsonNumber(d) => DoubleJsonNumber(d.ceil)
-    }
+    JsonNumber(toDouble.ceil)
 
   def floor: JsonNumber =
-    this match {
-      case IntJsonNumber(i) => IntJsonNumber(i)
-      case DoubleJsonNumber(d) => DoubleJsonNumber(d.floor)
-    }
-
-  def toDouble: Double =
-    this match {
-      case IntJsonNumber(i) => i.toDouble
-      case DoubleJsonNumber(d) => d
-    }
+    JsonNumber(toDouble.floor)
 
   def toFloat: Float =
-    this match {
-      case IntJsonNumber(i) => i.toFloat
-      case DoubleJsonNumber(d) => d.toFloat
-    }
+    toDouble.toFloat
 
   def toLong: Long =
-    this match {
-      case IntJsonNumber(i) => i.toLong
-      case DoubleJsonNumber(d) => d.toLong
-    }
+    toDouble.toLong
 
   def toInt: Int =
-    this match {
-      case IntJsonNumber(i) => i.toInt
-      case DoubleJsonNumber(d) => d.toInt
-    }
+    toDouble.toInt
 
   override def equals(a: Any): Boolean =
-    a.isInstanceOf[JsonNumber] && binary(_ == _, _ == _, a.asInstanceOf[JsonNumber])
+    a.isInstanceOf[JsonNumber] && { toDouble == a.asInstanceOf[JsonNumber].toDouble }
 
   override def toString: String =
-    this match {
-      case IntJsonNumber(i) => i.toString
-      case DoubleJsonNumber(d) => d.toString
-    }
+    toDouble.toString
 
   private def binary[A](
-    i: (BigInt, BigInt) => A
-  , d: (Double, Double) => A
+    i: (Double, Double) => Double
   , n: JsonNumber
-  ): A =
-    this match {
-      case IntJsonNumber(i1) => n match {
-        case IntJsonNumber(i2) => i(i1, i2)
-        case DoubleJsonNumber(d2) => i(i1, BigInt(d2.toLong))
-      }
-      case DoubleJsonNumber(d1) => n match {
-        case IntJsonNumber(i2) => i(BigInt(d1.toLong), i2)
-        case DoubleJsonNumber(d2) => d(d1, d2)
-      }
-    }
+  ): JsonNumber =
+    JsonNumber(i(toDouble, n.toDouble))
 }
-private case class DoubleJsonNumber(d: Double) extends JsonNumber
-private case class IntJsonNumber(i: BigInt) extends JsonNumber
 
 object JsonNumber extends JsonNumbers {
   def apply(d: Double): JsonNumber =
-    DoubleJsonNumber(d)
+    new JsonNumber {
+      val toDouble = d
+    }
 }
 
 trait JsonNumbers {
-  def jIntegralNumber(i: BigInt): JsonNumber =
-    IntJsonNumber(i)
-
-  val jDoubleL: JsonNumber @?> Double =
-    PLens {
-      case DoubleJsonNumber(d) => Some(Store(DoubleJsonNumber(_), d))
-      case IntJsonNumber(_) => None
-    }
-
-  val jIntegralL: JsonNumber @?> BigInt =
-    PLens {
-      case DoubleJsonNumber(_) => None
-      case IntJsonNumber(i) => Some(Store(IntJsonNumber(_), i))
-    }
-
   implicit val JsonNumberInstances: Order[JsonNumber] with Show[JsonNumber] with Monoid[JsonNumber] =
     new Order[JsonNumber] with Show[JsonNumber] with Monoid[JsonNumber] {
-      def zero = DoubleJsonNumber(0D)
+      def zero = JsonNumber(Monoid[Double].zero)
       def append(x: JsonNumber, y: => JsonNumber) =
-        x + y
+        JsonNumber(Monoid[Double].append(x.toDouble, y.toDouble))
       def show(x: JsonNumber) =
-        x match {
-          case IntJsonNumber(i) => implicitly[Show[BigInt]].show(i)
-          case DoubleJsonNumber(d) => implicitly[Show[Double]].show(d)
-        }
+        Show[Double].show(x.toDouble)
       def order(x: JsonNumber, y: JsonNumber) =
         x compare y
     }

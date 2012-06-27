@@ -248,10 +248,10 @@ trait DecodeJsons {
     decodej(x => if(x.isNull) Some(Float.NaN) else x.number map (_.toFloat), "Float")
 
   implicit def IntDecodeJson: DecodeJson[Int] =
-    decodej(_.number map (_.toInt), "Int")
+    decodej(_.string flatMap (s => try { Some(s.toInt) } catch { case _ => None }), "Int")
 
   implicit def LongDecodeJson: DecodeJson[Long] =
-    decodej(_.number map (_.toLong), "Long")
+    decodej(_.string flatMap (s => try { Some(s.toLong) } catch { case _ => None }), "Long")
 
   implicit def BooleanDecodeJson: DecodeJson[Boolean] =
     decodej(_.bool, "Boolean")
@@ -266,10 +266,10 @@ trait DecodeJsons {
     decodej(_.number map (_.toFloat), "java.lang.Float")
 
   implicit def JIntegerDecodeJson: DecodeJson[java.lang.Integer] =
-    decodej(_.number map (_.toInt), "java.lang.Integer")
+    decodej(_.string flatMap (s => try { Some(s.toInt) } catch { case _ => None }), "java.lang.Integer")
 
   implicit def JLongDecodeJson: DecodeJson[java.lang.Long] =
-    decodej(_.number map (_.toLong), "java.lang.Long")
+    decodej(_.string flatMap (s => try { Some(s.toLong) } catch { case _ => None }), "java.lang.Long")
 
   implicit def JBooleanDecodeJson: DecodeJson[java.lang.Boolean] =
     decodej(_.bool map (q => q), "java.lang.Boolean")

@@ -10,6 +10,7 @@ DecodeJsons with
 EncodeJsons with
 Jsons with
 JsonIdentitys with
+JsonNumbers with
 PrettyParamss with
 Shifts with
 ShiftHistorys with
