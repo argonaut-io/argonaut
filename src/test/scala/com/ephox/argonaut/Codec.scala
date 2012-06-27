@@ -27,6 +27,7 @@ object Codec extends Properties("Codec") {
 
   property("Float encode/decode") =
     encodedecode[Float]
+
   property("Int encode/decode") =
     encodedecode[Int]
 

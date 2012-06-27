@@ -99,10 +99,10 @@ sealed trait JsonNumber {
     this match {
       case IntJsonNumber(i1) => n match {
         case IntJsonNumber(i2) => i(i1, i2)
-        case DoubleJsonNumber(d2) => i(i1, d2.toInt)
+        case DoubleJsonNumber(d2) => i(i1, BigInt(d2.toLong))
       }
       case DoubleJsonNumber(d1) => n match {
-        case IntJsonNumber(i2) => i(d1.toInt, i2)
+        case IntJsonNumber(i2) => i(BigInt(d1.toLong), i2)
         case DoubleJsonNumber(d2) => d(d1, d2)
       }
     }
