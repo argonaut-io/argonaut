@@ -76,8 +76,8 @@ class JsonParser extends Parsers {
   def hex = digit | 'a' | 'b' | 'c' | 'd' | 'e' | 'f'
 
   def number: Parser[JsonNumber] =  {
-    val i = int ^^ (q => jIntegralNumber(BigInt(q.mkString)))
-    val d = (intfrac ||| intexp ||| intfracexp) ^^ {q => JsonNumber(q.mkString.toDouble)}
+    val i = (int ||| intexp) ^^ (q => jIntegralNumber(BigInt(q.mkString)))
+    val d = (intfrac ||| intfracexp) ^^ {q => JsonNumber(q.mkString.toDouble)}
     i ||| d
   }
 
