@@ -7,7 +7,7 @@ import org.scalacheck.Properties
 import Data._
 import scalaz._, Scalaz._
 
-object Codec extends Properties("Codec") {
+object CodecTest extends Properties("Codec") {
   def encodedecode[A: DecodeJson : EncodeJson : Arbitrary : Equal] =
     forAll((a: A) =>
       implicitly[DecodeJson[A]].apply(implicitly[EncodeJson[A]].apply(a)).value exists (_ === a)
