@@ -18,7 +18,7 @@ object build extends Build {
   , settings = Defaults.defaultSettings ++ Seq[Sett](
       name := "argonaut"
     , organization := "com.ephox"
-    , version := "4.0"
+    , version := "5.0-SNAPSHOT"
     , scalaVersion := "2.9.2"
     , scalacOptions := Seq(
         "-deprecation"
