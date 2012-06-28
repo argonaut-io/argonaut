@@ -7,6 +7,7 @@ trait Argonauts extends
 Contexts with
 Cursors with
 DecodeJsons with
+DecodeResults with
 EncodeJsons with
 Jsons with
 JsonIdentitys with
