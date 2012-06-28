@@ -10,7 +10,7 @@ Argonaut is intended for simple applications that use specification-compliant JS
 
 ### Features
 
-* Lenses are partial lenses for product and sum types, in particular for viewing and updating values of the `Json` sum type.
+* Lenses and partial lenses for product and sum types, in particular for viewing and updating values of the `Json` sum type.
 * A zipper (`com.ephox.argonaut.Cursor`) for traversing and updating a `Json` data structure.
 * A traversal data structure (`com.ephox.argonaut.Shift`) that tracks its history of visited positions with an underlying cursor.
 * A pretty-printer for outputting JSON values.
