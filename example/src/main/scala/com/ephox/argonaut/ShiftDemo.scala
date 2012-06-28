@@ -48,11 +48,13 @@ object ShiftDemo {
         val r = (r1 ||| r2) := jString("cat")
         // apply cursor-shift operations
         val t = r <| s
-       // run cursor-shift and pretty-print with two-space indent
-        t.cursor match {
-          case None => "no cursor"
-          case Some(c) => (-c).spaces2
-        }
+        // run cursor-shift and pretty-print with two-space indent
+        val q =
+          t.cursor match {
+            case None => "no cursor"
+            case Some(c) => (-c).spaces2
+          }
+        q + '\n' + t.history.shows
       }
     , "Failed parse: " + _
     )
