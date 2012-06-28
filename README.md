@@ -16,6 +16,23 @@ Argonaut is intended for simple applications that use specification-compliant JS
 * A pretty-printer for outputting JSON values.
 * A codec for taking values of arbitrary type to and from JSON values.
 
+### SBT Settings
+
+To use argonaut, add the following repositories to your build:
+
+    override lazy val settings =
+      super.settings ++
+        Seq(resolvers := Seq(
+          "mth.io snapshots"  at "http://repo.mth.io/snapshots"
+        , "mth.io releases"  at "http://repo.mth.io/releases"
+        , "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
+        , "releases"  at "http://oss.sonatype.org/content/repositories/releases"
+        ))
+
+Then add argonaut as a dependency:
+
+    "com.ephox" %% "argonaut" % "4.0" withSources
+
 ### Future Improvements
 
 * Use a more appropriate parser library (not Scala parsers) to improve performance and usability.
