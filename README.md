@@ -1,6 +1,6 @@
-## Argonaut
+# Argonaut
 
-#### What is Argonaut?
+### What is Argonaut?
 
 Argonaut is a JSON library built using Scala. It provides functionality to specify how to convert to and from JSON for an arbitrary Scala object. It relies on the Scala parser libraries (`util.parsing.combinator`) to read an arbitrary string into a JSON data type, which is known to be slow. Argonaut is licenced under BSD3 (see `etc/LICENCE`).
 
@@ -8,14 +8,16 @@ The JSON data type also implements a large combinator library in an effort to ma
 
 Argonaut is intended for simple applications that use specification-compliant JSON. Argonaut is released under a [BSD3 open-source licence](http://www.opensource.org/licenses/BSD-3-Clause).
 
-#### Future Improvements
+### Features
 
-* Exploit lenses and partial lenses for a more complete and general combinator library.
-* Implement a zipper for traversing the JSON data structure.
-* Implement a traversal cursor function that tracks its operations using the Writer monad.
-* Use a more appropriate parser library (not Scala parsers) to improve performance.
-* Implement automated tests for type-class laws (e.g. `ToJson` is the inverse of `FromJson`).
+* Lenses are partial lenses for product and sum types, in particular for viewing and updating values of the `Json` sum type.
+* A zipper (`com.ephox.argonaut.Cursor`) for traversing and updating a `Json` data structure.
+* A traversal data structure (`com.ephox.argonaut.Shift`) that tracks its history of visited positions with an underlying cursor.
+* A pretty-printer for outputting JSON values.
+* A codec for taking values of arbitrary type to and from JSON values.
 
-***
+### Future Improvements
+
+* Use a more appropriate parser library (not Scala parsers) to improve performance and usability.
 
 **Copyright 2012 Ephox Pty Ltd**
