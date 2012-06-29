@@ -2,6 +2,7 @@ package com.ephox
 package argonaut
 
 import Argonaut._
+import scalaz._, Scalaz._
 
 object CodecDemo {
   case class Person(name: String, age: Int, spouse: Option[Person], children: List[Person])
@@ -11,10 +12,10 @@ object CodecDemo {
       DecodeJson(j => j.array match {
         case Some(n::a::s::c::Nil) =>
           for {
-            nn <- n.decode[String]
-            aa <- a.decode[Int]
-            ss <- s.decode[Option[Person]]
-            cc <- c.decode[List[Person]]
+            nn <- n.jdecode[String]
+            aa <- a.jdecode[Int]
+            ss <- s.jdecode[Option[Person]]
+            cc <- c.jdecode[List[Person]]
           } yield Person(nn, aa, ss, cc)
         case _ => decodeError(j, "Person")
       })
@@ -22,10 +23,10 @@ object CodecDemo {
     implicit val EncodePerson: EncodeJson[Person] =
       EncodeJson({
         case Person(n, a, s, c) => jArray(List(
-          n.encode
-        , a.encode
-        , s.encode
-        , c.encode
+          n.jencode
+        , a.jencode
+        , s.jencode
+        , c.jencode
         ))
       }, "Person")
   }
@@ -33,9 +34,9 @@ object CodecDemo {
   def main(args: Array[String]) {
     val children = List(Person("Bob", 10, None, Nil), Person("Jill", 12, None, Nil))
     val fred = Person("Fred", 40, Some(Person("Mary", 41, None, children)), Person("Tom", 15, None, Nil) :: children)
-    val enc = fred.encode
+    val enc = fred.jencode
     println(enc.spaces2)
-    val decode = enc.decode[Person]
+    val decode = enc.jdecode[Person]
     println(decode.run match {
       case Left(e) => e
       case Right(p) => p.toString

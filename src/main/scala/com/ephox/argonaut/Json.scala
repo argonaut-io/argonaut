@@ -376,7 +376,7 @@ sealed trait Json {
   /**
    * Attempts to decode this JSON value to another data type.
    */
-  def decode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
+  def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
     e(this)
 
   /**

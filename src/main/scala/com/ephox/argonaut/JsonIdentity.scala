@@ -7,7 +7,7 @@ trait JsonIdentity[J] {
   /**
    * Encode to a JSON value using the given implicit encoder.
    */
-  def encode(implicit e: EncodeJson[J]): Json =
+  def jencode(implicit e: EncodeJson[J]): Json =
     e(j)
 }
 
