@@ -145,12 +145,6 @@ trait DecodeJson[+A] {
   /**
    * Monad.
    */
-object CodecDemo {
-  def main(args: Array[String]) {
-    println("hi")
-  }
-}
-
   def flatMap[B](f: A => DecodeJson[B]): DecodeJson[B] =
     DecodeJson(j => apply(j) flatMap (f(_)(j)))
 
