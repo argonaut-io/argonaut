@@ -52,10 +52,28 @@ sealed trait Json {
     }
 
   /**
-   * Constructor a cursor from this JSON value.
+   * Constructor a cursor from this JSON value (alias for `cursor`).
    */
   def unary_+ : Cursor =
     Cursor(this)
+
+  /**
+   * Constructor a cursor from this JSON value (alias for `unary_+`).
+   */
+  def cursor: Cursor =
+    Cursor(this)
+
+  /**
+   * Constructor a cursor from this JSON value to track history.
+   */
+  def hcursor: HCursor =
+    cursor.hcursor
+
+  /**
+   * Constructor a cursor from this JSON value to track history.
+   */
+  def acursor: ACursor =
+    hcursor.acursor
 
   /**
    * Return `true` if this JSON value is `null`, otherwise, `false`.
@@ -377,7 +395,7 @@ sealed trait Json {
    * Attempts to decode this JSON value to another data type.
    */
   def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
-    e(this)
+    e((+this).hcursor)
 
   /**
    * Pretty-print this JSON value to a string using the given pretty-printing parameters.

@@ -60,7 +60,7 @@ sealed trait JsonObject {
   /**
    * Returns the list of associations in insertion order.
    */
-  def toList: List[(JsonField, Json)] =
+  def toList: List[(JsonAssoc)] =
     toMap.toList
 
   /**
@@ -102,20 +102,21 @@ object JsonObject extends JsonObjects {
     new JsonObject {
       val toMap = x
     }
-}
 
-trait JsonObjects {
   /**
    * Construct an empty association.
    */
   def empty: JsonObject =
     JsonObject(InsertionMap.empty)
+}
+
+trait JsonObjects {
 
   /**
    * Construct with a single association.
    */
   def single(f: JsonField, j: Json): JsonObject =
-    empty + (f, j)
+    JsonObject.empty + (f, j)
 
   /**
    * The lens to the JSON value.

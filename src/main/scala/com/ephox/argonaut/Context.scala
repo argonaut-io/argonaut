@@ -11,17 +11,17 @@ trait Context {
     Context.build(e :: toList)
 }
 
-object Context extends Contexts
+object Context extends Contexts {
+  def empty: Context =
+    new Context {
+      val toList = Nil
+    }
+}
 
 trait Contexts {
   private[argonaut] def build(x: List[ContextElement]): Context =
     new Context {
       val toList = x
-    }
-
-  def empty: Context =
-    new Context {
-      val toList = Nil
     }
 
   implicit val ContextInstances: Equal[Context] with Show[Context] =

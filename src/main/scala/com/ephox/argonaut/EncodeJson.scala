@@ -10,8 +10,8 @@ import Json._
  *
  * @author Tony Morris
  */
-trait EncodeJson[-A] {
-  def name: String
+sealed trait EncodeJson[-A] {
+  val name: String
 
   /**
    * Encode the given value.
@@ -23,17 +23,26 @@ trait EncodeJson[-A] {
    */
   def contramap[B](f: B => A): EncodeJson[B] =
     EncodeJson(b => apply(f(b)), name)
+
+  /**
+   * Set the name of this encoder.
+   */
+  def setName(n: String): EncodeJson[A] =
+    EncodeJson(apply(_), n)
 }
 
 object EncodeJson extends EncodeJsons {
   def apply[A](f: A => Json, n: String): EncodeJson[A] =
     new EncodeJson[A] {
-      def name = n
+      val name = n
       def apply(a: A) = f(a)
     }
 }
 
 trait EncodeJsons {
+  def encodeJsonNameL[A]: EncodeJson[A] @> String =
+    Lens(e => Store(EncodeJson(e(_), _), e.name))
+
   implicit def IdEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q, "Json")
 
@@ -120,8 +129,41 @@ trait EncodeJsons {
       case (a, b, c) => jArray(List(ea(a), eb(b), ec(c)))
     }, "[A, B, C](A, B, C)")
 
+  implicit def Tuple4EncodeJson[A, B, C, D](implicit ea: EncodeJson[A], eb: EncodeJson[B], ec: EncodeJson[C], ed: EncodeJson[D]): EncodeJson[(A, B, C, D)] =
+    EncodeJson({
+      case (a, b, c, d) => jArray(List(ea(a), eb(b), ec(c), ed(d)))
+    }, "[A, B, C, D](A, B, C, D)")
+
 
   implicit def EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
     def contramap[A, B](r: EncodeJson[A])(f: B => A) = r contramap f
   }
+
+  def jencode2[X, A: EncodeJson, B: EncodeJson](f: X => (A, B)): EncodeJson[X] =
+    implicitly[EncodeJson[(A, B)]].contramap(f)
+
+  def jencode3[X, A: EncodeJson, B: EncodeJson, C: EncodeJson](f: X => (A, B, C)): EncodeJson[X] =
+    implicitly[EncodeJson[(A, B, C)]].contramap(f)
+
+  def jencode4[X, A: EncodeJson, B: EncodeJson, C: EncodeJson, D: EncodeJson](f: X => (A, B, C, D)): EncodeJson[X] =
+    implicitly[EncodeJson[(A, B, C, D)]].contramap(f)
+
+  def jencode2L[X, A: EncodeJson, B: EncodeJson](f: X => (A, B))(an: JsonString, bn: JsonString): EncodeJson[X] =
+    EncodeJson(x => jObjectAssocList({
+      val (a, b) = f(x)
+      List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b))
+    }), "[A, B]Map[String, A|B]")
+
+  def jencode3L[X, A: EncodeJson, B: EncodeJson, C: EncodeJson](f: X => (A, B, C))(an: JsonString, bn: JsonString, cn: JsonString): EncodeJson[X] =
+    EncodeJson(x => jObjectAssocList({
+      val (a, b, c) = f(x)
+      List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b), (cn, implicitly[EncodeJson[C]] apply c))
+    }), "[A, B, C]Map[String, A|B|C]")
+
+  def jencode4L[X, A: EncodeJson, B: EncodeJson, C: EncodeJson, D: EncodeJson](f: X => (A, B, C, D))(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString): EncodeJson[X] =
+    EncodeJson(x => jObjectAssocList({
+      val (a, b, c, d) = f(x)
+      List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b), (cn, implicitly[EncodeJson[C]] apply c), (dn, implicitly[EncodeJson[D]] apply d))
+    }), "[A, B, C, D]Map[String, A|B|C|D]")
+
 }

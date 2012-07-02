@@ -10,7 +10,7 @@ import scalaz._, Scalaz._
 object CodecTest extends Properties("Codec") {
   def encodedecode[A: DecodeJson : EncodeJson : Arbitrary : Equal] =
     forAll((a: A) =>
-      implicitly[DecodeJson[A]].apply(implicitly[EncodeJson[A]].apply(a)).value exists (_ === a)
+      implicitly[DecodeJson[A]].apply(implicitly[EncodeJson[A]].apply(a).acursor).value exists (_ === a)
     )
 
   property("List[String] encode/decode") =
@@ -57,5 +57,11 @@ object CodecTest extends Properties("Codec") {
 
   property("Tuple3[String, Int, Boolean] encode/decode") =
     encodedecode[Tuple3[String, Int, Boolean]]
+
+  property("Tuple3[String, Int, Boolean] encode/decode") =
+    encodedecode[Tuple3[String, Int, Boolean]]
+
+  property("Tuple4[String, Int, Boolean, Long] encode/decode") =
+    encodedecode[Tuple4[String, Int, Boolean, Long]]
 
 }

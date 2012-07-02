@@ -21,7 +21,19 @@ sealed trait Cursor {
       case CObject(p, _, _, (f, j)) => objectContext(f, j) +: p.context
     }
 
-  /** Set the focus to the given value. */
+  /**
+   * A HCursor for this cursor that tracks history.
+   */
+  def hcursor: HCursor =
+    HCursor(this, Monoid[CursorHistory].zero)
+
+  /**
+   * An ACursor for this cursor that tracks history.
+   */
+  def acursor: ACursor =
+    hcursor.acursor
+
+  /** Return the current focus. */
   def focus: Json =
     this match {
       case CJson(j) => j
@@ -45,11 +57,11 @@ sealed trait Cursor {
     }
 
   /** Update the focus with the given function in a functor (alias for `>-->`). */
-  def >-->[F[_]: Functor](k: Json => F[Json]): F[Cursor] =
+  def >-->[F[+_]: Functor](k: Json => F[Json]): F[Cursor] =
     withFocusM(k)
 
   /** Update the focus with the given function in a functor (alias for `>-->`). */
-  def withFocusM[F[_]: Functor](k: Json => F[Json]): F[Cursor] =
+  def withFocusM[F[+_]: Functor](k: Json => F[Json]): F[Cursor] =
     this match {
       case CJson(j) =>
         Functor[F].map(k(j))(CJson(_))
@@ -86,7 +98,7 @@ sealed trait Cursor {
     }
 
   /**
-   * todo
+   * All field names in a JSON object.
    */
   def fields: Option[Set[JsonField]] =
     this match {
@@ -352,6 +364,7 @@ sealed trait Cursor {
         None
     }
 
+  /** Set the values to the left of focus in a JSON array. */
   def setLefts(x: List[Json]): Option[Cursor] =
     this match {
       case CArray(p, _, _, j, r) =>
@@ -360,6 +373,7 @@ sealed trait Cursor {
         None
     }
 
+  /** Set the values to the right of focus in a JSON array. */
   def setRights(x: List[Json]): Option[Cursor] =
     this match {
       case CArray(p, _, l, j, _) =>
@@ -433,6 +447,24 @@ sealed trait Cursor {
       }
     goup(this)
   }
+
+  def traverseBreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, Cursor, Option[Cursor]]): Endo[X] =
+    Endo(x => {
+      @annotation.tailrec
+      def spin(z: X, d: Cursor): X = {
+        val (q, k) = r run d run z
+        k match {
+          case None => q
+          case Some(a) => spin(q, a)
+        }
+      }
+
+      spin(x, this)
+    })
+
+  def traverse[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, Cursor, Cursor]): Endo[X] =
+    traverseBreak(r map (Some(_)))
+
 }
 private case class CJson(j: Json) extends Cursor
 private case class CArray(p: Cursor, u: Boolean, ls: List[Json], x: Json, rs: List[Json]) extends Cursor
