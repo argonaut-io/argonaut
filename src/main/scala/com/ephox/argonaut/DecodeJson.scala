@@ -96,7 +96,7 @@ trait DecodeJsons {
   implicit def IdDecodeJson: DecodeJson[HCursor] =
     decodeArr(q => q)
 
-  def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
+  implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
     DecodeJson(_.traverseA[DecodeResult[List[A]]](
       Kleisli[({type λ[+α] = State[DecodeResult[List[A]], α]})#λ, HCursor, ACursor](c => {
         State((x: DecodeResult[List[A]]) => (for {
@@ -106,7 +106,7 @@ trait DecodeJsons {
       })) exec DecodeResult(Nil)
   )
 
-  def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
+  implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
     DecodeJson(a =>
       a.traverseA[DecodeResult[Stream[A]]](
         Kleisli[({type λ[+α] = State[DecodeResult[Stream[A]], α]})#λ, HCursor, ACursor](c => {
@@ -163,7 +163,7 @@ trait DecodeJsons {
       e(a) map (Some(_))
     )
 
-  def EitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Either[A, B]] =
+  implicit def EitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Either[A, B]] =
     DecodeJson(a => {
       val l = (a --\ "Left").success
       val r = (a --\ "Right").success
@@ -174,7 +174,7 @@ trait DecodeJsons {
       }
     })
 
-  def ValidationDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Validation[A, B]] =
+  implicit def ValidationDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Validation[A, B]] =
     DecodeJson(a => {
       val l = (a --\ "Failure").success
       val r = (a --\ "Success").success
@@ -195,6 +195,9 @@ trait DecodeJsons {
           )
       }
     )
+
+  implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
+    implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
 
   implicit def Tuple2DecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[(A, B)] =
     DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
