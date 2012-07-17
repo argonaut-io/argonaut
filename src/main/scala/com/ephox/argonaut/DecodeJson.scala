@@ -97,25 +97,36 @@ trait DecodeJsons {
     decodeArr(q => q)
 
   implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
-    DecodeJson(_.traverseA[DecodeResult[List[A]]](
-      Kleisli[({type λ[+α] = State[DecodeResult[List[A]], α]})#λ, HCursor, ACursor](c => {
-        State((x: DecodeResult[List[A]]) => (for {
-          h <- e(c)
-          t <- x
-        } yield h :: t, c.right))
-      })) exec DecodeResult(Nil)
-  )
+    DecodeJson(a => {
+      val d = a.downArray
+      if(d.succeeded)
+        d.hcursor.traverseA[DecodeResult[List[A]]](Kleisli[({type λ[+α] = State[DecodeResult[List[A]], α]})#λ, HCursor, ACursor](c =>
+            State((x: DecodeResult[List[A]]) => (for {
+              h <- implicitly[DecodeJson[A]] apply c
+              t <- x
+            } yield h :: t, c.right))
+          )) exec DecodeResult(Nil) map (_.reverse)
+      else if(a.focus.isArray)
+        DecodeResult(Nil)
+      else
+        DecodeResult.failedResult("[A]List[A]", a.history)
+    })
 
   implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
-    DecodeJson(a =>
-      a.traverseA[DecodeResult[Stream[A]]](
-        Kleisli[({type λ[+α] = State[DecodeResult[Stream[A]], α]})#λ, HCursor, ACursor](c => {
-          State((x: DecodeResult[Stream[A]]) => (for {
+    DecodeJson(a => {
+      val d = a.downArray
+      if(d.succeeded)
+        d.hcursor.traverseA[DecodeResult[Stream[A]]](Kleisli[({type λ[+α] = State[DecodeResult[Stream[A]], α]})#λ, HCursor, ACursor](c =>
+            State((x: DecodeResult[Stream[A]]) => (for {
+              h <- implicitly[DecodeJson[A]] apply c
               t <- x
-              h <- e(c)
             } yield h #:: t, c.right))
-        })) exec DecodeResult(Stream.empty)
-    )
+          )) exec DecodeResult(Stream()) map (_.reverse)
+      else if(a.focus.isArray)
+        DecodeResult(Stream())
+      else
+        DecodeResult.failedResult("[A]Stream[A]", a.history)
+    })
 
   implicit def StringDecodeJson: DecodeJson[String] =
     optionDecoder(_.string, "String")

@@ -12,13 +12,13 @@ object CodecTest extends Properties("Codec") {
     forAll((a: A) =>
       implicitly[DecodeJson[A]].apply(implicitly[EncodeJson[A]].apply(a).hcursor).value exists (_ === a)
     )
-          /*
+
   property("List[String] encode/decode") =
     encodedecode[List[String]]
 
   property("Stream[String] encode/decode") =
     encodedecode[Stream[String]]
-            */
+
   property("String encode/decode") =
     encodedecode[String]
 
