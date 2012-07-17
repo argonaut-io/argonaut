@@ -45,7 +45,7 @@ object CodecTest extends Properties("Codec") {
 
   property("Either[String, Int] encode/decode") =
     encodedecode[Either[String, Int]]
-           /*
+
   property("Map[String, Int] encode/decode") =
     encodedecode[Map[String, Int]]
 
@@ -58,11 +58,7 @@ object CodecTest extends Properties("Codec") {
   property("Tuple3[String, Int, Boolean] encode/decode") =
     encodedecode[Tuple3[String, Int, Boolean]]
 
-  property("Tuple3[String, Int, Boolean] encode/decode") =
-    encodedecode[Tuple3[String, Int, Boolean]]
-
   property("Tuple4[String, Int, Boolean, Long] encode/decode") =
     encodedecode[Tuple4[String, Int, Boolean, Long]]
-    */
 
 }

@@ -100,11 +100,14 @@ sealed trait Cursor {
   /**
    * All field names in a JSON object.
    */
-  def fields: Option[Set[JsonField]] =
-    this match {
-      case CObject(_, _, o, _) => Some(o.fieldSet)
-      case _ => None
-    }
+  def fieldSet: Option[Set[JsonField]] =
+    focus.obj map  (_.fieldSet)
+
+  /**
+   * All field names in a JSON object.
+   */
+  def fields: Option[List[JsonField]] =
+    focus.obj map  (_.fields)
 
   /** Move the cursor left in a JSON array. */
   def left: Option[Cursor] =

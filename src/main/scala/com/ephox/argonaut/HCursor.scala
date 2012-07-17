@@ -64,7 +64,13 @@ sealed trait HCursor {
   /**
    * All field names in a JSON object.
    */
-  def fields: Option[Set[JsonField]] =
+  def fieldSet: Option[Set[JsonField]] =
+    cursor.fieldSet
+
+  /**
+   * All field names in a JSON object.
+   */
+  def fields: Option[List[JsonField]] =
     cursor.fields
 
   /** Move the cursor left in a JSON array. */
@@ -207,6 +213,7 @@ sealed trait HCursor {
   def up: ACursor =
     history.acursorElement(Store(_.up, cursor), CursorOpUp)
 
+  // (HCursor, X) => (Option[HCursor], X) => X => X
   def traverseBreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[HCursor]]): Endo[X] =
     Endo(x => {
       @annotation.tailrec

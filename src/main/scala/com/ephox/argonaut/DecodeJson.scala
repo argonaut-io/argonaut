@@ -200,10 +200,17 @@ trait DecodeJsons {
     DecodeJson(a =>
       a.fields match {
         case None => DecodeResult.failedResult("[V]Map[String, V]", a.history)
-        case Some(s) =>
-          s.foldLeftM[DecodeResult, Map[String, V]](Map.empty[String, V])((m, f) =>
-            e((a --\ f).hcursor).map(v => m + ((f, v)))
-          )
+        case Some(s) => {
+          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] =
+            x match {
+              case Nil => m
+              case h::t => {
+                spin(t, m flatMap  (mm => e((a --\ h).hcursor) map (v => mm + ((h, v))))  )
+              }
+            }
+
+          spin(s, DecodeResult(Map.empty[String, V]))
+        }
       }
     )
 
@@ -226,23 +233,24 @@ trait DecodeJsons {
       })
 
   implicit def Tuple3DecodeJson[A, B, C](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C]): DecodeJson[(A, B, C)] =
-    DecodeJson(a => a.traverseA[DecodeResult[List[HCursor]]](
+    DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
       Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c => {
         State((x: DecodeResult[List[HCursor]]) => {
           (x map (c :: _), c.right)
         })
-      })) exec DecodeResult(Nil) flatMap {
+      })) exec DecodeResult(Nil) flatMap (x => {
+      x match {
         case cc :: cb :: ca :: Nil => for {
           xa <- ea(ca)
           xb <- eb(cb)
           xc <- ec(cc)
         } yield (xa, xb, xc)
         case _ => DecodeResult.failedResult("[A, B, C]Tuple3[A, B, C]", a.history)
-      }
+      }})
     )
 
   implicit def Tuple4DecodeJson[A, B, C, D](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C], ed: DecodeJson[D]): DecodeJson[(A, B, C, D)] =
-    DecodeJson(a => a.traverseA[DecodeResult[List[HCursor]]](
+    DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
       Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c => {
         State((x: DecodeResult[List[HCursor]]) => {
           (x map (c :: _), c.right)
