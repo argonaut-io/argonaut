@@ -168,11 +168,7 @@ trait DecodeJsons {
     optionDecoder(_.string flatMap (s => if(s == 1) Some(s(0)) else None), "java.lang.Character")
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] =
-    DecodeJson(a => if(a.focus.isNull)
-      DecodeResult(None)
-    else
-      e(a) map (Some(_))
-    )
+    DecodeJson(a => e(a).option)
 
   implicit def EitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Either[A, B]] =
     DecodeJson(a => {
