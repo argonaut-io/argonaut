@@ -82,6 +82,19 @@ sealed trait StringWrap {
    * Parses this string value to a possible JSON value.
    */
   def pparse: Option[Json] = parseIgnoreError(Some(_), None)
+
+  /*
+   * Construct a pair of the key and JSON value.
+   */
+  def :=[A: EncodeJson](a: A) =
+    (value, implicitly[EncodeJson[A]].apply(a))
+
+  /*
+   * Construct a pair of the key and JSON value.
+   */
+  def :=?[A: EncodeJson](a: Option[A]) =
+    a map (aa =>  (value, implicitly[EncodeJson[A]].apply(aa)))
+
 }
 
 object StringWrap extends StringWraps
