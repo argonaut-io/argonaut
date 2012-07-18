@@ -11,33 +11,24 @@ import scalaz._, Scalaz._
  */
 sealed trait CursorHistory {
   /**
-   * Convert to a list.
-   */
-  val ops: DList[CursorOp]
-
-  /**
    * Convert cursor history operations to a list (O(n)).
    */
-  def toList: List[CursorOp] =
-    ops.toList
+  val toList: List[CursorOp]
+
+  def head: Option[CursorOp] =
+    toList.headOption
 
   /**
    * Append two lists of cursor history.
    */
   def ++(h: CursorHistory): CursorHistory  =
-    CursorHistory.build(ops ++ h.ops)
+    CursorHistory.build(toList ++ h.toList)
 
   /**
    * Prepend a cursor operation to the history.
    */
   def +:(o: CursorOp): CursorHistory =
-    CursorHistory.build(o +: ops)
-
-  /**
-   * Append a cursor operation to the history.
-   */
-  def :+(o: CursorOp): CursorHistory =
-    CursorHistory.build(ops :+ o)
+    CursorHistory.build(o +: toList)
 
   def failedACursor(c: Cursor): ACursor =
     ACursor.failedACursor(HCursor(c, this))
@@ -48,8 +39,8 @@ sealed trait CursorHistory {
   def acursorElement(c: Store[Cursor, Option[Cursor]], e: CursorOpElement): ACursor = {
     val x = c.pos
     c.copoint match {
-      case None => :+(CursorOp(e)).failedACursor(x)
-      case Some(q) => :+(CursorOp.failedOp(e)).acursor(q)
+      case None => +:(CursorOp(e)).failedACursor(x)
+      case Some(q) => +:(CursorOp.failedOp(e)).acursor(q)
     }
   }
 
@@ -57,22 +48,22 @@ sealed trait CursorHistory {
 
 object CursorHistory extends CursorHistorys {
   private[argonaut] def apply(e: CursorOp) =
-    build(DList(e))
+    build(List(e))
 }
 
 trait CursorHistorys {
-  private[argonaut] def build(l: DList[CursorOp]): CursorHistory =
+  private[argonaut] def build(l: List[CursorOp]): CursorHistory =
     new CursorHistory {
-      val ops = l
+      val toList = l
     }
 
   implicit val CursorHistoryInstances: Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] =
     new Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] {
-      def show(h: CursorHistory) = Show[List[CursorOp]].show(h.ops.toList)
+      def show(h: CursorHistory) = Show[List[CursorOp]].show(h.toList)
       def equal(h1: CursorHistory, h2: CursorHistory) =
-        h1.ops === h2.ops
-      def zero = CursorHistory.build(DList())
+        h1.toList === h2.toList
+      def zero = CursorHistory.build(List())
       def append(h1: CursorHistory, h2: => CursorHistory) =
-        h1 ++ h2
+        CursorHistory.build(h1.toList ::: h2.toList)
     }
 }

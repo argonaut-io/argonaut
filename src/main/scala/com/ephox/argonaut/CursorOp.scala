@@ -4,7 +4,7 @@ package argonaut
 import scalaz._, Scalaz._
 
 sealed trait CursorOp {
-  def isRettempt: Boolean =
+  def isReattempt: Boolean =
     this == Reattempt
 
   def isNotReattempt: Boolean =

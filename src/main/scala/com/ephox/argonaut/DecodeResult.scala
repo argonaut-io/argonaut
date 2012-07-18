@@ -20,6 +20,16 @@ sealed trait DecodeResult[+A] {
   def value: Option[A] =
     result.right.toOption
 
+  def option: DecodeResult[Option[A]] =
+    result match {
+      case Left((s, h)) => h.head filter (_.succeeded) match {
+        case None => DecodeResult(None)
+        case Some(o) => DecodeResult.failedResult(s, h)
+      }
+      case Right(a) => DecodeResult(Some(a))
+    }
+
+
   def |||[AA >: A](r: => DecodeResult[AA]): DecodeResult[AA] =
     DecodeResult.build(result match {
       case Left(_) => r.result
