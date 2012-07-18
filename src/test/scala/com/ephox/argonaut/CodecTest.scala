@@ -13,6 +13,9 @@ object CodecTest extends Properties("Codec") {
       implicitly[DecodeJson[A]].apply(implicitly[EncodeJson[A]].apply(a).hcursor).value exists (_ === a)
     )
 
+  property("Unit encode/decode") =
+    encodedecode[Unit]
+
   property("List[String] encode/decode") =
     encodedecode[List[String]]
 

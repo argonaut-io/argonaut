@@ -128,6 +128,12 @@ trait DecodeJsons {
         DecodeResult.failedResult("[A]Stream[A]", a.history)
     })
 
+  implicit def UnitDecodeJson: DecodeJson[Unit] =
+    DecodeJson(a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray)
+        ().point[DecodeResult]
+      else
+        DecodeResult.failedResult("Unit", a.history))
+
   implicit def StringDecodeJson: DecodeJson[String] =
     optionDecoder(_.string, "String")
 
@@ -168,7 +174,7 @@ trait DecodeJsons {
     optionDecoder(_.string flatMap (s => if(s == 1) Some(s(0)) else None), "java.lang.Character")
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] =
-    DecodeJson(a => if(a.focus.isNull)
+    DecodeJson(a => if (a.focus.isNull)
       DecodeResult(None)
     else
       e(a).option

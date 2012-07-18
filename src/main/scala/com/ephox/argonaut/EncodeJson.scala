@@ -46,6 +46,9 @@ trait EncodeJsons {
   implicit def IdEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q, "Json")
 
+  implicit def UnitEncodeJson: EncodeJson[Unit] =
+    EncodeJson(_ => jEmptyObject, "Unit")
+
   implicit def ListEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[List[A]] =
     EncodeJson(a => jArray(a map (e(_))), "[A]List[A]")
 
