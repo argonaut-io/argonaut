@@ -310,4 +310,18 @@ trait DecodeJsons {
       else
         DecodeResult.failedResult("[A, B, C, D]Map[String, A|B|C|D]", x.history)
     )
+
+  def jdecode5L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, E: DecodeJson, X](f: (A, B, C, D, E) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, de: JsonString): DecodeJson[X] =
+    DecodeJson(x =>
+      if(x.focus.obj exists (_.size == 5))
+        for {
+          aa <- (x --\ an).hcursor.jdecode[A]
+          bb <- (x --\ bn).hcursor.jdecode[B]
+          cc <- (x --\ cn).hcursor.jdecode[C]
+          dd <- (x --\ dn).hcursor.jdecode[D]
+          de <- (x --\ dn).hcursor.jdecode[E]
+        } yield f(aa, bb, cc, dd, de)
+      else
+        DecodeResult.failedResult("[A, B, C, D,E]Map[String, A|B|C|D|E]", x.history)
+    )
 }

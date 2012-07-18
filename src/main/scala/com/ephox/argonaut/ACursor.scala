@@ -12,6 +12,12 @@ sealed trait ACursor {
   import CursorOp._
   import Json._
 
+  /**
+   * Attempts to decode this cursor focus value to another data type.
+   */
+  def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
+    hcursor.jdecode[A]
+
   def failed: Boolean =
     !succeeded
 
