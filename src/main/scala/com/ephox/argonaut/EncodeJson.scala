@@ -169,4 +169,10 @@ trait EncodeJsons {
       List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b), (cn, implicitly[EncodeJson[C]] apply c), (dn, implicitly[EncodeJson[D]] apply d))
     }), "[A, B, C, D]Map[String, A|B|C|D]")
 
+  def jencode5L[X, A: EncodeJson, B: EncodeJson, C: EncodeJson, D: EncodeJson, E: EncodeJson](f: X => (A, B, C, D, E))(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, en: JsonString): EncodeJson[X] =
+    EncodeJson(x => jObjectAssocList({
+      val (a, b, c, d, e) = f(x)
+      List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b), (cn, implicitly[EncodeJson[C]] apply c), (dn, implicitly[EncodeJson[D]] apply d), (en, implicitly[EncodeJson[E]] apply e))
+    }), "[A, B, C, D, E]Map[String, A|B|C|D|E]")
+
 }
