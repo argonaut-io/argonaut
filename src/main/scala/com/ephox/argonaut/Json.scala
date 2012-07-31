@@ -422,6 +422,30 @@ sealed trait Json {
     PrettyParams.spaces4.pretty(this)
 
   /**
+   * Perform a deep merge of this JSON value with another JSON value.
+   *
+   * Objects are merged by key, values from the argument JSON take
+   * precedence over values from this JSON. Nested objects are
+   * recursed.
+   *
+   * Null, Array, Boolean, String and Number are treated as values,
+   * and values from the argument JSON completely replace values
+   * from this JSON.
+   */
+  def deepmerge(y: Json): Json =
+    (obj, y.obj) match {
+      case (Some(ox), Some(oy)) =>
+        jObject(oy.toList.foldLeft(ox)({
+          case (acc, (k, v)) => acc(k) match {
+            case None => acc + (k, v)
+            case Some(l) => acc + (k, l.deepmerge(v))
+          }
+        }))
+      case _ => y
+    }
+
+
+  /**
    * Compute a `String` representation for this JSON value.
    */
   override def toString =
