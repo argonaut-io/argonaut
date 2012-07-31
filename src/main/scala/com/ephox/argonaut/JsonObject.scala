@@ -88,6 +88,12 @@ sealed trait JsonObject {
     toMap.keySet
 
   /**
+   * Map Json values.
+   */
+  def map(f: Json => Json) =
+    toMap.map(f)
+
+  /**
    * Returns the number of associations.
    */
   def size: Int =
