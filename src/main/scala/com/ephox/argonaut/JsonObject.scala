@@ -94,6 +94,12 @@ sealed trait JsonObject {
     toMap.map(f)
 
   /**
+   * Traverse Json values.
+   */
+  def traverse[F[_]: Applicative](f: Json => F[Json]) =
+    toMap.traverse(f)
+
+  /**
    * Returns the number of associations.
    */
   def size: Int =
