@@ -29,6 +29,9 @@ To use argonaut, add the following repositories to your build:
         , "releases"  at "http://oss.sonatype.org/content/repositories/releases"
         ))
 
+Note that we are currently using a head version of scalaz-seven until it gets released. But
+it should be fine to use scalaz-seven M2 if required.
+
 Then add argonaut as a dependency:
 
     "com.ephox" %% "argonaut" % "4.0" withSources
