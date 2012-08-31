@@ -122,6 +122,9 @@ trait EncodeJsons {
   implicit def SetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Set[A]] =
     EncodeJson(ListEncodeJson[A] contramap ((_: Set[A]).toList) apply _, "[A]Set[A]")
 
+  implicit def Tuple1EncodeJson[A](implicit ea: EncodeJson[A]): EncodeJson[Tuple1[A]] =
+    EncodeJson(a => jArray(List(ea(a._1))), "[A](A)")
+
   implicit def Tuple2EncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[(A, B)] =
     EncodeJson({
       case (a, b) => jArray(List(ea(a), eb(b)))
@@ -142,6 +145,9 @@ trait EncodeJsons {
     def contramap[A, B](r: EncodeJson[A])(f: B => A) = r contramap f
   }
 
+  def jencode1[X, A: EncodeJson](f: X => A): EncodeJson[X] =
+    implicitly[EncodeJson[A]].contramap(f)
+
   def jencode2[X, A: EncodeJson, B: EncodeJson](f: X => (A, B)): EncodeJson[X] =
     implicitly[EncodeJson[(A, B)]].contramap(f)
 
@@ -150,6 +156,12 @@ trait EncodeJsons {
 
   def jencode4[X, A: EncodeJson, B: EncodeJson, C: EncodeJson, D: EncodeJson](f: X => (A, B, C, D)): EncodeJson[X] =
     implicitly[EncodeJson[(A, B, C, D)]].contramap(f)
+
+  def jencode1L[X, A: EncodeJson](f: X => A)(an: JsonString, bn: JsonString): EncodeJson[X] =
+    EncodeJson(x => jObjectAssocList({
+      val a = f(x)
+      List((an, implicitly[EncodeJson[A]] apply a))
+    }), "[A]Map[String, A]")
 
   def jencode2L[X, A: EncodeJson, B: EncodeJson](f: X => (A, B))(an: JsonString, bn: JsonString): EncodeJson[X] =
     EncodeJson(x => jObjectAssocList({

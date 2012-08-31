@@ -272,6 +272,9 @@ trait DecodeJsons {
       }
     )
 
+  def jdecode1[A: DecodeJson, X](f: A => X): DecodeJson[X] =
+    implicitly[DecodeJson[A]].map(f)
+
   def jdecode2[A: DecodeJson, B: DecodeJson, X](f: (A, B) => X): DecodeJson[X] =
     implicitly[DecodeJson[(A, B)]].map(x => f(x._1, x._2))
 
@@ -280,6 +283,16 @@ trait DecodeJsons {
 
   def jdecode4[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X): DecodeJson[X] =
     implicitly[DecodeJson[(A, B, C, D)]].map(x => f(x._1, x._2, x._3, x._4))
+
+  def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString, bn: JsonString): DecodeJson[X] =
+    DecodeJson(x =>
+      if(x.focus.obj exists (_.size == 1))
+        for {
+          aa <- (x --\ an).hcursor.jdecode[A]
+        } yield f(aa)
+      else
+        DecodeResult.failedResult("[A]Map[String, A]", x.history)
+    )
 
   def jdecode2L[A: DecodeJson, B: DecodeJson, X](f: (A, B) => X)(an: JsonString, bn: JsonString): DecodeJson[X] =
     DecodeJson(x =>
