@@ -25,7 +25,7 @@ sealed trait StringWrap {
    * @param err Run this function if the parse produces an error.
    * @param failure Run this function if the parse produces a failure.
    */
-  def parse[X](success: Json => X, err: String => X, failure: String => X) = {
+  def parse[X](success: Json => X, err: String => X, failure: String => X): X = {
     val p = new JsonParser
     val r = new CharSequenceReader(value)
     p.jvalue(r) match {
@@ -34,6 +34,15 @@ sealed trait StringWrap {
       case p.Failure(e, _) => failure("Could not parse json, failure [" + e + "] in [\n" + value + "\n]")
     }
   }
+
+  /**
+   * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
+   *
+   * @param err Run this function if the parse produces an error.
+   * @param failure Run this function if the parse produces a failure.
+   */
+  def decodeparse[X: DecodeJson](err: String => X, failure: String => X): DecodeResult[X] =
+    parse(_.jdecode, s => DecodeResult(err(s)), s => DecodeResult(failure(s)))
 
   /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome. The distinction
