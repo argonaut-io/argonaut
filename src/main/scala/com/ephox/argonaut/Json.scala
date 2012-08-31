@@ -625,6 +625,6 @@ trait Jsons {
               case JObject(o) => a2.obj exists (_ === o)
             }
 
-      def show(a: Json) = Show.showFromToString show a
+      override def show(a: Json) = Show.showFromToString show a
     }
 }

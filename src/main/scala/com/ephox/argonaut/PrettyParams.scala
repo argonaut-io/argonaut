@@ -102,7 +102,7 @@ sealed trait PrettyParams {
       k.fold(
         Vector('n', 'u', 'l', 'l')
       , if(_) Vector('t', 'r', 'u', 'e') else Vector('f', 'a', 'l', 's', 'e')
-      , n => Vector(Show[JsonNumber].show(n): _*)
+      , n => Vector(Show[JsonNumber].show(n).toList: _*)
       , s => '"' +: Vector(s flatMap escape: _*) :+ '"'
       , e =>
           lbracket ++ e.reverse.foldLeft(false, Vector[Char]())({
@@ -410,8 +410,8 @@ trait JsonWhitespacess {
     new Equal[JsonWhitespaces] with Show[JsonWhitespaces] with Monoid[JsonWhitespaces] {
       def equal(s1: JsonWhitespaces, s2: JsonWhitespaces) =
         s1.toList == s2.toList
-      def show(s: JsonWhitespaces) =
-        s.toList map (_.toChar)
+      override def show(s: JsonWhitespaces) =
+        s.toList map (_.toChar) mkString
       def zero =
         JsonWhitespaces.build(Vector())
       def append(s1: JsonWhitespaces, s2: => JsonWhitespaces) =

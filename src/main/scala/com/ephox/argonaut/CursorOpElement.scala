@@ -70,8 +70,8 @@ object CursorOpElement extends CursorOpElements
 trait CursorOpElements {
   implicit val CursorOpElementInstances: Show[CursorOpElement] with Equal[CursorOpElement] =
     new Show[CursorOpElement] with Equal[CursorOpElement] {
-      def show(e: CursorOpElement) =
-        (e match {
+      override def show(e: CursorOpElement) =
+        e match {
           case CursorOpLeft => "<-"
           case CursorOpRight => "->"
           case CursorOpFirst => "|<-"
@@ -94,7 +94,7 @@ trait CursorOpElements {
           case CursorOpDeleteGoField(f) => "!--(" + f + ")"
           case CursorOpDeleteLefts => "!<"
           case CursorOpDeleteRights => ">!"
-        }).toList
+        }
 
       def equal(e1: CursorOpElement, e2: CursorOpElement) =
         e1 == e2

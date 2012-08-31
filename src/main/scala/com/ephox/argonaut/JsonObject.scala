@@ -146,7 +146,7 @@ trait JsonObjects {
     new Equal[JsonObject] with Show[JsonObject] {
       def equal(j1: JsonObject, j2: JsonObject) =
         j1.toMap == j2.toMap
-      def show(a: JsonObject) = Show.showFromToString show a
+      override def show(a: JsonObject) = Show.showFromToString show a
 
     }
 

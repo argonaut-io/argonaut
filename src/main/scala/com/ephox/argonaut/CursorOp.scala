@@ -39,9 +39,9 @@ trait CursorOps {
 
   implicit val CursorOpInstances: Show[CursorOp] with Equal[CursorOp] =
     new Show[CursorOp] with Equal[CursorOp] {
-      def show(x: CursorOp) = x match {
-        case Reattempt => List('.', '?', '.')
-        case El(o, s) => if(s) o.show else '*' :: '.' :: o.show
+      override def show(x: CursorOp) = x match {
+        case Reattempt => ".?."
+        case El(o, s) => if(s) o.show else '*' -: '.' -: o.show
       }
       def equal(a1: CursorOp, a2: CursorOp) =
         a1 == a2

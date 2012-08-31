@@ -59,7 +59,7 @@ trait CursorHistorys {
 
   implicit val CursorHistoryInstances: Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] =
     new Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] {
-      def show(h: CursorHistory) = Show[List[CursorOp]].show(h.toList)
+      override def show(h: CursorHistory) = Show[List[CursorOp]].show(h.toList)
       def equal(h1: CursorHistory, h2: CursorHistory) =
         h1.toList === h2.toList
       def zero = CursorHistory.build(List())

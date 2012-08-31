@@ -108,8 +108,8 @@ trait EncodeJsons {
 
   implicit def ValidationEncodeJson[E, A](implicit ea: EncodeJson[E], eb: EncodeJson[A]): EncodeJson[Validation[E, A]] =
     EncodeJson(_ fold (
-      failure = e => jSingleObject("Failure", ea(e))
-    , success = a => jSingleObject("Success", eb(a))
+      e => jSingleObject("Failure", ea(e))
+    , a => jSingleObject("Success", eb(a))
     ), "[E, A]Validation[E, A]")
 
   implicit def MapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[Map[String, V]] =

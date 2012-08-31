@@ -76,7 +76,7 @@ trait JsonNumbers {
       def zero = JsonNumber(Monoid[Double].zero)
       def append(x: JsonNumber, y: => JsonNumber) =
         JsonNumber(Monoid[Double].append(x.toDouble, y.toDouble))
-      def show(x: JsonNumber) =
+      override def show(x: JsonNumber) =
         Show[Double].show(x.toDouble)
       def order(x: JsonNumber, y: JsonNumber) =
         x compare y

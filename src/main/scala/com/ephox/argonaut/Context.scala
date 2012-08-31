@@ -28,8 +28,8 @@ trait Contexts {
     new Equal[Context] with Show[Context] {
       def equal(c1: Context, c2: Context) =
         Equal.equalBy((_: Context).toList).equal(c1, c2)
-      def show(c: Context) =
-        c.toList.map(_.show).intersperse(List('.')).join
+      override def show(c: Context) =
+        c.toList.map(_.shows).intersperse(".").mkString
     }
 }
 
@@ -96,10 +96,10 @@ trait ContextElements {
           }
         }
 
-      def show(c: ContextElement) =
+      override def show(c: ContextElement) =
         c match {
-          case ArrayContext(n, j) => ("[" + n + "]").toList
-          case ObjectContext(f, j) => ("{" + f + "}").toList
+          case ArrayContext(n, j) => "[" + n + "]"
+          case ObjectContext(f, j) => "{" + f + "}"
         }
     }
 

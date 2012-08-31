@@ -558,7 +558,7 @@ trait Cursors {
          }
      }
 
-    def show(c: Cursor) =
-      List(c.context.show, " ==> ".toList, c.focus.show).join
+    override def show(c: Cursor) =
+      c.context.show + " ==> " + c.focus.show
   }
 }
