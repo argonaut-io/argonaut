@@ -39,8 +39,8 @@ sealed trait CursorHistory {
   def acursorElement(c: Store[Cursor, Option[Cursor]], e: CursorOpElement): ACursor = {
     val x = c.pos
     c.copoint match {
-      case None => +:(CursorOp(e)).failedACursor(x)
-      case Some(q) => +:(CursorOp.failedOp(e)).acursor(q)
+      case None => +:(CursorOp.failedOp(e)).failedACursor(x)
+      case Some(q) => +:(CursorOp(e)).acursor(q)
     }
   }
 
