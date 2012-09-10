@@ -11,8 +11,8 @@ import scala.util.Random.shuffle
 import java.math.MathContext._
 import java.math.{BigDecimal => JavaBigDecimal}
 
-object JSONGenerators {
-  val maxJSONStructureDepth = 5
+object JsonGenerators {
+  val maxJsonStructureDepth = 5
 
   def codePointStream(string: String): Stream[Int] = {
     // Try to remove anything that could be misconstrued as an escape character.
@@ -51,7 +51,7 @@ object JSONGenerators {
   val jsonBoolGenerator: Gen[JBool] = oneOf(JBool(true), JBool(false))
   val nothingGenerator: Gen[StringBuilder] = value(new StringBuilder().append("null"))
   val jsonNothingGenerator: Gen[Json] = value(JNull)
-  def arrayGenerator(depth: Int = 5): Gen[StringBuilder] = listOfN(5, valueGenerator(depth - 1)).map{values => 
+  def arrayGenerator(depth: Int = 5): Gen[StringBuilder] = listOfN(5, valueGenerator(depth - 1)).map{values =>
     val builder = new StringBuilder()
     builder.append('[')
     values.headOption.foreach(builder.append)
@@ -63,9 +63,9 @@ object JSONGenerators {
     }
     builder.append(']')
   }
-  def jsonArrayItemsGenerator(depth: Int = maxJSONStructureDepth): Gen[Seq[Json]] = listOfN(5, jsonValueGenerator(depth - 1))
-  def jsonArrayGenerator(depth: Int = maxJSONStructureDepth): Gen[JArray] = jsonArrayItemsGenerator(depth).map{values => JArray(values.toList)}
-  def objectGenerator(depth: Int = maxJSONStructureDepth): Gen[StringBuilder] = arbImmutableMap(Arbitrary(quotedStringGenerator), Arbitrary(valueGenerator(depth - 1))).arbitrary.map{map =>
+  def jsonArrayItemsGenerator(depth: Int = maxJsonStructureDepth): Gen[Seq[Json]] = listOfN(5, jsonValueGenerator(depth - 1))
+  def jsonArrayGenerator(depth: Int = maxJsonStructureDepth): Gen[JArray] = jsonArrayItemsGenerator(depth).map{values => JArray(values.toList)}
+  def objectGenerator(depth: Int = maxJsonStructureDepth): Gen[StringBuilder] = arbImmutableMap(Arbitrary(quotedStringGenerator), Arbitrary(valueGenerator(depth - 1))).arbitrary.map{map =>
     val builder = new StringBuilder()
     def addPair(builder: StringBuilder, pair: (StringBuilder, StringBuilder)): StringBuilder = {
       builder.append(pair._1)
@@ -83,19 +83,19 @@ object JSONGenerators {
     "{%s}".format(map.take(10).map(pair => "%s:%s".format(pair._1, pair._2)).mkString(","))
     builder.append('}')
   }
-  def jsonObjectFieldsGenerator(depth: Int = maxJSONStructureDepth): Gen[Seq[(JString, Json)]] = listOfN(5, arbTuple2(Arbitrary(jsonStringGenerator), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary)
-  def jsonObjectGenerator(depth: Int = maxJSONStructureDepth): Gen[JObject] = arbImmutableMap(Arbitrary(arbitrary[String]), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary.map{map =>
+  def jsonObjectFieldsGenerator(depth: Int = maxJsonStructureDepth): Gen[Seq[(JString, Json)]] = listOfN(5, arbTuple2(Arbitrary(jsonStringGenerator), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary)
+  def jsonObjectGenerator(depth: Int = maxJsonStructureDepth): Gen[JObject] = arbImmutableMap(Arbitrary(arbitrary[String]), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary.map{map =>
     JObject(JsonObject(InsertionMap(map.toSeq: _*)))
   }
-  def valueGenerator(depth: Int = maxJSONStructureDepth): Gen[StringBuilder] = {
+  def valueGenerator(depth: Int = maxJsonStructureDepth): Gen[StringBuilder] = {
     if (depth > 1) {
       oneOf(numberGenerator, quotedStringGenerator, booleanGenerator, nothingGenerator, arrayGenerator(depth - 1), objectGenerator(depth - 1))
     } else {
       oneOf(numberGenerator, quotedStringGenerator, booleanGenerator, nothingGenerator)
     }
   }
-  val nonJSONObjectGenerator = oneOf(jsonNumberGenerator, jsonStringGenerator, jsonBoolGenerator, jsonNothingGenerator, jsonArrayGenerator())
-  def jsonValueGenerator(depth: Int = maxJSONStructureDepth): Gen[Json] = {
+  val nonJsonObjectGenerator = oneOf(jsonNumberGenerator, jsonStringGenerator, jsonBoolGenerator, jsonNothingGenerator, jsonArrayGenerator())
+  def jsonValueGenerator(depth: Int = maxJsonStructureDepth): Gen[Json] = {
     if (depth > 1) {
       oneOf(jsonNumberGenerator, jsonStringGenerator, jsonBoolGenerator, jsonNothingGenerator, jsonArrayGenerator(depth - 1), jsonObjectGenerator(depth - 1))
     } else {
@@ -104,7 +104,7 @@ object JSONGenerators {
   }
   val arrayOrObjectGenerator = oneOf(arrayGenerator(), objectGenerator())
 
-  def objectsOfObjectsGenerator(depth: Int = maxJSONStructureDepth): Gen[Json] = {
+  def objectsOfObjectsGenerator(depth: Int = maxJsonStructureDepth): Gen[Json] = {
     if (depth > 1) {
       listOfN(2, arbTuple2(Arbitrary(arbitrary[String]), Arbitrary(objectsOfObjectsGenerator(depth - 1))).arbitrary).map(fields => JObject(JsonObject(InsertionMap(fields: _*))))
     } else {
