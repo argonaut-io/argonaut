@@ -144,10 +144,10 @@ trait JsonObjects {
 
   implicit val JsonObjectInstances: Equal[JsonObject] with Show[JsonObject] =
     new Equal[JsonObject] with Show[JsonObject] {
-      def equal(j1: JsonObject, j2: JsonObject) =
-        j1.toMap == j2.toMap
+      def equal(j1: JsonObject, j2: JsonObject) = {
+        j1.toList === j2.toList
+      }
       override def show(a: JsonObject) = Show.showFromToString show a
-
     }
 
 }

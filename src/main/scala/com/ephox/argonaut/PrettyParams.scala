@@ -79,18 +79,6 @@ sealed trait PrettyParams {
    * Returns a `Vector[Char]` representation of a pretty-printed JSON value.
    */
   def lpretty(j: Json): Vector[Char] = {
-    def escape(c: Char): String =
-      c match {
-        case '\\' => "\\\\"
-        case '"' => "\\\""
-        case '\b' => "\\b"
-        case '\f' => "\\f"
-        case '\n' => "\\n"
-        case '\r' => "\\r"
-        case '\t' => "\\t"
-        case _ => c.toString
-      }
-
     def trav(depth: Int, k: Json): Vector[Char] = {
       val lbrace = lbraceLeft(depth).chars ++ Vector('{') ++ lbraceRight(depth + 1).chars
       val rbrace = rbraceLeft(depth + 1).chars ++ Vector('}') ++ rbraceRight(depth).chars
@@ -99,6 +87,7 @@ sealed trait PrettyParams {
       val comma = commaLeft(depth + 1).chars ++ Vector(',') ++ commaRight(depth + 1).chars
       val colon = colonLeft(depth + 1).chars ++ Vector(':') ++ colonRight(depth + 1).chars
 
+      import StringEscaping._
       k.fold(
         Vector('n', 'u', 'l', 'l')
       , if(_) Vector('t', 'r', 'u', 'e') else Vector('f', 'a', 'l', 's', 'e')
@@ -123,6 +112,20 @@ sealed trait PrettyParams {
 
     trav(0, j)
   }
+}
+
+object StringEscaping {
+  def escape(c: Char): String =
+    c match {
+      case '\\' => "\\\\"
+      case '"' => "\\\""
+      case '\b' => "\\b"
+      case '\f' => "\\f"
+      case '\n' => "\\n"
+      case '\r' => "\\r"
+      case '\t' => "\\t"
+      case _ => c.toString
+    }
 }
 
 object PrettyParams extends PrettyParamss {

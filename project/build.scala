@@ -28,6 +28,12 @@ object build extends Build {
         "org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT" withSources
       , "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
       )
+    , initialCommands := """
+                           |import com.ephox.argonaut._
+                           |import scalaz._
+                           |import Scalaz._
+                           |import Json._
+                         """.stripMargin
     )
   )
 
