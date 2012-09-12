@@ -4,7 +4,6 @@ package argonaut
 import scalaz._, Scalaz._
 import Json._
 import ContextElement._
-import javax.swing.plaf.OptionPaneUI
 
 /**
  * Represents a position in a JSON value and allows moving around the JSON value. Also known as a "zipper." The cursor has a focus representing the current position being referred to by the cursor. Users may update the focus using `withFocus` (or the `>->` alias) and move the cursor around with `left`, `right`, `field`, `downArray`, `downField` and `up`.
