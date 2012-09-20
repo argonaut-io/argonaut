@@ -284,7 +284,7 @@ trait DecodeJsons {
   def jdecode4[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X): DecodeJson[X] =
     implicitly[DecodeJson[(A, B, C, D)]].map(x => f(x._1, x._2, x._3, x._4))
 
-  def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString, bn: JsonString): DecodeJson[X] =
+  def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString): DecodeJson[X] =
     DecodeJson(x =>
       if(x.focus.obj exists (_.size == 1))
         for {
