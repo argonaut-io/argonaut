@@ -96,6 +96,9 @@ trait DecodeJsons {
   implicit def IdDecodeJson: DecodeJson[HCursor] =
     decodeArr(q => q)
 
+  implicit def JsonDecodeJson: DecodeJson[Json] =
+    DecodeJson(j => DecodeResult(j.focus))
+
   implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
     DecodeJson(a => {
       val d = a.downArray
