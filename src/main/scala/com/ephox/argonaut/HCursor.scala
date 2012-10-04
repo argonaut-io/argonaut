@@ -18,6 +18,12 @@ sealed trait HCursor {
   def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
     e(this)
 
+  /**
+   * Attempts to move down onto a field `name` and decode the focus.
+   */
+  def get[A](name: String)(implicit e: DecodeJson[A]): DecodeResult[A] =
+    (this --\ name).jdecode[A]
+
   def failedACursor: ACursor =
     ACursor.failedACursor(this)
 

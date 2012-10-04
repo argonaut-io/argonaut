@@ -18,6 +18,12 @@ sealed trait ACursor {
   def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
     hcursor.jdecode[A]
 
+  /**
+   * Attempts to move down onto a field `name` and decode the focus.
+   */
+  def get[A](name: String)(implicit e: DecodeJson[A]): DecodeResult[A] =
+    hcursor.get[A](name)
+
   def failed: Boolean =
     !succeeded
 
