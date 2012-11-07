@@ -19,6 +19,7 @@ object build extends Build {
       name := "argonaut"
     , organization := "com.ephox"
     , version := "5.0-SNAPSHOT"
+    , crossVersion := CrossVersion.full
     , scalaVersion := "2.9.2"
     , scalacOptions := Seq(
         "-deprecation"
