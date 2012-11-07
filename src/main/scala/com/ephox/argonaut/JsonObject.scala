@@ -134,7 +134,7 @@ trait JsonObjects {
    * The lens to the JSON value.
    */
   def jsonObjectL(f: JsonField): JsonObject @> Option[Json] =
-    InsertionMap.insertionMapL(f).xmapA(JsonObject(_), _.toMap)
+    InsertionMap.insertionMapL(f).xmapA((m: InsertionMap[JsonField, Json]) => JsonObject(m))(_.toMap)
 
   /**
    * The partial lens to the JSON value.
