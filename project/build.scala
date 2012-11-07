@@ -25,7 +25,7 @@ object build extends Build {
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        ("org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT").cross(CrossVersion.full)
+        ("org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT").cross(CrossVersion.full).changing
       , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
       )
     , initialCommands := """
