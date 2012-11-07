@@ -25,8 +25,8 @@ object build extends Build {
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        "org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT" withSources
-      , "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
+        ("org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT").cross(CrossVersion.full)
+      , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
       )
     , initialCommands := """
                            |import com.ephox.argonaut._
