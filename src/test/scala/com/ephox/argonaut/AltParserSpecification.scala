@@ -20,12 +20,14 @@ object AltParserTest extends Properties("AltParser") {
   */
   property("Parsed, printed and then parsed again generates the same structure") =
     forAll(JsonGenerators.arrayOrObjectGenerator.map(_.toString).label("arrayOrObject")){json =>
-      val firstParsed = AltParser.parse(json)
-      ("firstParsed = " + firstParsed) |: {
-        val printedJSON = firstParsed.map(jsonValue => jsonValue.nospaces)
-        ("printedJSON = " + printedJSON) |: {
-          val secondParsed = printedJSON.flatMap(secondJSON => AltParser.parse(secondJSON))
-          ("secondParsed = " + secondParsed) |: (firstParsed === secondParsed && secondParsed.isSuccess)
+      ("aboutToParse = " + json) |: {
+        val firstParsed = AltParser.parse(json)
+        ("firstParsed = " + firstParsed) |: {
+          val printedJSON = firstParsed.map(jsonValue => jsonValue.nospaces)
+          ("printedJSON = " + printedJSON) |: {
+            val secondParsed = printedJSON.flatMap(secondJSON => AltParser.parse(secondJSON))
+            ("secondParsed = " + secondParsed) |: (firstParsed === secondParsed && secondParsed.isSuccess)
+          }
         }
       }
     }
