@@ -1,5 +1,8 @@
 # Argonaut
 
+[![Build Status](https://travis-ci.org/markhibberd/argonaut.png)](https://travis-ci.org/markhibberd/argonaut)
+
+
 ### What is Argonaut?
 
 Argonaut is a JSON library built using Scala. It provides functionality to specify how to convert to and from JSON for an arbitrary Scala object. It relies on the Scala parser libraries (`util.parsing.combinator`) to read an arbitrary string into a JSON data type, which is known to be slow. Argonaut is licenced under BSD3 (see `etc/LICENCE`).
