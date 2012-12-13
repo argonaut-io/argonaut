@@ -1,8 +1,8 @@
 package com.ephox
 package argonaut
 
-
-import util.parsing.input.CharSequenceReader
+import scalaz._
+import Scalaz._
 
 /**
  * Wraps a `String` value and provides methods, particularly for parsing.
@@ -18,73 +18,52 @@ sealed trait StringWrap {
   import Json._
 
   /**
-   * Parses this string value and executes one of the given functions, depending on the parse outcome. To understand the
-   * distinction between an `error` and a `failure` consult the Scala parser combinator API.
+   * Parses the string value and either returns a list of the failures from parsing the string
+   * or an instance of the Json type if parsing succeeds.
+   */
+  def parse(): ValidationNEL[String, Json] = JsonParser.parse(value)
+
+  /**
+   * Parses this string value and executes one of the given functions, depending on the parse outcome.
    *
    * @param success Run this function if the parse succeeds.
-   * @param err Run this function if the parse produces an error.
    * @param failure Run this function if the parse produces a failure.
    */
-  def parse[X](success: Json => X, err: String => X, failure: String => X): X = {
-    val p = new JsonParser
-    val r = new CharSequenceReader(value)
-    p.jvalue(r) match {
-      case p.Success(j, _) => success(j)
-      case p.Error(e, _) => err("Could not parse json, error [" + e + "] in [\n" + value + "\n]")
-      case p.Failure(e, _) => failure("Could not parse json, failure [" + e + "] in [\n" + value + "\n]")
-    }
+  def parse[X](success: Json => X, failure: NonEmptyList[String] => X): X = {
+    parse().fold(failure, success)
   }
 
   /**
    * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
    *
-   * @param err Run this function if the parse produces an error.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeparse[X: DecodeJson](err: String => X, failure: String => X): DecodeResult[X] =
-    parse(_.jdecode, s => DecodeResult(err(s)), s => DecodeResult(failure(s)))
-
-  /**
-   * Parses this string value and executes one of the given functions, depending on the parse outcome. The distinction
-   * between a parse `error` and a `failure` is not made by this function.
-   *
-   * @param success Run this function if the parse succeeds.
-   * @param nosuccess Run this function if the parse produces an error or a failure.
-   */
-  def parseIgnoreErrorType[X](success: Json => X, nosuccess: String => X) =
-    parse(success, nosuccess, nosuccess)
-
-  /**
-   * Parses this string value and executes one of the given functions, depending on the parse outcome. The distinction
-   * between a parse `error` and a `failure` is not made by this function. Any error message is ignored.
-   *
-   * @param success Run this function if the parse succeeds.
-   * @param nosuccess Run this function if the parse produces an error or a failure.
-   */
-  def parseIgnoreError[X](success: Json => X, nosuccess: => X) =
-    parseIgnoreErrorType(success, _ => nosuccess)
-
-  /**
-   * A parser for this string value to a JSON value.
-   */
-  def parse = {
-    val p = new JsonParser
-    val r = new CharSequenceReader(value)
-    p.jvalue(r)
+  def decodeParse[X: DecodeJson](failure: NonEmptyList[String] => X): DecodeResult[X] = {
+    parse(_.jdecode, errors => DecodeResult(failure(errors)))
   }
 
   /**
-   * Map the given function across a parser for a JSON value.
+   * Parses this string value and executes one of the given functions, depending on the parse outcome. Any error message is ignored.
+   *
+   * @param success Run this function if the parse succeeds.
+   * @param failure Run this function if the parse produces a failure.
    */
-  def parseTo[T](i: Json => T) = parse.map(i(_))
+  def parseIgnoreError[X](success: Json => X, failure: => X) = parse(success, _ => failure)
+
+  /**
+   * Map the given function across the parsed result for a JSON value.
+   */
+  def parseTo[T](i: Json => T): ValidationNEL[String, T] = parse.map(i)
 
   /**
    * Runs the given function across a parser for a JSON value after successfully parsing. If the parser fails, then this
    * function will fail. ''WARNING: Partial Function''
    */
   def parseToOrDie[T](i: Json => T): T = {
-    val r = parseTo(i)
-    if (r.successful) r.get else sys.error("Unsuccessful parse result: " + r)
+    parseTo(i).fold[T](
+      errors => sys.error("Unsuccessful parse result: " + errors.shows), 
+      identity
+    )
   }
 
   /**
