@@ -12,7 +12,7 @@ import java.math.MathContext._
 import java.math.{BigDecimal => JavaBigDecimal}
 
 object JsonGenerators {
-  val maxJsonStructureDepth = 5
+  val maxJsonStructureDepth = 3
 
   def codePointStream(string: String): Stream[Int] = {
     // Try to remove anything that could be misconstrued as an escape character.
