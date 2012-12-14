@@ -75,22 +75,32 @@ sealed trait PrettyParams {
   def pretty(j: Json): String =
     lpretty(j).mkString
 
+  private[this] final val openBraceVector = Vector('{')
+  private[this] final val closeBraceVector = Vector('}')
+  private[this] final val openArrayVector = Vector('[')
+  private[this] final val closeArrayVector = Vector(']')
+  private[this] final val commaVector = Vector(',')
+  private[this] final val colonVector = Vector(':')
+  private[this] final val nullVector = Vector('n', 'u', 'l', 'l')
+  private[this] final val trueVector = Vector('t', 'r', 'u', 'e')
+  private[this] final val falseVector = Vector('f', 'a', 'l', 's', 'e')
+
   /**
    * Returns a `Vector[Char]` representation of a pretty-printed JSON value.
    */
   def lpretty(j: Json): Vector[Char] = {
     def trav(depth: Int, k: Json): Vector[Char] = {
-      val lbrace = lbraceLeft(depth).chars ++ Vector('{') ++ lbraceRight(depth + 1).chars
-      val rbrace = rbraceLeft(depth + 1).chars ++ Vector('}') ++ rbraceRight(depth).chars
-      val lbracket = lbracketLeft(depth).chars ++ Vector('[') ++ lbracketRight(depth + 1).chars
-      val rbracket = rbracketLeft(depth + 1).chars ++ Vector(']') ++ rbracketRight(depth).chars
-      val comma = commaLeft(depth + 1).chars ++ Vector(',') ++ commaRight(depth + 1).chars
-      val colon = colonLeft(depth + 1).chars ++ Vector(':') ++ colonRight(depth + 1).chars
+      lazy val lbrace = lbraceLeft(depth).chars ++ openBraceVector ++ lbraceRight(depth + 1).chars
+      lazy val rbrace = rbraceLeft(depth + 1).chars ++ closeBraceVector ++ rbraceRight(depth).chars
+      lazy val lbracket = lbracketLeft(depth).chars ++ openArrayVector ++ lbracketRight(depth + 1).chars
+      lazy val rbracket = rbracketLeft(depth + 1).chars ++ closeArrayVector ++ rbracketRight(depth).chars
+      lazy val comma = commaLeft(depth + 1).chars ++ commaVector ++ commaRight(depth + 1).chars
+      lazy val colon = colonLeft(depth + 1).chars ++ colonVector ++ colonRight(depth + 1).chars
 
       import StringEscaping._
       k.fold(
-        Vector('n', 'u', 'l', 'l')
-      , if(_) Vector('t', 'r', 'u', 'e') else Vector('f', 'a', 'l', 's', 'e')
+        nullVector
+      , if(_) trueVector else falseVector
       , n => Vector(Show[JsonNumber].show(n).toList: _*)
       , s => '"' +: Vector(s flatMap escape: _*) :+ '"'
       , e =>

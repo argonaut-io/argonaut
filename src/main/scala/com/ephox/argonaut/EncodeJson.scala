@@ -43,10 +43,10 @@ trait EncodeJsons {
   def encodeJsonNameL[A]: EncodeJson[A] @> String =
     Lens(e => Store(EncodeJson(e(_), _), e.name))
 
-  implicit def IdEncodeJson: EncodeJson[Json] =
+  implicit val IdEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q, "Json")
 
-  implicit def UnitEncodeJson: EncodeJson[Unit] =
+  implicit val UnitEncodeJson: EncodeJson[Unit] =
     EncodeJson(_ => jEmptyObject, "Unit")
 
   implicit def ListEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[List[A]] =
@@ -55,43 +55,43 @@ trait EncodeJsons {
   implicit def StreamEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Stream[A]] =
     EncodeJson(a => jArray(a.toList map (e(_))), "[A]Stream[A]")
 
-  implicit def StringEncodeJson: EncodeJson[String] =
+  implicit val StringEncodeJson: EncodeJson[String] =
     EncodeJson(jString, "String")
 
-  implicit def DoubleEncodeJson: EncodeJson[Double] =
+  implicit val DoubleEncodeJson: EncodeJson[Double] =
     EncodeJson(jDouble, "Double")
 
-  implicit def FloatEncodeJson: EncodeJson[Float] =
+  implicit val FloatEncodeJson: EncodeJson[Float] =
     EncodeJson(a => jDouble(a), "Float")
 
-  implicit def IntEncodeJson: EncodeJson[Int] =
+  implicit val IntEncodeJson: EncodeJson[Int] =
     EncodeJson(a => jString(a.toString), "Int")
 
-  implicit def LongEncodeJson: EncodeJson[Long] =
+  implicit val LongEncodeJson: EncodeJson[Long] =
     EncodeJson(a => jString(a.toString), "Long")
 
-  implicit def BooleanEncodeJson: EncodeJson[Boolean] =
+  implicit val BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool, "Boolean")
 
-  implicit def CharEncodeJson: EncodeJson[Char] =
+  implicit val CharEncodeJson: EncodeJson[Char] =
     EncodeJson(a => jString(a.toString), "Char")
 
-  implicit def JDoubleEncodeJson: EncodeJson[java.lang.Double] =
+  implicit val JDoubleEncodeJson: EncodeJson[java.lang.Double] =
     EncodeJson(a => jDouble(a.doubleValue), "java.lang.Double")
 
-  implicit def JFloatEncodeJson: EncodeJson[java.lang.Float] =
+  implicit val JFloatEncodeJson: EncodeJson[java.lang.Float] =
     EncodeJson(a => jDouble(a.floatValue.toDouble), "java.lang.Float")
 
-  implicit def JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
+  implicit val JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
     EncodeJson(a => jString(a.toString), "java.lang.Integer")
 
-  implicit def JLongEncodeJson: EncodeJson[java.lang.Long] =
+  implicit val JLongEncodeJson: EncodeJson[java.lang.Long] =
     EncodeJson(a => jString(a.toString), "java.lang.Long")
 
-  implicit def JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =
+  implicit val JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =
     EncodeJson(a => jBool(a.booleanValue), "java.lang.Boolean")
 
-  implicit def JCharacterEncodeJson: EncodeJson[java.lang.Character] =
+  implicit val JCharacterEncodeJson: EncodeJson[java.lang.Character] =
     EncodeJson(a => jString(a.toString), "java.lang.Character")
 
   implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] =
@@ -141,7 +141,7 @@ trait EncodeJsons {
     }, "[A, B, C, D](A, B, C, D)")
 
 
-  implicit def EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
+  implicit val EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
     def contramap[A, B](r: EncodeJson[A])(f: B => A) = r contramap f
   }
 
