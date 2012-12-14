@@ -6,6 +6,7 @@ import org.scalacheck._
 import org.scalacheck.Shrink._
 import scalaz._
 import Scalaz._
+import StringWrap._
 
 object JsonParserSpecification extends Properties("JsonParser") {
   property("Known valid results parse to the expected structure.") =
@@ -22,15 +23,12 @@ object JsonParserSpecification extends Properties("JsonParser") {
 	actualParseResult === pairing._2.fail[Json]
       }
     }
-  property("Parsed, printed and then parsed again generates the same structure") =
-    forAll(JsonGenerators.arrayOrObjectGenerator.map(_.toString).label("arrayOrObject")){json =>
-      val firstParsed = JsonParser.parse(json)
-      ("firstParsed = " + firstParsed) |: {
-        val printedJSON = firstParsed.map(jsonValue => jsonValue.nospaces)
-        ("printedJSON = " + printedJSON) |: {
-          val secondParsed = printedJSON.flatMap(secondJSON => JsonParser.parse(secondJSON))
-          ("secondParsed = " + secondParsed) |: (firstParsed === secondParsed && secondParsed.isSuccess)
-        }
+  property("Printed and then parsed again generates the same structure") =
+    forAll(JsonGenerators.jsonObjectOrArrayGenerator.label("arrayOrObject")){json =>
+      val printedJSON = json.nospaces
+      ("printedJSON = " + printedJSON) |: {
+        val parsed = printedJSON.parse()
+        ("parsed = " + parsed) |: parsed === json.successNel
       }
     }
 }
