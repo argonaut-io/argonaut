@@ -75,52 +75,43 @@ sealed trait PrettyParams {
   def pretty(j: Json): String =
     lpretty(j).mkString
 
-  private[this] final val openBraceVector = Vector('{')
-  private[this] final val closeBraceVector = Vector('}')
-  private[this] final val openArrayVector = Vector('[')
-  private[this] final val closeArrayVector = Vector(']')
-  private[this] final val commaVector = Vector(',')
-  private[this] final val colonVector = Vector(':')
-  private[this] final val nullVector = Vector('n', 'u', 'l', 'l')
-  private[this] final val trueVector = Vector('t', 'r', 'u', 'e')
-  private[this] final val falseVector = Vector('f', 'a', 'l', 's', 'e')
+  private[this] final val openBraceText = '{'
+  private[this] final val closeBraceText = '}'
+  private[this] final val openArrayText = '['
+  private[this] final val closeArrayText = ']'
+  private[this] final val commaText = ','
+  private[this] final val colonText = ':'
+  private[this] final val nullText = "null"
+  private[this] final val trueText = "true"
+  private[this] final val falseText = "false"
+  private[this] final val stringEnclosureText = "\""
 
   /**
    * Returns a `Vector[Char]` representation of a pretty-printed JSON value.
    */
   def lpretty(j: Json): Vector[Char] = {
-    def trav(depth: Int, k: Json): Vector[Char] = {
-      lazy val lbrace = lbraceLeft(depth).chars ++ openBraceVector ++ lbraceRight(depth + 1).chars
-      lazy val rbrace = rbraceLeft(depth + 1).chars ++ closeBraceVector ++ rbraceRight(depth).chars
-      lazy val lbracket = lbracketLeft(depth).chars ++ openArrayVector ++ lbracketRight(depth + 1).chars
-      lazy val rbracket = rbracketLeft(depth + 1).chars ++ closeArrayVector ++ rbracketRight(depth).chars
-      lazy val comma = commaLeft(depth + 1).chars ++ commaVector ++ commaRight(depth + 1).chars
-      lazy val colon = colonLeft(depth + 1).chars ++ colonVector ++ colonRight(depth + 1).chars
+    import Json._
+    import StringEscaping._
+    def textOfString(jsonString: JsonString): String = stringEnclosureText + jsonString.map(escape).mkString + stringEnclosureText
+    def trav(depth: Int, k: Json): String = {
+      lazy val lbrace = lbraceLeft(depth).string + openBraceText + lbraceRight(depth + 1).string
+      lazy val rbrace = rbraceLeft(depth + 1).string + closeBraceText + rbraceRight(depth).string
+      lazy val lbracket = lbracketLeft(depth).string + openArrayText + lbracketRight(depth + 1).string
+      lazy val rbracket = rbracketLeft(depth + 1).string + closeArrayText + rbracketRight(depth).string
+      lazy val comma = commaLeft(depth + 1).string + commaText + commaRight(depth + 1).string
+      lazy val colon = colonLeft(depth + 1).string + colonText + colonRight(depth + 1).string
 
-      import StringEscaping._
       k.fold(
-        nullVector
-      , if(_) trueVector else falseVector
-      , n => Vector(Show[JsonNumber].show(n).toList: _*)
-      , s => '"' +: Vector(s flatMap escape: _*) :+ '"'
-      , e =>
-          lbracket ++ e.reverse.foldLeft(false, Vector[Char]())({
-            case ((p, b), jj) => {
-              val w = trav(depth + 1, jj)
-              (true, if(p) w++comma++b else w++b)
-            }
-          })._2 ++ rbracket
-      , o =>
-          lbrace ++ o.toList.reverse.foldLeft(false, Vector[Char]())({
-            case ((p, b), (f, jj)) => {
-              val w = ('"' +: Vector(f flatMap escape: _*) :+ '"') ++colon++trav(depth + 1, jj)
-              (true, if(p) w++comma++b else w++b)
-            }
-          })._2 ++ rbrace
+        nullText
+      , _ ? trueText | falseText
+      , n => n.shows
+      , s => textOfString(s)
+      , e => lbracket + e.map(subElement => trav(depth + 1, subElement)).mkString(comma) + rbracket
+      , o => lbrace + o.toList.map(pair => textOfString(pair._1) + colon + trav(depth + 1, pair._2)).mkString(comma) + rbrace
       )
     }
 
-    trav(0, j)
+    Vector.empty[Char] ++ trav(0, j)
   }
 }
 
