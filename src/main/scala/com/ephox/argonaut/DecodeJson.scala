@@ -19,12 +19,26 @@ sealed trait DecodeJson[+A] {
   def flatMap[B](f: A => DecodeJson[B]): DecodeJson[B] =
     DecodeJson(c => apply(c) flatMap (f(_)(c)))
 
+  /**
+   * Build a new DecodeJson codec with the specified name.
+   */
   def setName(n: String): DecodeJson[A] =
     DecodeJson(c => apply(c).result match {
       case Left((_, h)) => DecodeResult.failedResult(n, h)
       case Right(a) => DecodeResult(a)
     })
 
+  /**
+   * Buld a new DecodeJson codec with the specified precondition that f(c) == true.
+   */
+  def validate(f: HCursor => Boolean, message: => String) =
+    DecodeJson(c => if (f(c)) apply(c) else DecodeResult.failedResult(message, c.history))
+
+  /**
+   * Buld a new DecodeJson codec with the precondition that the cursor focus is object with exactly n field.
+   */
+  def validateFields(n: Int) =
+    validate(_.focus.obj exists (_.size == n), "Expected json object with exactly [" + n + "] fields.")
 
   /**
    * Isomorphism to kleisli.
@@ -288,62 +302,37 @@ trait DecodeJsons {
     implicitly[DecodeJson[(A, B, C, D)]].map(x => f(x._1, x._2, x._3, x._4))
 
   def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString): DecodeJson[X] =
-    DecodeJson(x =>
-      if(x.focus.obj exists (_.size == 1))
-        for {
-          aa <- (x --\ an).hcursor.jdecode[A]
-        } yield f(aa)
-      else
-        DecodeResult.failedResult("[A]Map[String, A]", x.history)
-    )
+    DecodeJson(x => for {
+      aa <- (x --\ an).hcursor.jdecode[A]
+    } yield f(aa))
 
   def jdecode2L[A: DecodeJson, B: DecodeJson, X](f: (A, B) => X)(an: JsonString, bn: JsonString): DecodeJson[X] =
-    DecodeJson(x =>
-      if(x.focus.obj exists (_.size == 2))
-        for {
-          aa <- (x --\ an).hcursor.jdecode[A]
-          bb <- (x --\ bn).hcursor.jdecode[B]
-        } yield f(aa, bb)
-      else
-        DecodeResult.failedResult("[A, B]Map[String, A|B]", x.history)
-    )
+    DecodeJson(x => for {
+      aa <- (x --\ an).hcursor.jdecode[A]
+      bb <- (x --\ bn).hcursor.jdecode[B]
+    } yield f(aa, bb))
 
   def jdecode3L[A: DecodeJson, B: DecodeJson, C: DecodeJson, X](f: (A, B, C) => X)(an: JsonString, bn: JsonString, cn: JsonString): DecodeJson[X] =
-    DecodeJson(x =>
-      if(x.focus.obj exists (_.size == 3))
-        for {
-          aa <- (x --\ an).hcursor.jdecode[A]
-          bb <- (x --\ bn).hcursor.jdecode[B]
-          cc <- (x --\ cn).hcursor.jdecode[C]
-        } yield f(aa, bb, cc)
-      else
-        DecodeResult.failedResult("[A, B, C]Map[String, A|B|C]", x.history)
-    )
+    DecodeJson(x => for {
+      aa <- (x --\ an).hcursor.jdecode[A]
+      bb <- (x --\ bn).hcursor.jdecode[B]
+      cc <- (x --\ cn).hcursor.jdecode[C]
+    } yield f(aa, bb, cc))
 
   def jdecode4L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString): DecodeJson[X] =
-    DecodeJson(x =>
-      if(x.focus.obj exists (_.size == 4))
-        for {
-          aa <- (x --\ an).hcursor.jdecode[A]
-          bb <- (x --\ bn).hcursor.jdecode[B]
-          cc <- (x --\ cn).hcursor.jdecode[C]
-          dd <- (x --\ dn).hcursor.jdecode[D]
-        } yield f(aa, bb, cc, dd)
-      else
-        DecodeResult.failedResult("[A, B, C, D]Map[String, A|B|C|D]", x.history)
-    )
+    DecodeJson(x => for {
+      aa <- (x --\ an).hcursor.jdecode[A]
+      bb <- (x --\ bn).hcursor.jdecode[B]
+      cc <- (x --\ cn).hcursor.jdecode[C]
+      dd <- (x --\ dn).hcursor.jdecode[D]
+    } yield f(aa, bb, cc, dd))
 
   def jdecode5L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, E: DecodeJson, X](f: (A, B, C, D, E) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, de: JsonString): DecodeJson[X] =
-    DecodeJson(x =>
-      if(x.focus.obj exists (_.size == 5))
-        for {
-          aa <- (x --\ an).hcursor.jdecode[A]
-          bb <- (x --\ bn).hcursor.jdecode[B]
-          cc <- (x --\ cn).hcursor.jdecode[C]
-          dd <- (x --\ dn).hcursor.jdecode[D]
-          de <- (x --\ dn).hcursor.jdecode[E]
-        } yield f(aa, bb, cc, dd, de)
-      else
-        DecodeResult.failedResult("[A, B, C, D,E]Map[String, A|B|C|D|E]", x.history)
-    )
+    DecodeJson(x => for {
+      aa <- (x --\ an).hcursor.jdecode[A]
+      bb <- (x --\ bn).hcursor.jdecode[B]
+      cc <- (x --\ cn).hcursor.jdecode[C]
+      dd <- (x --\ dn).hcursor.jdecode[D]
+      ee <- (x --\ dn).hcursor.jdecode[E]
+    } yield f(aa, bb, cc, dd, ee))
 }
