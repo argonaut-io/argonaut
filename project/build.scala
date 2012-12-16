@@ -4,29 +4,32 @@ import Keys._
 object build extends Build {
   type Sett = Project.Setting[_]
 
-  override lazy val settings = super.settings ++
-        Seq(resolvers := Seq(
-          "mth.io snapshots"  at "http://repo.mth.io/snapshots"
-        , "mth.io releases"  at "http://repo.mth.io/releases"
-        , "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots"
-        , "releases"  at "http://oss.sonatype.org/content/repositories/releases"
-        ))
+  lazy val publishSetting = publishTo <<= (version).apply(v =>
+    Some(Resolver.sftp(
+      "repo.mth.io",
+      "repo.mth.io",
+      "repo.mth.io/data/" + (if (v.trim.endsWith("SNAPSHOT")) "snapshots" else "releases")
+    ) as (
+      "web", new java.io.File(System.getProperty("user.home") + "/.ssh/repo_mth_publish")
+    )))
 
   val argonaut = Project(
     id = "argonaut"
   , base = file(".")
   , settings = Defaults.defaultSettings ++ Seq[Sett](
       name := "argonaut"
-    , organization := "argonaut"
+    , organization := "org.argonaut"
     , version := "6.0-SNAPSHOT"
     , crossVersion := CrossVersion.full
     , scalaVersion := "2.9.2"
+    , crossScalaVersions := Seq("2.9.2", "2.10.0-RC5")
+    , publishSetting
     , scalacOptions := Seq(
         "-deprecation"
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        ("org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT").cross(CrossVersion.full).changing
+        ("org.scalaz" %% "scalaz-core" % "7.0.0-M6").cross(CrossVersion.full).changing
       , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
       )
     , initialCommands := """
@@ -52,8 +55,8 @@ object build extends Build {
       , "-unchecked"
       )
     , libraryDependencies ++= Seq(
-        "org.scalaz" %% "scalaz-core" % "7.0-SNAPSHOT" withSources
-      , "org.scalacheck" %% "scalacheck" % "1.9" % "test" withSources
+        ("org.scalaz" %% "scalaz-core" % "7.0.0-M6").cross(CrossVersion.full).changing
+      , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
       )
     )
   )
