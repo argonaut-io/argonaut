@@ -17,8 +17,8 @@ object build extends Build {
   , base = file(".")
   , settings = Defaults.defaultSettings ++ Seq[Sett](
       name := "argonaut"
-    , organization := "com.ephox"
-    , version := "5.0-SNAPSHOT"
+    , organization := "argonaut"
+    , version := "6.0-SNAPSHOT"
     , crossVersion := CrossVersion.full
     , scalaVersion := "2.9.2"
     , scalacOptions := Seq(
@@ -30,7 +30,7 @@ object build extends Build {
       , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
       )
     , initialCommands := """
-                           |import com.ephox.argonaut._
+                           |import argonaut._
                            |import scalaz._
                            |import Scalaz._
                            |import Json._
@@ -44,7 +44,7 @@ object build extends Build {
   , dependencies = Seq(argonaut)
   , settings = Defaults.defaultSettings ++ Seq[Sett](
       name := "example"
-    , organization := "com.ephox"
+    , organization := "argonaut"
     , version := "1.0"
     , scalaVersion := "2.9.2"
     , scalacOptions := Seq(
