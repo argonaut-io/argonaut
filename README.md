@@ -33,14 +33,19 @@ To use argonaut, add the following repositories to your build:
         ))
 
 Note that we are currently using a head version of scalaz-seven until it gets released. But
-it should be fine to use scalaz-seven M2 if required.
+it should be fine to use scalaz-seven M2+ if required.
 
 Then add argonaut as a dependency:
 
-    "com.ephox" %% "argonaut" % "4.0" withSources
+    "com.ephox" %% "argonaut" % "5.0-SNAPSHOT" withSources
 
-### Future Improvements
 
-* Use a more appropriate parser library (not Scala parsers) to improve performance and usability.
+### Provenance
 
-**Copyright 2012 Ephox Pty Ltd**
+Argonaut was initially developed to support products at [Ephox](http://ephox.com).
+
+The library was open-sourced under a [BSD License](https://github.com/markhibberd/argonaut/blob/master/LICENSE), drawing users, support and improvements from a number of contributors.
+
+The initial developers have since left the employment of Ephox and now maintain this fork `markhibberd/argonaut`.
+
+It is expected that major releases will now come from this repository.
