@@ -1,4 +1,4 @@
-package argonaut
+package argonaut.example
 
 import Argonaut._
 import scalaz._, Scalaz._

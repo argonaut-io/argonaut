@@ -31,6 +31,7 @@ object build extends Build {
     , libraryDependencies ++= Seq(
         ("org.scalaz" %% "scalaz-core" % "7.0.0-M6").cross(CrossVersion.full).changing
       , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
+      , ("org.specs2" %% "specs2" % "1.12.3" % "test").cross(CrossVersion.full)
       )
     , initialCommands := """
                            |import argonaut._
@@ -38,26 +39,6 @@ object build extends Build {
                            |import Scalaz._
                            |import Json._
                          """.stripMargin
-    )
-  )
-
-  val example = Project(
-    id = "example"
-  , base = file("example")
-  , dependencies = Seq(argonaut)
-  , settings = Defaults.defaultSettings ++ Seq[Sett](
-      name := "example"
-    , organization := "argonaut"
-    , version := "1.0"
-    , scalaVersion := "2.9.2"
-    , scalacOptions := Seq(
-        "-deprecation"
-      , "-unchecked"
-      )
-    , libraryDependencies ++= Seq(
-        ("org.scalaz" %% "scalaz-core" % "7.0.0-M6").cross(CrossVersion.full).changing
-      , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
-      )
     )
   )
 }
