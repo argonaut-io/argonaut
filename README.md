@@ -34,11 +34,6 @@ Then add argonaut as a dependency:
 
 ### Release
 
-Add to `~/.sbt/0.12.1/plugins.sbt`:
-
-    addSbtPlugin(("com.typesafe.sbt" % "sbt-pgp" % "0.7").cross(CrossVersion.full))
-
-
 Add to `~/.sbt/0.12.1/sonatype.sbt`
     credentials += Credentials("Sonatype Nexus Repository Manager",
                                "oss.sonatype.org",
