@@ -18,7 +18,7 @@ object build extends Build {
   , base = file(".")
   , settings = Defaults.defaultSettings ++ Seq[Sett](
       name := "argonaut"
-    , organization := "org.argonaut"
+    , organization := "io.argonaut"
     , version := "6.0-SNAPSHOT"
     , crossVersion := CrossVersion.full
     , scalaVersion := "2.9.2"
@@ -47,7 +47,7 @@ object build extends Build {
   , dependencies = Seq(argonaut)
   , settings = Defaults.defaultSettings ++ Seq[Sett](
       name := "example"
-    , organization := "argonaut"
+    , organization := "io.argonaut"
     , version := "1.0"
     , scalaVersion := "2.9.2"
     , scalacOptions := Seq(

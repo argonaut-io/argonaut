@@ -30,7 +30,7 @@ it should be fine to use scalaz-seven M2+ if required.
 
 Then add argonaut as a dependency:
 
-    "org.argonaut" %% "argonaut" % "6.0-SNAPSHOT" withSources
+    "io.argonaut" %% "argonaut" % "6.0-SNAPSHOT" withSources
 
 
 ### Provenance
