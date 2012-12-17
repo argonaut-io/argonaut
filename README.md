@@ -31,12 +31,8 @@ Add to `~/.sbt/0.12.1/sonatype.sbt`
                                "<username>",
                                "<password>")
 
-Run (should be, but I can't get gpg working for scala 2.10 yet):
+Run:
     ./sbt "+publish"
-
-So run:
-    ./sbt "publish"
-
 
 ### Provenance
 
