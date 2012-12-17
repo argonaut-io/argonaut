@@ -32,6 +32,25 @@ Then add argonaut as a dependency:
 
     "io.argonaut" %% "argonaut" % "6.0-SNAPSHOT" withSources
 
+### Release
+
+Add to `~/.sbt/0.12.1/plugins.sbt`:
+
+    addSbtPlugin(("com.typesafe.sbt" % "sbt-pgp" % "0.7").cross(CrossVersion.full))
+
+
+Add to `~/.sbt/0.12.1/sonatype.sbt`
+    credentials += Credentials("Sonatype Nexus Repository Manager",
+                               "oss.sonatype.org",
+                               "<username>",
+                               "<password>")
+
+Run (should be, but I can't get gpg working for scala 2.10 yet):
+    ./sbt "+publish"
+
+So run:
+    ./sbt "publish"
+
 
 ### Provenance
 
