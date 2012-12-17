@@ -24,10 +24,12 @@ object build extends Build {
     , scalaVersion := "2.9.2"
     , crossScalaVersions := Seq("2.9.2", "2.10.0-RC5")
     , publishSetting
-    , scalacOptions := Seq(
-        "-deprecation"
-      , "-unchecked"
-      )
+    , scalacOptions <++= scalaVersion map { v =>
+        Seq("-deprecation", "-unchecked") ++ (if (v.contains("2.10"))
+          Seq("-feature", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps")
+        else
+          Seq())
+      }
     , libraryDependencies ++= Seq(
         ("org.scalaz" %% "scalaz-core" % "7.0.0-M6").cross(CrossVersion.full).changing
       , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
