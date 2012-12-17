@@ -19,16 +19,7 @@ Argonaut is a JSON library built using Scala. It provides functionality to speci
 
 ### SBT Settings
 
-To use argonaut, add the following repositories to your build:
-    Seq(
-      "mth.io snapshots"  at "http://repo.mth.io/snapshots",
-      "mth.io releases"  at "http://repo.mth.io/releases"
-    )
-
-Note that we are currently using a head version of scalaz-seven until it gets released. But
-it should be fine to use scalaz-seven M2+ if required.
-
-Then add argonaut as a dependency:
+Just add argonaut as a dependency (6.0-SNAPSHOT is the only version available on oss.sonatype.org at the moment):
 
     "io.argonaut" %% "argonaut" % "6.0-SNAPSHOT" withSources
 
