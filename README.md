@@ -5,7 +5,7 @@
 
 ### What is Argonaut?
 
-Argonaut is a JSON library built using Scala. It provides functionality to specify how to convert to and from JSON for an arbitrary Scala object. Argonaut is licenced under BSD3 (see `etc/LICENCE`).
+Argonaut is a JSON library built using Scala. It provides functionality to specify how to convert to and from JSON for an arbitrary Scala object. Argonaut is licenced under BSD3 (see `LICENCE`).
 
 
 ### Features
