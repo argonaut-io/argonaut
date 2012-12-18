@@ -1,5 +1,6 @@
 package argonaut
 
+import scala.util.control.Exception.catching
 import scalaz._, Scalaz._
 import Json._
 
@@ -106,6 +107,9 @@ trait DecodeJsons {
   def decodeArr[A](f: HCursor => A): DecodeJson[A] =
     DecodeJson(j => DecodeResult(f(j)))
 
+  def tryTo[A](f: => A): Option[A] =
+    catching(classOf[IllegalArgumentException]).opt(f)
+
   implicit def IdDecodeJson: DecodeJson[HCursor] =
     decodeArr(q => q)
 
@@ -160,10 +164,10 @@ trait DecodeJsons {
     optionDecoder(x => if(x.isNull) Some(Float.NaN) else x.number map (_.toFloat), "Float")
 
   implicit def IntDecodeJson: DecodeJson[Int] =
-    optionDecoder(_.string flatMap (s => try { Some(s.toInt) } catch { case _ => None }), "Int")
+    optionDecoder(_.string flatMap (s => tryTo(s.toInt)), "Int")
 
   implicit def LongDecodeJson: DecodeJson[Long] =
-    optionDecoder(_.string flatMap (s => try { Some(s.toLong) } catch { case _ => None }), "Long")
+    optionDecoder(_.string flatMap (s => tryTo(s.toLong)), "Long")
 
   implicit def BooleanDecodeJson: DecodeJson[Boolean] =
     optionDecoder(_.bool, "Boolean")
@@ -178,10 +182,10 @@ trait DecodeJsons {
     optionDecoder(_.number map (_.toFloat), "java.lang.Float")
 
   implicit def JIntegerDecodeJson: DecodeJson[java.lang.Integer] =
-    optionDecoder(_.string flatMap (s => try { Some(s.toInt) } catch { case _ => None }), "java.lang.Integer")
+    optionDecoder(_.string flatMap (s => tryTo(s.toInt)), "java.lang.Integer")
 
   implicit def JLongDecodeJson: DecodeJson[java.lang.Long] =
-    optionDecoder(_.string flatMap (s => try { Some(s.toLong) } catch { case _ => None }), "java.lang.Long")
+    optionDecoder(_.string flatMap (s => tryTo(s.toLong)), "java.lang.Long")
 
   implicit def JBooleanDecodeJson: DecodeJson[java.lang.Boolean] =
     optionDecoder(_.bool map (q => q), "java.lang.Boolean")
@@ -334,4 +338,6 @@ trait DecodeJsons {
       dd <- (x --\ dn).hcursor.jdecode[D]
       ee <- (x --\ dn).hcursor.jdecode[E]
     } yield f(aa, bb, cc, dd, ee))
+
+
 }
