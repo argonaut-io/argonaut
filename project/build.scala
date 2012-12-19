@@ -39,7 +39,8 @@ object build extends Build {
       </scm>
       <developers>
         <developer>
-          <name>tonymorris</name>
+          <id>tonymorris</id>
+          <name>Tony Morris</name>
           <url>http://tmorris.net</url>
         </developer>
         <developer>
@@ -48,6 +49,7 @@ object build extends Build {
           <url>http://mth.io</url>
         </developer>
         <developer>
+          <id>seanparsons</id>
           <name>Sean Parsons</name>
         </developer>
       </developers>)
