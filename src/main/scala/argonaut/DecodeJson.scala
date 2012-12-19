@@ -330,13 +330,13 @@ trait DecodeJsons {
       dd <- (x --\ dn).hcursor.jdecode[D]
     } yield f(aa, bb, cc, dd))
 
-  def jdecode5L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, E: DecodeJson, X](f: (A, B, C, D, E) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, de: JsonString): DecodeJson[X] =
+  def jdecode5L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, E: DecodeJson, X](f: (A, B, C, D, E) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, en: JsonString): DecodeJson[X] =
     DecodeJson(x => for {
       aa <- (x --\ an).hcursor.jdecode[A]
       bb <- (x --\ bn).hcursor.jdecode[B]
       cc <- (x --\ cn).hcursor.jdecode[C]
       dd <- (x --\ dn).hcursor.jdecode[D]
-      ee <- (x --\ dn).hcursor.jdecode[E]
+      ee <- (x --\ en).hcursor.jdecode[E]
     } yield f(aa, bb, cc, dd, ee))
 
 
