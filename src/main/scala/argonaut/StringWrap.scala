@@ -23,6 +23,15 @@ sealed trait StringWrap {
   def parse(): ValidationNEL[String, Json] = JsonParser.parse(value)
 
   /**
+   * Parses the string value and decodes it returning a list of all the failures stemming from
+   * either the JSON parsing or the decoding.
+   */
+  def parseDecode[X: DecodeJson](): ValidationNEL[String, X] = for {
+    json <- parse()
+    decoded <- json.jdecode[X].result.fold(failure => ("Failure decoding JSON: " + failure._2.shows).failNel[X], _.successNel)
+  } yield decoded
+
+  /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome.
    *
    * @param success Run this function if the parse succeeds.
@@ -69,6 +78,11 @@ sealed trait StringWrap {
    * Parses this string value to a possible JSON value.
    */
   def pparse: Option[Json] = parseIgnoreError(Some(_), None)
+
+  /**
+   * Parses and decodes this string value to a possible JSON value.
+   */
+  def pparseDecode[X: DecodeJson]: Option[X] = pparse.flatMap(_.jdecode[X].value)
 
   /*
    * Construct a pair of the key and JSON value.

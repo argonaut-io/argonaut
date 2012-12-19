@@ -66,7 +66,7 @@ object build extends Build {
                            |import argonaut._
                            |import scalaz._
                            |import Scalaz._
-                           |import Json._
+                           |import Argonaut._
                          """.stripMargin
     )
   )
