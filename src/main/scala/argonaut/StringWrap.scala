@@ -23,15 +23,6 @@ sealed trait StringWrap {
   def parse(): ValidationNEL[String, Json] = JsonParser.parse(value)
 
   /**
-   * Parses the string value and decodes it returning a list of all the failures stemming from
-   * either the JSON parsing or the decoding.
-   */
-  def parseDecode[X: DecodeJson](): ValidationNEL[String, X] = for {
-    json <- parse()
-    decoded <- json.jdecode[X].result.fold(failure => ("Failure decoding JSON: " + failure._2.shows).failNel[X], _.successNel)
-  } yield decoded
-
-  /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome.
    *
    * @param success Run this function if the parse succeeds.
@@ -42,10 +33,54 @@ sealed trait StringWrap {
   }
 
   /**
+   * Parses the string value and decodes it returning a list of all the failures stemming from
+   * either the JSON parsing or the decoding.
+   */
+  def parseDecode[X: DecodeJson](): ValidationNEL[String, X] = for {
+    json <- parse()
+    decoded <- json.jdecode[X].result.fold(failure => ("Failure decoding JSON: " + failure._2.shows).failNel[X], _.successNel)
+  } yield decoded
+
+  /**
+   * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
+   *
+   * @param success Run this function if the parse produces a success.
+   * @param parsefailure Run this function if the parse produces a failure.
+   * @param decodefailure Run this function if the decode produces a failure.
+   */
+  def parseDecodeWith[A, X: DecodeJson](success: X => A, parsefailure: NonEmptyList[String] => A, decodefailure: (String, CursorHistory) => A): A =
+    parse(json => json.jdecode[X].result match {
+      case Left((msg, history)) => decodefailure(msg, history)
+      case Right(x) => success(x)
+    }, errors => parsefailure(errors))
+
+  /**
+   * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
+   *
+   * @param success Run this function if the parse produces a success.
+   * @param dfault Return this value of the parse or decode fails.
+   */
+  def parseDecodeOr[A, X: DecodeJson](success: X => A, dfault: => A): A =
+    parseDecodeWith[A, X](success, _ => dfault, (_, _) => dfault)
+
+  /**
+   * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
+   *
+   * @param parsefailure Use this function to lift parser failures into decode failures.
+   */
+  def parseDecodeLiftParseFailures[X: DecodeJson](parsefailure: NonEmptyList[String] => String): DecodeResult[X] =
+    parseDecodeWith[DecodeResult[X], X](
+      x => DecodeResult(x),
+      errors => DecodeResult.failedResult(parsefailure(errors), CursorHistory.build(Nil)),
+      (msg, history) => DecodeResult.failedResult(msg, history))
+
+
+  /**
    * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
    *
    * @param failure Run this function if the parse produces a failure.
    */
+  @deprecated ("Use parseDecode* alternatives.", "6.0")
   def decodeParse[X: DecodeJson](failure: NonEmptyList[String] => X): DecodeResult[X] = {
     parse(_.jdecode, errors => DecodeResult(failure(errors)))
   }
@@ -69,7 +104,7 @@ sealed trait StringWrap {
    */
   def parseToOrDie[T](i: Json => T): T = {
     parseTo(i).fold[T](
-      errors => sys.error("Unsuccessful parse result: " + errors.shows), 
+      errors => sys.error("Unsuccessful parse result: " + errors.shows),
       identity
     )
   }
