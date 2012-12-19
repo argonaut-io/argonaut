@@ -1,11 +1,12 @@
-package argonaut
+package argonaut.example
 
 import argonaut._, Argonaut._
 import scalaz._, Scalaz._
+import org.specs2._
+import org.specs2.specification._
 
-object CursorDemo {
-  def main(args: Array[String]) {
-    val j =
+object CursorExample extends Specification {
+  val json =
       """
         {
           "abc" :
@@ -31,26 +32,25 @@ object CursorDemo {
         }
       """
 
-    val c1 =
-      j.pparse flatMap (k =>
+  def is = "CursorExample" ^
+    """Replace '["cat", "lol"]' with 'false'""" ! {
+      json.pparse flatMap (k =>
         +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) map (-_)
-      )
-
-    val c2 =
-      j.pparse flatMap (k =>
+      ) must beSome
+    } ^
+    "Visit the 'values' array" ! {
+      json.pparse flatMap (k =>
         +k --\ "values" flatMap (_.downArray) map (-_)
-      )
-
-    val c3 =
-      j.pparse flatMap (k =>
+      ) must beSome
+    } ^
+    """Delete the element '"dog"' from the 'values' array.""" ! {
+      json.pparse flatMap (k =>
         +k --\ "values" flatMap (_.downArray) flatMap (_.right) flatMap (!_) map (-_)
-      )
-
-    val c4 =
-      j.pparse flatMap (k =>
+      ) must beSome
+    } ^
+    """Replace '["cat", "lol"]' with 'false' and '"rabbit"' with 'true'""" ! {
+      json.pparse flatMap (k =>
         +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) flatMap (_.right) flatMap (_.right) map (_ := jBool(true)) map (-_)
-      )
-
-    List(c1, c2, c3, c4) map (_ map (_.spaces2)) foreach println
-  }
+      ) must beSome
+    }
 }
