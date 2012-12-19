@@ -74,17 +74,6 @@ sealed trait StringWrap {
       errors => DecodeResult.failedResult(parsefailure(errors), CursorHistory.build(Nil)),
       (msg, history) => DecodeResult.failedResult(msg, history))
 
-
-  /**
-   * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
-   *
-   * @param failure Run this function if the parse produces a failure.
-   */
-  @deprecated ("Use parseDecode* alternatives.", "6.0")
-  def decodeParse[X: DecodeJson](failure: NonEmptyList[String] => X): DecodeResult[X] = {
-    parse(_.jdecode, errors => DecodeResult(failure(errors)))
-  }
-
   /**
    * Parses this string value and executes one of the given functions, depending on the parse outcome. Any error message is ignored.
    *
