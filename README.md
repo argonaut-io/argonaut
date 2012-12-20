@@ -3,9 +3,10 @@
 [![Build Status](https://travis-ci.org/markhibberd/argonaut.png)](https://travis-ci.org/markhibberd/argonaut)
 
 
+
 ### What is Argonaut?
 
-Argonaut is a JSON library built using Scala. It provides functionality to specify how to convert to and from JSON for an arbitrary Scala object. Argonaut is licenced under BSD3 (see `LICENCE`).
+Argonaut is a JSON library built using Scala. It provides functionality to specify how to convert to and from JSON for an arbitrary Scala object. Argonaut is licenced under BSD3 (see `LICENCE`). See more at [http://argonaut.io](http://argonaut.io).
 
 
 ### Features
@@ -17,19 +18,29 @@ Argonaut is a JSON library built using Scala. It provides functionality to speci
 * A codec for taking values of arbitrary type to and from JSON values.
 
 
+### Documentation
+
+* [User Docs](http://argonaut.io/doc/)
+* [Scala Docs](http://argonaut.io/scaladocs/)
+* [Examples](https://github.com/markhibberd/argonaut/tree/master/src/test/scala/argonaut/example)
+
+
 ### SBT Settings
 
 Just add argonaut as a dependency (6.0-SNAPSHOT is the only version available on oss.sonatype.org at the moment):
 
-    "io.argonaut" %% "argonaut" % "6.0-SNAPSHOT" withSources
+    ("io.argonaut" %% "argonaut" % "6.0-SNAPSHOT").cross(CrossVersion.full)
 
 ### Release
 
 Add to `~/.sbt/0.12.1/sonatype.sbt`
+
+
     credentials += Credentials("Sonatype Nexus Repository Manager",
                                "oss.sonatype.org",
                                "<username>",
                                "<password>")
+
 
 Run:
     ./sbt "+publish"
