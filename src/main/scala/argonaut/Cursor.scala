@@ -54,7 +54,7 @@ sealed trait Cursor {
         CObject(p, true, x, (f, k(j)))
     }
 
-  /** Update the focus with the given function in a functor (alias for `>-->`). */
+  /** Update the focus with the given function in a functor (alias for `withFocusM`). */
   def >-->[F[+_]: Functor](k: Json => F[Json]): F[Cursor] =
     withFocusM(k)
 
@@ -87,7 +87,7 @@ sealed trait Cursor {
     }
 
   /**
-   * Return the right left of focus in a JSON array.
+   * Return the values right of focus in a JSON array.
    */
   def rights: Option[JsonArray] =
     this match {
@@ -126,7 +126,7 @@ sealed trait Cursor {
       }
       case _ => None
     }
-  
+
   /** Move the cursor to the first in a JSON array. */
   def first: Option[Cursor] =
     this match {
@@ -151,7 +151,7 @@ sealed trait Cursor {
   def -<-:(n: Int): Option[Cursor] =
     leftN(n)
 
-  /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `:->-`). */
+  /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `-<-:`). */
   def leftN(n: Int): Option[Cursor] =
     if(n < 0)
       :->-(-n)
@@ -356,7 +356,7 @@ sealed trait Cursor {
         None
     }
 
-  /** Deletes all JSON values to left of focus in a JSON array. */
+  /** Deletes all JSON values to right of focus in a JSON array. */
   def deleteRights: Option[Cursor] =
     this match {
       case CArray(p, _, l, j, _) =>
