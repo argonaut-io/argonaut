@@ -38,7 +38,7 @@ sealed trait HCursor {
   def withFocus(k: Json => Json): HCursor =
     HCursor(cursor.withFocus(k), history)
 
-  /** Update the focus with the given function in a functor (alias for `>-->`). */
+  /** Update the focus with the given function in a functor (alias for `withFocusM`). */
   def >-->[F[+_]: Functor](k: Json => F[Json]): F[HCursor] =
     withFocusM(k)
 
@@ -61,7 +61,7 @@ sealed trait HCursor {
     cursor.lefts
 
   /**
-   * Return the right left of focus in a JSON array.
+   * Return the values right of focus in a JSON array.
    */
   def rights: Option[JsonArray] =
     cursor.rights
@@ -98,7 +98,7 @@ sealed trait HCursor {
   def -<-:(n: Int): ACursor =
     leftN(n)
 
-  /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `:->-`). */
+  /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `-<-:`). */
   def leftN(n: Int): ACursor =
     history.acursorElement(Store(_.leftN(n), cursor), CursorOpLeftN(n))
 
@@ -202,7 +202,7 @@ sealed trait HCursor {
   def deleteLefts: ACursor =
     history.acursorElement(Store(_.deleteLefts, cursor), CursorOpDeleteLefts)
 
-  /** Deletes all JSON values to left of focus in a JSON array. */
+  /** Deletes all JSON values to right of focus in a JSON array. */
   def deleteRights: ACursor =
     history.acursorElement(Store(_.deleteRights, cursor), CursorOpDeleteRights)
 
