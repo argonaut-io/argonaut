@@ -6,7 +6,7 @@ import org.specs2._, org.specs2.specification._
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
 import org.scalacheck.Prop._
-import JsonGenerators.arbitraryJson
+import Data._
 
 object StringWrapSpecification extends Specification with ScalaCheck {
   case class Person(name: String, age: Int)

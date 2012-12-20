@@ -9,6 +9,7 @@ import Scalaz._
 import StringWrap._
 import org.specs2._, org.specs2.specification._
 import org.specs2.matcher._
+import Data._
 
 object JsonParserSpecification extends Specification with DataTables with ScalaCheck {
   def is = "parse" ^
@@ -24,13 +25,11 @@ object JsonParserSpecification extends Specification with DataTables with ScalaC
         actualParseResult === parseResult
       }
     } ^
-    "Printed and then parsed again generates the same structure" ! {
-      forAll(JsonGenerators.jsonObjectOrArrayGenerator.label("arrayOrObject")){json =>
-        val printedJSON = json.nospaces
-        ("printedJSON = " + printedJSON) |: {
-          val parsed = printedJSON.parse()
-          ("parsed = " + parsed) |: parsed === json.successNel
-        }
+    "Printed and then parsed again generates the same structure" ! prop{(json: Json) =>
+      val printedJSON = json.nospaces
+      ("printedJSON = " + printedJSON) |: {
+        val parsed = printedJSON.parse()
+        ("parsed = " + parsed) |: parsed === json.successNel
       }
     } ^ end
 }
