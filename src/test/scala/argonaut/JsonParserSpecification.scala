@@ -7,28 +7,30 @@ import org.scalacheck.Shrink._
 import scalaz._
 import Scalaz._
 import StringWrap._
+import org.specs2._, org.specs2.specification._
+import org.specs2.matcher._
 
-object JsonParserSpecification extends Properties("JsonParser") {
-  property("Known valid results parse to the expected structure.") =
-    forAll(Gen.oneOf(KnownResults.validResultPairings)){pairing =>
-      val actualParseResult = JsonParser.parse(pairing._1)
-      ("actualParseResult = " + actualParseResult.shows) |: {
-	actualParseResult === pairing._2.successNel[String]
+object JsonParserSpecification extends Specification with DataTables with ScalaCheck {
+  def is = "parse" ^
+    "Valid JSON parses into expected values" ! {
+      KnownResults.validResultPairings |> {(json, expectedJSONValue) =>	  	
+        val actualParseResult = JsonParser.parse(json)
+        actualParseResult === expectedJSONValue.successNel[String]
       }
-    }
-  property("Known invalid results parse to the expected error.") =
-    forAll(Gen.oneOf(KnownResults.parseFailures)){pairing =>
-      val actualParseResult = JsonParser.parse(pairing._1)
-      ("actualParseResult = " + actualParseResult.shows) |: {
-	actualParseResult === pairing._2.fail[Json]
+    } ^
+    "Invalid JSON parses into expected failures" ! {
+      KnownResults.parseFailures |> {(json, parseResult) =>
+        val actualParseResult = JsonParser.parse(json)
+        actualParseResult === parseResult
       }
-    }
-  property("Printed and then parsed again generates the same structure") =
-    forAll(JsonGenerators.jsonObjectOrArrayGenerator.label("arrayOrObject")){json =>
-      val printedJSON = json.nospaces
-      ("printedJSON = " + printedJSON) |: {
-        val parsed = printedJSON.parse()
-        ("parsed = " + parsed) |: parsed === json.successNel
+    } ^
+    "Printed and then parsed again generates the same structure" ! {
+      forAll(JsonGenerators.jsonObjectOrArrayGenerator.label("arrayOrObject")){json =>
+        val printedJSON = json.nospaces
+        ("printedJSON = " + printedJSON) |: {
+          val parsed = printedJSON.parse()
+          ("parsed = " + parsed) |: parsed === json.successNel
+        }
       }
-    }
+    } ^ end
 }
