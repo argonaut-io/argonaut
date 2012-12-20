@@ -10,8 +10,10 @@ import scalaz._
 import Scalaz._
 
 object JsonSpecification extends Specification with ScalaCheck {
+  // NOTE: List[Json] should be JsonArray, but it is failing to resolve under 2.10.0-RC5 with type alias.
+
   def is = "Json" ^
-    "not compose not is id" ! prop((j: Json) => 
+    "not compose not is id" ! prop((j: Json) =>
       j.not.not === j) ^
     "no-effect not equals !isBool" ! prop((j: Json) =>
       (j.not === j) !== j.isBool) ^
@@ -21,7 +23,7 @@ object JsonSpecification extends Specification with ScalaCheck {
       ((j withNumber k) === j) || j.isNumber) ^
     "effect withString implies isString" ! prop((j: Json, k: JsonString => JsonString) =>
       ((j withString k) === j) || j.isString) ^
-    "effect withArray implies isArray" ! prop((j: Json, k: JsonArray => JsonArray) =>
+    "effect withArray implies isArray" ! prop((j: Json, k: List[Json] => List[Json]) =>
       ((j withArray k) === j) || j.isArray) ^
     "effect withObject implies isObject" ! prop((j: Json, k: JsonObject => JsonObject) =>
       ((j withObject k) === j) || j.isObject) ^
@@ -33,7 +35,7 @@ object JsonSpecification extends Specification with ScalaCheck {
       jNumber(n).isNumber) ^
     "jString isString" ! prop((s: String) =>
       jString(s).isString) ^
-    "jArray isArray" ! prop((a: JsonArray) =>
+    "jArray isArray" ! prop((a: List[Json]) =>
       jArray(a).isArray) ^
     "jSingleArray is single array" ! prop((j: Json) =>
       jSingleArray(j).array === List(j).some) ^
