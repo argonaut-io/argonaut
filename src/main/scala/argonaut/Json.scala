@@ -497,13 +497,13 @@ trait Jsons {
     PLens(_.fold(None, _ => None, _ => None, z => Some(Store(JString, z)), _ => None, _ => None))
 
   /**
-   * A partial lens for JSON string values.
+   * A partial lens for JSON array values.
    */
   def jArrayL: Json @?> JsonArray =
     PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(Store(JArray, z)), _ => None))
 
   /**
-   * A partial lens for JSON string values.
+   * A partial lens for JSON object values.
    */
   def jObjectL: Json @?> JsonObject =
     PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(Store(JObject, z))))

@@ -44,7 +44,7 @@ sealed trait PrettyParams {
   val rbracketLeft: Int => JsonWhitespaces
 
   /**
-   * Takes the current depth and returns the spaces to insert to right of a right brace.
+   * Takes the current depth and returns the spaces to insert to right of a right bracket.
    */
   val rbracketRight: Int => JsonWhitespaces
 
@@ -344,7 +344,7 @@ sealed trait JsonWhitespaces {
     Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, _, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight), p.rbraceLeft))
 
   /**
-   * The lens to the `rbraceLeft` configuration value.
+   * The lens to the `rbraceRight` configuration value.
    */
   def rbraceRightL: PrettyParams @> (Int => JsonWhitespaces) =
     Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, _, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight), p.rbraceRight))
