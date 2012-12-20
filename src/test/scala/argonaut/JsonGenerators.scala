@@ -98,4 +98,6 @@ object JsonGenerators {
     }
     buildPath(Seq(), jsonvalue, jsonvalue)
   }
+
+  implicit val arbitraryJson: Arbitrary[Json] = Arbitrary(jsonValueGenerator())
 }

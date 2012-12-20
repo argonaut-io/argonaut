@@ -58,10 +58,10 @@ sealed trait StringWrap {
    * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
    *
    * @param success Run this function if the parse produces a success.
-   * @param dfault Return this value of the parse or decode fails.
+   * @param default Return this value of the parse or decode fails.
    */
-  def parseDecodeOr[A, X: DecodeJson](success: X => A, dfault: => A): A =
-    parseDecodeWith[A, X](success, _ => dfault, (_, _) => dfault)
+  def parseDecodeOr[A, X: DecodeJson](success: X => A, default: => A): A =
+    parseDecodeWith[A, X](success, _ => default, (_, _) => default)
 
   /**
    * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.
@@ -80,19 +80,19 @@ sealed trait StringWrap {
    * @param success Run this function if the parse succeeds.
    * @param failure Run this function if the parse produces a failure.
    */
-  def parseIgnoreError[X](success: Json => X, failure: => X) = parse(success, _ => failure)
+  def parseIgnoreError[X](success: Json => X, failure: => X): X = parse(success, _ => failure)
 
   /**
    * Map the given function across the parsed result for a JSON value.
    */
-  def parseTo[T](i: Json => T): ValidationNEL[String, T] = parse.map(i)
+  def parseTo[X](i: Json => X): ValidationNEL[String, X] = parse.map(i)
 
   /**
    * Runs the given function across a parser for a JSON value after successfully parsing. If the parser fails, then this
    * function will fail. ''WARNING: Partial Function''
    */
-  def parseToOrDie[T](i: Json => T): T = {
-    parseTo(i).fold[T](
+  def parseToOrDie[X](i: Json => X): X = {
+    parseTo(i).fold[X](
       errors => sys.error("Unsuccessful parse result: " + errors.shows),
       identity
     )
