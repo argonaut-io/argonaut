@@ -1,7 +1,121 @@
 body {
-    font-family:'Droid Sans','Helvetica','Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
+    font-family: 'Helvetica','Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
     font-size: .9em;
     color: #525252;
     background-color: #ccc;
 }
 
+#header {
+    height: 40px;
+}
+
+#banner {
+    background-color: #333;
+    color: #f7f7f7;
+    height: 180px;
+}
+
+#project {
+    font-size: 40px;
+    font-weight: bold;
+}
+#byline {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#main {
+    margin: 0 auto;
+}
+
+.guts {
+    width: 940px;
+    margin: 0 auto;
+}
+
+a {
+    color: #00A;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #00A;
+    text-decoration: underline;
+}
+
+#header > ul {
+    list-style: none;
+    height: 100%;
+    vertical-align: middle;
+}
+
+#header > ul {
+    float: right;
+}
+
+#header > ul > li {
+    line-height: 20px;
+    float: left;
+}
+
+#header > ul > li > a {
+    float: none;
+    padding: 10px 15px 10px;
+    display: block;
+    text-decoration: none;
+    font-size: 16px;
+    color: #333;
+    font-weight: bold;
+}
+
+#header > ul > li > a:hover {
+    text-decoration: underline;
+}
+
+.section {
+    margin-bottom: 40px;
+}
+.section > div {
+    float: left;
+}
+
+.section > div.details  {
+    margin-top: 10px;
+
+}
+
+pre {
+    border: 1px solid black;
+    background-color: #333;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+}
+.section > div.title {
+    width: 300px;
+    font-wight: bold;
+    font-size: 28px;
+}
+
+.section > div.details {
+    width: 600px;
+
+}
+
+.section::before, .section::after {
+    display: table;
+    content: "";
+    zoom: 1;
+}
+
+.section::after {
+    clear: both;
+}
+
+#developers > div.details > ul {
+    list-style: none;
+}
+
+h6 {
+    margin-bottom: 5px;
+}
