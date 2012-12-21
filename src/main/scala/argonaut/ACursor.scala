@@ -233,11 +233,11 @@ sealed trait ACursor {
   def unary_- : Validation[HCursor, HCursor]  =
     validation
 
-  def either: Either[HCursor, HCursor] =
+  def either: HCursor \/ HCursor =
     if(succeeded)
-      Right(hcursor)
+      \/.right(hcursor)
     else
-      Left(hcursor)
+      \/.left(hcursor)
 
   def success: Option[HCursor] =
     validation.toOption

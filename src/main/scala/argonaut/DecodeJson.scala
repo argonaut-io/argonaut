@@ -23,10 +23,10 @@ sealed trait DecodeJson[+A] {
    * Build a new DecodeJson codec with the specified name.
    */
   def setName(n: String): DecodeJson[A] =
-    DecodeJson(c => apply(c).result match {
-      case Left((_, h)) => DecodeResult.failedResult(n, h)
-      case Right(a) => DecodeResult(a)
-    })
+    DecodeJson(c => apply(c).result.fold(
+      { case (_, h) => DecodeResult.failedResult(n, h) },
+      a => DecodeResult(a)
+    ))
 
   /**
    * Buld a new DecodeJson codec with the specified precondition that f(c) == true.
@@ -61,19 +61,14 @@ sealed trait DecodeJson[+A] {
   def |||[AA >: A](x: => DecodeJson[AA]): DecodeJson[AA] =
     DecodeJson(c => {
       val q = apply(c)
-      q.result match {
-        case Left(_) => x(c)
-        case Right(_) => q
-      }
+      q.result.fold(_ => x(c), _ => q)
     })
 
   /**
    * Run one or another decoder.
    */
-  def split[B](x: DecodeJson[B]): Either[HCursor, HCursor] => DecodeResult[Either[A, B]] = {
-    case Left(a) => this(a) map (Left(_))
-    case Right(a) => x(a) map (Right(_))
-  }
+  def split[B](x: DecodeJson[B]): HCursor \/ HCursor => DecodeResult[A \/ B] =
+    c => c.fold(a => this(a) map (_.left), a => x(a) map (_.right))
 
   /**
    * Run two decoders.
@@ -199,6 +194,9 @@ trait DecodeJsons {
     else
       e(a).option
     )
+
+  implicit def ScalazEitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[A \/ B] =
+    implicitly[DecodeJson[Either[A, B]]].map(\/.fromEither(_))
 
   implicit def EitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Either[A, B]] =
     DecodeJson(a => {

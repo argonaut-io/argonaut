@@ -3,62 +3,58 @@ package argonaut
 import scalaz._, Scalaz._
 
 sealed trait DecodeResult[+A] {
-  val result: Either[(String, CursorHistory), A]
+  val result: (String, CursorHistory) \/ A
 
   def map[B](f: A => B): DecodeResult[B] =
-    DecodeResult.build(result.right map f)
+    DecodeResult.build(result map f)
 
   def flatMap[B](f: A => DecodeResult[B]): DecodeResult[B] =
-    DecodeResult.build(result.right flatMap (f(_).result))
+    DecodeResult.build(result flatMap (f(_).result))
 
   def message: Option[String] =
-    result.left.toOption map (_._1)
+    result.swap.toOption map (_._1)
 
   def history: Option[CursorHistory] =
-    result.left.toOption map (_._2)
+    result.swap.toOption map (_._2)
 
   def value: Option[A] =
-    result.right.toOption
+    result.toOption
+
+  def toEither: Either[(String, CursorHistory), A] =
+    result.toEither
 
   def option: DecodeResult[Option[A]] =
-    result match {
-      case Left((s, h)) => h.head filter (_.succeeded) match {
+    result.fold(
+      { case (s, h) => h.head filter (_.succeeded) match {
         case None => DecodeResult(None)
-        case Some(o) => DecodeResult.failedResult(s, h)
-      }
-      case Right(a) => DecodeResult(Some(a))
-    }
-
+        case Some(_) => DecodeResult.failedResult(s, h)
+      }},
+      a => DecodeResult(Some(a))
+    )
 
   def |||[AA >: A](r: => DecodeResult[AA]): DecodeResult[AA] =
-    DecodeResult.build(result match {
-      case Left(_) => r.result
-      case Right(_) => result
-    })
+    DecodeResult.build(result.fold(_ => r.result, _ => result))
 }
 
 object DecodeResult extends DecodeResults {
   def apply[A](a: A): DecodeResult[A] = new DecodeResult[A] {
-    val result = Right(a)
+    val result = a.right
   }
 }
 
 trait DecodeResults {
-  private[argonaut] def build[A](x: Either[(String, CursorHistory), A]): DecodeResult[A] =
+  private[argonaut] def build[A](x: (String, CursorHistory) \/ A): DecodeResult[A] =
     new DecodeResult[A] {
       val result = x
     }
 
   def failedResult[A](s: String, h: CursorHistory): DecodeResult[A] =
     new DecodeResult[A] {
-      val result: Either[(String, CursorHistory), A] = Left(s, h)
+      val result: (String, CursorHistory) \/ A = (s, h).left
     }
 
   def failedResultL[A]: DecodeResult[A] @?> (String, CursorHistory) =
-    PLens(_.result match {
-      case Left(q) => Some(Store(r => failedResult(r._1, r._2), q))
-      case Right(_) => None
-    })
+    PLens(_.result.fold(q => Some(Store(r => failedResult(r._1, r._2), q)),_ => None))
 
   def failedResultMessageL[A]: DecodeResult[A] @?> String =
     ~LensT.firstLens compose failedResultL[A]

@@ -49,10 +49,10 @@ sealed trait StringWrap {
    * @param decodefailure Run this function if the decode produces a failure.
    */
   def parseDecodeWith[A, X: DecodeJson](success: X => A, parsefailure: NonEmptyList[String] => A, decodefailure: (String, CursorHistory) => A): A =
-    parse(json => json.jdecode[X].result match {
-      case Left((msg, history)) => decodefailure(msg, history)
-      case Right(x) => success(x)
-    }, errors => parsefailure(errors))
+    parse(json => json.jdecode[X].result.fold(
+      { case (msg, history) =>  decodefailure(msg, history) },
+      a => success(a)
+    ), errors => parsefailure(errors))
 
   /**
    * Parses this string value into a JSON value and if it succeeds, decodes to a data-type.

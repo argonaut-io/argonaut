@@ -28,6 +28,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     "Char encode/decode" ! encodedecode[Char] ^
     "Option[String] encode/decode" ! encodedecode[Option[String]] ^
     "Either[String, Int] encode/decode" ! encodedecode[Either[String, Int]] ^
+    "String \\/ Int encode/decode" ! encodedecode[String \/ Int] ^
     "Map[String, Int] encode/decode" ! encodedecode[Map[String, Int]] ^
     "Set[String] encode/decode" ! encodedecode[Set[String]] ^
     "Tuple2[String, Int] encode/decode" ! encodedecode[Tuple2[String, Int]] ^

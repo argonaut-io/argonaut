@@ -99,6 +99,12 @@ trait EncodeJsons {
       case Some(a) => e(a)
     }, "[A]Option[A]")
 
+  implicit def ScalazEitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[A \/ B] =
+    EncodeJson(_.fold(
+      a => jSingleObject("Left", ea(a)),
+      b => jSingleObject("Right", eb(b))
+    ), "[A, B]\\/[A, B]")
+
   implicit def EitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Either[A, B]] =
     EncodeJson(_ match {
       case Left(a) => jSingleObject("Left", ea(a))
