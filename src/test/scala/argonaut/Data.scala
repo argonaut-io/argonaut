@@ -136,5 +136,5 @@ object Data {
     Arbitrary(frequency((1, value("true")), (1, value("false")), (8, arbitrary[String])) map (SometimesBoolString(_)))
 
   implicit def ArbitraryScalazEither[A: Arbitrary, B: Arbitrary]: Arbitrary[A \/ B] =
-    Arbitrary(arbitrary[Either[A, B]] map (fromEither(_)))
+    Arbitrary(arbitrary[Either[A, B]] map (\/.fromEither(_)))
 }
