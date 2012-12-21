@@ -130,11 +130,11 @@ object Data {
   }
 
   implicit val ArbitrarySometimesNullString: Arbitrary[SometimesNullString] =
-      Arbitrary(frequency((1, value("null")), (9, arbitrary[String])) map (SometimesNullString(_)))
+    Arbitrary(frequency((1, value("null")), (9, arbitrary[String])) map (SometimesNullString(_)))
 
   implicit val ArbitrarySometimesBoolString: Arbitrary[SometimesBoolString] =
-      Arbitrary(frequency((1, value("true")), (1, value("false")), (8, arbitrary[String])) map (SometimesBoolString(_)))
+    Arbitrary(frequency((1, value("true")), (1, value("false")), (8, arbitrary[String])) map (SometimesBoolString(_)))
 
   implicit def ArbitraryScalazEither[A: Arbitrary, B: Arbitrary]: Arbitrary[A \/ B] =
-      Arbitrary(oneOf(arbitrary[A].map(a => \/.left(a)), arbitrary[B].map(b => \/.right(b))))
+    Arbitrary(arbitrary[Either[A, B]] map (fromEither(_)))
 }
