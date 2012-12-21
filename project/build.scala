@@ -72,4 +72,19 @@ object build extends Build {
                          """.stripMargin
     )
   )
+
+  val benchmark = Project(
+    id = "benchmark"
+  , base = file("benchmark")
+  , dependencies = Seq(argonaut)
+  , settings = Defaults.defaultSettings ++ Seq[Sett](
+      name := "argonaut-benchmark"
+    , version := "1.0"
+    , scalaVersion := "2.9.2"
+    , scalacOptions := Seq(
+        "-deprecation"
+      , "-unchecked"
+      )
+    )
+  )
 }
