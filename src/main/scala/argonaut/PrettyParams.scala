@@ -124,6 +124,7 @@ object StringEscaping {
       case '\n' => "\\n"
       case '\r' => "\\r"
       case '\t' => "\\t"
+      case possibleUnicode if possibleUnicode.isControl => "\\u%04x".format(possibleUnicode.toLong)
       case _ => c.toString
     }
 }

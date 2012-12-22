@@ -8,8 +8,8 @@ object JsonParser {
   sealed abstract class JSONToken {
     def originalStringContent: String
   }
-  abstract class OpenToken extends JSONToken
-  abstract class CloseToken extends JSONToken
+  sealed abstract class OpenToken extends JSONToken
+  sealed abstract class CloseToken extends JSONToken
   case object ArrayOpenToken extends OpenToken { val originalStringContent = "[" }
   case object ArrayCloseToken extends CloseToken { val originalStringContent = "]" }
   case object ObjectOpenToken extends OpenToken { val originalStringContent = "{" }
@@ -19,39 +19,36 @@ object JsonParser {
   case object StringBoundsOpenToken extends OpenToken { val originalStringContent = "\"" }
   case object StringBoundsCloseToken extends CloseToken { val originalStringContent = "\"" }
   case class NumberToken(originalStringContent: String) extends JSONToken
-  abstract class BooleanToken extends JSONToken
+  sealed abstract class BooleanToken extends JSONToken
   case object BooleanTrueToken extends BooleanToken { val originalStringContent = "true" }
   case object BooleanFalseToken extends BooleanToken { val originalStringContent = "false" }
   case object NullToken extends JSONToken { val originalStringContent = "null" }
-  abstract class StringPartToken extends JSONToken {
+  sealed abstract class StringPartToken extends JSONToken {
     def parsedStringContent: String
   }
-  case class UnicodeCharacterToken(originalStringContent: String) extends StringPartToken {
-    def parsedStringContent = new java.lang.StringBuilder().appendCodePoint(Integer.valueOf(originalStringContent.takeRight(4), 16)).toString
+  sealed case class UnicodeCharacterToken(unicodeSequence: String) extends StringPartToken {
+    def originalStringContent = "\\u" + unicodeSequence
+    def parsedStringContent = new java.lang.StringBuilder().appendCodePoint(Integer.valueOf(unicodeSequence, 16)).toString
   }
-  case class EscapedCharacterToken(originalStringContent: String) extends StringPartToken {
-    def parsedStringContent = originalStringContent match {
-      case "\\r" => "\r"
-      case "\\n" => "\n"
-      case "\\t" => "\t"
-      case "\\b" => "\b"
-      case "\\f" => "\f"
-      case """\\""" => """\"""
-      case """\/""" => """/"""
-      case "\\\"" => "\""
-      case x => x.tail
-    }
+  sealed case class EscapedCharacterToken(originalStringContent: String, parsedStringContent: String) extends StringPartToken
+  object EscapedCharacterToken {
+    val charMap: Map[String, EscapedCharacterToken] = Map(
+      "\\r" -> EscapedCharacterToken("\\r", "\r"),
+      "\\n" -> EscapedCharacterToken("\\n", "\n"),
+      "\\t" -> EscapedCharacterToken("\\t", "\t"),
+      "\\b" -> EscapedCharacterToken("\\b", "\b"),
+      "\\f" -> EscapedCharacterToken("\\f", "\f"),
+      """\\""" -> EscapedCharacterToken("""\\""", """\"""),
+      """\/""" -> EscapedCharacterToken("""\/""", """/"""),
+      "\\\"" -> EscapedCharacterToken("\\\"", "\"")
+    ) 
   }
-  case class NormalStringToken(originalStringContent: String) extends StringPartToken {
+
+  sealed case class NormalStringToken(originalStringContent: String) extends StringPartToken {
     def parsedStringContent = originalStringContent
   }
-  case class UnexpectedContentToken(originalStringContent: String) extends JSONToken
+  sealed case class UnexpectedContentToken(originalStringContent: String) extends JSONToken
   
-  val UnicodeCharRegex = """(\\u[a-fA-F0-9]{4})""".r
-  val EscapedCharRegex = """(\\[\\/bfnrt"])""".r
-  val NormalStringRegex = """([^\"[\x00-\x1F]\\]+)""".r
-  val NumberRegex = """(-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)""".r
-
   private[this] def excerpt(string: String, limit: Int = 50): String = {
     if (string.size > limit) {
       string.take(limit) + "..."
@@ -187,20 +184,10 @@ object JsonParser {
 
   @inline def unexpectedContent(json: String) = Vector(UnexpectedContentToken(json.take(10)))
 
-  /*
-  @inline def parseStringSegments(json: String): Vector[JSONToken] = {
-    if (json.head == '"') {
-      streamCons(StringBoundsCloseToken, json.tail)
-    } else {
-      NormalStringRegex.findPrefixOf(json).map(normalStringContent => streamCons(NormalStringToken(normalStringContent), json.drop(normalStringContent.length)))
-      .orElse(EscapedCharRegex.findPrefixOf(json).map(escapedChar => streamCons(EscapedCharacterToken(escapedChar), json.drop(escapedChar.length))))
-      .orElse(UnicodeCharRegex.findPrefixOf(json).map(unicodeContent => streamCons(UnicodeCharacterToken(unicodeContent), json.drop(unicodeContent.length))))
-      .getOrElse(unexpectedContent(json))
-    }
+  @inline def parseNumber(json: String): Option[(NumberToken, String)] = {
+    val (possibleNumber, remainder) = json.span(char => (char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.')
+    possibleNumber.parseDouble.toOption.map(_ => (NumberToken(possibleNumber), remainder))
   }
-
-  @inline def streamCons(token: JSONToken, jsonRemainder: String): Vector[JSONToken] = token +: tokenize(token.some, jsonRemainder)
-  */
   
   @tailrec private[this] def tokenize(previousToken: Option[JSONToken], json: String, current: Vector[JSONToken] = Vector.empty): Vector[JSONToken] = {
     if (json.isEmpty) current
@@ -211,29 +198,28 @@ object JsonParser {
             tokenize(StringBoundsCloseToken.some, json.tail, current :+ StringBoundsCloseToken)
           } else if (json.startsWith("""\""")) {
             if (json.startsWith("\\u")) {
-              UnicodeCharRegex.findPrefixOf(json) match {
-                case Some(unicodeContent) => {
-                  val unicodeCharToken = UnicodeCharacterToken(unicodeContent)
-                  tokenize(unicodeCharToken.some, json.drop(unicodeContent.length), current :+ unicodeCharToken)
-                }
-                case _ => unexpectedContent(json)
-              }
+              val possibleUnicodeSequence = json.drop(2).take(4)
+              if (possibleUnicodeSequence.forall(char => (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9'))) {
+                val unicodeCharToken = UnicodeCharacterToken(possibleUnicodeSequence)
+                tokenize(unicodeCharToken.some, json.drop(6), current :+ unicodeCharToken)
+              } else unexpectedContent(json)
             } else {
-              EscapedCharRegex.findPrefixOf(json) match {
-                case Some(escapedChar) => {
-                  val escapedCharToken = EscapedCharacterToken(escapedChar)
-                  tokenize(escapedCharToken.some, json.drop(escapedChar.length), current :+ escapedCharToken)
-                }
+              EscapedCharacterToken.charMap.get(json.take(2)) match {
+                case Some(escapedCharToken) => tokenize(escapedCharToken.some, json.drop(2), current :+ escapedCharToken)
                 case _ => unexpectedContent(json)
               }
-           }
+            }
           } else {
-            NormalStringRegex.findPrefixOf(json) match {
-              case Some(normalStringContent) => {
-                val normalStringToken = NormalStringToken(normalStringContent)
-                tokenize(normalStringToken.some, json.drop(normalStringContent.length), current :+ normalStringToken)
+            val (prefix: String, suffix: String) = json.span(char => !char.isControl && char != '"' && char != '\\')
+            //println("json = " + json + ", prefix = " + prefix + ", suffix = " + suffix)
+            val normalStringToken = NormalStringToken(prefix)
+            suffix.headOption match {
+              case Some('\"') | Some('\\') => tokenize(normalStringToken.some, suffix, current :+ normalStringToken)
+              case None => current :+ normalStringToken
+              case _ => {
+                println("First char: " + (suffix.head.toLong))
+                unexpectedContent(suffix)
               }
-              case _ => unexpectedContent(json)
             }
           }
         }
@@ -256,11 +242,8 @@ object JsonParser {
                 case falseStartingJSON if falseStartingJSON.startsWith("false") => tokenize(BooleanFalseToken.some, json.drop(5), current :+ BooleanFalseToken)
                 case nullStartingJSON if nullStartingJSON.startsWith("null") => tokenize(NullToken.some, json.drop(4), current :+ NullToken)
                 case _ => {
-                  NumberRegex.findPrefixOf(json) match {
-                    case Some(numberString) => {
-                      val numberToken = NumberToken(numberString)
-                      tokenize(numberToken.some, json.drop(numberString.length), current :+ numberToken)
-                    }
+                  parseNumber(json) match {
+                    case Some((numberToken, remainder)) => tokenize(numberToken.some, remainder, current :+ numberToken)
                     case _ => unexpectedContent(json)
                   }
                 }
