@@ -69,7 +69,7 @@ object JsonParser {
     }
   }
 
-  def tokenize(json: String): Vector[JSONToken] = tokenize(none, json)
+  def tokenize(json: String): List[JSONToken] = tokenize(none, json).reverse
 
   @inline
   def expectedSpacerToken(stream: List[JSONToken], token: JSONToken, failMessage: String): ValidationNEL[String, List[JSONToken]] = {
@@ -182,30 +182,30 @@ object JsonParser {
     } yield (afterClose, JString(elements._1.collect{case stringPart: StringPartToken => stringPart.parsedStringContent}.mkString))
   }
 
-  @inline def unexpectedContent(json: String) = Vector(UnexpectedContentToken(json.take(10)))
+  @inline def unexpectedContent(json: String) = List(UnexpectedContentToken(json.take(10)))
 
   @inline def parseNumber(json: String): Option[(NumberToken, String)] = {
     val (possibleNumber, remainder) = json.span(char => (char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.')
     possibleNumber.parseDouble.toOption.map(_ => (NumberToken(possibleNumber), remainder))
   }
   
-  @tailrec private[this] def tokenize(previousToken: Option[JSONToken], json: String, current: Vector[JSONToken] = Vector.empty): Vector[JSONToken] = {
+  @tailrec private[this] def tokenize(previousToken: Option[JSONToken], json: String, current: List[JSONToken] = List.empty): List[JSONToken] = {
     if (json.isEmpty) current
     else {
       previousToken match {
         case Some(StringBoundsOpenToken) | Some(_: StringPartToken) => {
           if (json.head == '"') {
-            tokenize(StringBoundsCloseToken.some, json.tail, current :+ StringBoundsCloseToken)
+            tokenize(StringBoundsCloseToken.some, json.tail, StringBoundsCloseToken :: current)
           } else if (json.startsWith("""\""")) {
             if (json.startsWith("\\u")) {
               val possibleUnicodeSequence = json.drop(2).take(4)
               if (possibleUnicodeSequence.forall(char => (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9'))) {
                 val unicodeCharToken = UnicodeCharacterToken(possibleUnicodeSequence)
-                tokenize(unicodeCharToken.some, json.drop(6), current :+ unicodeCharToken)
+                tokenize(unicodeCharToken.some, json.drop(6), unicodeCharToken :: current)
               } else unexpectedContent(json)
             } else {
               EscapedCharacterToken.charMap.get(json.take(2)) match {
-                case Some(escapedCharToken) => tokenize(escapedCharToken.some, json.drop(2), current :+ escapedCharToken)
+                case Some(escapedCharToken) => tokenize(escapedCharToken.some, json.drop(2), escapedCharToken :: current)
                 case _ => unexpectedContent(json)
               }
             }
@@ -214,8 +214,8 @@ object JsonParser {
             //println("json = " + json + ", prefix = " + prefix + ", suffix = " + suffix)
             val normalStringToken = NormalStringToken(prefix)
             suffix.headOption match {
-              case Some('\"') | Some('\\') => tokenize(normalStringToken.some, suffix, current :+ normalStringToken)
-              case None => current :+ normalStringToken
+              case Some('\"') | Some('\\') => tokenize(normalStringToken.some, suffix, normalStringToken :: current)
+              case None => normalStringToken :: current
               case _ => {
                 println("First char: " + (suffix.head.toLong))
                 unexpectedContent(suffix)
@@ -226,24 +226,24 @@ object JsonParser {
         case _ => {
           val jsonHead = json.head
           jsonHead match {
-            case '[' => tokenize(ArrayOpenToken.some, json.tail, current :+ ArrayOpenToken)
-            case ']' => tokenize(ArrayCloseToken.some, json.tail, current :+ ArrayCloseToken)
-            case '{' => tokenize(ObjectOpenToken.some, json.tail, current :+ ObjectOpenToken)
-            case '}' => tokenize(ObjectCloseToken.some, json.tail, current :+ ObjectCloseToken)
-            case ':' => tokenize(FieldSeparatorToken.some, json.tail, current :+ FieldSeparatorToken)
-            case ',' => tokenize(EntrySeparatorToken.some, json.tail, current :+ EntrySeparatorToken)
-            case '"' => tokenize(StringBoundsOpenToken.some, json.tail, current :+ StringBoundsOpenToken)
+            case '[' => tokenize(ArrayOpenToken.some, json.tail, ArrayOpenToken :: current)
+            case ']' => tokenize(ArrayCloseToken.some, json.tail, ArrayCloseToken :: current)
+            case '{' => tokenize(ObjectOpenToken.some, json.tail, ObjectOpenToken :: current)
+            case '}' => tokenize(ObjectCloseToken.some, json.tail, ObjectCloseToken :: current)
+            case ':' => tokenize(FieldSeparatorToken.some, json.tail, FieldSeparatorToken :: current)
+            case ',' => tokenize(EntrySeparatorToken.some, json.tail, EntrySeparatorToken :: current)
+            case '"' => tokenize(StringBoundsOpenToken.some, json.tail, StringBoundsOpenToken :: current)
             case ' ' => tokenize(previousToken, json.tail, current)
             case '\r' => tokenize(previousToken, json.tail, current)
             case '\n' => tokenize(previousToken, json.tail, current)
             case _ => {
               json match {
-                case trueStartingJSON if trueStartingJSON.startsWith("true") => tokenize(BooleanTrueToken.some, json.drop(4), current :+ BooleanTrueToken)
-                case falseStartingJSON if falseStartingJSON.startsWith("false") => tokenize(BooleanFalseToken.some, json.drop(5), current :+ BooleanFalseToken)
-                case nullStartingJSON if nullStartingJSON.startsWith("null") => tokenize(NullToken.some, json.drop(4), current :+ NullToken)
+                case trueStartingJSON if trueStartingJSON.startsWith("true") => tokenize(BooleanTrueToken.some, json.drop(4), BooleanTrueToken :: current)
+                case falseStartingJSON if falseStartingJSON.startsWith("false") => tokenize(BooleanFalseToken.some, json.drop(5), BooleanFalseToken :: current)
+                case nullStartingJSON if nullStartingJSON.startsWith("null") => tokenize(NullToken.some, json.drop(4), NullToken :: current)
                 case _ => {
                   parseNumber(json) match {
-                    case Some((numberToken, remainder)) => tokenize(numberToken.some, remainder, current :+ numberToken)
+                    case Some((numberToken, remainder)) => tokenize(numberToken.some, remainder, numberToken :: current)
                     case _ => unexpectedContent(json)
                   }
                 }

@@ -10,39 +10,13 @@ import scala.util.Random.shuffle
 object Data {
   val maxJsonStructureDepth = 3
 
-  def codePointStream(string: String): Stream[Int] = {
-    // Try to remove anything that could be misconstrued as an escape character.
-    val filteredString = string.flatMap(char => StringEscaping.escape(char)).filter(_ != '\\')
-    def codePointStream(offset: Int): Stream[Int] = {
-      if (offset > filteredString.length - 1) Stream.empty
-      else {
-        val codePoint = filteredString.codePointAt(offset)
-        Stream.cons(codePoint, codePointStream(offset + Character.charCount(codePoint)))
-      }
-    }
-    codePointStream(0)
-  }
-  def isValidUnicodeCodePoint(codePoint: Int): Boolean = {
-    Character.isLetterOrDigit(codePoint) || Character.isWhitespace(codePoint) || Character.isISOControl(codePoint)
-  }
-
   val jsonNumberGenerator: Gen[JNumber] = arbitrary[Double].map(number => JNumber(JsonNumber(number)))
 
-  val stringGenerator: Gen[StringBuilder] = arbitrary[String].map{string =>
-    val codePoints = codePointStream(string).filter(isValidUnicodeCodePoint)
-    val builder = codePoints.foldLeft(new java.lang.StringBuilder()){(builder, codePoint) =>
-      if (codePoint <= 0xffff) {
-        builder.append(codePoint.toChar)
-      } else {
-        builder.appendCodePoint(codePoint)
-      }
-    }
-    new StringBuilder().append(builder)
-  }
+  def isValidJSONCharacter(char: Char): Boolean = !char.isControl && char != '\\' && char != '\"'
 
-  val quotedStringGenerator: Gen[StringBuilder] = stringGenerator.map(builder => new StringBuilder().append("\"").append(builder).append("\""))
+  val stringGenerator: Gen[String] = arbitrary[String]
 
-  val jsonStringGenerator: Gen[JString] = stringGenerator.map(stringBuilder => JString(stringBuilder.toString))
+  val jsonStringGenerator: Gen[JString] = stringGenerator.map(string => JString(string))
 
   val jsonBoolGenerator: Gen[JBool] = oneOf(JBool(true), JBool(false))
 

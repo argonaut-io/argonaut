@@ -10,4 +10,4 @@ target
 /dist
 /tmp
 /project/boot
-
+*.swp
