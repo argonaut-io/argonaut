@@ -104,7 +104,6 @@ object JsonParser {
 
   def tokenize(json: String): List[JSONToken] = tokenize(none, json).reverse
 
-  @inline
   private[this] final def expectedSpacerToken(stream: List[JSONToken], token: JSONToken, failMessage: String): ValidationNEL[String, List[JSONToken]] = {
     stream.headOption match {
       case Some(`token`) => stream.tail.successNel
@@ -112,28 +111,20 @@ object JsonParser {
     }
   }
   
-  @inline
   private[this] final def expectStringOpen(stream: List[JSONToken]) = expectedSpacerToken(stream, StringBoundsOpenToken, "Expected string bounds")
 
-  @inline
   private[this] final def expectStringClose(stream: List[JSONToken]) = expectedSpacerToken(stream, StringBoundsCloseToken, "Expected string bounds")
 
-  @inline
   private[this] final def expectArrayOpen(stream: List[JSONToken]) = expectedSpacerToken(stream, ArrayOpenToken, "Expected array open token")
 
-  @inline
   private[this] final def expectArrayClose(stream: List[JSONToken]) = expectedSpacerToken(stream, ArrayCloseToken, "Expected array close token")
 
-  @inline
   private[this] final def expectObjectOpen(stream: List[JSONToken]) = expectedSpacerToken(stream, ObjectOpenToken, "Expected object open token")
 
-  @inline
   private[this] final def expectObjectClose(stream: List[JSONToken]) = expectedSpacerToken(stream, ObjectCloseToken, "Expected object close token")
 
-  @inline
   private[this] final def expectEntrySeparator(stream: List[JSONToken]) = expectedSpacerToken(stream, EntrySeparatorToken, "Expected entry separator token")
 
-  @inline
   private[this] final def expectFieldSeparator(stream: List[JSONToken]) = expectedSpacerToken(stream, FieldSeparatorToken, "Expected field separator token")
   
   private[this] final def expectObject(stream: List[JSONToken]): ValidationNEL[String, (List[JSONToken], JObject)] = {
@@ -207,7 +198,7 @@ object JsonParser {
     }
   }
 
-  @inline private[this] final def expectString(stream: List[JSONToken]): ValidationNEL[String, (List[JSONToken], JString)] = {
+  private[this] final def expectString(stream: List[JSONToken]): ValidationNEL[String, (List[JSONToken], JString)] = {
     for {
       afterOpen <- expectStringOpen(stream)
       elements <- afterOpen.span(jsonToken => jsonToken.isInstanceOf[StringPartToken]).successNel[String]
@@ -215,9 +206,9 @@ object JsonParser {
     } yield (afterClose, JString(elements._1.collect{case stringPart: StringPartToken => stringPart.parsedStringContent}.mkString))
   }
 
-  @inline private[this] final def unexpectedContent(json: String) = List(UnexpectedContentToken(json.take(10)))
+  private[this] final def unexpectedContent(json: String) = List(UnexpectedContentToken(json.take(10)))
 
-  @inline def parseNumber(json: String): Option[(NumberToken, String)] = {
+  private[this] final def parseNumber(json: String): Option[(NumberToken, String)] = {
     val (possibleNumber, remainder) = json.span(char => (char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.')
     if (possibleNumber.isEmpty) None
     else (NumberToken(possibleNumber), remainder).some
