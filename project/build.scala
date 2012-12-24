@@ -24,7 +24,7 @@ object build extends Build {
     , version := "6.0-SNAPSHOT"
     , crossVersion := CrossVersion.full
     , scalaVersion := "2.9.2"
-    , crossScalaVersions := Seq("2.9.2", "2.10.0-RC5")
+    , crossScalaVersions := Seq("2.9.2", "2.10.0")
     , publishSetting
     , publishMavenStyle := true
     , publishArtifact in Test := false
@@ -60,10 +60,13 @@ object build extends Build {
           Seq())
       }
     , libraryDependencies ++= Seq(
-        ("org.scalaz" %% "scalaz-core" % "7.0.0-M6").cross(CrossVersion.full).changing
+        ("org.scalaz" %% "scalaz-core" % "7.0.0-M7").changing
       , ("org.scalacheck" %% "scalacheck" % "1.10.0" % "test").cross(CrossVersion.full)
-      , ("org.specs2" %% "specs2" % "1.12.3" % "test").cross(CrossVersion.full)
       )
+    , libraryDependencies <+= (scalaVersion){ v =>
+        val specsVersion = (if (v.contains("2.10")) "1.13" else "1.12.3")
+        "org.specs2" %% "specs2" % specsVersion % "test"
+      }
     , initialCommands := """
                            |import argonaut._
                            |import scalaz._
