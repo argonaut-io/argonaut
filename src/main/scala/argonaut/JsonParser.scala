@@ -236,13 +236,11 @@ object JsonParser {
             }
           } else {
             val (prefix: String, suffix: String) = json.span(char => !char.isControl && char != '"' && char != '\\')
-            //println("json = " + json + ", prefix = " + prefix + ", suffix = " + suffix)
             val normalStringToken = NormalStringToken(prefix)
             suffix.headOption match {
               case Some('\"') | Some('\\') => tokenize(normalStringToken.some, suffix, normalStringToken :: current)
               case None => normalStringToken :: current
               case _ => {
-                println("First char: " + (suffix.head.toLong))
                 unexpectedContent(suffix)
               }
             }
