@@ -230,7 +230,7 @@ object JsonParser {
               } else unexpectedContent(json)
             } else {
               EscapedCharacterToken.charMap.get(json.take(2)) match {
-                case Some(escapedCharToken) => tokenize(escapedCharToken.some, json.drop(2), escapedCharToken :: current)
+                case escapedSome@ Some(escapedCharToken) => tokenize(escapedSome, json.drop(2), escapedCharToken :: current)
                 case _ => unexpectedContent(json)
               }
             }
