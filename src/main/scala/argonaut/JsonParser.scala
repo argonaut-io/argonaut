@@ -5,63 +5,64 @@ import scalaz._
 import Scalaz._
 
 object JsonParser {
+  private[this] final val arrayOpenTokenInSome = ArrayOpenToken.some
+  private[this] final val arrayCloseTokenInSome = ArrayCloseToken.some
+  private[this] final val objectOpenTokenInSome = ObjectOpenToken.some
+  private[this] final val objectCloseTokenInSome = ObjectCloseToken.some
+  private[this] final val entrySeparatorTokenInSome = EntrySeparatorToken.some
+  private[this] final val fieldSeparatorTokenInSome = FieldSeparatorToken.some
+  private[this] final val stringBoundsOpenTokenInSome = StringBoundsOpenToken.some
+  private[this] final val stringBoundsCloseTokenInSome = StringBoundsCloseToken.some
+  private[this] final val booleanTrueTokenInSome = BooleanTrueToken.some
+  private[this] final val booleanFalseTokenInSome = BooleanFalseToken.some
+  private[this] final val nullTokenInSome = NullToken.some
+
   sealed abstract class JSONToken {
     def originalStringContent: String
   }
   sealed abstract class OpenToken extends JSONToken
   sealed abstract class CloseToken extends JSONToken
   case object ArrayOpenToken extends OpenToken { 
-    val originalStringContent = "["
-    val inSome = this.some
+    final val originalStringContent = "["
   }
   case object ArrayCloseToken extends CloseToken { 
-    val originalStringContent = "]"
-    val inSome = this.some
+    final val originalStringContent = "]"
   }
   case object ObjectOpenToken extends OpenToken { 
-    val originalStringContent = "{" 
-    val inSome = this.some
+    final val originalStringContent = "{" 
   }
   case object ObjectCloseToken extends CloseToken { 
-    val originalStringContent = "}" 
-    val inSome = this.some
+    final val originalStringContent = "}" 
   }
   case object EntrySeparatorToken extends JSONToken { 
-    val originalStringContent = "," 
-    val inSome = this.some
+    final val originalStringContent = "," 
   }
   case object FieldSeparatorToken extends JSONToken { 
-    val originalStringContent = ":" 
-    val inSome = this.some
+    final val originalStringContent = ":" 
   }
   case object StringBoundsOpenToken extends OpenToken { 
-    val originalStringContent = "\"" 
-    val inSome = this.some
+    final val originalStringContent = "\"" 
   }
   case object StringBoundsCloseToken extends CloseToken { 
-    val originalStringContent = "\"" 
-    val inSome = this.some
+    final val originalStringContent = "\"" 
   }
   case class NumberToken(originalStringContent: String) extends JSONToken
   sealed abstract class BooleanToken extends JSONToken
   case object BooleanTrueToken extends BooleanToken { 
-    val originalStringContent = "true" 
-    val inSome = this.some
+    final val originalStringContent = "true" 
   }
   case object BooleanFalseToken extends BooleanToken { 
-    val originalStringContent = "false" 
-    val inSome = this.some
+    final val originalStringContent = "false" 
   }
   case object NullToken extends JSONToken { 
-    val originalStringContent = "null" 
-    val inSome = this.some
+    final val originalStringContent = "null" 
   }
   sealed abstract class StringPartToken extends JSONToken {
     def parsedStringContent: String
   }
   sealed case class UnicodeCharacterToken(unicodeSequence: String) extends StringPartToken {
-    def originalStringContent = "\\u" + unicodeSequence
-    def parsedStringContent = new java.lang.StringBuilder().appendCodePoint(Integer.valueOf(unicodeSequence, 16)).toString
+    final def originalStringContent = "\\u" + unicodeSequence
+    final def parsedStringContent = new java.lang.StringBuilder().appendCodePoint(Integer.valueOf(unicodeSequence, 16)).toString
   }
   sealed case class EscapedCharacterToken(originalStringContent: String, parsedStringContent: String) extends StringPartToken
   object EscapedCharacterToken {
@@ -78,7 +79,7 @@ object JsonParser {
   }
 
   sealed case class NormalStringToken(originalStringContent: String) extends StringPartToken {
-    def parsedStringContent = originalStringContent
+    final def parsedStringContent = originalStringContent
   }
   sealed case class UnexpectedContentToken(originalStringContent: String) extends JSONToken
   
@@ -220,7 +221,7 @@ object JsonParser {
       previousToken match {
         case Some(StringBoundsOpenToken) | Some(_: StringPartToken) => {
           if (json.head == '"') {
-            tokenize(StringBoundsCloseToken.inSome, json.tail, StringBoundsCloseToken :: current)
+            tokenize(stringBoundsCloseTokenInSome, json.tail, StringBoundsCloseToken :: current)
           } else if (json.startsWith("""\""")) {
             if (json.startsWith("\\u")) {
               val possibleUnicodeSequence = json.drop(2).take(4)
@@ -249,21 +250,21 @@ object JsonParser {
         case _ => {
           val jsonHead = json.head
           jsonHead match {
-            case '[' => tokenize(ArrayOpenToken.inSome, json.tail, ArrayOpenToken :: current)
-            case ']' => tokenize(ArrayCloseToken.inSome, json.tail, ArrayCloseToken :: current)
-            case '{' => tokenize(ObjectOpenToken.inSome, json.tail, ObjectOpenToken :: current)
-            case '}' => tokenize(ObjectCloseToken.inSome, json.tail, ObjectCloseToken :: current)
-            case ':' => tokenize(FieldSeparatorToken.inSome, json.tail, FieldSeparatorToken :: current)
-            case ',' => tokenize(EntrySeparatorToken.inSome, json.tail, EntrySeparatorToken :: current)
-            case '"' => tokenize(StringBoundsOpenToken.inSome, json.tail, StringBoundsOpenToken :: current)
+            case '[' => tokenize(arrayOpenTokenInSome, json.tail, ArrayOpenToken :: current)
+            case ']' => tokenize(arrayCloseTokenInSome, json.tail, ArrayCloseToken :: current)
+            case '{' => tokenize(objectOpenTokenInSome, json.tail, ObjectOpenToken :: current)
+            case '}' => tokenize(objectCloseTokenInSome, json.tail, ObjectCloseToken :: current)
+            case ':' => tokenize(fieldSeparatorTokenInSome, json.tail, FieldSeparatorToken :: current)
+            case ',' => tokenize(entrySeparatorTokenInSome, json.tail, EntrySeparatorToken :: current)
+            case '"' => tokenize(stringBoundsOpenTokenInSome, json.tail, StringBoundsOpenToken :: current)
             case ' ' => tokenize(previousToken, json.tail, current)
             case '\r' => tokenize(previousToken, json.tail, current)
             case '\n' => tokenize(previousToken, json.tail, current)
             case _ => {
               json match {
-                case trueStartingJSON if trueStartingJSON.startsWith("true") => tokenize(BooleanTrueToken.inSome, json.drop(4), BooleanTrueToken :: current)
-                case falseStartingJSON if falseStartingJSON.startsWith("false") => tokenize(BooleanFalseToken.inSome, json.drop(5), BooleanFalseToken :: current)
-                case nullStartingJSON if nullStartingJSON.startsWith("null") => tokenize(NullToken.inSome, json.drop(4), NullToken :: current)
+                case trueStartingJSON if trueStartingJSON.startsWith("true") => tokenize(booleanTrueTokenInSome, json.drop(4), BooleanTrueToken :: current)
+                case falseStartingJSON if falseStartingJSON.startsWith("false") => tokenize(booleanFalseTokenInSome, json.drop(5), BooleanFalseToken :: current)
+                case nullStartingJSON if nullStartingJSON.startsWith("null") => tokenize(nullTokenInSome, json.drop(4), NullToken :: current)
                 case _ => {
                   parseNumber(json) match {
                     case Some((numberToken, remainder)) => tokenize(numberToken.some, remainder, numberToken :: current)
