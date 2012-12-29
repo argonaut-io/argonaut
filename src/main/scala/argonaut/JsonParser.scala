@@ -224,7 +224,7 @@ object JsonParser {
     (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
   }
 
-  final def tokenizeString(json: String): TokenStream = {
+  private[this] final def tokenizeString(json: String): TokenStream = {
     json.headOption match {
       case Some('"') => {
         TokenStreamElement(StringBoundsCloseToken, () => tokenize(json.tail))
@@ -257,7 +257,7 @@ object JsonParser {
     }
   }
   
-  private[this] final def tokenize(json: String): TokenStream = {
+  final def tokenize(json: String): TokenStream = {
     json.headOption match {
       case Some('[') => TokenStreamElement(ArrayOpenToken, () => tokenize(json.tail))
       case Some(']') => TokenStreamElement(ArrayCloseToken, () => tokenize(json.tail))
