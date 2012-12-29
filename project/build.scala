@@ -41,7 +41,7 @@ object build extends Build {
       </developers>)
     , scalacOptions <++= scalaVersion map { v =>
         Seq("-deprecation", "-unchecked", "-optimise") ++ (if (v.contains("2.10"))
-          Seq("-feature", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps")
+          Seq("-Yinline-warnings", "-feature", "-language:implicitConversions", "-language:higherKinds", "-language:postfixOps")
         else
           Seq())
       }

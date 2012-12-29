@@ -118,6 +118,7 @@ object JsonParser {
 
   def tokenize(json: String): TokenStream = tokenize(none, json)
 
+  @inline
   private[this] final def expectedSpacerToken(stream: TokenStream, token: JSONToken, failMessage: String): ValidationNEL[String, TokenStream] = {
     stream match {
       case TokenStreamElement(`token`, tail) => tail().successNel
