@@ -131,7 +131,7 @@ object JsonParser {
   private[this] final def expectObject(stream: TokenStream): ValidationNEL[String, (TokenStream, JObject)] = {
     for {
       afterObjectOpen <- expectObjectOpen(stream)
-      streamAndFields <- expectObjectField(true, (afterObjectOpen, List.empty).successNel)
+      streamAndFields <- expectObjectField(true, afterObjectOpen, List.empty)
       mappedVectorAndFields = streamAndFields.copy(_2 = streamAndFields._2.map(pair => (pair._1.s, pair._2)))
     } yield (streamAndFields._1, JObject(JsonObject(InsertionMap(mappedVectorAndFields._2.reverse: _*))))
   }
@@ -139,7 +139,7 @@ object JsonParser {
   private[this] final def expectArray(stream: TokenStream): ValidationNEL[String, (TokenStream, JArray)] = {
     for {
       afterArrayOpen <- expectArrayOpen(stream)
-      streamAndFields <- expectArrayField(true, (afterArrayOpen, List.empty).successNel)
+      streamAndFields <- expectArrayField(true, afterArrayOpen, List.empty)
     } yield (streamAndFields._1, JArray(streamAndFields._2.reverse))
   }
 
@@ -163,39 +163,37 @@ object JsonParser {
     }
   }
 
-  @tailrec private[this] final def expectArrayField(first: Boolean, currentVector: ValidationNEL[String, (TokenStream, List[Json])]): ValidationNEL[String, (TokenStream, List[Json])] = {
-    currentVector match {
-      case Success((stream, fields)) => {
-        stream match {
-          case TokenStreamElement(ArrayCloseToken, tail) => (tail(), fields).successNel
-          case _ => {
-            expectArrayField(false, for {
-              afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
-              streamAndValue <- expectValue(afterEntrySeparator)
-            } yield (streamAndValue._1, streamAndValue._2 :: fields))
-          }
+  @tailrec private[this] final def expectArrayField(first: Boolean, stream: TokenStream, fields: List[Json]): ValidationNEL[String, (TokenStream, List[Json])] = {
+    stream match {
+      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), fields).successNel
+      case _ => {
+        val next = for {
+          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
+          streamAndValue <- expectValue(afterEntrySeparator)
+        } yield (streamAndValue._1, streamAndValue._2 :: fields)
+        next match {
+          case Success((newStream, newFields)) => expectArrayField(false, newStream, newFields)
+          case failure => failure
         }
       }
-      case _ => currentVector
     }
   }
   
-  @tailrec private[this] final def expectObjectField(first: Boolean, currentVector: ValidationNEL[String, (TokenStream, List[(JString, Json)])]): ValidationNEL[String, (TokenStream, List[(JString, Json)])] = {
-    currentVector match {
-      case Success((stream, fields)) => {
-        stream match {
-          case TokenStreamElement(ObjectCloseToken, tail) => (tail(), fields).successNel
-          case _ => {
-            expectObjectField(false, for {
-              afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
-              streamAndKey <- expectString(afterEntrySeparator)
-              afterFieldSeperator <- expectFieldSeparator(streamAndKey._1)
-              streamAndValue <- expectValue(afterFieldSeperator)
-            } yield (streamAndValue._1, (streamAndKey._2, streamAndValue._2) :: fields))
-          }
+  @tailrec private[this] final def expectObjectField(first: Boolean, stream: TokenStream, fields: List[(JString, Json)]): ValidationNEL[String, (TokenStream, List[(JString, Json)])] = {
+    stream match {
+      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), fields).successNel
+      case _ => {
+        val next = for {
+          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
+          streamAndKey <- expectString(afterEntrySeparator)
+          afterFieldSeperator <- expectFieldSeparator(streamAndKey._1)
+          streamAndValue <- expectValue(afterFieldSeperator)
+        } yield (streamAndValue._1, (streamAndKey._2, streamAndValue._2) :: fields)
+        next match {
+          case Success((newStream, newFields)) => expectObjectField(false, newStream, newFields)
+          case failure => failure
         }
       }
-      case _ => currentVector
     }
   }
 
