@@ -5,18 +5,6 @@ import scalaz._
 import Scalaz._
 
 object JsonParser {
-  private[this] final val arrayOpenTokenInSome = ArrayOpenToken.some
-  private[this] final val arrayCloseTokenInSome = ArrayCloseToken.some
-  private[this] final val objectOpenTokenInSome = ObjectOpenToken.some
-  private[this] final val objectCloseTokenInSome = ObjectCloseToken.some
-  private[this] final val entrySeparatorTokenInSome = EntrySeparatorToken.some
-  private[this] final val fieldSeparatorTokenInSome = FieldSeparatorToken.some
-  private[this] final val stringBoundsOpenTokenInSome = StringBoundsOpenToken.some
-  private[this] final val stringBoundsCloseTokenInSome = StringBoundsCloseToken.some
-  private[this] final val booleanTrueTokenInSome = BooleanTrueToken.some
-  private[this] final val booleanFalseTokenInSome = BooleanFalseToken.some
-  private[this] final val nullTokenInSome = NullToken.some
-
   sealed trait TokenStream
   sealed case class TokenStreamElement(element: JSONToken, next: () => TokenStream) extends TokenStream
   case object TokenStreamEnd extends TokenStream
@@ -115,8 +103,6 @@ object JsonParser {
       }
     }
   }
-
-  def tokenize(json: String): TokenStream = tokenize(none, json)
 
   @inline
   private[this] final def expectedSpacerToken(stream: TokenStream, token: JSONToken, failMessage: String): ValidationNEL[String, TokenStream] = {
@@ -235,64 +221,66 @@ object JsonParser {
     if (possibleNumber.isEmpty) None
     else (NumberToken(possibleNumber), remainder).some
   }
-  
-  private[this] final def tokenize(previousToken: Option[JSONToken], json: String): TokenStream = {
-    if (json.isEmpty) TokenStreamEnd
-    else {
-      previousToken match {
-        case Some(StringBoundsOpenToken) | Some(_: StringPartToken) => {
-          if (json.head == '"') {
-            TokenStreamElement(StringBoundsCloseToken, () => tokenize(stringBoundsCloseTokenInSome, json.tail))
-          } else if (json.startsWith("""\""")) {
-            if (json.startsWith("\\u")) {
-              val possibleUnicodeSequence = json.drop(2).take(4)
-              if (possibleUnicodeSequence.forall(char => (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9'))) {
-                val unicodeCharToken = UnicodeCharacterToken(possibleUnicodeSequence)
-                TokenStreamElement(unicodeCharToken, () => tokenize(unicodeCharToken.some, json.drop(6)))
-              } else unexpectedContent(json)
-            } else {
-              EscapedCharacterToken.charMap.get(json.take(2)) match {
-                case escapedSome@ Some(escapedCharToken) => TokenStreamElement(escapedCharToken, () => tokenize(escapedSome, json.drop(2)))
-                case _ => unexpectedContent(json)
-              }
-            }
+
+  private[this] final def isUnicodeSequenceChar(char: Char): Boolean = {
+    (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
+  }
+
+  final def tokenizeString(json: String): TokenStream = {
+    json.headOption match {
+      case Some('"') => {
+        TokenStreamElement(StringBoundsCloseToken, () => tokenize(json.tail))
+      }
+      case None => TokenStreamEnd
+      case _ => {
+        if (json.startsWith("""\""")) {
+          if (json.startsWith("\\u")) {
+            val possibleUnicodeSequence = json.drop(2).take(4)
+            if (possibleUnicodeSequence.forall(isUnicodeSequenceChar)) {
+              val unicodeCharToken = UnicodeCharacterToken(possibleUnicodeSequence)
+              TokenStreamElement(unicodeCharToken, () => tokenizeString(json.drop(6)))
+            } else unexpectedContent(json)
           } else {
-            val (prefix: String, suffix: String) = json.span(char => !char.isControl && char != '"' && char != '\\')
-            val normalStringToken = NormalStringToken(prefix)
-            suffix.headOption match {
-              case Some('\"') | Some('\\') => TokenStreamElement(normalStringToken, () => tokenize(normalStringToken.some, suffix))
-              case None => TokenStreamElement(normalStringToken, () => TokenStreamEnd)
-              case _ => {
-                unexpectedContent(suffix)
-              }
+            EscapedCharacterToken.charMap.get(json.take(2)) match {
+              case Some(escapedCharToken) => TokenStreamElement(escapedCharToken, () => tokenizeString(json.drop(2)))
+              case _ => unexpectedContent(json)
             }
           }
+        } else {
+          val (prefix: String, suffix: String) = json.span(char => !char.isControl && char != '"' && char != '\\')
+          val normalStringToken = NormalStringToken(prefix)
+          suffix.headOption match {
+            case Some('\"') | Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
+            case None => TokenStreamElement(normalStringToken, () => TokenStreamEnd)
+            case _ => unexpectedContent(suffix)
+          }
         }
-        case _ => {
-          val jsonHead = json.head
-          jsonHead match {
-            case '[' => TokenStreamElement(ArrayOpenToken, () => tokenize(arrayOpenTokenInSome, json.tail))
-            case ']' => TokenStreamElement(ArrayCloseToken, () => tokenize(arrayCloseTokenInSome, json.tail))
-            case '{' => TokenStreamElement(ObjectOpenToken, () => tokenize(objectOpenTokenInSome, json.tail))
-            case '}' => TokenStreamElement(ObjectCloseToken, () => tokenize(objectCloseTokenInSome, json.tail))
-            case ':' => TokenStreamElement(FieldSeparatorToken, () => tokenize(fieldSeparatorTokenInSome, json.tail))
-            case ',' => TokenStreamElement(EntrySeparatorToken, () => tokenize(entrySeparatorTokenInSome, json.tail))
-            case '"' => TokenStreamElement(StringBoundsOpenToken, () => tokenize(stringBoundsOpenTokenInSome, json.tail))
-            case ' ' => tokenize(previousToken, json.tail)
-            case '\r' => tokenize(previousToken, json.tail)
-            case '\n' => tokenize(previousToken, json.tail)
-            case _ => {
-              json match {
-                case trueStartingJSON if trueStartingJSON.startsWith("true") => TokenStreamElement(BooleanTrueToken, () => tokenize(booleanTrueTokenInSome, json.drop(4)))
-                case falseStartingJSON if falseStartingJSON.startsWith("false") => TokenStreamElement(BooleanFalseToken, () => tokenize(booleanFalseTokenInSome, json.drop(5)))
-                case nullStartingJSON if nullStartingJSON.startsWith("null") => TokenStreamElement(NullToken, () => tokenize(nullTokenInSome, json.drop(4)))
-                case _ => {
-                  parseNumber(json) match {
-                    case Some((numberToken, remainder)) => TokenStreamElement(numberToken, () => tokenize(numberToken.some, remainder))
-                    case _ => unexpectedContent(json)
-                  }
-                }
-              }
+      }
+    }
+  }
+  
+  private[this] final def tokenize(json: String): TokenStream = {
+    json.headOption match {
+      case Some('[') => TokenStreamElement(ArrayOpenToken, () => tokenize(json.tail))
+      case Some(']') => TokenStreamElement(ArrayCloseToken, () => tokenize(json.tail))
+      case Some('{') => TokenStreamElement(ObjectOpenToken, () => tokenize(json.tail))
+      case Some('}') => TokenStreamElement(ObjectCloseToken, () => tokenize(json.tail))
+      case Some(':') => TokenStreamElement(FieldSeparatorToken, () => tokenize(json.tail))
+      case Some(',') => TokenStreamElement(EntrySeparatorToken, () => tokenize(json.tail))
+      case Some('"') => TokenStreamElement(StringBoundsOpenToken, () => tokenizeString(json.tail))
+      case Some(' ') => tokenize(json.tail)
+      case Some('\r') => tokenize(json.tail)
+      case Some('\n') => tokenize(json.tail)
+      case None => TokenStreamEnd
+      case _ => {
+        json match {
+          case trueStartingJSON if trueStartingJSON.startsWith("true") => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
+          case falseStartingJSON if falseStartingJSON.startsWith("false") => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
+          case nullStartingJSON if nullStartingJSON.startsWith("null") => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
+          case _ => {
+            parseNumber(json) match {
+              case Some((numberToken, remainder)) => TokenStreamElement(numberToken, () => tokenize(remainder))
+              case _ => unexpectedContent(json)
             }
           }
         }
