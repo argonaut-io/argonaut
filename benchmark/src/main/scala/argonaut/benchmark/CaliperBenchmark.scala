@@ -3,6 +3,7 @@ package argonaut.benchmark
 import com.google.caliper._
 import argonaut._
 import Argonaut._
+import net.liftweb.json.{JsonParser => LiftJsonParser}
 
 // Stolen conveniently from
 // https://github.com/sirthias/scala-benchmarking-template/blob/master/src/main/scala/org/example/SimpleScalaBenchmark.scala.
@@ -23,14 +24,30 @@ trait SimpleScalaBenchmark extends SimpleBenchmark {
   }
 }
 
-object CaliperBenchmarkRunner {
+object CaliperArgonautBenchmarkRunner {
   def main(args: Array[String]) {
-    Runner.main(classOf[CaliperBenchmark], args)
+    Runner.main(classOf[CaliperArgonautBenchmark], args)
   }
 }
 
-case class CaliperBenchmark() extends SimpleScalaBenchmark {
-  private[this] final def repeatParse(json: String, reps: Int) = repeat(reps)(json.parse)
+object CaliperLiftBenchmarkRunner {
+  def main(args: Array[String]) {
+    Runner.main(classOf[CaliperLiftBenchmark], args)
+  }
+}
+
+
+case class CaliperArgonautBenchmark() extends CaliperBenchmark {
+  override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(json.parse)
+}
+
+case class CaliperLiftBenchmark() extends CaliperBenchmark {
+  override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(LiftJsonParser.parse(json))
+  override def timenumbers(reps: Int) = repeat(reps)(LiftJsonParser.parse("""["lift-json sucks and breaks on this benchmark."]"""))
+}
+
+trait CaliperBenchmark extends SimpleScalaBenchmark {
+  def repeatParse(json: String, reps: Int): Unit
 
   def timeexample(reps: Int) = repeatParse(Data.example, reps)
   def timeintegers(reps: Int) = repeatParse(Data.integers, reps)
