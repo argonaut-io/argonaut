@@ -224,6 +224,10 @@ object JsonParser {
     (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
   }
 
+  private[this] final def isNormalChar(char: Char): Boolean = {
+    !char.isControl && char != '"' && char != '\\'
+  }
+
   private[this] final def tokenizeString(json: String): TokenStream = {
     json.headOption match {
       case Some('"') => {
@@ -245,7 +249,7 @@ object JsonParser {
             }
           }
         } else {
-          val (prefix: String, suffix: String) = json.span(char => !char.isControl && char != '"' && char != '\\')
+          val (prefix: String, suffix: String) = json.span(isNormalChar)
           val normalStringToken = NormalStringToken(prefix)
           suffix.headOption match {
             case Some('\"') | Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
