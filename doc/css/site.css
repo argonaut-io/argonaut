@@ -15,6 +15,13 @@ body {
     height: 180px;
 }
 
+#main h1 {
+    background-color: #333;
+    color: #f7f7f7;
+    height: 60px;
+    line-height: 60px;
+}
+
 #project {
     font-size: 40px;
     font-weight: bold;
