@@ -10,8 +10,6 @@ import Json._
  * @author Tony Morris
  */
 sealed trait EncodeJson[-A] {
-  val name: String
-
   /**
    * Encode the given value.
    */
@@ -21,129 +19,132 @@ sealed trait EncodeJson[-A] {
    * Contravariant functor.
    */
   def contramap[B](f: B => A): EncodeJson[B] =
-    EncodeJson(b => apply(f(b)), name)
+    EncodeJson(b => apply(f(b)))
 
   /**
-   * Set the name of this encoder.
+   * Split on this encoder and the given encoder.
    */
-  def setName(n: String): EncodeJson[A] =
-    EncodeJson(apply(_), n)
+  def <&>[B](x: => EncodeJson[B]): EncodeJson[A \/ B] =
+  EncodeJson {
+    case -\/(a) => apply(a)
+    case \/-(b) => x(b)
+  }
+
 }
 
 object EncodeJson extends EncodeJsons {
-  def apply[A](f: A => Json, n: String): EncodeJson[A] =
+  def apply[A](f: A => Json): EncodeJson[A] =
     new EncodeJson[A] {
-      val name = n
       def apply(a: A) = f(a)
     }
 }
 
 trait EncodeJsons {
-  def encodeJsonNameL[A]: EncodeJson[A] @> String =
-    Lens(e => Store(EncodeJson(e(_), _), e.name))
+  def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
+    (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
 
   implicit val IdEncodeJson: EncodeJson[Json] =
-    EncodeJson(q => q, "Json")
+    EncodeJson(q => q)
 
   implicit val UnitEncodeJson: EncodeJson[Unit] =
-    EncodeJson(_ => jEmptyObject, "Unit")
+    EncodeJson(_ => jEmptyObject)
 
   implicit def ListEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[List[A]] =
-    EncodeJson(a => jArray(a map (e(_))), "[A]List[A]")
+    EncodeJson(a => jArray(a map (e(_))))
 
   implicit def StreamEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Stream[A]] =
-    EncodeJson(a => jArray(a.toList map (e(_))), "[A]Stream[A]")
+    EncodeJson(a => jArray(a.toList map (e(_))))
 
   implicit val StringEncodeJson: EncodeJson[String] =
-    EncodeJson(jString, "String")
+    EncodeJson(jString)
 
   implicit val DoubleEncodeJson: EncodeJson[Double] =
-    EncodeJson(jDouble, "Double")
+    EncodeJson(jDouble)
 
   implicit val FloatEncodeJson: EncodeJson[Float] =
-    EncodeJson(a => jDouble(a), "Float")
+    EncodeJson(a => jDouble(a))
 
   implicit val IntEncodeJson: EncodeJson[Int] =
-    EncodeJson(a => jString(a.toString), "Int")
+    EncodeJson(a => jString(a.toString))
 
   implicit val LongEncodeJson: EncodeJson[Long] =
-    EncodeJson(a => jString(a.toString), "Long")
+    EncodeJson(a => jString(a.toString))
 
   implicit val BooleanEncodeJson: EncodeJson[Boolean] =
-    EncodeJson(jBool, "Boolean")
+    EncodeJson(jBool)
 
   implicit val CharEncodeJson: EncodeJson[Char] =
-    EncodeJson(a => jString(a.toString), "Char")
+    EncodeJson(a => jString(a.toString))
 
   implicit val JDoubleEncodeJson: EncodeJson[java.lang.Double] =
-    EncodeJson(a => jDouble(a.doubleValue), "java.lang.Double")
+    EncodeJson(a => jDouble(a.doubleValue))
 
   implicit val JFloatEncodeJson: EncodeJson[java.lang.Float] =
-    EncodeJson(a => jDouble(a.floatValue.toDouble), "java.lang.Float")
+    EncodeJson(a => jDouble(a.floatValue.toDouble))
 
   implicit val JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
-    EncodeJson(a => jString(a.toString), "java.lang.Integer")
+    EncodeJson(a => jString(a.toString))
 
   implicit val JLongEncodeJson: EncodeJson[java.lang.Long] =
-    EncodeJson(a => jString(a.toString), "java.lang.Long")
+    EncodeJson(a => jString(a.toString))
 
   implicit val JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =
-    EncodeJson(a => jBool(a.booleanValue), "java.lang.Boolean")
+    EncodeJson(a => jBool(a.booleanValue))
 
   implicit val JCharacterEncodeJson: EncodeJson[java.lang.Character] =
-    EncodeJson(a => jString(a.toString), "java.lang.Character")
+    EncodeJson(a => jString(a.toString))
 
   implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] =
     EncodeJson(_ match {
       case None => jNull
       case Some(a) => e(a)
-    }, "[A]Option[A]")
+    })
 
   implicit def ScalazEitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[A \/ B] =
     EncodeJson(_.fold(
       a => jSingleObject("Left", ea(a)),
       b => jSingleObject("Right", eb(b))
-    ), "[A, B]\\/[A, B]")
+    ))
 
   implicit def EitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Either[A, B]] =
     EncodeJson(_ match {
       case Left(a) => jSingleObject("Left", ea(a))
       case Right(b) => jSingleObject("Right", eb(b))
-    }, "[A, B]Either[A, B]")
+    })
 
   implicit def ValidationEncodeJson[E, A](implicit ea: EncodeJson[E], eb: EncodeJson[A]): EncodeJson[Validation[E, A]] =
     EncodeJson(_ fold (
       e => jSingleObject("Failure", ea(e))
     , a => jSingleObject("Success", eb(a))
-    ), "[E, A]Validation[E, A]")
+    ))
 
   implicit def MapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[Map[String, V]] =
     EncodeJson(x => jObjectAssocList(
       x.toList map {
         case (k, v) => (k, e(v))
       }
-    ), "[V]Map[String, V]")
+    ))
 
   implicit def SetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Set[A]] =
-    EncodeJson(ListEncodeJson[A] contramap ((_: Set[A]).toList) apply _, "[A]Set[A]")
+    EncodeJson(ListEncodeJson[A] contramap ((_: Set[A]).toList) apply _)
 
   implicit def Tuple1EncodeJson[A](implicit ea: EncodeJson[A]): EncodeJson[Tuple1[A]] =
-    EncodeJson(a => jArray(List(ea(a._1))), "[A](A)")
+    EncodeJson(a => jArray(List(ea(a._1))))
 
   implicit def Tuple2EncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[(A, B)] =
     EncodeJson({
       case (a, b) => jArray(List(ea(a), eb(b)))
-    }, "[A, B](A, B)")
+    })
 
   implicit def Tuple3EncodeJson[A, B, C](implicit ea: EncodeJson[A], eb: EncodeJson[B], ec: EncodeJson[C]): EncodeJson[(A, B, C)] =
     EncodeJson({
       case (a, b, c) => jArray(List(ea(a), eb(b), ec(c)))
-    }, "[A, B, C](A, B, C)")
+    })
 
   implicit def Tuple4EncodeJson[A, B, C, D](implicit ea: EncodeJson[A], eb: EncodeJson[B], ec: EncodeJson[C], ed: EncodeJson[D]): EncodeJson[(A, B, C, D)] =
     EncodeJson({
       case (a, b, c, d) => jArray(List(ea(a), eb(b), ec(c), ed(d)))
-    }, "[A, B, C, D](A, B, C, D)")
+    })
 
 
   implicit val EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
@@ -166,30 +167,30 @@ trait EncodeJsons {
     EncodeJson(x => jObjectAssocList({
       val a = f(x)
       List((an, implicitly[EncodeJson[A]] apply a))
-    }), "[A]Map[String, A]")
+    }))
 
   def jencode2L[X, A: EncodeJson, B: EncodeJson](f: X => (A, B))(an: JsonString, bn: JsonString): EncodeJson[X] =
     EncodeJson(x => jObjectAssocList({
       val (a, b) = f(x)
       List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b))
-    }), "[A, B]Map[String, A|B]")
+    }))
 
   def jencode3L[X, A: EncodeJson, B: EncodeJson, C: EncodeJson](f: X => (A, B, C))(an: JsonString, bn: JsonString, cn: JsonString): EncodeJson[X] =
     EncodeJson(x => jObjectAssocList({
       val (a, b, c) = f(x)
       List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b), (cn, implicitly[EncodeJson[C]] apply c))
-    }), "[A, B, C]Map[String, A|B|C]")
+    }))
 
   def jencode4L[X, A: EncodeJson, B: EncodeJson, C: EncodeJson, D: EncodeJson](f: X => (A, B, C, D))(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString): EncodeJson[X] =
     EncodeJson(x => jObjectAssocList({
       val (a, b, c, d) = f(x)
       List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b), (cn, implicitly[EncodeJson[C]] apply c), (dn, implicitly[EncodeJson[D]] apply d))
-    }), "[A, B, C, D]Map[String, A|B|C|D]")
+    }))
 
   def jencode5L[X, A: EncodeJson, B: EncodeJson, C: EncodeJson, D: EncodeJson, E: EncodeJson](f: X => (A, B, C, D, E))(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, en: JsonString): EncodeJson[X] =
     EncodeJson(x => jObjectAssocList({
       val (a, b, c, d, e) = f(x)
       List((an, implicitly[EncodeJson[A]] apply a), (bn, implicitly[EncodeJson[B]] apply b), (cn, implicitly[EncodeJson[C]] apply c), (dn, implicitly[EncodeJson[D]] apply d), (en, implicitly[EncodeJson[E]] apply e))
-    }), "[A, B, C, D, E]Map[String, A|B|C|D|E]")
+    }))
 
 }
