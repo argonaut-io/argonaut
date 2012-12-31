@@ -1,0 +1,7 @@
+#!/bin/sh
+
+
+for x in quickstart json zipper codec parsing printing; do
+    cat template/index.html.header $x/content.html template/index.html.footer > $x/index.html
+done
+
