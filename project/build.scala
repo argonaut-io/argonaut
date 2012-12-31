@@ -86,7 +86,7 @@ object build extends Build {
       name := "argonaut-benchmark"
     , fork in run := true
     , libraryDependencies += "com.google.caliper" % "caliper" % "0.5-rc1"
-    , libraryDependencies += "net.liftweb" %% "lift-json" % "2.5-M3"
+    , libraryDependencies += "net.liftweb" % "lift-json_2.9.2" % "2.5-M3"
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Build.data(cp).mkString(":")) }
     )
   )

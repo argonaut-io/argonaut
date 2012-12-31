@@ -3,6 +3,9 @@ package argonaut
 import annotation.tailrec
 import scalaz._
 import Scalaz._
+import Json._
+import java.lang.StringBuilder
+import scala.collection.mutable.Builder
 
 object JsonParser {
   sealed trait TokenStream
@@ -32,10 +35,7 @@ object JsonParser {
   case object FieldSeparatorToken extends JSONToken { 
     final val originalStringContent = ":" 
   }
-  case object StringBoundsOpenToken extends OpenToken { 
-    final val originalStringContent = "\"" 
-  }
-  case object StringBoundsCloseToken extends CloseToken { 
+  case object StringBoundsToken extends OpenToken { 
     final val originalStringContent = "\"" 
   }
   case class NumberToken(originalStringContent: String) extends JSONToken
@@ -50,13 +50,15 @@ object JsonParser {
     final val originalStringContent = "null" 
   }
   sealed abstract class StringPartToken extends JSONToken {
-    def parsedStringContent: String
+    def appendToBuilder(builder: StringBuilder): StringBuilder
   }
   sealed case class UnicodeCharacterToken(unicodeSequence: String) extends StringPartToken {
     final def originalStringContent = "\\u" + unicodeSequence
-    final def parsedStringContent = new java.lang.StringBuilder().appendCodePoint(Integer.valueOf(unicodeSequence, 16)).toString
+    final def appendToBuilder(builder: StringBuilder) = builder.appendCodePoint(Integer.valueOf(unicodeSequence, 16))
   }
-  sealed case class EscapedCharacterToken(originalStringContent: String, parsedStringContent: String) extends StringPartToken
+  sealed case class EscapedCharacterToken(originalStringContent: String, parsedStringContent: String) extends StringPartToken {
+    final def appendToBuilder(builder: StringBuilder) = builder.append(parsedStringContent)
+  }
   object EscapedCharacterToken {
     val charMap: Map[String, EscapedCharacterToken] = Map(
       "\\r" -> EscapedCharacterToken("\\r", "\r"),
@@ -71,7 +73,7 @@ object JsonParser {
   }
 
   sealed case class NormalStringToken(originalStringContent: String) extends StringPartToken {
-    final def parsedStringContent = originalStringContent
+    final def appendToBuilder(builder: StringBuilder) = builder.append(originalStringContent)
   }
   sealed case class UnexpectedContentToken(originalStringContent: String) extends JSONToken
   
@@ -112,9 +114,7 @@ object JsonParser {
     }
   }
   
-  private[this] final def expectStringOpen(stream: TokenStream) = expectedSpacerToken(stream, StringBoundsOpenToken, "Expected string bounds")
-
-  private[this] final def expectStringClose(stream: TokenStream) = expectedSpacerToken(stream, StringBoundsCloseToken, "Expected string bounds")
+  private[this] final def expectStringBounds(stream: TokenStream) = expectedSpacerToken(stream, StringBoundsToken, "Expected string bounds")
 
   private[this] final def expectArrayOpen(stream: TokenStream) = expectedSpacerToken(stream, ArrayOpenToken, "Expected array open token")
 
@@ -128,26 +128,49 @@ object JsonParser {
 
   private[this] final def expectFieldSeparator(stream: TokenStream) = expectedSpacerToken(stream, FieldSeparatorToken, "Expected field separator token")
   
-  private[this] final def expectObject(stream: TokenStream): ValidationNEL[String, (TokenStream, JObject)] = {
-    for {
-      afterObjectOpen <- expectObjectOpen(stream)
-      streamAndFields <- expectObjectField(true, afterObjectOpen, List.empty)
-      mappedVectorAndFields = streamAndFields.copy(_2 = streamAndFields._2.map(pair => (pair._1.s, pair._2)))
-    } yield (streamAndFields._1, JObject(JsonObject(InsertionMap(mappedVectorAndFields._2.reverse: _*))))
+  // Note the mutable collection type in the parameters.
+  @tailrec
+  private[this] final def expectObject(stream: TokenStream, first: Boolean = true, fields: Builder[(JsonField, Json), List[(JsonField, Json)]] = List.newBuilder): ValidationNEL[String, (TokenStream, JObject)] = {
+    stream match {
+      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), JObject(JsonObject(InsertionMap(fields.result: _*)))).successNel
+      case _ => {
+        val next = for {
+          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
+          streamAndKey <- expectString(afterEntrySeparator)
+          afterFieldSeperator <- expectFieldSeparator(streamAndKey._1)
+          streamAndValue <- expectValue(afterFieldSeperator)
+        } yield (streamAndValue._1, fields += ((streamAndKey._2.s, streamAndValue._2)))
+        next match {
+          case Success((newStream, newFields)) => expectObject(newStream, false, newFields)
+          case Failure(failure) => failure.failure
+        }
+      }
+    }
   }
-  
-  private[this] final def expectArray(stream: TokenStream): ValidationNEL[String, (TokenStream, JArray)] = {
-    for {
-      afterArrayOpen <- expectArrayOpen(stream)
-      streamAndFields <- expectArrayField(true, afterArrayOpen, List.empty)
-    } yield (streamAndFields._1, JArray(streamAndFields._2.reverse))
+ 
+  // Note the mutable collection type in the parameters.
+  @tailrec
+  private[this] final def expectArray(stream: TokenStream, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): ValidationNEL[String, (TokenStream, JArray)] = {
+    stream match {
+      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), JArray(fields.result)).successNel
+      case _ => {
+        val next = for {
+          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
+          streamAndValue <- expectValue(afterEntrySeparator)
+        } yield (streamAndValue._1, fields += streamAndValue._2)
+        next match {
+          case Success((newStream, newFields)) => expectArray(newStream, false, newFields)
+          case Failure(failure) => failure.failure
+        }
+      }
+    }
   }
 
   private[this] final def expectValue(stream: TokenStream): ValidationNEL[String, (TokenStream, Json)] = {
     stream match {
-      case TokenStreamElement(ArrayOpenToken, _) => expectArray(stream)
-      case TokenStreamElement(ObjectOpenToken, _) => expectObject(stream)
-      case TokenStreamElement(StringBoundsOpenToken, _) => expectString(stream)
+      case TokenStreamElement(ArrayOpenToken, next) => expectArray(next())
+      case TokenStreamElement(ObjectOpenToken, next) => expectObject(next())
+      case TokenStreamElement(StringBoundsToken, next) => expectStringNoStartBounds(next())
       case TokenStreamElement(BooleanTrueToken, tail) => (tail(), JBool(true)).successNel
       case TokenStreamElement(BooleanFalseToken, tail) => (tail(), JBool(false)).successNel
       case TokenStreamElement(NullToken, tail) => (tail(), JNull).successNel
@@ -163,53 +186,26 @@ object JsonParser {
     }
   }
 
-  @tailrec private[this] final def expectArrayField(first: Boolean, stream: TokenStream, fields: List[Json]): ValidationNEL[String, (TokenStream, List[Json])] = {
-    stream match {
-      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), fields).successNel
-      case _ => {
-        val next = for {
-          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
-          streamAndValue <- expectValue(afterEntrySeparator)
-        } yield (streamAndValue._1, streamAndValue._2 :: fields)
-        next match {
-          case Success((newStream, newFields)) => expectArrayField(false, newStream, newFields)
-          case failure => failure
-        }
-      }
-    }
-  }
-  
-  @tailrec private[this] final def expectObjectField(first: Boolean, stream: TokenStream, fields: List[(JString, Json)]): ValidationNEL[String, (TokenStream, List[(JString, Json)])] = {
-    stream match {
-      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), fields).successNel
-      case _ => {
-        val next = for {
-          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
-          streamAndKey <- expectString(afterEntrySeparator)
-          afterFieldSeperator <- expectFieldSeparator(streamAndKey._1)
-          streamAndValue <- expectValue(afterFieldSeperator)
-        } yield (streamAndValue._1, (streamAndKey._2, streamAndValue._2) :: fields)
-        next match {
-          case Success((newStream, newFields)) => expectObjectField(false, newStream, newFields)
-          case failure => failure
-        }
-      }
-    }
+  private[this] final def expectString(stream: TokenStream): ValidationNEL[String, (TokenStream, JString)] = {
+    for {
+      afterOpen <- expectStringBounds(stream)
+      afterString <- expectStringNoStartBounds(afterOpen)
+    } yield afterString
   }
 
-  private[this] final def expectString(stream: TokenStream): ValidationNEL[String, (TokenStream, JString)] = {
+  private[this] final def expectStringNoStartBounds(stream: TokenStream): ValidationNEL[String, (TokenStream, JString)] = {
+    // Note the mutable collection type in the parameters.
     @tailrec
-    def collectStringParts(stream: TokenStream, workingTokens: Vector[StringPartToken] = Vector.empty): ValidationNEL[String, (TokenStream, Vector[StringPartToken])] = {
+    def collectStringParts(stream: TokenStream, workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): ValidationNEL[String, (TokenStream, Builder[StringPartToken, List[StringPartToken]])] = {
       stream match {
-        case TokenStreamElement(stringPartToken: StringPartToken, tail) => collectStringParts(tail(), workingTokens :+ stringPartToken)
+        case TokenStreamElement(stringPartToken: StringPartToken, tail) => collectStringParts(tail(), workingTokens += stringPartToken)
         case _ => (stream, workingTokens).successNel
       }
     }
     for {
-      afterOpen <- expectStringOpen(stream)
-      elements <- collectStringParts(afterOpen)
-      afterClose <- expectStringClose(elements._1)
-    } yield (afterClose, JString(elements._2.foldLeft(new StringBuilder())((builder, part) => builder.append(part.parsedStringContent)).toString))
+      elements <- collectStringParts(stream)
+      afterClose <- expectStringBounds(elements._1)
+    } yield (afterClose, JString(elements._2.result.foldLeft(new StringBuilder())((builder, part) => part.appendToBuilder(builder)).toString))
   }
 
   private[this] final def unexpectedContent(json: String): TokenStream = TokenStreamElement(UnexpectedContentToken(json.take(10)), () => TokenStreamEnd)
@@ -225,38 +221,32 @@ object JsonParser {
   }
 
   private[this] final def isNormalChar(char: Char): Boolean = {
-    !char.isControl && char != '"' && char != '\\'
+    char != '"' && char != '\\' && !Character.isISOControl(char)
   }
 
   private[this] final def tokenizeString(json: String): TokenStream = {
-    json.headOption match {
-      case Some('"') => {
-        TokenStreamElement(StringBoundsCloseToken, () => tokenize(json.tail))
-      }
-      case None => TokenStreamEnd
-      case _ => {
-        if (json.startsWith("""\""")) {
-          if (json.startsWith("\\u")) {
-            val possibleUnicodeSequence = json.drop(2).take(4)
-            if (possibleUnicodeSequence.forall(isUnicodeSequenceChar)) {
-              val unicodeCharToken = UnicodeCharacterToken(possibleUnicodeSequence)
-              TokenStreamElement(unicodeCharToken, () => tokenizeString(json.drop(6)))
-            } else unexpectedContent(json)
-          } else {
-            EscapedCharacterToken.charMap.get(json.take(2)) match {
-              case Some(escapedCharToken) => TokenStreamElement(escapedCharToken, () => tokenizeString(json.drop(2)))
-              case _ => unexpectedContent(json)
-            }
-          }
-        } else {
-          val (prefix: String, suffix: String) = json.span(isNormalChar)
-          val normalStringToken = NormalStringToken(prefix)
-          suffix.headOption match {
-            case Some('\"') | Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
-            case None => TokenStreamElement(normalStringToken, () => TokenStreamEnd)
-            case _ => unexpectedContent(suffix)
-          }
+    if (json.isEmpty) TokenStreamEnd
+    else if (json.startsWith(""""""")) TokenStreamElement(StringBoundsToken, () => tokenize(json.tail))
+    else if (json.startsWith("""\""")) {
+      if (json.startsWith("\\u")) {
+        val possibleUnicodeSequence = json.drop(2).take(4)
+        if (possibleUnicodeSequence.forall(isUnicodeSequenceChar)) {
+          val unicodeCharToken = UnicodeCharacterToken(possibleUnicodeSequence)
+          TokenStreamElement(unicodeCharToken, () => tokenizeString(json.drop(6)))
+        } else unexpectedContent(json)
+      } else {
+        EscapedCharacterToken.charMap.get(json.take(2)) match {
+          case Some(escapedCharToken) => TokenStreamElement(escapedCharToken, () => tokenizeString(json.drop(2)))
+          case _ => unexpectedContent(json)
         }
+      }
+    } else {
+      val (prefix: String, suffix: String) = json.span(isNormalChar)
+      val normalStringToken = NormalStringToken(prefix)
+      suffix.headOption match {
+        case Some('\"') | Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
+        case None => TokenStreamElement(normalStringToken, () => TokenStreamEnd)
+        case _ => unexpectedContent(suffix)
       }
     }
   }
@@ -269,22 +259,18 @@ object JsonParser {
       case Some('}') => TokenStreamElement(ObjectCloseToken, () => tokenize(json.tail))
       case Some(':') => TokenStreamElement(FieldSeparatorToken, () => tokenize(json.tail))
       case Some(',') => TokenStreamElement(EntrySeparatorToken, () => tokenize(json.tail))
-      case Some('"') => TokenStreamElement(StringBoundsOpenToken, () => tokenizeString(json.tail))
+      case Some('"') => TokenStreamElement(StringBoundsToken, () => tokenizeString(json.tail))
+      case Some('t') if json.startsWith("true") => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
+      case Some('f') if json.startsWith("false") => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
+      case Some('n') if json.startsWith("null") => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
       case Some(' ') => tokenize(json.tail)
       case Some('\r') => tokenize(json.tail)
       case Some('\n') => tokenize(json.tail)
       case None => TokenStreamEnd
       case _ => {
-        json match {
-          case trueStartingJSON if trueStartingJSON.startsWith("true") => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
-          case falseStartingJSON if falseStartingJSON.startsWith("false") => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
-          case nullStartingJSON if nullStartingJSON.startsWith("null") => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
-          case _ => {
-            parseNumber(json) match {
-              case Some((numberToken, remainder)) => TokenStreamElement(numberToken, () => tokenize(remainder))
-              case _ => unexpectedContent(json)
-            }
-          }
+        parseNumber(json) match {
+          case Some((numberToken, remainder)) => TokenStreamElement(numberToken, () => tokenize(remainder))
+          case _ => unexpectedContent(json)
         }
       }
     }

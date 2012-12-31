@@ -4,6 +4,9 @@ import com.google.caliper._
 import argonaut._
 import Argonaut._
 import net.liftweb.json.{JsonParser => LiftJsonParser}
+import scalaz._
+import Scalaz._
+import scala.collection.mutable.ListBuffer
 
 // Stolen conveniently from
 // https://github.com/sirthias/scala-benchmarking-template/blob/master/src/main/scala/org/example/SimpleScalaBenchmark.scala.
@@ -46,8 +49,17 @@ case class CaliperLiftBenchmark() extends CaliperBenchmark {
   override def timenumbers(reps: Int) = repeat(reps)(LiftJsonParser.parse("""["lift-json sucks and breaks on this benchmark."]"""))
 }
 
+object ArgonautSimpleBench {
+  def main(args: Array[String]) {
+    Thread.sleep(10000)
+    (0 to 1000).foldLeft(0){(left, right) => Data.twitter10.parse; Data.twitter1.length + left}
+  }
+}
+
 trait CaliperBenchmark extends SimpleScalaBenchmark {
   def repeatParse(json: String, reps: Int): Unit
+
+  val stringList = (0 to 200).toList.map(_ => "aaaaaaaaaaaaaaaa")
 
   def timeexample(reps: Int) = repeatParse(Data.example, reps)
   def timeintegers(reps: Int) = repeatParse(Data.integers, reps)
@@ -60,4 +72,10 @@ trait CaliperBenchmark extends SimpleScalaBenchmark {
   def timetwitter100(reps: Int) = repeatParse(Data.twitter100, reps)
   def timetwitter20(reps: Int) = repeatParse(Data.twitter20, reps)
   def timetwitter50(reps: Int) = repeatParse(Data.twitter50, reps)
+  //def timecordappend(reps: Int) = repeat(reps)(stringList.foldLeft(Cord.empty)(_ :+ _).toString)
+  //def timestringbuilderappend(reps: Int) = repeat(reps)(stringList.foldLeft(new java.lang.StringBuilder)(_ append _).toString)
+  //def timelistappendreverse(reps: Int) = repeat(reps)(stringList.foldLeft(List.empty[String])((left, right) => right :: left).reverse)
+  //def timevectorappend(reps: Int) = repeat(reps)(stringList.foldLeft(Vector.empty[String])(_ :+ _).toList)
+  //def timedlistappend(reps: Int) = repeat(reps)(stringList.foldLeft(DList[String]())(_ :+ _).toList)
+  //def timelistbuilderappend(reps: Int) = repeat(reps)(stringList.foldLeft(List.newBuilder[String])(_ += _).result)
 }
