@@ -125,9 +125,22 @@ pre {
     font-size: 28px;
 }
 
+a.blocklink {
+    color: #333;
+    text-decoration: none;
+}
+
+a.blocklink > div {
+    padding-left: 20px;
+    border-left: 10px solid #aaa;
+}
+
+a:hover.blocklink > div {
+    border-left: 10px solid #333;
+}
+
 .section > div.details {
     width: 600px;
-
 }
 
 .section::before, .section::after {
