@@ -69,7 +69,17 @@ object Data {
     buildPath(Seq(), jsonvalue, jsonvalue)
   }
 
-  implicit val ArbitraryJson: Arbitrary[Json] = Arbitrary(jsonValueGenerator())
+  implicit def ArbitraryJString: Arbitrary[JString] = Arbitrary(jsonStringGenerator)
+
+  implicit def ArbitraryJNumber: Arbitrary[JNumber] = Arbitrary(jsonNumberGenerator)
+
+  implicit def ArbitraryJArray: Arbitrary[JArray] = Arbitrary(jsonArrayGenerator())
+
+  implicit def ArbitraryJObject: Arbitrary[JObject] = Arbitrary(jsonObjectGenerator())
+
+  implicit def ArbitraryJBool: Arbitrary[JBool] = Arbitrary(jsonBoolGenerator)
+
+  implicit def ArbitraryJson: Arbitrary[Json] = Arbitrary(jsonValueGenerator())
 
   implicit def ArbitraryJsonNumber: Arbitrary[JsonNumber] =
     Arbitrary(arbitrary[Double] map (JsonNumber(_)))

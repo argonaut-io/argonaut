@@ -10,9 +10,21 @@ import scalaz._
 import Scalaz._
 
 object JsonSpecification extends Specification with ScalaCheck {
-  // NOTE: List[Json] should be JsonArray, but it is failing to resolve under 2.10.0-RC5 with type alias.
+  // NOTE: List[Json] should be JsonArray, but it is failing to resolve under 2.10.0 with type alias.
 
   def is = "Json" ^
+    "same value should be equal" ! prop((j: Json) =>
+      j === j) ^
+    "modified string should not be equal" ! prop((j: JString) =>
+      j.withString(_ + "test") /== j) ^
+    "modified number should not be equal" ! prop((j: JNumber) =>
+      j.withNumber(number => if (number.toDouble === 0.0d) number + JsonNumber(1) else number * JsonNumber(2)) /== j) ^
+    "modified array should not be equal" ! prop((j: JArray) =>
+      j.withArray(jEmptyArray :: _) /== j) ^
+    "modified object should not be equal" ! prop((j: JObject) =>
+      j.withObject(_ + ("veryunlikelytoberandomlygeneratedkey", jString("veryunlikelytoberandomlygeneratedvalue"))) /== j) ^
+    "modified boolean should not be equal" ! prop((j: JBool) =>
+      j.not /== j) ^
     "not compose not is id" ! prop((j: Json) =>
       j.not.not === j) ^
     "no-effect not equals !isBool" ! prop((j: Json) =>
