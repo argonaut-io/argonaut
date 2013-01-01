@@ -7,8 +7,10 @@
    <link rel="stylesheet" href="../../css/reset.css" type="text/css" />
    <link rel="stylesheet" href="../../css/text.css" type="text/css" />
    <link rel="stylesheet" href="../../css/site.css" type="text/css" />
+   <link rel="stylesheet" href="../../css/prettify.css" type="text/css" />
+   <script type="text/javascript" src="../../js/prettify.js"></script>
 </head>
-<body>
+<body onload="prettyPrint();">
   <div id="header">
     <div>
       <a href="http://argonaut.io">argonaut</a>
@@ -26,6 +28,92 @@
 
 
 <h1>Json Printing</h1>
+
+<div id="content">
+
+<h2>Pre-defined pretty printers</h2>
+
+<p>
+Once you have using the Json data type in scala, you are going to need to safely
+convert that back to a json string.
+</p>
+
+<p>
+You may want to print that in a compact format for a wire transport, or a format
+better suited for visual inspection. To assist we expose a number of predefined
+printers on the <code>Json</code> data type.
+</p>
+
+For example:
+
+<pre class="prettyprint lang-scala linenums">
+import argonaut._, Argonaut._
+
+val json = ("red" := true) ->: ("blue" := false) ->: jEmptyObject
+
+println("""/** compact **/""")
+println(json.nospaces)
+
+println("""/** formatted with 2 spaces **/""")
+println(json.spaces2)
+
+println("""/** formatted with 4 spaces **/""")
+println(json.spaces4)
+
+</pre>
+
+Produces:
+
+<pre class="prettyprint">
+/** compact **/
+{"blue":false,"red":true}
+/** formatted with 2 spaces **/
+{
+  "blue" : false,
+  "red" : true
+}
+/** formatted with 4 spaces **/
+{
+    "blue" : false,
+    "red" : true
+}
+</pre>
+
+<h2>Custom pretty printing</h2>
+
+<p>
+As with the entire argonaut library, pretty printing aims to make
+things as easy as possible - but not at the cost of flexibility or
+power. We expose the general <code>pretty</code> method that takes
+a <code>PrettyParams</code> configuration to customise all aspects
+of Json string generation.
+</p>
+
+<p>
+For example, if we wanted to use two spaces, but <em>not</em>
+prefix the colon with a space, then we could tweak the default
+2 space format:
+</p>
+<pre class="prettyprint lang-scala linenums">
+import argonaut._, Argonaut._
+
+val json = ("red" := true) ->: ("blue" := false) ->: jEmptyObject
+
+val custom = colonLeftL.set(spaces2, _ => JsonWhitespaces())
+
+println(json.pretty(custom))
+</pre>
+
+Produces
+
+<pre class="prettyprint">
+{
+  "blue": false,
+  "red": true
+}
+</pre>
+
+</div>
    <!-- DO NOT EDIT GENERATED FOOTER: BEGIN -->
   </div>
 </body>

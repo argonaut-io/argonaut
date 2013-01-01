@@ -112,6 +112,26 @@ a:hover {
 
 }
 
+pre.prettyprint {
+    background-color: #ddd;
+    color: black;
+}
+
+pre.prettyprint > ol > li {
+    margin-left: 40px;
+}
+
+#content {
+    width: 940px;
+    margin: 0 auto;
+}
+
+pre.prettyprint > ol {
+    list-style:decimal;
+}
+
+
+
 pre {
     border: 1px solid black;
     background-color: #333;
