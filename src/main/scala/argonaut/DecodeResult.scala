@@ -5,6 +5,11 @@ import scalaz._, Scalaz._
 sealed trait DecodeResult[+A] {
   val result: (String, CursorHistory) \/ A
 
+  def fold[X](
+    failure: (String, CursorHistory) => X,
+    value: A => X
+  ): X = result.fold({ case (m, h) => failure(m, h) }, value)
+
   def map[B](f: A => B): DecodeResult[B] =
     DecodeResult.build(result map f)
 
