@@ -17,5 +17,6 @@ Jsons with
 JsonIdentitys with
 JsonNumbers with
 JsonObjects with
+JsonWhitespacess with
 PrettyParamss with
 StringWraps

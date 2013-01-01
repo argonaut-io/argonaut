@@ -325,6 +325,30 @@ sealed trait JsonWhitespaces {
    */
   def chars: Vector[Char] =
     value map (_.toChar)
+}
+
+object JsonWhitespaces extends JsonWhitespacess {
+  def apply(v: JsonWhitespace*): JsonWhitespaces =
+    build(Vector(v: _*))
+
+  private[argonaut] def build(v: Vector[JsonWhitespace]): JsonWhitespaces =
+    new JsonWhitespaces {
+      val value = v
+    }
+}
+
+trait JsonWhitespacess {
+  implicit val JsonWhitespacesInstances: Equal[JsonWhitespaces] with Show[JsonWhitespaces] with Monoid[JsonWhitespaces] =
+    new Equal[JsonWhitespaces] with Show[JsonWhitespaces] with Monoid[JsonWhitespaces] {
+      def equal(s1: JsonWhitespaces, s2: JsonWhitespaces) =
+        s1.toList == s2.toList
+      override def show(s: JsonWhitespaces) =
+        s.toList map (_.toChar) mkString
+      def zero =
+        JsonWhitespaces.build(Vector())
+      def append(s1: JsonWhitespaces, s2: => JsonWhitespaces) =
+        s1 ++ s2
+    }
 
   /**
    * The lens to the `lbraceLeft` configuration value.
@@ -397,29 +421,4 @@ sealed trait JsonWhitespaces {
    */
   def colonRightL: PrettyParams @> (Int => JsonWhitespaces) =
     Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, _), p.colonRight))
-}
-
-object JsonWhitespaces extends JsonWhitespacess {
-  def apply(v: JsonWhitespace*): JsonWhitespaces =
-    build(Vector(v: _*))
-
-  private[argonaut] def build(v: Vector[JsonWhitespace]): JsonWhitespaces =
-    new JsonWhitespaces {
-      val value = v
-    }
-}
-
-trait JsonWhitespacess {
-  implicit val JsonWhitespacesInstances: Equal[JsonWhitespaces] with Show[JsonWhitespaces] with Monoid[JsonWhitespaces] =
-    new Equal[JsonWhitespaces] with Show[JsonWhitespaces] with Monoid[JsonWhitespaces] {
-      def equal(s1: JsonWhitespaces, s2: JsonWhitespaces) =
-        s1.toList == s2.toList
-      override def show(s: JsonWhitespaces) =
-        s.toList map (_.toChar) mkString
-      def zero =
-        JsonWhitespaces.build(Vector())
-      def append(s1: JsonWhitespaces, s2: => JsonWhitespaces) =
-        s1 ++ s2
-    }
-
 }
