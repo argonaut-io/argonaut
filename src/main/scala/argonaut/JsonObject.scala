@@ -21,6 +21,12 @@ sealed trait JsonObject {
     JsonObject(toMap ^+^ (f, j))
 
   /**
+   * Prepend the given association.
+   */
+  def +:(fj: (JsonField, Json)): JsonObject =
+    JsonObject(InsertionMap(fj :: toMap.toList :_*))
+
+  /**
    * Remove the given field association.
    */
   def -(f: JsonField): JsonObject =

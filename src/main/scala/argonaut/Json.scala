@@ -144,7 +144,7 @@ sealed trait Json {
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
    */
   def ->:(k: => JsonAssoc): Json =
-    withObject(o => o + (k._1, k._2))
+    withObject(o => (k._1, k._2) +: o)
 
   /**
    * If this is a JSON object, and the association is set, then prepend the given value, otherwise, return a JSON object with only the given value.
@@ -449,8 +449,8 @@ sealed trait Json {
    */
   override def toString =
     nospaces
-
 }
+
 import Json._
 
 private[argonaut] case object JNull extends Json
