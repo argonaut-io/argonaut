@@ -106,6 +106,19 @@ sealed trait JsonObject {
 
   override def toString: String =
     "object[" + (toMap.toList map (Show[(JsonField, Json)] shows _) mkString ", ") + "]"
+
+  // FIX work around bug in scalaz InsertionMap, should just delegate, fix post 7.0.0-M7.
+  override def equals(o: Any) =
+    o.isInstanceOf[JsonObject] && {
+      val a = o.asInstanceOf[JsonObject].toMap
+      val b = toMap
+      a.size == b.size && a.forall({
+        case (k, v) => b.get(k) == Some(v)
+      })
+    }
+
+  override def hashCode =
+    toMap.hashCode
 }
 
 object JsonObject extends JsonObjects {
@@ -144,9 +157,10 @@ trait JsonObjects {
   implicit val JsonObjectInstances: Equal[JsonObject] with Show[JsonObject] =
     new Equal[JsonObject] with Show[JsonObject] {
       def equal(j1: JsonObject, j2: JsonObject) = {
-        j1.toList === j2.toList
+        j1 == j2
       }
-      override def show(a: JsonObject) = Show.showFromToString show a
+      override def show(a: JsonObject) =
+        Show.showFromToString show a
     }
 
 }
