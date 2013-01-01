@@ -193,34 +193,39 @@ object JsonParser {
     } yield afterString
   }
 
-  private[this] final def expectStringNoStartBounds(stream: TokenStream): ValidationNEL[String, (TokenStream, JString)] = {
-    // Note the mutable collection type in the parameters.
-    @tailrec
-    def collectStringParts(stream: TokenStream, workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): ValidationNEL[String, (TokenStream, Builder[StringPartToken, List[StringPartToken]])] = {
-      stream match {
-        case TokenStreamElement(stringPartToken: StringPartToken, tail) => collectStringParts(tail(), workingTokens += stringPartToken)
-        case _ => (stream, workingTokens).successNel
-      }
+  // Note the mutable collection type in the parameters.
+  @tailrec
+  private[this] final def collectStringParts(stream: TokenStream, workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): ValidationNEL[String, (TokenStream, Builder[StringPartToken, List[StringPartToken]])] = {
+    stream match {
+      case TokenStreamElement(stringPartToken: StringPartToken, tail) => collectStringParts(tail(), workingTokens += stringPartToken)
+      case _ => (stream, workingTokens).successNel
     }
+  }
+
+  private[this] final val appendStringPartToBuilder = (builder: StringBuilder, part: StringPartToken) => part.appendToBuilder(builder)
+
+  private[this] final def expectStringNoStartBounds(stream: TokenStream): ValidationNEL[String, (TokenStream, JString)] = {
     for {
       elements <- collectStringParts(stream)
       afterClose <- expectStringBounds(elements._1)
-    } yield (afterClose, JString(elements._2.result.foldLeft(new StringBuilder())((builder, part) => part.appendToBuilder(builder)).toString))
+    } yield (afterClose, JString(elements._2.result.foldLeft(new StringBuilder())(appendStringPartToBuilder).toString))
   }
 
   private[this] final def unexpectedContent(json: String): TokenStream = TokenStreamElement(UnexpectedContentToken(json.take(10)), () => TokenStreamEnd)
 
+  private[this] final val isNumberChar = (char: Char) => (char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.'
+
   private[this] final def parseNumber(json: String): Option[(NumberToken, String)] = {
-    val (possibleNumber, remainder) = json.span(char => (char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.')
+    val (possibleNumber, remainder) = json.span(isNumberChar)
     if (possibleNumber.isEmpty) None
     else (NumberToken(possibleNumber), remainder).some
   }
 
-  private[this] final def isUnicodeSequenceChar(char: Char): Boolean = {
+  private[this] final val isUnicodeSequenceChar = (char: Char) => {
     (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
   }
 
-  private[this] final def isNormalChar(char: Char): Boolean = {
+  private[this] final val isNormalChar = (char: Char) => {
     char != '"' && char != '\\' && !Character.isISOControl(char)
   }
 
