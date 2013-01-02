@@ -1,3 +1,11 @@
+<script type="text/javascript">
+  examples([
+    'predefined_printers_01',
+    'custom_printers_01'
+  ]);
+</script>
+
+
 <h1>Json Printing</h1>
 
 <div id="content">
@@ -17,20 +25,7 @@ printers on the <code>Json</code> data type.
 
 For example:
 
-<pre class="prettyprint lang-scala linenums">
-import argonaut._, Argonaut._
-
-val json = ("red" := true) ->: ("blue" := false) ->: jEmptyObject
-
-println("""/** compact **/""")
-println(json.nospaces)
-
-println("""/** formatted with 2 spaces **/""")
-println(json.spaces2)
-
-println("""/** formatted with 4 spaces **/""")
-println(json.spaces4)
-
+<pre class="prettyprint lang-scala linenums" id="example_predefined_printers_01">
 </pre>
 
 Produces:
@@ -65,14 +60,7 @@ For example, if we wanted to use two spaces, but <em>not</em>
 prefix the colon with a space, then we could tweak the default
 2 space format:
 </p>
-<pre class="prettyprint lang-scala linenums">
-import argonaut._, Argonaut._
-
-val json = ("red" := true) ->: ("blue" := false) ->: jEmptyObject
-
-val custom = colonLeftL.set(spaces2, _ => JsonWhitespaces())
-
-println(json.pretty(custom))
+<pre class="prettyprint lang-scala linenums" id="example_custom_printers_01">
 </pre>
 
 Produces
