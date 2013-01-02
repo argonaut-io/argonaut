@@ -1,10 +1,10 @@
 <script type="text/javascript">
   examples([
-    'parse_01',
-    'parseWith_01',
-    'parseWith_02',
-    'parseOr_01',
-    'parseOption_01'
+    'ParseValidation',
+    'ParseWithSuccess',
+    'ParseWithFailure',
+    'ParseOr',
+    'ParseOption'
   ]);
 </script>
 
@@ -25,7 +25,7 @@ We provide a set of library functions that help parse and use the result.
 Using <code>scalaz.Validation</code> to capture the success or failure of the operation:
 </p>
 
-<pre class="prettyprint lang-scala linenums" id="example_parse_01">
+<pre class="prettyprint lang-scala linenums" id="example_ParseValidation">
 </pre>
 
 <h4><code>Parse.parseWith</code></h4>
@@ -34,15 +34,15 @@ Using <code>scalaz.Validation</code> to capture the success or failure of the op
 For convenience we can handle the success and failure cases directly:
 </p>
 
-<pre class="prettyprint lang-scala linenums" id="example_parseWith_01">
+<pre class="prettyprint lang-scala linenums" id="example_ParseWithSuccess">
 </pre>
 
-<pre class="prettyprint lang-scala linenums" id="example_parseWith_02">
+<pre class="prettyprint lang-scala linenums" id="example_ParseWithFailure">
 </pre>
 
 <h4><code>Parse.parseOr</code></h4>
 
-<pre class="prettyprint lang-scala linenums" id="example_parseOr_01">
+<pre class="prettyprint lang-scala linenums" id="example_ParseOr">
 </pre>
 
 <h4><code>Parse.parseOption</code></h4>
@@ -51,7 +51,7 @@ For convenience we can handle the success and failure cases directly:
 If you are not concerned with errors, you can parse directly to an option.
 </p>
 
-<pre class="prettyprint lang-scala linenums" id="example_parseOption_01">
+<pre class="prettyprint lang-scala linenums" id="example_ParseOption">
 </pre>
 
 
