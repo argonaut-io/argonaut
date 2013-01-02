@@ -1,7 +1,8 @@
 #!/bin/sh
 
+base=`(readlink "$0" || printf "%s" "$0") | xargs dirname`
 
 for x in quickstart json zipper codec parsing printing; do
-    cat template/index.html.header $x/content.html template/index.html.footer > $x/index.html
+    cat $base/template/index.html.header $base/$x/content.html $base/template/index.html.footer > $base/$x/index.html
 done
 

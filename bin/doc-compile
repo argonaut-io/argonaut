@@ -1,0 +1,5 @@
+#!/bin/sh
+
+base=`(readlink "$0" || printf "%s" "$0") | xargs dirname`/..
+
+(cd $base && ./sbt "; project doc; compile")
