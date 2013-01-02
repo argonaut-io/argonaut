@@ -34,22 +34,22 @@ object CursorExample extends Specification {
 
   def is = "CursorExample" ^
     """Replace '["cat", "lol"]' with 'false'""" ! {
-      json.pparse flatMap (k =>
+      json.parseOption flatMap (k =>
         +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) map (-_)
       ) must beSome
     } ^
     "Visit the 'values' array" ! {
-      json.pparse flatMap (k =>
+      json.parseOption flatMap (k =>
         +k --\ "values" flatMap (_.downArray) map (-_)
       ) must beSome
     } ^
     """Delete the element '"dog"' from the 'values' array.""" ! {
-      json.pparse flatMap (k =>
+      json.parseOption flatMap (k =>
         +k --\ "values" flatMap (_.downArray) flatMap (_.right) flatMap (!_) map (-_)
       ) must beSome
     } ^
     """Replace '["cat", "lol"]' with 'false' and '"rabbit"' with 'true'""" ! {
-      json.pparse flatMap (k =>
+      json.parseOption flatMap (k =>
         +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) flatMap (_.right) flatMap (_.right) map (_ := jBool(true)) map (-_)
       ) must beSome
     }

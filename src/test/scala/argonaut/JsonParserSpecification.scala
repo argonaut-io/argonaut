@@ -14,7 +14,7 @@ import Data._
 object JsonParserSpecification extends Specification with DataTables with ScalaCheck {
   def is = "parse" ^
     "Valid JSON parses into expected values" ! {
-      KnownResults.validResultPairings |> {(json, expectedJSONValue) =>	  	
+      KnownResults.validResultPairings |> {(json, expectedJSONValue) =>
         val actualParseResult = JsonParser.parse(json)
         actualParseResult === expectedJSONValue.successNel[String]
       }
@@ -28,7 +28,7 @@ object JsonParserSpecification extends Specification with DataTables with ScalaC
     "Printed and then parsed again generates the same structure" ! prop{(json: Json) =>
       val printedJSON = json.nospaces
       ("printedJSON = " + printedJSON) |: {
-        val parsed = printedJSON.parse()
+        val parsed = printedJSON.parse
         ("parsed = " + parsed) |: parsed === json.successNel
       }
     } ^ end

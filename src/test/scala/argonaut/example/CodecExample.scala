@@ -11,7 +11,7 @@ object CodecExample extends Specification {
   val fred = Person("Fred", 40)
 
   def encodeDecode(json: String)(implicit encode: EncodeJson[Person], decode: DecodeJson[Person]) = {
-    val person: Option[Person] = json.pparseDecode[Person]
+    val person: Option[Person] = json.decodeOption[Person]
     val encodedJson: Option[String] = person.map(_.jencode.nospaces)
     (person must be_==(fred.some)) and (encodedJson must be_==(json.some))
   }
