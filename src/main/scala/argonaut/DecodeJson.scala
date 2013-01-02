@@ -29,13 +29,13 @@ sealed trait DecodeJson[+A] {
     ))
 
   /**
-   * Buld a new DecodeJson codec with the specified precondition that f(c) == true.
+   * Build a new DecodeJson codec with the specified precondition that f(c) == true.
    */
   def validate(f: HCursor => Boolean, message: => String) =
     DecodeJson(c => if (f(c)) apply(c) else DecodeResult.failedResult(message, c.history))
 
   /**
-   * Buld a new DecodeJson codec with the precondition that the cursor focus is object with exactly n field.
+   * Build a new DecodeJson codec with the precondition that the cursor focus is object with exactly n field.
    */
   def validateFields(n: Int) =
     validate(_.focus.obj exists (_.size == n), "Expected json object with exactly [" + n + "] fields.")
