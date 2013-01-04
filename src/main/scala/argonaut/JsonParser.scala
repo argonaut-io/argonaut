@@ -97,20 +97,20 @@ object JsonParser {
     excerpt(getXElements(tokens, 10).mkString)
   }
 
-  def parse(json: String): ValidationNEL[String, Json] = {
+  def parse(json: String): String \/ Json = {
     expectValue(tokenize(json)).flatMap{streamAndValue =>
       streamAndValue match {
-        case (TokenStreamEnd, jsonInstance) => jsonInstance.successNel
-        case (tokenStream, _) => "JSON contains invalid suffix content: %s".format(excerpt(tokenStream)).failNel
+        case (TokenStreamEnd, jsonInstance) => jsonInstance.right
+        case (tokenStream, _) => "JSON contains invalid suffix content: %s".format(excerpt(tokenStream)).left
       }
     }
   }
 
   @inline
-  private[this] final def expectedSpacerToken(stream: TokenStream, token: JSONToken, failMessage: String): ValidationNEL[String, TokenStream] = {
+  private[this] final def expectedSpacerToken(stream: TokenStream, token: JSONToken, failMessage: String): String \/ TokenStream = {
     stream match {
-      case TokenStreamElement(`token`, tail) => tail().successNel
-      case _ => "%s but found: %s".format(failMessage, excerpt(stream)).failNel
+      case TokenStreamElement(`token`, tail) => tail().right
+      case _ => "%s but found: %s".format(failMessage, excerpt(stream)).left
     }
   }
   
@@ -130,19 +130,19 @@ object JsonParser {
   
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def expectObject(stream: TokenStream, first: Boolean = true, fields: Builder[(JsonField, Json), List[(JsonField, Json)]] = List.newBuilder): ValidationNEL[String, (TokenStream, JObject)] = {
+  private[this] final def expectObject(stream: TokenStream, first: Boolean = true, fields: Builder[(JsonField, Json), List[(JsonField, Json)]] = List.newBuilder): String \/ (TokenStream, JObject) = {
     stream match {
-      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), JObject(JsonObject(InsertionMap(fields.result: _*)))).successNel
+      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), JObject(JsonObject(InsertionMap(fields.result: _*)))).right
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
+          afterEntrySeparator <- if (first) stream.right[String] else expectEntrySeparator(stream)
           streamAndKey <- expectString(afterEntrySeparator)
           afterFieldSeperator <- expectFieldSeparator(streamAndKey._1)
           streamAndValue <- expectValue(afterFieldSeperator)
         } yield (streamAndValue._1, fields += ((streamAndKey._2.s, streamAndValue._2)))
         next match {
-          case Success((newStream, newFields)) => expectObject(newStream, false, newFields)
-          case Failure(failure) => failure.failure
+          case \/-((newStream, newFields)) => expectObject(newStream, false, newFields)
+          case -\/(failure) => failure.left
         }
       }
     }
@@ -150,43 +150,43 @@ object JsonParser {
  
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def expectArray(stream: TokenStream, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): ValidationNEL[String, (TokenStream, JArray)] = {
+  private[this] final def expectArray(stream: TokenStream, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (TokenStream, JArray) = {
     stream match {
-      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), JArray(fields.result)).successNel
+      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), JArray(fields.result)).right
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) stream.successNel[String] else expectEntrySeparator(stream)
+          afterEntrySeparator <- if (first) stream.right[String] else expectEntrySeparator(stream)
           streamAndValue <- expectValue(afterEntrySeparator)
         } yield (streamAndValue._1, fields += streamAndValue._2)
         next match {
-          case Success((newStream, newFields)) => expectArray(newStream, false, newFields)
-          case Failure(failure) => failure.failure
+          case \/-((newStream, newFields)) => expectArray(newStream, false, newFields)
+          case -\/(failure) => failure.left
         }
       }
     }
   }
 
-  private[this] final def expectValue(stream: TokenStream): ValidationNEL[String, (TokenStream, Json)] = {
+  private[this] final def expectValue(stream: TokenStream): String \/ (TokenStream, Json) = {
     stream match {
       case TokenStreamElement(ArrayOpenToken, next) => expectArray(next())
       case TokenStreamElement(ObjectOpenToken, next) => expectObject(next())
       case TokenStreamElement(StringBoundsToken, next) => expectStringNoStartBounds(next())
-      case TokenStreamElement(BooleanTrueToken, tail) => (tail(), JBool(true)).successNel
-      case TokenStreamElement(BooleanFalseToken, tail) => (tail(), JBool(false)).successNel
-      case TokenStreamElement(NullToken, tail) => (tail(), JNull).successNel
+      case TokenStreamElement(BooleanTrueToken, tail) => (tail(), JBool(true)).right
+      case TokenStreamElement(BooleanFalseToken, tail) => (tail(), JBool(false)).right
+      case TokenStreamElement(NullToken, tail) => (tail(), JNull).right
       case TokenStreamElement(NumberToken(numberText), tail) => {
         numberText
           .parseDouble
-          .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberText).failNel,
-                doubleValue => (tail(), JNumber(JsonNumber(doubleValue))).successNel)
+          .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberText).left,
+                doubleValue => (tail(), JNumber(JsonNumber(doubleValue))).right)
       }
-      case TokenStreamElement(UnexpectedContentToken(excerpt), _) => "Unexpected content found: %s".format(excerpt).failNel
-      case TokenStreamElement(unexpectedToken, _) => "Unexpected content found: %s".format(excerpt(stream)).failNel
-      case TokenStreamEnd => "JSON terminates unexpectedly".failNel
+      case TokenStreamElement(UnexpectedContentToken(excerpt), _) => "Unexpected content found: %s".format(excerpt).left
+      case TokenStreamElement(unexpectedToken, _) => "Unexpected content found: %s".format(excerpt(stream)).left
+      case TokenStreamEnd => "JSON terminates unexpectedly".left
     }
   }
 
-  private[this] final def expectString(stream: TokenStream): ValidationNEL[String, (TokenStream, JString)] = {
+  private[this] final def expectString(stream: TokenStream): String \/ (TokenStream, JString) = {
     for {
       afterOpen <- expectStringBounds(stream)
       afterString <- expectStringNoStartBounds(afterOpen)
@@ -195,16 +195,16 @@ object JsonParser {
 
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def collectStringParts(stream: TokenStream, workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): ValidationNEL[String, (TokenStream, Builder[StringPartToken, List[StringPartToken]])] = {
+  private[this] final def collectStringParts(stream: TokenStream, workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): String \/ (TokenStream, Builder[StringPartToken, List[StringPartToken]]) = {
     stream match {
       case TokenStreamElement(stringPartToken: StringPartToken, tail) => collectStringParts(tail(), workingTokens += stringPartToken)
-      case _ => (stream, workingTokens).successNel
+      case _ => (stream, workingTokens).right
     }
   }
 
   private[this] final val appendStringPartToBuilder = (builder: StringBuilder, part: StringPartToken) => part.appendToBuilder(builder)
 
-  private[this] final def expectStringNoStartBounds(stream: TokenStream): ValidationNEL[String, (TokenStream, JString)] = {
+  private[this] final def expectStringNoStartBounds(stream: TokenStream): String \/ (TokenStream, JString) = {
     for {
       elements <- collectStringParts(stream)
       afterClose <- expectStringBounds(elements._1)

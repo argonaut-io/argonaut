@@ -23,79 +23,79 @@ object StringWrapSpecification extends Specification with ScalaCheck {
   def is =
     "parse" ^
       "returns a success wrapped Json for valid JSON" ! prop{(json: Json) =>
-	json.nospaces.parse === json.successNel[String]
+        json.nospaces.parse === json.right[String]
       } ^
       "returns a failure for invalid JSON" ! {
-	"{".parse === "Expected string bounds but found: ".failNel
+	      "{".parse === "Expected string bounds but found: ".left
       } ^ end ^
-    "parseWith[X](Json => X, NonEmptyList[String] => X): X" ^
+    "parseWith[X](Json => X, String => X): X" ^
       "returns the transformed Json for valid JSON" ! prop{(json: Json) =>
-	json.nospaces.parseWith(_.some, _ => None) === json.some
+	      json.nospaces.parseWith(_.some, _ => None) === json.some
       } ^
       "returns a failure for invalid JSON" ! {
-	"{".parseWith(_ => NonEmptyList("Oops"), identity) === NonEmptyList("Expected string bounds but found: ")
+	      "{".parseWith(_ => "Oops", identity) === "Expected string bounds but found: "
       } ^ end ^
-    "decode[X: DecodeJson]: ValidationNEL[String, X]" ^
+    "decode[X: DecodeJson]: String \\/ X" ^
       "returns the decoded Json for valid JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = validJSONTemplate.format(name, age)
-	json.decode[Person] === Person(name, age).success
+	      val json = validJSONTemplate.format(name, age)
+	      json.decode[Person] === Person(name, age).right
       } ^
       "returns a failure for invalid JSON" ! {
-	"{".parseWith(_ => NonEmptyList("Oops"), identity) === NonEmptyList("Expected string bounds but found: ")
+	      "{".parseWith(_ => "Oops", identity) === "Expected string bounds but found: "
       } ^
       "returns a failure for undecodable JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = invalidJSONTemplate.format(name, age)
-	json.decode[Person].swapped(_.map(_.map(_._1))) must_==  "Person".right.fail
+	      val json = invalidJSONTemplate.format(name, age)
+	      json.decode[Person].swapped(_.map(_.map(_._1))) must_==  "Person".right.left
       } ^ end ^
-    "decodeWith[A, X: DecodeJson](X => A, NonEmptyList[String] => A, (String, CursorHistory) => A): A" ^
+    "decodeWith[A, X: DecodeJson](X => A, String => A, (String, CursorHistory) => A): A" ^
       "returns the decoded and transformed Json for valid JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = validJSONTemplate.format(name, age)
-	json.decodeWith[Option[Person], Person](_.some, _ => None, (_, _) => None) === Person(name, age).some
+        val json = validJSONTemplate.format(name, age)
+        json.decodeWith[Option[Person], Person](_.some, _ => None, (_, _) => None) === Person(name, age).some
       } ^
       "returns the result of the parseFailure function for invalid JSON" ! {
-	"{".decodeWith[Option[Person], Person](_ => None, _ => Person("Test", 5).some, (_, _) => None) === Person("Test", 5).some
+	      "{".decodeWith[Option[Person], Person](_ => None, _ => Person("Test", 5).some, (_, _) => None) === Person("Test", 5).some
       } ^
       "returns the result of the decodeFailure function for undecodable JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = invalidJSONTemplate.format(name, age)
-	json.decodeWith[Option[Person], Person](_ => None, _ => None, (_, _) => Person("Test", 5).some) === Person("Test", 5).some
+        val json = invalidJSONTemplate.format(name, age)
+        json.decodeWith[Option[Person], Person](_ => None, _ => None, (_, _) => Person("Test", 5).some) === Person("Test", 5).some
       } ^ end ^
     "decodeOr[A, X: DecodeJson](X => A, => A): A" ^
       "returns the decoded and transformed Json for valid JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = validJSONTemplate.format(name, age)
-	json.decodeOr[Option[Person], Person](_.some, None) === Person(name, age).some
+        val json = validJSONTemplate.format(name, age)
+        json.decodeOr[Option[Person], Person](_.some, None) === Person(name, age).some
       } ^
       "returns the result of the default function for invalid JSON" ! {
 	"{".decodeOr[Option[Person], Person](_ => None, Person("Test", 5).some) === Person("Test", 5).some
       } ^
       "returns the result of the default function for undecodable JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = invalidJSONTemplate.format(name, age)
-	json.decodeOr[Option[Person], Person](_ => None, Person("Test", 5).some) === Person("Test", 5).some
+        val json = invalidJSONTemplate.format(name, age)
+        json.decodeOr[Option[Person], Person](_ => None, Person("Test", 5).some) === Person("Test", 5).some
       } ^ end ^
     "parseOr[X](Json => X, => X): X" ^
       "returns the transformed Json for valid JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = validJSONTemplate.format(name, age)
-	json.parseOr[Option[Json]](_.some, None) === Some(("age", jString(age.toString)) ->: ("name", jString(name)) ->: jEmptyObject)
+        val json = validJSONTemplate.format(name, age)
+        json.parseOr[Option[Json]](_.some, None) === Some(("age", jString(age.toString)) ->: ("name", jString(name)) ->: jEmptyObject)
       } ^
       "returns the result of the failure function for invalid JSON" ! {
-	"{".parseOr[String](_ => "It works!", "Failure") === "Failure"
+	      "{".parseOr[String](_ => "It works!", "Failure") === "Failure"
       } ^ end ^
     "parseOption: Option[Json]" ^
       "returns Json wrapped in Some for valid JSON" ! prop{(json: Json) =>
-	json.nospaces.parseOption === json.some
+	      json.nospaces.parseOption === json.some
       } ^
       "returns a failure for invalid JSON" ! {
-	"{".parseOption === None
+	      "{".parseOption === None
       } ^ end ^
     "decodeOption[X: DecodeJson]: Option[X]" ^
       "returns the decoded value wrapped in a Some for valid JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = validJSONTemplate.format(name, age)
-	json.decodeOption[Person] === Person(name, age).some
+        val json = validJSONTemplate.format(name, age)
+        json.decodeOption[Person] === Person(name, age).some
       } ^
       "returns a None for invalid JSON" ! {
-	"{".decodeOption[Person] === None
+	      "{".decodeOption[Person] === None
       } ^
       "returns a None for undecodable JSON" ! forAllNoShrink(alphaStr, arbitrary[Int]){(name: String, age: Int) =>
-	val json = invalidJSONTemplate.format(name, age)
-	json.decodeOption[Person] === None
+        val json = invalidJSONTemplate.format(name, age)
+        json.decodeOption[Person] === None
       } ^ end
 }

@@ -41,14 +41,14 @@ object KnownResults extends DataTables {
 
   def parseFailures = 
     "JSON"                                            | "parse result"                                                                                                    |
-    """[][]"""                                        ! "JSON contains invalid suffix content: []".failNel[Json]                                         |
-    """{}{}"""                                        ! "JSON contains invalid suffix content: {}".failNel[Json]                                         |
-    "\"\"\"\""                                        ! "JSON contains invalid suffix content: \"\"".failNel[Json]                                       |
-    "\"test"                                          ! "Expected string bounds but found: ".failNel[Json]                                               |
-    "[7,,]"                                           ! "Unexpected content found: ,]".failNel[Json]                                                     |
-    """{"firstKey":100,"secondKey":}"""               ! "Unexpected content found: }".failNel[Json]                                                      |
-    """{"firstKey":}"""                               ! "Unexpected content found: }".failNel[Json]                                                      |
-    """{"firstKey"}"""                                ! "Expected field separator token but found: }".failNel[Json]                                      |
-    """[[}]"""                                        ! "Unexpected content found: }]".failNel[Json]
+    """[][]"""                                        ! "JSON contains invalid suffix content: []".left[Json]                                         |
+    """{}{}"""                                        ! "JSON contains invalid suffix content: {}".left[Json]                                         |
+    "\"\"\"\""                                        ! "JSON contains invalid suffix content: \"\"".left[Json]                                       |
+    "\"test"                                          ! "Expected string bounds but found: ".left[Json]                                               |
+    "[7,,]"                                           ! "Unexpected content found: ,]".left[Json]                                                     |
+    """{"firstKey":100,"secondKey":}"""               ! "Unexpected content found: }".left[Json]                                                      |
+    """{"firstKey":}"""                               ! "Unexpected content found: }".left[Json]                                                      |
+    """{"firstKey"}"""                                ! "Expected field separator token but found: }".left[Json]                                      |
+    """[[}]"""                                        ! "Unexpected content found: }]".left[Json]
 
 }

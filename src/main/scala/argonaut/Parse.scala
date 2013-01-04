@@ -12,7 +12,7 @@ object Parse {
    * Parses the string value and either returns a list of the failures from parsing the string
    * or an instance of the Json type if parsing succeeds.
    */
-  def parse(value: String): ValidationNEL[String, Json] =
+  def parse(value: String): String \/ Json =
     JsonParser.parse(value)
 
   /**
@@ -21,7 +21,7 @@ object Parse {
    * @param success Run this function if the parse succeeds.
    * @param failure Run this function if the parse produces a failure.
    */
-  def parseWith[X](value: String, success: Json => X, failure: NonEmptyList[String] => X): X =
+  def parseWith[X](value: String, success: Json => X, failure: String => X): X =
     parse(value).fold(failure, success)
 
 
@@ -45,9 +45,9 @@ object Parse {
    * Parses the string value and decodes it returning a list of all the failures stemming from
    * either the JSON parsing or the decoding.
    */
-  def decode[X: DecodeJson](value: String): Validation[NonEmptyList[String] \/ (String, CursorHistory), X] = for {
+  def decode[X: DecodeJson](value: String): \/[String \/ (String, CursorHistory), X] = for {
     json <- parse(value).swapped(_.map(_.left))
-    decoded <- json.jdecode[X].fold((msg, history) => (msg, history).right.fail[X], _.success)
+    decoded <- json.jdecode[X].fold((msg, history) => (msg, history).right.left[X], _.right)
   } yield decoded
 
   /**
@@ -57,7 +57,7 @@ object Parse {
    * @param parsefailure Run this function if the parse produces a failure.
    * @param decodefailure Run this function if the decode produces a failure.
    */
-  def decodeWith[A, X: DecodeJson](value: String, success: X => A, parsefailure: NonEmptyList[String] => A, decodefailure: (String, CursorHistory) => A): A =
+  def decodeWith[A, X: DecodeJson](value: String, success: X => A, parsefailure: String => A, decodefailure: (String, CursorHistory) => A): A =
     decodeWithEither(value, success, _.fold(parsefailure, { case (m, h) => decodefailure(m, h) }))
 
   /**
@@ -66,7 +66,7 @@ object Parse {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithEither[A, X: DecodeJson](value: String, success: X => A, failure: NonEmptyList[String] \/ (String, CursorHistory) => A): A =
+  def decodeWithEither[A, X: DecodeJson](value: String, success: X => A, failure: String \/ (String, CursorHistory) => A): A =
     decode(value).fold(failure, success)
 
   /**
@@ -75,8 +75,8 @@ object Parse {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithNel[A, X: DecodeJson](value: String, success: X => A, failure: NonEmptyList[String] => A): A =
-    decodeWith(value, success, failure, (m, h) => failure(NonEmptyList(m + ": " + h.shows)))
+  def decodeWithNel[A, X: DecodeJson](value: String, success: X => A, failure: String => A): A =
+    decodeWith(value, success, failure, (m, h) => failure(m + ": " + h.shows))
 
   /**
    * Parses the string value into a JSON value and if it succeeds, decodes to a data-type.

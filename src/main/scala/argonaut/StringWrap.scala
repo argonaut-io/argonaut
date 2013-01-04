@@ -19,7 +19,7 @@ sealed trait StringWrap {
    * Parses the string value and either returns a list of the failures from parsing the string
    * or an instance of the Json type if parsing succeeds.
    */
-  def parse: ValidationNEL[String, Json] =
+  def parse: String \/ Json =
     Parse.parse(value)
 
   /**
@@ -28,7 +28,7 @@ sealed trait StringWrap {
    * @param success Run this function if the parse succeeds.
    * @param failure Run this function if the parse produces a failure.
    */
-  def parseWith[X](success: Json => X, failure: NonEmptyList[String] => X): X =
+  def parseWith[X](success: Json => X, failure: String => X): X =
     Parse.parseWith(value, success, failure)
 
   /**
@@ -51,7 +51,7 @@ sealed trait StringWrap {
    * Parses the string value and decodes it returning a list of all the failures stemming from
    * either the JSON parsing or the decoding.
    */
-  def decode[X: DecodeJson]: Validation[NonEmptyList[String] \/ (String, CursorHistory), X] =
+  def decode[X: DecodeJson]: \/[String \/ (String, CursorHistory), X] =
     Parse.decode(value)
 
   /**
@@ -61,7 +61,7 @@ sealed trait StringWrap {
    * @param parsefailure Run this function if the parse produces a failure.
    * @param decodefailure Run this function if the decode produces a failure.
    */
-  def decodeWith[A, X: DecodeJson](success: X => A, parsefailure: NonEmptyList[String] => A, decodefailure: (String, CursorHistory) => A): A =
+  def decodeWith[A, X: DecodeJson](success: X => A, parsefailure: String => A, decodefailure: (String, CursorHistory) => A): A =
     Parse.decodeWith(value, success, parsefailure, decodefailure)
 
   /**
@@ -70,7 +70,7 @@ sealed trait StringWrap {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithEither[A, X: DecodeJson](success: X => A, failure: NonEmptyList[String] \/ (String, CursorHistory) => A): A =
+  def decodeWithEither[A, X: DecodeJson](success: X => A, failure: String \/ (String, CursorHistory) => A): A =
     Parse.decodeWithEither(value, success, failure)
 
   /**
@@ -79,7 +79,7 @@ sealed trait StringWrap {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithNel[A, X: DecodeJson](success: X => A, failure: NonEmptyList[String] => A): A =
+  def decodeWithNel[A, X: DecodeJson](success: X => A, failure: String => A): A =
     Parse.decodeWithNel(value, success, failure)
 
   /**
