@@ -6,7 +6,6 @@ import Scalaz._
 import Json._
 import java.lang.StringBuilder
 import scala.collection.mutable.Builder
-import util.MurmurHash
 
 object JsonParser {
   sealed trait TokenStream {
@@ -112,7 +111,7 @@ object JsonParser {
     }
 
     private[this] def boundedCharArray(chars: Array[Char], start: Int, length: Int): WrappedCharArray = {
-      if (start >= chars.length) EmptyWrappedCharArray
+      if (start >= chars.length || length <= 0) EmptyWrappedCharArray
       else {
         val safeLength: Int = if (length + start >= chars.length) chars.length - start else length
         new WrappedCharArray {
