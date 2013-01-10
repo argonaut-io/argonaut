@@ -88,53 +88,55 @@ object JsonParser {
    * Alternative to String implemented similarly to how String was prior to Java 7u6.
    */
   trait WrappedCharArray {
-    lazy val isEmpty: Boolean = headOption.isEmpty
-    val headOption: Option[Char]
+    def isEmpty: Boolean
+    def headOption: Option[Char]
     def span(p: Char => Boolean): (WrappedCharArray, WrappedCharArray)
     def take(n: Int): WrappedCharArray
     def drop(n: Int): WrappedCharArray
-    def startsWith(possibleStart: Array[Char]): Boolean
-    val tail: WrappedCharArray
+    def startsWith(possibleStart: String): Boolean
+    def tail: WrappedCharArray
     def appendTo(builder: StringBuilder): StringBuilder
   }
 
   object WrappedCharArray {
     private[this] case object EmptyWrappedCharArray extends WrappedCharArray {
+      val isEmpty = true
       def span(p: (Char) => Boolean) = (this, this)
       val tail = this
       val headOption = None
       def take(n: Int): WrappedCharArray = this
       def drop(n: Int): WrappedCharArray = this
-      def startsWith(possibleStart: Array[Char]): Boolean = false
+      def startsWith(possibleStart: String): Boolean = possibleStart.isEmpty
       def appendTo(builder: StringBuilder): StringBuilder = builder
       override def toString(): String = ""
     }
 
-    private[this] def boundedCharArray(chars: Array[Char], start: Int, length: Int): WrappedCharArray = {
-      if (start >= chars.length || length <= 0) EmptyWrappedCharArray
+    private[this] def boundedCharArray(string: String, start: Int, length: Int): WrappedCharArray = {
+      if (start >= string.length || length <= 0) EmptyWrappedCharArray
       else {
-        val safeLength: Int = if (length + start >= chars.length) chars.length - start else length
+        val safeLength: Int = if (length + start >= string.length) string.length - start else length
         new WrappedCharArray {
+          val isEmpty = false
           def span(p: (Char) => Boolean) = {
-            val index = chars.indexWhere(char => !p(char), start)
+            val index = string.indexWhere(char => !p(char), start)
             if (index < 0) (this, EmptyWrappedCharArray)
             else {
               val newLength = index - start
-              (boundedCharArray(chars, start, newLength), boundedCharArray(chars, index, safeLength - newLength))
+              (boundedCharArray(string, start, newLength), boundedCharArray(string, index, safeLength - newLength))
             }
           }
-          lazy val tail = boundedCharArray(chars, start + 1, safeLength - 1)
-          lazy val headOption = chars(start).some
-          def take(n: Int): WrappedCharArray = boundedCharArray(chars, start, n)
-          def drop(n: Int): WrappedCharArray = boundedCharArray(chars, start + n, safeLength)
-          def startsWith(possibleStart: Array[Char]): Boolean = chars.startsWith(possibleStart, start)
-          def appendTo(builder: StringBuilder): StringBuilder = builder.append(chars, start, safeLength)
-          private[this] final lazy val storedString: String = new java.lang.StringBuilder().append(chars, start, safeLength).toString
+          def tail = boundedCharArray(string, start + 1, safeLength - 1)
+          def headOption = string(start).some
+          def take(n: Int): WrappedCharArray = boundedCharArray(string, start, n)
+          def drop(n: Int): WrappedCharArray = boundedCharArray(string, start + n, safeLength)
+          def startsWith(possibleStart: String): Boolean = string.startsWith(possibleStart, start)
+          def appendTo(builder: StringBuilder): StringBuilder = builder.append(string, start, start + safeLength)
+          private[this] final lazy val storedString: String = string.substring(start, start + safeLength)
           override def toString(): String = storedString
           private[this] final lazy val storedHash: Int = {
             var working: Int = 37
             for (i <- start to start + safeLength - 1) {
-              val value = chars(i)
+              val value = string(i)
               working = working * 17 + ((value ^ (value >> 32)))
             }
             working
@@ -149,8 +151,7 @@ object JsonParser {
     }
 
     final def fromString(string: String): WrappedCharArray = {
-      val chars = string.toCharArray
-      boundedCharArray(chars, 0, chars.length)
+      boundedCharArray(string, 0, string.length)
     }
   }
 
@@ -301,12 +302,12 @@ object JsonParser {
     char != '"' && char != '\\' && !Character.isISOControl(char)
   }
 
-  private[this] final val speechMark: Array[Char] = Array('"')
-  private[this] final val backslash: Array[Char] = Array('\\')
-  private[this] final val backslashU: Array[Char] = Array('\\', 'u')
-  private[this] final val trueArray: Array[Char] = "true".toArray
-  private[this] final val falseArray: Array[Char] = "false".toArray
-  private[this] final val nullArray: Array[Char] = "null".toArray
+  private[this] final val speechMark: String = """""""
+  private[this] final val backslash: String = "\\"
+  private[this] final val backslashU: String = "\\u"
+  private[this] final val trueArray: String = "true"
+  private[this] final val falseArray: String = "false"
+  private[this] final val nullArray: String = "null"
 
   private[this] final def tokenizeString(json: TokenSource): TokenStream = {
     if (json.isEmpty) TokenStreamEnd
@@ -346,9 +347,9 @@ object JsonParser {
       case Some(':') => TokenStreamElement(FieldSeparatorToken, () => tokenize(json.tail))
       case Some(',') => TokenStreamElement(EntrySeparatorToken, () => tokenize(json.tail))
       case Some('"') => TokenStreamElement(StringBoundsToken, () => tokenizeString(json.tail))
-      case Some('t') if json.startsWith(trueArray) => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
-      case Some('f') if json.startsWith(falseArray) => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
-      case Some('n') if json.startsWith(nullArray) => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
+      case possibleTrue if json.startsWith(trueArray) => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
+      case possibleFalse if json.startsWith(falseArray) => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
+      case possibleNull if json.startsWith(nullArray) => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
       case Some(' ') => tokenize(json.tail)
       case Some('\r') => tokenize(json.tail)
       case Some('\n') => tokenize(json.tail)
