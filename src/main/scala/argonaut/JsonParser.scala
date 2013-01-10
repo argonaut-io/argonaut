@@ -111,42 +111,51 @@ object JsonParser {
       override def toString(): String = ""
     }
 
+    private[this] case class NonEmptyWrappedCharArray(string: String, start: Int, length: Int) extends WrappedCharArray {
+      val isEmpty = false
+      def span(p: (Char) => Boolean) = {
+        val index = string.indexWhere(char => !p(char), start)
+        if (index < 0) (this, EmptyWrappedCharArray)
+        else {
+          val newLength = index - start
+          (take(newLength), drop(newLength))
+        }
+      }
+      def tail = boundedCharArray(string, start + 1, length - 1)
+      def headOption = string(start).some
+      def take(n: Int): WrappedCharArray = boundedCharArray(string, start, n)
+      def drop(n: Int): WrappedCharArray = boundedCharArray(string, start + n, length)
+      def startsWith(possibleStart: String): Boolean = string.startsWith(possibleStart, start)
+      def appendTo(builder: StringBuilder): StringBuilder = builder.append(string, start, start + length)
+      override def toString(): String = string.substring(start, start + length)
+      private[this] final lazy val storedHash: Int = {
+        var working: Int = 37
+        for (i <- start to start + length - 1) {
+          val value = string(i)
+          working = working * 17 + ((value ^ (value >> 32)))
+        }
+        working
+      }
+      override def hashCode() = storedHash
+      override def equals(other: Any): Boolean = other match {
+        case NonEmptyWrappedCharArray(otherString, otherStart, otherLength) if (length == otherLength) => {
+          @tailrec
+          def compareChars(positionShift: Int = 0): Boolean = {
+            if (positionShift >= length) true
+            else if (string(start + positionShift) == otherString(otherStart + positionShift)) compareChars(positionShift + 1)
+            else false
+          }
+          compareChars()
+        }
+        case _ => false
+      }
+    }
+
     private[this] def boundedCharArray(string: String, start: Int, length: Int): WrappedCharArray = {
       if (start >= string.length || length <= 0) EmptyWrappedCharArray
       else {
         val safeLength: Int = if (length + start >= string.length) string.length - start else length
-        new WrappedCharArray {
-          val isEmpty = false
-          def span(p: (Char) => Boolean) = {
-            val index = string.indexWhere(char => !p(char), start)
-            if (index < 0) (this, EmptyWrappedCharArray)
-            else {
-              val newLength = index - start
-              (boundedCharArray(string, start, newLength), boundedCharArray(string, index, safeLength - newLength))
-            }
-          }
-          def tail = boundedCharArray(string, start + 1, safeLength - 1)
-          def headOption = string(start).some
-          def take(n: Int): WrappedCharArray = boundedCharArray(string, start, n)
-          def drop(n: Int): WrappedCharArray = boundedCharArray(string, start + n, safeLength)
-          def startsWith(possibleStart: String): Boolean = string.startsWith(possibleStart, start)
-          def appendTo(builder: StringBuilder): StringBuilder = builder.append(string, start, start + safeLength)
-          private[this] final lazy val storedString: String = string.substring(start, start + safeLength)
-          override def toString(): String = storedString
-          private[this] final lazy val storedHash: Int = {
-            var working: Int = 37
-            for (i <- start to start + safeLength - 1) {
-              val value = string(i)
-              working = working * 17 + ((value ^ (value >> 32)))
-            }
-            working
-          }
-          override def hashCode() = storedHash
-          override def equals(other: Any): Boolean = other match {
-            case otherWrapped: WrappedCharArray => this.toString() == otherWrapped.toString
-            case _ => false
-          }
-        }
+        new NonEmptyWrappedCharArray(string, start, safeLength)
       }
     }
 
@@ -347,9 +356,9 @@ object JsonParser {
       case Some(':') => TokenStreamElement(FieldSeparatorToken, () => tokenize(json.tail))
       case Some(',') => TokenStreamElement(EntrySeparatorToken, () => tokenize(json.tail))
       case Some('"') => TokenStreamElement(StringBoundsToken, () => tokenizeString(json.tail))
-      case possibleTrue if json.startsWith(trueArray) => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
-      case possibleFalse if json.startsWith(falseArray) => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
-      case possibleNull if json.startsWith(nullArray) => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
+      case Some('t') if json.startsWith(trueArray) => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
+      case Some('f') if json.startsWith(falseArray) => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
+      case Some('n') if json.startsWith(nullArray) => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
       case Some(' ') => tokenize(json.tail)
       case Some('\r') => tokenize(json.tail)
       case Some('\n') => tokenize(json.tail)
