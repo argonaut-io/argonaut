@@ -58,9 +58,9 @@ object JsonParser {
   sealed abstract class StringPartToken extends JSONToken {
     def appendToBuilder(builder: StringBuilder): StringBuilder
   }
-  sealed case class UnicodeCharacterToken(unicodeSequence: String) extends StringPartToken {
-    final def originalStringContent = "\\u" + unicodeSequence
-    final def appendToBuilder(builder: StringBuilder) = builder.appendCodePoint(Integer.valueOf(unicodeSequence, 16))
+  sealed case class UnicodeCharacterToken(codePoint: Int) extends StringPartToken {
+    final def originalStringContent = "\\u%04x".format(codePoint)
+    final def appendToBuilder(builder: StringBuilder) = builder.appendCodePoint(codePoint)
   }
   sealed case class EscapedCharacterToken(originalStringContent: String, parsedStringContent: String) extends StringPartToken {
     final def appendToBuilder(builder: StringBuilder) = builder.append(parsedStringContent)
@@ -96,6 +96,7 @@ object JsonParser {
     def startsWith(possibleStart: String): Boolean
     def tail: WrappedCharArray
     def appendTo(builder: StringBuilder): StringBuilder
+    def length: Int
   }
 
   object WrappedCharArray {
@@ -108,6 +109,7 @@ object JsonParser {
       def drop(n: Int): WrappedCharArray = this
       def startsWith(possibleStart: String): Boolean = possibleStart.isEmpty
       def appendTo(builder: StringBuilder): StringBuilder = builder
+      val length = 0
       override def toString(): String = ""
     }
 
@@ -202,25 +204,24 @@ object JsonParser {
       case _ => "%s but found: %s".format(failMessage, excerpt(stream)).left
     }
   }
-  
+
   private[this] final def expectStringBounds(stream: TokenStream) = expectedSpacerToken(stream, StringBoundsToken, "Expected string bounds")
 
   private[this] final def expectEntrySeparator(stream: TokenStream) = expectedSpacerToken(stream, EntrySeparatorToken, "Expected entry separator token")
 
   private[this] final def expectFieldSeparator(stream: TokenStream) = expectedSpacerToken(stream, FieldSeparatorToken, "Expected field separator token")
-  
-  // Note the mutable collection type in the parameters.
+
   @tailrec
-  private[this] final def expectObject(stream: TokenStream, first: Boolean = true, fields: Builder[(JsonField, Json), List[(JsonField, Json)]] = List.newBuilder): String \/ (TokenStream, JObject) = {
+  private[this] final def expectObject(stream: TokenStream, first: Boolean = true, fields: InsertionMap[JsonField, Json] = InsertionMap()): String \/ (TokenStream, Json) = {
     stream match {
-      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), JObject(JsonObject(InsertionMap(fields.result: _*)))).right
+      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), jObjectMap(fields)).right
       case _ => {
         val next = for {
           afterEntrySeparator <- if (first) stream.right[String] else expectEntrySeparator(stream)
           streamAndKey <- expectString(afterEntrySeparator)
           afterFieldSeparator <- expectFieldSeparator(streamAndKey._1)
           streamAndValue <- expectValue(afterFieldSeparator)
-        } yield (streamAndValue._1, fields += ((streamAndKey._2.s, streamAndValue._2)))
+        } yield (streamAndValue._1, fields ^+^ (streamAndKey._2.s, streamAndValue._2))
         next match {
           case \/-((newStream, newFields)) => expectObject(newStream, false, newFields)
           case -\/(failure) => failure.left
@@ -231,9 +232,9 @@ object JsonParser {
  
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def expectArray(stream: TokenStream, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (TokenStream, JArray) = {
+  private[this] final def expectArray(stream: TokenStream, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (TokenStream, Json) = {
     stream match {
-      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), JArray(fields.result)).right
+      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), jArray(fields.result)).right
       case _ => {
         val next = for {
           afterEntrySeparator <- if (first) stream.right[String] else expectEntrySeparator(stream)
@@ -252,15 +253,15 @@ object JsonParser {
       case TokenStreamElement(ArrayOpenToken, next) => expectArray(next())
       case TokenStreamElement(ObjectOpenToken, next) => expectObject(next())
       case TokenStreamElement(StringBoundsToken, next) => expectStringNoStartBounds(next())
-      case TokenStreamElement(BooleanTrueToken, tail) => (tail(), JBool(true)).right
-      case TokenStreamElement(BooleanFalseToken, tail) => (tail(), JBool(false)).right
-      case TokenStreamElement(NullToken, tail) => (tail(), JNull).right
+      case TokenStreamElement(BooleanTrueToken, tail) => (tail(), jTrue).right
+      case TokenStreamElement(BooleanFalseToken, tail) => (tail(), jFalse).right
+      case TokenStreamElement(NullToken, tail) => (tail(), jNull).right
       case TokenStreamElement(NumberToken(numberText), tail) => {
         numberText
           .mkString
           .parseDouble
           .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberText).left,
-                doubleValue => (tail(), JNumber(JsonNumber(doubleValue))).right)
+                doubleValue => (tail(), jDouble(doubleValue)).right)
       }
       case TokenStreamElement(UnexpectedContentToken(excerpt), _) => "Unexpected content found: %s".format(excerpt).left
       case TokenStreamElement(unexpectedToken, _) => "Unexpected content found: %s".format(excerpt(stream)).left
@@ -323,10 +324,15 @@ object JsonParser {
     else if (json.startsWith(speechMark)) TokenStreamElement(StringBoundsToken, () => tokenize(json.tail))
     else if (json.startsWith(backslash)) {
       if (json.startsWith(backslashU)) {
-        val possibleUnicodeSequence = json.drop(2).take(4).toString
-        if (possibleUnicodeSequence.length == 4 && possibleUnicodeSequence.forall(isUnicodeSequenceChar)) {
-          val unicodeCharToken = UnicodeCharacterToken(possibleUnicodeSequence)
-          TokenStreamElement(unicodeCharToken, () => tokenizeString(json.drop(6)))
+        val possibleUnicodeSequence = json.drop(2).take(4)
+        if (possibleUnicodeSequence.length == 4) {
+          Validation.fromTryCatch(Integer.parseInt(possibleUnicodeSequence.toString, 16)) match {
+            case Success(codePoint) => {
+              val unicodeCharToken = UnicodeCharacterToken(codePoint)
+              TokenStreamElement(unicodeCharToken, () => tokenizeString(json.drop(6)))
+            }
+            case _ => unexpectedContent(json)
+          }
         } else unexpectedContent(json)
       } else {
         EscapedCharacterToken.charMap.get(json.take(2)) match {
