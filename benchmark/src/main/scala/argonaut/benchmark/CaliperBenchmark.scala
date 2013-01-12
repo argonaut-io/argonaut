@@ -46,7 +46,7 @@ case class CaliperArgonautBenchmark() extends CaliperBenchmark {
 
 case class CaliperLiftBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(LiftJsonParser.parse(json))
-  override def timenumbers(reps: Int) = repeat(reps)(LiftJsonParser.parse("""["lift-json sucks and breaks on this benchmark."]"""))
+  override def timenumbers(reps: Int) = repeat(reps){Thread.sleep(1); LiftJsonParser.parse("""["lift-json sucks and breaks on this benchmark."]""")}
 }
 
 object ArgonautSimpleBench {

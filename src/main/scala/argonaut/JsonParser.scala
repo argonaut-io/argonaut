@@ -88,7 +88,7 @@ object JsonParser {
    * Alternative to String implemented similarly to how String was prior to Java 7u6.
    */
   trait WrappedCharArray {
-    def isEmpty: Boolean
+    val isEmpty: Boolean
     def headOption: Option[Char]
     def span(p: Char => Boolean): (WrappedCharArray, WrappedCharArray)
     def take(n: Int): WrappedCharArray
@@ -101,21 +101,21 @@ object JsonParser {
 
   object WrappedCharArray {
     private[this] case object EmptyWrappedCharArray extends WrappedCharArray {
-      val isEmpty = true
-      def span(p: (Char) => Boolean) = (this, this)
-      val tail = this
-      val headOption = None
-      def take(n: Int): WrappedCharArray = this
-      def drop(n: Int): WrappedCharArray = this
-      def startsWith(possibleStart: String): Boolean = possibleStart.isEmpty
-      def appendTo(builder: StringBuilder): StringBuilder = builder
-      val length = 0
-      override def toString(): String = ""
+      final val isEmpty = true
+      final def span(p: (Char) => Boolean) = (this, this)
+      final val tail = this
+      final val headOption = None
+      final def take(n: Int): WrappedCharArray = this
+      final def drop(n: Int): WrappedCharArray = this
+      final def startsWith(possibleStart: String): Boolean = possibleStart.isEmpty
+      final def appendTo(builder: StringBuilder): StringBuilder = builder
+      final val length = 0
+      override final def toString(): String = ""
     }
 
-    private[this] case class NonEmptyWrappedCharArray(string: String, start: Int, length: Int) extends WrappedCharArray {
-      val isEmpty = false
-      def span(p: (Char) => Boolean) = {
+    private[this] sealed case class NonEmptyWrappedCharArray(final val string: String, final val start: Int, final val length: Int) extends WrappedCharArray {
+      final val isEmpty = false
+      final def span(p: (Char) => Boolean) = {
         @tailrec
         def findChange(positionShift: Int = 0): (WrappedCharArray, WrappedCharArray) = {
           if (positionShift >= length) {
@@ -132,13 +132,13 @@ object JsonParser {
         }
         findChange()
       }
-      def tail = boundedCharArray(string, start + 1, length - 1)
-      def headOption = string(start).some
-      def take(n: Int): WrappedCharArray = boundedCharArray(string, start, n)
-      def drop(n: Int): WrappedCharArray = boundedCharArray(string, start + n, length)
-      def startsWith(possibleStart: String): Boolean = string.startsWith(possibleStart, start)
-      def appendTo(builder: StringBuilder): StringBuilder = builder.append(string, start, start + length)
-      override def toString(): String = string.substring(start, start + length)
+      final def tail = boundedCharArray(string, start + 1, length - 1)
+      final def headOption = Some(string(start))
+      final def take(n: Int): WrappedCharArray = boundedCharArray(string, start, n)
+      final def drop(n: Int): WrappedCharArray = boundedCharArray(string, start + n, length)
+      final def startsWith(possibleStart: String): Boolean = string.startsWith(possibleStart, start)
+      final def appendTo(builder: StringBuilder): StringBuilder = builder.append(string, start, start + length)
+      override final def toString(): String = string.substring(start, start + length)
       private[this] final lazy val storedHash: Int = {
         val end = start + length
         @tailrec
@@ -151,8 +151,8 @@ object JsonParser {
         }
         innerHash()
       }
-      override def hashCode() = storedHash
-      override def equals(other: Any): Boolean = other match {
+      override final def hashCode() = storedHash
+      override final def equals(other: Any): Boolean = other match {
         case NonEmptyWrappedCharArray(otherString, otherStart, otherLength) if (length == otherLength) => {
           @tailrec
           def compareChars(positionShift: Int = 0): Boolean = {
@@ -179,9 +179,9 @@ object JsonParser {
     }
   }
 
-  private[this] type TokenSource = WrappedCharArray
+  private[this] final type TokenSource = WrappedCharArray
   
-  private[this] def excerpt(string: String, limit: Int = 50): String = {
+  private[this] final def excerpt(string: String, limit: Int = 50): String = {
     if (string.size > limit) {
       string.take(limit) + "..."
     } else {
@@ -189,7 +189,7 @@ object JsonParser {
     }
   }
 
-  private[this] def excerpt(tokens: TokenStream): String = {
+  private[this] final def excerpt(tokens: TokenStream): String = {
     @tailrec
     def getXElements(tokens: TokenStream, elementCount: Int, current: Vector[String] = Vector()): Vector[String] = {
       if (elementCount <= 0) current
@@ -201,10 +201,10 @@ object JsonParser {
     excerpt(getXElements(tokens, 10).mkString)
   }
 
-  def parse(json: String): String \/ Json = {
+  final def parse(json: String): String \/ Json = {
     expectValue(tokenize(json)).flatMap{streamAndValue =>
       streamAndValue match {
-        case (TokenStreamEnd, jsonInstance) => jsonInstance.right
+        case (TokenStreamEnd, jsonInstance) => \/-(jsonInstance)
         case (tokenStream, _) => "JSON contains invalid suffix content: %s".format(excerpt(tokenStream)).left
       }
     }
@@ -213,8 +213,8 @@ object JsonParser {
   @inline
   private[this] final def expectedSpacerToken(stream: TokenStream, token: JSONToken, failMessage: String): String \/ TokenStream = {
     stream match {
-      case TokenStreamElement(`token`, tail) => tail().right
-      case _ => "%s but found: %s".format(failMessage, excerpt(stream)).left
+      case TokenStreamElement(`token`, tail) => \/-(tail())
+      case _ => -\/("%s but found: %s".format(failMessage, excerpt(stream)))
     }
   }
 
@@ -227,10 +227,10 @@ object JsonParser {
   @tailrec
   private[this] final def expectObject(stream: TokenStream, first: Boolean = true, fields: InsertionMap[JsonField, Json] = InsertionMap()): String \/ (TokenStream, Json) = {
     stream match {
-      case TokenStreamElement(ObjectCloseToken, tail) => (tail(), jObjectMap(fields)).right
+      case TokenStreamElement(ObjectCloseToken, tail) => \/-((tail(), jObjectMap(fields)))
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) stream.right[String] else expectEntrySeparator(stream)
+          afterEntrySeparator <- if (first) \/-(stream) else expectEntrySeparator(stream)
           streamAndKey <- expectString(afterEntrySeparator)
           afterFieldSeparator <- expectFieldSeparator(streamAndKey._1)
           streamAndValue <- expectValue(afterFieldSeparator)
@@ -247,10 +247,10 @@ object JsonParser {
   @tailrec
   private[this] final def expectArray(stream: TokenStream, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (TokenStream, Json) = {
     stream match {
-      case TokenStreamElement(ArrayCloseToken, tail) => (tail(), jArray(fields.result)).right
+      case TokenStreamElement(ArrayCloseToken, tail) => \/-((tail(), jArray(fields.result)))
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) stream.right[String] else expectEntrySeparator(stream)
+          afterEntrySeparator <- if (first) \/-(stream) else expectEntrySeparator(stream)
           streamAndValue <- expectValue(afterEntrySeparator)
         } yield (streamAndValue._1, fields += streamAndValue._2)
         next match {
@@ -266,15 +266,15 @@ object JsonParser {
       case TokenStreamElement(ArrayOpenToken, next) => expectArray(next())
       case TokenStreamElement(ObjectOpenToken, next) => expectObject(next())
       case TokenStreamElement(StringBoundsToken, next) => expectStringNoStartBounds(next())
-      case TokenStreamElement(BooleanTrueToken, tail) => (tail(), jTrue).right
-      case TokenStreamElement(BooleanFalseToken, tail) => (tail(), jFalse).right
-      case TokenStreamElement(NullToken, tail) => (tail(), jNull).right
+      case TokenStreamElement(BooleanTrueToken, tail) => \/-((tail(), jTrue))
+      case TokenStreamElement(BooleanFalseToken, tail) => \/-((tail(), jFalse))
+      case TokenStreamElement(NullToken, tail) => \/-((tail(), jNull))
       case TokenStreamElement(NumberToken(numberText), tail) => {
         numberText
           .mkString
           .parseDouble
           .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberText).left,
-                doubleValue => (tail(), jDouble(doubleValue)).right)
+                doubleValue => \/-((tail(), jDouble(doubleValue))))
       }
       case TokenStreamElement(UnexpectedContentToken(excerpt), _) => "Unexpected content found: %s".format(excerpt).left
       case TokenStreamElement(unexpectedToken, _) => "Unexpected content found: %s".format(excerpt(stream)).left
@@ -294,7 +294,7 @@ object JsonParser {
   private[this] final def collectStringParts(stream: TokenStream, workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): String \/ (TokenStream, Builder[StringPartToken, List[StringPartToken]]) = {
     stream match {
       case TokenStreamElement(stringPartToken: StringPartToken, tail) => collectStringParts(tail(), workingTokens += stringPartToken)
-      case _ => (stream, workingTokens).right
+      case _ => \/-((stream, workingTokens))
     }
   }
 
@@ -314,7 +314,7 @@ object JsonParser {
   private[this] final def parseNumber(json: TokenSource): Option[(NumberToken, TokenSource)] = {
     val (possibleNumber, remainder) = json.span(isNumberChar)
     if (possibleNumber.isEmpty) None
-    else (NumberToken(possibleNumber.toString), remainder).some
+    else Some((NumberToken(possibleNumber.toString), remainder))
   }
 
   /*
