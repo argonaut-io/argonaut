@@ -316,15 +316,17 @@ object JsonParser {
     else (NumberToken(possibleNumber.toString), remainder).some
   }
 
+  /*
   private[this] final val isUnicodeSequenceChar = (char: Char) => {
     (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
   }
+  */
 
   private[this] final val isNormalChar = (char: Char) => {
     char != '"' && char != '\\' && !Character.isISOControl(char)
   }
 
-  private[this] final val speechMark: String = """""""
+  //private[this] final val speechMark: String = """""""
   private[this] final val backslash: String = "\\"
   private[this] final val backslashU: String = "\\u"
   private[this] final val trueArray: String = "true"
@@ -333,7 +335,6 @@ object JsonParser {
 
   private[this] final def tokenizeString(json: TokenSource): TokenStream = {
     if (json.isEmpty) TokenStreamEnd
-    else if (json.startsWith(speechMark)) TokenStreamElement(StringBoundsToken, () => tokenize(json.tail))
     else if (json.startsWith(backslash)) {
       if (json.startsWith(backslashU)) {
         val possibleUnicodeSequence = json.drop(2).take(4)
@@ -356,7 +357,11 @@ object JsonParser {
       val (prefix, suffix) = json.span(isNormalChar)
       val normalStringToken = NormalStringToken(prefix)
       suffix.headOption match {
-        case Some('\"') | Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
+        case Some('\"') => {
+          val suffixTail = TokenStreamElement(StringBoundsToken, () => tokenize(suffix.tail))
+          if (prefix.isEmpty) suffixTail else TokenStreamElement(normalStringToken, () => suffixTail)
+        }
+        case Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
         case None => TokenStreamElement(normalStringToken, () => TokenStreamEnd)
         case _ => unexpectedContent(suffix)
       }
