@@ -52,7 +52,7 @@ case class CaliperLiftBenchmark() extends CaliperBenchmark {
 object ArgonautSimpleBench {
   def main(args: Array[String]) {
     Thread.sleep(10000)
-    (0 to 1000).foldLeft(0){(left, right) => Data.twitter10.parse; Data.twitter1.length + left}
+    (0 to 1000).foldLeft(0){(left, right) => Data.twitter100.parse; Data.twitter10.length + left}
   }
 }
 

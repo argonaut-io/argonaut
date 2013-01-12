@@ -116,12 +116,20 @@ object JsonParser {
     private[this] case class NonEmptyWrappedCharArray(string: String, start: Int, length: Int) extends WrappedCharArray {
       val isEmpty = false
       def span(p: (Char) => Boolean) = {
-        val index = string.indexWhere(char => !p(char), start)
-        if (index < 0) (this, EmptyWrappedCharArray)
-        else {
-          val newLength = index - start
-          (take(newLength), drop(newLength))
+        @tailrec
+        def findChange(positionShift: Int = 0): (WrappedCharArray, WrappedCharArray) = {
+          val position = start + positionShift
+          if (positionShift >= length) {
+            (this, EmptyWrappedCharArray)
+          }
+          else if (!p(string(position))) {
+            val newLength = position - start
+            (take(newLength), drop(newLength))
+          } else {
+            findChange(positionShift + 1)
+          }
         }
+        findChange()
       }
       def tail = boundedCharArray(string, start + 1, length - 1)
       def headOption = string(start).some
@@ -131,12 +139,16 @@ object JsonParser {
       def appendTo(builder: StringBuilder): StringBuilder = builder.append(string, start, start + length)
       override def toString(): String = string.substring(start, start + length)
       private[this] final lazy val storedHash: Int = {
-        var working: Int = 37
-        for (i <- start to start + length - 1) {
-          val value = string(i)
-          working = working * 17 + ((value ^ (value >> 32)))
+        val end = start + length
+        @tailrec
+        def innerHash(position: Int = start, working: Int = 37): Int = {
+          if (position >= end) working
+          else {
+            val value = string(position)
+            innerHash(position + 1, working * 17 + ((value ^ (value >> 32))))
+          }
         }
-        working
+        innerHash()
       }
       override def hashCode() = storedHash
       override def equals(other: Any): Boolean = other match {
