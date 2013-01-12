@@ -118,15 +118,16 @@ object JsonParser {
       def span(p: (Char) => Boolean) = {
         @tailrec
         def findChange(positionShift: Int = 0): (WrappedCharArray, WrappedCharArray) = {
-          val position = start + positionShift
           if (positionShift >= length) {
             (this, EmptyWrappedCharArray)
-          }
-          else if (!p(string(position))) {
-            val newLength = position - start
-            (take(newLength), drop(newLength))
           } else {
-            findChange(positionShift + 1)
+            val position = start + positionShift
+            if (p(string(position))) {
+              findChange(positionShift + 1)
+            } else {
+              val newLength = position - start
+              (take(newLength), drop(newLength))
+            }
           }
         }
         findChange()
@@ -362,7 +363,7 @@ object JsonParser {
           if (prefix.isEmpty) suffixTail else TokenStreamElement(normalStringToken, () => suffixTail)
         }
         case Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
-        case None => TokenStreamElement(normalStringToken, () => TokenStreamEnd)
+        case None => if (json.isEmpty) TokenStreamEnd else TokenStreamElement(normalStringToken, () => TokenStreamEnd)
         case _ => unexpectedContent(suffix)
       }
     }
