@@ -8,18 +8,11 @@ import java.lang.StringBuilder
 import scala.collection.mutable.Builder
 
 object JsonParser {
-  sealed trait TokenStream {
-    def toStream: Stream[JSONToken]
-  }
-  sealed case class TokenStreamElement(element: JSONToken, next: () => TokenStream) extends TokenStream {
-    def toStream: Stream[JSONToken] = Stream.cons(element, next().toStream)
-  }
-  case object TokenStreamEnd extends TokenStream {
-    def toStream: Stream[JSONToken] = Stream.empty
-  }
-
   sealed abstract class JSONToken {
     def originalStringContent: String
+  }
+  case object IgnoreToken extends JSONToken {
+    val originalStringContent = ""
   }
   sealed abstract class OpenToken extends JSONToken
   sealed abstract class CloseToken extends JSONToken
@@ -44,7 +37,9 @@ object JsonParser {
   case object StringBoundsToken extends OpenToken { 
     final val originalStringContent = "\"" 
   }
-  case class NumberToken(originalStringContent: String) extends JSONToken
+  case class NumberToken(chunk: StringChunk) extends JSONToken {
+    def originalStringContent = chunk.getString()
+  }
   sealed abstract class BooleanToken extends JSONToken
   case object BooleanTrueToken extends BooleanToken { 
     final val originalStringContent = "true" 
@@ -58,128 +53,35 @@ object JsonParser {
   sealed abstract class StringPartToken extends JSONToken {
     def appendToBuilder(builder: StringBuilder): StringBuilder
   }
-  sealed case class UnicodeCharacterToken(codePoint: Int) extends StringPartToken {
-    final def originalStringContent = "\\u%04x".format(codePoint)
-    final def appendToBuilder(builder: StringBuilder) = builder.appendCodePoint(codePoint)
+  sealed case class UnicodeCharacterToken(chunk: StringChunk) extends StringPartToken {
+    final def originalStringContent = "\\u" + chunk.getString()
+    final override def appendToBuilder(builder: StringBuilder): StringBuilder = builder.appendCodePoint(Integer.parseInt(chunk.getString(), 16))
   }
   sealed case class EscapedCharacterToken(originalStringContent: String, parsedStringContent: String) extends StringPartToken {
-    final def appendToBuilder(builder: StringBuilder) = builder.append(parsedStringContent)
+    final override def appendToBuilder(builder: StringBuilder) = builder.append(parsedStringContent)
   }
   object EscapedCharacterToken {
-    val charMap: Map[WrappedCharArray, EscapedCharacterToken] = Map(
-      WrappedCharArray.fromString("\\r") -> EscapedCharacterToken("\\r", "\r"),
-      WrappedCharArray.fromString("\\n") -> EscapedCharacterToken("\\n", "\n"),
-      WrappedCharArray.fromString("\\t") -> EscapedCharacterToken("\\t", "\t"),
-      WrappedCharArray.fromString("\\b") -> EscapedCharacterToken("\\b", "\b"),
-      WrappedCharArray.fromString("\\f") -> EscapedCharacterToken("\\f", "\f"),
-      WrappedCharArray.fromString("""\\""") -> EscapedCharacterToken("""\\""", """\"""),
-      WrappedCharArray.fromString("""\/""") -> EscapedCharacterToken("""\/""", """/"""),
-      WrappedCharArray.fromString( "\\\"") -> EscapedCharacterToken("\\\"", "\"")
-    ) 
+    val charMap: Map[Char, EscapedCharacterToken] = Map(
+      'r' -> EscapedCharacterToken("\\r", "\r"),
+      'n' -> EscapedCharacterToken("\\n", "\n"),
+      't' -> EscapedCharacterToken("\\t", "\t"),
+      'b' -> EscapedCharacterToken("\\b", "\b"),
+      'f' -> EscapedCharacterToken("\\f", "\f"),
+      '\\' -> EscapedCharacterToken("""\\""", """\"""),
+      '/' -> EscapedCharacterToken("""\/""", """/"""),
+      '"' -> EscapedCharacterToken("\\\"", "\"")
+    )
   }
 
-  sealed case class NormalStringToken(tokenSource: TokenSource) extends StringPartToken {
-    final def originalStringContent = tokenSource.toString
-    final def appendToBuilder(builder: StringBuilder) = tokenSource.appendTo(builder)
+  sealed case class NormalStringToken(chunk: StringChunk) extends StringPartToken {
+    final def originalStringContent = chunk.getString()
+    final def appendToBuilder(builder: StringBuilder) = chunk.appendToBuilder(builder)
   }
-  sealed case class UnexpectedContentToken(originalStringContent: String) extends JSONToken
-
-  /**
-   * Alternative to String implemented similarly to how String was prior to Java 7u6.
-   */
-  trait WrappedCharArray {
-    val isEmpty: Boolean
-    def headOption: Option[Char]
-    def span(p: Char => Boolean): (WrappedCharArray, WrappedCharArray)
-    def take(n: Int): WrappedCharArray
-    def drop(n: Int): WrappedCharArray
-    def startsWith(possibleStart: String): Boolean
-    def tail: WrappedCharArray
-    def appendTo(builder: StringBuilder): StringBuilder
-    def length: Int
+  sealed case class UnexpectedContentToken(chunk: StringChunk) extends JSONToken {
+    final def originalStringContent = chunk.getString()
   }
 
-  object WrappedCharArray {
-    private[this] case object EmptyWrappedCharArray extends WrappedCharArray {
-      final val isEmpty = true
-      final def span(p: (Char) => Boolean) = (this, this)
-      final val tail = this
-      final val headOption = None
-      final def take(n: Int): WrappedCharArray = this
-      final def drop(n: Int): WrappedCharArray = this
-      final def startsWith(possibleStart: String): Boolean = possibleStart.isEmpty
-      final def appendTo(builder: StringBuilder): StringBuilder = builder
-      final val length = 0
-      override final def toString(): String = ""
-    }
-
-    private[this] sealed case class NonEmptyWrappedCharArray(final val string: String, final val start: Int, final val length: Int) extends WrappedCharArray {
-      final val isEmpty = false
-      final def span(p: (Char) => Boolean) = {
-        @tailrec
-        def findChange(positionShift: Int = 0): (WrappedCharArray, WrappedCharArray) = {
-          if (positionShift >= length) {
-            (this, EmptyWrappedCharArray)
-          } else {
-            val position = start + positionShift
-            if (p(string(position))) {
-              findChange(positionShift + 1)
-            } else {
-              val newLength = position - start
-              (take(newLength), drop(newLength))
-            }
-          }
-        }
-        findChange()
-      }
-      final def tail = boundedCharArray(string, start + 1, length - 1)
-      final def headOption = Some(string(start))
-      final def take(n: Int): WrappedCharArray = boundedCharArray(string, start, n)
-      final def drop(n: Int): WrappedCharArray = boundedCharArray(string, start + n, length)
-      final def startsWith(possibleStart: String): Boolean = string.startsWith(possibleStart, start)
-      final def appendTo(builder: StringBuilder): StringBuilder = builder.append(string, start, start + length)
-      override final def toString(): String = string.substring(start, start + length)
-      private[this] final lazy val storedHash: Int = {
-        val end = start + length
-        @tailrec
-        def innerHash(position: Int = start, working: Int = 37): Int = {
-          if (position >= end) working
-          else {
-            val value = string(position)
-            innerHash(position + 1, working * 17 + ((value ^ (value >> 32))))
-          }
-        }
-        innerHash()
-      }
-      override final def hashCode() = storedHash
-      override final def equals(other: Any): Boolean = other match {
-        case NonEmptyWrappedCharArray(otherString, otherStart, otherLength) if (length == otherLength) => {
-          @tailrec
-          def compareChars(positionShift: Int = 0): Boolean = {
-            if (positionShift >= length) true
-            else if (string(start + positionShift) == otherString(otherStart + positionShift)) compareChars(positionShift + 1)
-            else false
-          }
-          compareChars()
-        }
-        case _ => false
-      }
-    }
-
-    private[this] def boundedCharArray(string: String, start: Int, length: Int): WrappedCharArray = {
-      if (start >= string.length || length <= 0) EmptyWrappedCharArray
-      else {
-        val safeLength: Int = if (length + start >= string.length) string.length - start else length
-        new NonEmptyWrappedCharArray(string, start, safeLength)
-      }
-    }
-
-    final def fromString(string: String): WrappedCharArray = {
-      boundedCharArray(string, 0, string.length)
-    }
-  }
-
-  private[this] final type TokenSource = WrappedCharArray
+  private[this] final type TokenSource = String
   
   private[this] final def excerpt(string: String, limit: Int = 50): String = {
     if (string.size > limit) {
@@ -189,12 +91,12 @@ object JsonParser {
     }
   }
 
-  private[this] final def excerpt(tokens: TokenStream): String = {
+  private[this] final def excerpt(tokens: List[JSONToken]): String = {
     @tailrec
-    def getXElements(tokens: TokenStream, elementCount: Int, current: Vector[String] = Vector()): Vector[String] = {
+    def getXElements(tokens: List[JSONToken], elementCount: Int, current: Vector[String] = Vector()): Vector[String] = {
       if (elementCount <= 0) current
       else tokens match {
-        case TokenStreamElement(token, tail) => getXElements(tail(), elementCount - 1, current :+ token.originalStringContent)
+        case token :: tail => getXElements(tail, elementCount - 1, current :+ token.originalStringContent)
         case _ => current
       }
     }
@@ -202,32 +104,38 @@ object JsonParser {
   }
 
   final def parse(json: String): String \/ Json = {
-    expectValue(tokenize(json)).flatMap{streamAndValue =>
-      streamAndValue match {
-        case (TokenStreamEnd, jsonInstance) => \/-(jsonInstance)
-        case (tokenStream, _) => "JSON contains invalid suffix content: %s".format(excerpt(tokenStream)).left
+    @tailrec
+    def parseResult(result: (List[JSONToken], Json)): String \/ Json = {
+      result match {
+        case (Nil, jsonInstance) => \/-(jsonInstance)
+        case (IgnoreToken :: tail, jsonInstance) => parseResult((tail, jsonInstance))
+        case (list, _) => "JSON contains invalid suffix content: %s".format(excerpt(list)).left
       }
     }
+
+    expectValue(processSource(json)).flatMap(parseResult)
   }
 
-  @inline
-  private[this] final def expectedSpacerToken(stream: TokenStream, token: JSONToken, failMessage: String): String \/ TokenStream = {
+  @tailrec
+  private[this] final def expectedSpacerToken(stream: List[JSONToken], token: JSONToken, failMessage: String): String \/ List[JSONToken] = {
     stream match {
-      case TokenStreamElement(`token`, tail) => \/-(tail())
+      case `token` :: tail => \/-(tail)
+      case IgnoreToken :: tail => expectedSpacerToken(tail, token, failMessage)
       case _ => -\/("%s but found: %s".format(failMessage, excerpt(stream)))
     }
   }
 
-  private[this] final def expectStringBounds(stream: TokenStream) = expectedSpacerToken(stream, StringBoundsToken, "Expected string bounds")
+  private[this] final def expectStringBounds(stream: List[JSONToken]) = expectedSpacerToken(stream, StringBoundsToken, "Expected string bounds")
 
-  private[this] final def expectEntrySeparator(stream: TokenStream) = expectedSpacerToken(stream, EntrySeparatorToken, "Expected entry separator token")
+  private[this] final def expectEntrySeparator(stream: List[JSONToken]) = expectedSpacerToken(stream, EntrySeparatorToken, "Expected entry separator token")
 
-  private[this] final def expectFieldSeparator(stream: TokenStream) = expectedSpacerToken(stream, FieldSeparatorToken, "Expected field separator token")
+  private[this] final def expectFieldSeparator(stream: List[JSONToken]) = expectedSpacerToken(stream, FieldSeparatorToken, "Expected field separator token")
 
   @tailrec
-  private[this] final def expectObject(stream: TokenStream, first: Boolean = true, fields: InsertionMap[JsonField, Json] = InsertionMap()): String \/ (TokenStream, Json) = {
+  private[this] final def expectObject(stream: List[JSONToken], first: Boolean = true, fields: InsertionMap[JsonField, Json] = InsertionMap()): String \/ (List[JSONToken], Json) = {
     stream match {
-      case TokenStreamElement(ObjectCloseToken, tail) => \/-((tail(), jObjectMap(fields)))
+      case ObjectCloseToken :: tail => \/-((tail, jObjectMap(fields)))
+      case IgnoreToken :: tail => expectObject(tail, first, fields)
       case _ => {
         val next = for {
           afterEntrySeparator <- if (first) \/-(stream) else expectEntrySeparator(stream)
@@ -245,9 +153,10 @@ object JsonParser {
  
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def expectArray(stream: TokenStream, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (TokenStream, Json) = {
+  private[this] final def expectArray(stream: List[JSONToken], first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (List[JSONToken], Json) = {
     stream match {
-      case TokenStreamElement(ArrayCloseToken, tail) => \/-((tail(), jArray(fields.result)))
+      case ArrayCloseToken :: tail => \/-((tail, jArray(fields.result)))
+      case IgnoreToken :: tail => expectArray(tail, first, fields)
       case _ => {
         val next = for {
           afterEntrySeparator <- if (first) \/-(stream) else expectEntrySeparator(stream)
@@ -257,32 +166,35 @@ object JsonParser {
           case \/-((newStream, newFields)) => expectArray(newStream, false, newFields)
           case -\/(failure) => failure.left
         }
+
       }
     }
   }
 
-  private[this] final def expectValue(stream: TokenStream): String \/ (TokenStream, Json) = {
+  @tailrec
+  private[this] final def expectValue(stream: List[JSONToken]): String \/ (List[JSONToken], Json) = {
     stream match {
-      case TokenStreamElement(ArrayOpenToken, next) => expectArray(next())
-      case TokenStreamElement(ObjectOpenToken, next) => expectObject(next())
-      case TokenStreamElement(StringBoundsToken, next) => expectStringNoStartBounds(next())
-      case TokenStreamElement(BooleanTrueToken, tail) => \/-((tail(), jTrue))
-      case TokenStreamElement(BooleanFalseToken, tail) => \/-((tail(), jFalse))
-      case TokenStreamElement(NullToken, tail) => \/-((tail(), jNull))
-      case TokenStreamElement(NumberToken(numberText), tail) => {
-        numberText
-          .mkString
+      case ArrayOpenToken :: next => expectArray(next)
+      case ObjectOpenToken :: next => expectObject(next)
+      case StringBoundsToken :: next => expectStringNoStartBounds(next)
+      case BooleanTrueToken :: tail => \/-((tail, jTrue))
+      case BooleanFalseToken :: tail => \/-((tail, jFalse))
+      case NullToken :: tail => \/-((tail, jNull))
+      case NumberToken(numberText) :: tail => {
+        val numberAsString = numberText.getString()
+        numberAsString
           .parseDouble
-          .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberText).left,
-                doubleValue => \/-((tail(), jDouble(doubleValue))))
+          .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberAsString).left,
+                doubleValue => \/-((tail, jDouble(doubleValue))))
       }
-      case TokenStreamElement(UnexpectedContentToken(excerpt), _) => "Unexpected content found: %s".format(excerpt).left
-      case TokenStreamElement(unexpectedToken, _) => "Unexpected content found: %s".format(excerpt(stream)).left
-      case TokenStreamEnd => "JSON terminates unexpectedly".left
+      case IgnoreToken :: tail => expectValue(tail)
+      case UnexpectedContentToken(excerpt) :: _ => "Unexpected content found: %s".format(excerpt.getString()).left
+      case unexpectedToken :: _ => "Unexpected content found: %s".format(excerpt(stream)).left
+      case Nil => "JSON terminates unexpectedly".left
     }
   }
 
-  private[this] final def expectString(stream: TokenStream): String \/ (TokenStream, JString) = {
+  private[this] final def expectString(stream: List[JSONToken]): String \/ (List[JSONToken], JString) = {
     for {
       afterOpen <- expectStringBounds(stream)
       afterString <- expectStringNoStartBounds(afterOpen)
@@ -291,108 +203,130 @@ object JsonParser {
 
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def collectStringParts(stream: TokenStream, workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): String \/ (TokenStream, Builder[StringPartToken, List[StringPartToken]]) = {
+  private[this] final def collectStringParts(stream: List[JSONToken], workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): String \/ (List[JSONToken], Builder[StringPartToken, List[StringPartToken]]) = {
     stream match {
-      case TokenStreamElement(stringPartToken: StringPartToken, tail) => collectStringParts(tail(), workingTokens += stringPartToken)
+      case (stringPartToken: StringPartToken) :: tail => collectStringParts(tail, workingTokens += stringPartToken)
       case _ => \/-((stream, workingTokens))
     }
   }
 
   private[this] final val appendStringPartToBuilder = (builder: StringBuilder, part: StringPartToken) => part.appendToBuilder(builder)
 
-  private[this] final def expectStringNoStartBounds(stream: TokenStream): String \/ (TokenStream, JString) = {
+  private[this] final def expectStringNoStartBounds(stream: List[JSONToken]): String \/ (List[JSONToken], JString) = {
     for {
       elements <- collectStringParts(stream)
       afterClose <- expectStringBounds(elements._1)
     } yield (afterClose, JString(elements._2.result.foldLeft(new StringBuilder())(appendStringPartToBuilder).toString))
   }
 
-  private[this] final def unexpectedContent(json: TokenSource): TokenStream = TokenStreamElement(UnexpectedContentToken(json.take(10).toString), () => TokenStreamEnd)
+  private[this] final val isNotNumberChar = (char: Char) => !((char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.')
 
-  private[this] final val isNumberChar = (char: Char) => (char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.'
-
-  private[this] final def parseNumber(json: TokenSource): Option[(NumberToken, TokenSource)] = {
-    val (possibleNumber, remainder) = json.span(isNumberChar)
-    if (possibleNumber.isEmpty) None
-    else Some((NumberToken(possibleNumber.toString), remainder))
+  private[this] final val isNotNormalChar = (char: Char) => {
+    !(char != '"' && char != '\\' && !Character.isISOControl(char))
   }
 
-  /*
-  private[this] final val isUnicodeSequenceChar = (char: Char) => {
+  private[this] final def isUnicodeSequenceChar(char: Char) = {
     (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
   }
-  */
 
-  private[this] final val isNormalChar = (char: Char) => {
-    char != '"' && char != '\\' && !Character.isISOControl(char)
+  case class StringChunk(string: TokenSource, start: Int, end: Int) {
+    def appendToBuilder(builder: StringBuilder): StringBuilder = builder.append(string, start, end)
+
+    final def getString(): String = string.substring(start, end)
   }
 
-  //private[this] final val speechMark: String = """""""
-  private[this] final val backslash: String = "\\"
-  private[this] final val backslashU: String = "\\u"
-  private[this] final val trueArray: String = "true"
-  private[this] final val falseArray: String = "false"
-  private[this] final val nullArray: String = "null"
+  sealed abstract class ProcessMode
+  case object NormalMode extends ProcessMode
+  case object StringMode extends ProcessMode
 
-  private[this] final def tokenizeString(json: TokenSource): TokenStream = {
-    if (json.isEmpty) TokenStreamEnd
-    else if (json.startsWith(backslash)) {
-      if (json.startsWith(backslashU)) {
-        val possibleUnicodeSequence = json.drop(2).take(4)
-        if (possibleUnicodeSequence.length == 4) {
-          Validation.fromTryCatch(Integer.parseInt(possibleUnicodeSequence.toString, 16)) match {
-            case Success(codePoint) => {
-              val unicodeCharToken = UnicodeCharacterToken(codePoint)
-              TokenStreamElement(unicodeCharToken, () => tokenizeString(json.drop(6)))
+  def processSource(json: TokenSource): List[JSONToken] = {
+    val length = json.length
+    @tailrec
+    def process(mode: ProcessMode = NormalMode,
+                position: Int = 0,
+                workingTokens: Builder[JSONToken, List[JSONToken]] = List.newBuilder,
+                toAdd: JSONToken = IgnoreToken): List[JSONToken] = {
+      workingTokens += toAdd
+
+      def unexpectedContent(): List[JSONToken] = {
+        workingTokens += UnexpectedContentToken(StringChunk(json, position, (position + 10) min length))
+        workingTokens.result()
+      }
+
+      @inline
+      def finish(): List[JSONToken] = workingTokens.result().drop(1)
+
+      @tailrec
+      def checkUnicode(from: Int, unicodeShift: Int = 0): Boolean = {
+        if (unicodeShift >= 4) true
+        else if (isUnicodeSequenceChar(json(from + unicodeShift))) checkUnicode(from, unicodeShift + 1)
+        else false
+      }
+
+      @tailrec
+      def safeIndexWhere(index: Int, predicate: (Char) => Boolean): Int = {
+        if (index >= length) length
+        else if (predicate(json(index))) index
+        else safeIndexWhere(index + 1, predicate)
+      }
+
+      if (position >= length) finish()
+      else {
+        mode match {
+          case StringMode => {
+            json(position) match {
+              case '"' => process(NormalMode, position + 1, workingTokens, StringBoundsToken)
+              case '\\' => {
+                if (position + 2 < length) {
+                  json(position + 1) match {
+                    case 'u' if (position + 6 < length) && checkUnicode(position + 2) => {
+                      process(StringMode, position + 6, workingTokens, UnicodeCharacterToken(StringChunk(json, position + 2, position + 6)))
+                    }
+                    case 'u' => unexpectedContent()
+                    case otherChar => EscapedCharacterToken.charMap.get(otherChar) match {
+                      case Some(escapedCharToken) => process(StringMode, position + 2, workingTokens, escapedCharToken)
+                      case _ => unexpectedContent()
+                    }
+                  }
+                } else unexpectedContent()
+              }
+              case controlChar if (Character.isISOControl(controlChar)) => {
+                process(StringMode, position + 1, workingTokens, UnicodeCharacterToken(StringChunk(json, position, position + 1)))
+              }
+              case other => {
+                val normalCharEnd = safeIndexWhere(position, isNotNormalChar)
+                process(StringMode, normalCharEnd, workingTokens, NormalStringToken(StringChunk(json, position, normalCharEnd)))
+              }
             }
-            case _ => unexpectedContent(json)
           }
-        } else unexpectedContent(json)
-      } else {
-        EscapedCharacterToken.charMap.get(json.take(2)) match {
-          case Some(escapedCharToken) => TokenStreamElement(escapedCharToken, () => tokenizeString(json.drop(2)))
-          case _ => unexpectedContent(json)
-        }
-      }
-    } else {
-      val (prefix, suffix) = json.span(isNormalChar)
-      val normalStringToken = NormalStringToken(prefix)
-      suffix.headOption match {
-        case Some('\"') => {
-          val suffixTail = TokenStreamElement(StringBoundsToken, () => tokenize(suffix.tail))
-          if (prefix.isEmpty) suffixTail else TokenStreamElement(normalStringToken, () => suffixTail)
-        }
-        case Some('\\') => TokenStreamElement(normalStringToken, () => tokenizeString(suffix))
-        case None => if (json.isEmpty) TokenStreamEnd else TokenStreamElement(normalStringToken, () => TokenStreamEnd)
-        case _ => unexpectedContent(suffix)
-      }
-    }
-  }
-
-  final def tokenize(json: String): TokenStream = tokenize(WrappedCharArray.fromString(json))
-
-  final def tokenize(json: TokenSource): TokenStream = {
-    json.headOption match {
-      case Some('[') => TokenStreamElement(ArrayOpenToken, () => tokenize(json.tail))
-      case Some(']') => TokenStreamElement(ArrayCloseToken, () => tokenize(json.tail))
-      case Some('{') => TokenStreamElement(ObjectOpenToken, () => tokenize(json.tail))
-      case Some('}') => TokenStreamElement(ObjectCloseToken, () => tokenize(json.tail))
-      case Some(':') => TokenStreamElement(FieldSeparatorToken, () => tokenize(json.tail))
-      case Some(',') => TokenStreamElement(EntrySeparatorToken, () => tokenize(json.tail))
-      case Some('"') => TokenStreamElement(StringBoundsToken, () => tokenizeString(json.tail))
-      case Some('t') if json.startsWith(trueArray) => TokenStreamElement(BooleanTrueToken, () => tokenize(json.drop(4)))
-      case Some('f') if json.startsWith(falseArray) => TokenStreamElement(BooleanFalseToken, () => tokenize(json.drop(5)))
-      case Some('n') if json.startsWith(nullArray) => TokenStreamElement(NullToken, () => tokenize(json.drop(4)))
-      case Some(' ') => tokenize(json.tail)
-      case Some('\r') => tokenize(json.tail)
-      case Some('\n') => tokenize(json.tail)
-      case None => TokenStreamEnd
-      case _ => {
-        parseNumber(json) match {
-          case Some((numberToken, remainder)) => TokenStreamElement(numberToken, () => tokenize(remainder))
-          case _ => unexpectedContent(json)
+          case NormalMode => {
+            json(position) match {
+              case '[' => process(NormalMode, position + 1, workingTokens, ArrayOpenToken)
+              case ']' => process(NormalMode, position + 1, workingTokens, ArrayCloseToken)
+              case '{' => process(NormalMode, position + 1, workingTokens, ObjectOpenToken)
+              case '}' => process(NormalMode, position + 1, workingTokens, ObjectCloseToken)
+              case ':' => process(NormalMode, position + 1, workingTokens, FieldSeparatorToken)
+              case ',' => process(NormalMode, position + 1, workingTokens, EntrySeparatorToken)
+              case '"' => process(StringMode, position + 1, workingTokens, StringBoundsToken)
+              case 't' if json.startsWith("true", position) => process(NormalMode, position + 4, workingTokens, BooleanTrueToken)
+              case 'f' if json.startsWith("false", position) => process(NormalMode, position + 5, workingTokens, BooleanFalseToken)
+              case 'n' if json.startsWith("null", position) => process(NormalMode, position + 4, workingTokens, NullToken)
+              case ' ' => process(NormalMode, position + 1, workingTokens, IgnoreToken)
+              case '\r' => process(NormalMode, position + 1, workingTokens, IgnoreToken)
+              case '\n' => process(NormalMode, position + 1, workingTokens, IgnoreToken)
+              case _ => {
+                val numberEndIndex = safeIndexWhere(position, isNotNumberChar)
+                if (numberEndIndex == position) unexpectedContent()
+                else {
+                  process(NormalMode, numberEndIndex, workingTokens, NumberToken(StringChunk(json, position, numberEndIndex)))
+                }
+              }
+            }
+          }
         }
       }
     }
+
+    process()
   }
 }
