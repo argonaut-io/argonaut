@@ -54,3 +54,5 @@ The library was open-sourced under a [BSD License](https://github.com/markhibber
 The initial developers have since left the employment of Ephox and now maintain this fork `markhibberd/argonaut`.
 
 It is expected that major releases will now come from this repository.
+
+
