@@ -45,6 +45,12 @@ object CaliperJacksonBenchmarkRunner {
   }
 }
 
+object CaliperScalaUtilJSONBenchmarkRunner {
+  def main(args: Array[String]) {
+    Runner.main(classOf[CaliperScalaUtilJSONBenchmark], args)
+  }
+}
+
 
 case class CaliperArgonautBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(json.parse)
@@ -63,6 +69,12 @@ case class CaliperJacksonBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps){
     val parser = CaliperJacksonBenchmark.jsonFactory.createParser(json)
     if (parser.readValueAsTree[TreeNode]().asToken() == null) 0 else 1
+  }
+}
+
+case class CaliperScalaUtilJSONBenchmark() extends CaliperBenchmark {
+  override def repeatParse(json: String, reps: Int): Unit = repeat(reps){
+    if (scala.util.parsing.json.JSON.parseFull(json).isEmpty) 0 else 1
   }
 }
 
