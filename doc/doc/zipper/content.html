@@ -1,6 +1,7 @@
 <script type="text/javascript">
   examples([
-  'LensExample'
+  'LensExample',
+  'JsonZipper'
   ]);
 </script>
 
@@ -23,10 +24,18 @@ Note that Json is an immutable data type modification using lenses produces new 
 </pre>
 
 
-<h2>Zipper</h2>
+<h2>Cursor</h2>
 
 <p>
+A <a href="http://argonaut.io/scaladocs/#argonaut.Cursor">Cursor</a> (otherwise known as a zipper)
+provides the ability to move around the structure of the Json as if it were structured as a tree.
+Operations like left and right are available to move forwards and backwards through a JSON array.
+The downField method drops down into a given field of an object. Methods that modify elements
+such as delete or withFocus operate in relation to the current position of the cursor.
 </p>
+
+<pre class="prettyprint lang-scala linenums" id="example_JsonZipper">
+</pre>
 
 </div>
 
