@@ -31,6 +31,12 @@
    <!-- CONTENT IS INSERTED HERE: See content.html for actual content. -->
 
 
+<script type="text/javascript">
+  examples([
+  'LensExample'
+  ]);
+</script>
+
 <h1>Json Access, Traversal and Update</h1>
 
 <div id="content">
@@ -38,7 +44,16 @@
 <h2>Lenses</h2>
 
 <p>
+Argonaut includes lenses as a method of accessing and updating fields within instances of the Json type,
+as lenses compose it's also possible to modify deeply nested fields.
 </p>
+
+<p>
+Note that Json is an immutable data type modification using lenses produces new values each time.
+</p>
+
+<pre class="prettyprint lang-scala linenums" id="example_LensExample">
+</pre>
 
 
 <h2>Zipper</h2>

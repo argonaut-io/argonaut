@@ -84,61 +84,61 @@ sealed trait Json {
    *  Returns the possible boolean of this JSON value.
    */
   def bool: Option[Boolean] =
-    jBoolL.get(this)
+    jBoolPL.get(this)
 
   /**
    *  Returns the possible number of this JSON value.
    */
   def number: Option[JsonNumber] =
-    jNumberL.get(this)
+    jNumberPL.get(this)
 
   /**
    * Returns the possible string of this JSON value.
    */
   def string: Option[JsonString] =
-    jStringL.get(this)
+    jStringPL.get(this)
 
   /**
    * Returns the possible array of this JSON value.
    */
   def array: Option[JsonArray] =
-    jArrayL.get(this)
+    jArrayPL.get(this)
 
   /**
    * Returns the possible object of this JSON value.
    */
   def obj: Option[JsonObject] =
-    jObjectL.get(this)
+    jObjectPL.get(this)
 
   /**
    * If this is a JSON boolean value, invert the `true` and `false` values, otherwise, leave unchanged.
    */
   def not: Json =
-    jBoolL mod (!_, this)
+    jBoolPL mod (!_, this)
 
   /**
    * If this is a JSON number value, run the given function on the value, otherwise, leave unchanged.
    */
   def withNumber(k: JsonNumber => JsonNumber): Json =
-    jNumberL mod (k, this)
+    jNumberPL mod (k, this)
 
   /**
    * If this is a JSON string value, run the given function on the value, otherwise, leave unchanged.
    */
   def withString(k: JsonString => JsonString): Json =
-    jStringL mod (k, this)
+    jStringPL mod (k, this)
 
   /**
    * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
    */
   def withArray(k: JsonArray => JsonArray): Json =
-    jArrayL mod (k, this)
+    jArrayPL mod (k, this)
 
   /**
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
   def withObject(k: JsonObject => JsonObject): Json =
-    jObjectL mod (k, this)
+    jObjectPL mod (k, this)
 
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
@@ -481,31 +481,31 @@ trait Jsons {
   /**
    * A partial lens for JSON boolean values.
    */
-  def jBoolL: Json @?> Boolean =
+  def jBoolPL: Json @?> Boolean =
     PLens(_.fold(None, z => Some(Store(JBool, z)), _ => None, _ => None, _ => None, _ => None))
 
   /**
    * A partial lens for JSON number values.
    */
-  def jNumberL: Json @?> JsonNumber =
+  def jNumberPL: Json @?> JsonNumber =
     PLens(_.fold(None, _ => None, z => Some(Store(JNumber, z)), _ => None, _ => None, _ => None))
 
   /**
    * A partial lens for JSON string values.
    */
-  def jStringL: Json @?> JsonString =
+  def jStringPL: Json @?> JsonString =
     PLens(_.fold(None, _ => None, _ => None, z => Some(Store(JString, z)), _ => None, _ => None))
 
   /**
    * A partial lens for JSON array values.
    */
-  def jArrayL: Json @?> JsonArray =
+  def jArrayPL: Json @?> JsonArray =
     PLens(_.fold(None, _ => None, _ => None, _ => None, z => Some(Store(JArray, z)), _ => None))
 
   /**
    * A partial lens for JSON object values.
    */
-  def jObjectL: Json @?> JsonObject =
+  def jObjectPL: Json @?> JsonObject =
     PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(Store(JObject, z))))
 
   /**

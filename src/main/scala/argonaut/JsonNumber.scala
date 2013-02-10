@@ -19,6 +19,21 @@ sealed trait JsonNumber {
   def *(n: JsonNumber): JsonNumber =
     binary(_ * _, n)
 
+  def /(n: JsonNumber): JsonNumber =
+    binary(_ / _, n)
+
+  def +(n: Double): JsonNumber =
+    JsonNumber(toDouble + n)
+
+  def -(n: Double): JsonNumber =
+    JsonNumber(toDouble - n)
+
+  def *(n: Double): JsonNumber =
+    JsonNumber(toDouble * n)
+
+  def /(n: Double): JsonNumber =
+    JsonNumber(toDouble / n)
+
   def compare(n: JsonNumber): Ordering =
     Order[Double].order(toDouble, n.toDouble)
 
