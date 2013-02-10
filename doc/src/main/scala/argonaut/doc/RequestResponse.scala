@@ -4,28 +4,22 @@ import scalaz._, Scalaz._
 import argonaut._, Argonaut._
 
 object RequestResponse extends App {
+  val requestJson =
+    """
+      |{
+      |   "userid": "1"
+      |}
+      |""".stripMargin
 
-  case class User(userID: String, username: String)
-
-  // Fake implementation.
-  def lookupUser(userID: String): Option[User] = User(userID, "Sean").some
-
-  val requestJson = """{ "userid" : "1" }"""
-
-  val username: Option[String] = for {
-    parsed <- requestJson.parseOption   // Parse the JSON.
-    jsonObject <- parsed.obj            // Get the JSON as a JsonObject instance.
-    userIDJson <- jsonObject("userid")  // Get the "userid" field from the JsonObject.
-    userID <- userIDJson.string         // Get the value of the "userid" field.
-    user <- lookupUser(userID)          // Get an instance of User for the user ID.
-  } yield user.username                 // Retrieve the username we're interested in.
+  val updatedJson: Option[Json] = for {
+    parsed <- requestJson.parseOption                     // Parse the JSON.
+    modified = ("name", jString("testuser")) ->: parsed   // Prepend a name field into the JSON.
+  } yield modified
 
   // If there was a failure at any point, provide a default.
-  val responseJson: Json = username.fold(
-    name => jSingleObject("username", jString(name)),
+  val responseJson: Json = updatedJson.getOrElse{
     jSingleObject("error", jString("Something went wrong."))
-  )
+  }
 
   println(responseJson.nospaces)
-
 }
