@@ -88,8 +88,6 @@ object ArgonautSimpleBench {
 trait CaliperBenchmark extends SimpleScalaBenchmark {
   def repeatParse(json: String, reps: Int): Unit
 
-  val stringList = (0 to 200).toList.map(_ => "aaaaaaaaaaaaaaaa")
-
   def timeexample(reps: Int) = repeatParse(Data.example, reps)
   def timeintegers(reps: Int) = repeatParse(Data.integers, reps)
   def timejp10(reps: Int) = repeatParse(Data.jp10, reps)
@@ -101,10 +99,5 @@ trait CaliperBenchmark extends SimpleScalaBenchmark {
   def timetwitter100(reps: Int) = repeatParse(Data.twitter100, reps)
   def timetwitter20(reps: Int) = repeatParse(Data.twitter20, reps)
   def timetwitter50(reps: Int) = repeatParse(Data.twitter50, reps)
-  //def timecordappend(reps: Int) = repeat(reps)(stringList.foldLeft(Cord.empty)(_ :+ _).toString)
-  //def timestringbuilderappend(reps: Int) = repeat(reps)(stringList.foldLeft(new java.lang.StringBuilder)(_ append _).toString)
-  //def timelistappendreverse(reps: Int) = repeat(reps)(stringList.foldLeft(List.empty[String])((left, right) => right :: left).reverse)
-  //def timevectorappend(reps: Int) = repeat(reps)(stringList.foldLeft(Vector.empty[String])(_ :+ _).toList)
-  //def timedlistappend(reps: Int) = repeat(reps)(stringList.foldLeft(DList[String]())(_ :+ _).toList)
-  //def timelistbuilderappend(reps: Int) = repeat(reps)(stringList.foldLeft(List.newBuilder[String])(_ += _).result)
+  def timeapachebuilds(reps: Int) = repeatParse(Data.apachebuilds, reps)
 }
