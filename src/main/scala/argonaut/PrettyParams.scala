@@ -71,8 +71,58 @@ sealed trait PrettyParams {
   /**
    * Returns a string representation of a pretty-printed JSON value.
    */
-  def pretty(j: Json): String =
-    lpretty(j).mkString
+  def pretty(j: Json): String = {
+    import Json._
+    import StringEscaping._
+
+    def appendJsonString(jsonString: JsonString, stringBuilder: StringBuilder): StringBuilder = {
+      jsonString
+        .foldLeft(stringBuilder.append(stringEnclosureText))((builder, string) => builder.append(escape(string)))
+        .append(stringEnclosureText)
+    }
+    def trav(depth: Int, k: Json, stringBuilder: StringBuilder): StringBuilder = {
+      def lbraceAppend(stringBuilder: StringBuilder): StringBuilder = {
+         lbraceLeft(depth).append(stringBuilder).append(openBraceText) |> lbraceRight(depth + 1).append
+      }
+      def rbraceAppend(stringBuilder: StringBuilder): StringBuilder = {
+        rbraceLeft(depth + 1).append(stringBuilder).append(closeBraceText) |> rbraceRight(depth).append
+      }
+      def lbracketAppend(stringBuilder: StringBuilder): StringBuilder = {
+        lbracketLeft(depth).append(stringBuilder).append(openArrayText) |> lbracketRight(depth + 1).append
+      }
+      def rbracketAppend(stringBuilder: StringBuilder): StringBuilder = {
+        rbracketLeft(depth + 1).append(stringBuilder).append(closeArrayText) |> rbracketRight(depth).append
+      }
+      def commaAppend(stringBuilder: StringBuilder): StringBuilder = {
+        commaLeft(depth + 1).append(stringBuilder).append(commaText) |>commaRight(depth + 1).append
+      }
+      def colonAppend(stringBuilder: StringBuilder): StringBuilder = {
+        colonLeft(depth + 1).append(stringBuilder).append(colonText) |> colonRight(depth + 1).append
+      }
+
+      k.fold(
+        stringBuilder.append(nullText)
+        , bool => stringBuilder.append(bool ? trueText | falseText)
+        , n => stringBuilder.append(n.shows)
+        , s => appendJsonString(s, stringBuilder)
+        , e => {
+          val arrayAppends: List[StringBuilder => StringBuilder] = e.toList.map{elem => (builder: StringBuilder) =>
+            trav(depth + 1, elem, builder)
+          }
+          arrayAppends.intersperse(commaAppend).foldLeft(lbracketAppend(stringBuilder))((builder, elem) => elem(builder)) |> rbracketAppend
+        }
+        , o => {
+          val associationAppends: List[StringBuilder => StringBuilder] = o.toList.map{assoc => (builder: StringBuilder) =>
+            val innerAppend = (b: StringBuilder) => trav(depth + 1, assoc._2, b)
+            appendJsonString(assoc._1, builder) |> colonAppend |> innerAppend
+          }
+          associationAppends.intersperse(commaAppend).foldLeft(lbraceAppend(stringBuilder))((builder, elem) => elem(builder)) |> rbraceAppend
+        }
+      )
+    }
+
+    trav(0, j, new StringBuilder()).toString()
+  }
 
   private[this] final val openBraceText = '{'
   private[this] final val closeBraceText = '}'
@@ -88,30 +138,7 @@ sealed trait PrettyParams {
   /**
    * Returns a `Vector[Char]` representation of a pretty-printed JSON value.
    */
-  def lpretty(j: Json): Vector[Char] = {
-    import Json._
-    import StringEscaping._
-    def textOfString(jsonString: JsonString): String = stringEnclosureText + jsonString.map(escape).mkString + stringEnclosureText
-    def trav(depth: Int, k: Json): String = {
-      lazy val lbrace = lbraceLeft(depth).string + openBraceText + lbraceRight(depth + 1).string
-      lazy val rbrace = rbraceLeft(depth + 1).string + closeBraceText + rbraceRight(depth).string
-      lazy val lbracket = lbracketLeft(depth).string + openArrayText + lbracketRight(depth + 1).string
-      lazy val rbracket = rbracketLeft(depth + 1).string + closeArrayText + rbracketRight(depth).string
-      lazy val comma = commaLeft(depth + 1).string + commaText + commaRight(depth + 1).string
-      lazy val colon = colonLeft(depth + 1).string + colonText + colonRight(depth + 1).string
-
-      k.fold(
-        nullText
-      , _ ? trueText | falseText
-      , n => n.shows
-      , s => textOfString(s)
-      , e => lbracket + e.map(subElement => trav(depth + 1, subElement)).mkString(comma) + rbracket
-      , o => lbrace + o.toList.map(pair => textOfString(pair._1) + colon + trav(depth + 1, pair._2)).mkString(comma) + rbrace
-      )
-    }
-
-    Vector.empty[Char] ++ trav(0, j)
-  }
+  def lpretty(j: Json): Vector[Char] = Vector.empty[Char] ++ pretty(j)
 }
 
 object StringEscaping {
@@ -161,23 +188,24 @@ object PrettyParams extends PrettyParamss {
 }
 
 trait PrettyParamss {
+  private[this] final val whitespacesZero = Monoid[JsonWhitespaces].zero
   /**
    * A pretty-printer configuration that inserts no spaces.
    */
   def nospace: PrettyParams =
     PrettyParams(
-      _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
+      _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
     )
 
   /**
@@ -185,15 +213,15 @@ trait PrettyParamss {
    */
   def pretty(indent: JsonWhitespaces): PrettyParams =
     PrettyParams(
-      _ => Monoid[JsonWhitespaces].zero
+      _ => whitespacesZero
     , n => JsonLine +: indent * n
     , n => JsonLine +: indent * (n - 1)
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
-      , n => JsonLine +: indent * n
-      , n => JsonLine +: indent * (n - 1)
-    , _ => Monoid[JsonWhitespaces].zero
-    , _ => Monoid[JsonWhitespaces].zero
+    , _ => whitespacesZero
+    , _ => whitespacesZero
+    , n => JsonLine +: indent * n
+    , n => JsonLine +: indent * (n - 1)
+    , _ => whitespacesZero
+    , _ => whitespacesZero
     , n => JsonLine +: indent * n
     , _ => +JsonSpace
     , _ => +JsonSpace
@@ -325,6 +353,13 @@ sealed trait JsonWhitespaces {
    */
   def chars: Vector[Char] =
     value map (_.toChar)
+
+  /**
+   * Appends this string of white-space characters to the given StringBuilder.
+   */
+  def append(stringBuilder: StringBuilder): StringBuilder = {
+    value.foldLeft(stringBuilder)((builder, elem) => builder.append(elem.toChar))
+  }
 }
 
 object JsonWhitespaces extends JsonWhitespacess {
