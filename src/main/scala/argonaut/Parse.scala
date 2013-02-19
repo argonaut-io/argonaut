@@ -2,18 +2,10 @@ package argonaut
 
 import scalaz._, Scalaz._
 
-/**
- * Library functions for parsing json.
- */
-object Parse {
+trait Parse {
   import Json._
 
-  /**
-   * Parses the string value and either returns a list of the failures from parsing the string
-   * or an instance of the Json type if parsing succeeds.
-   */
-  def parse(value: String): String \/ Json =
-    JsonParser.parse(value)
+  def parse(value: String): String \/ Json
 
   /**
    * Parses the string value and executes one of the given functions, depending on the parse outcome.
@@ -92,4 +84,18 @@ object Parse {
    */
   def decodeOption[X: DecodeJson](value: String): Option[X] =
     decode(value).toOption
+}
+
+/**
+ * Library functions for parsing json.
+ */
+object Parse extends Parse {
+  import Json._
+
+  /**
+   * Parses the string value and either returns a list of the failures from parsing the string
+   * or an instance of the Json type if parsing succeeds.
+   */
+  def parse(value: String): String \/ Json =
+    JsonParser.parse(value)
 }
