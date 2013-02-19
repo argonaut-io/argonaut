@@ -5,6 +5,10 @@ import scalaz._, Scalaz._
 trait Parse {
   import Json._
 
+  /**
+   * Parses the string value and either returns a list of the failures from parsing the string
+   * or an instance of the Json type if parsing succeeds.
+   */
   def parse(value: String): String \/ Json
 
   /**
@@ -90,12 +94,6 @@ trait Parse {
  * Library functions for parsing json.
  */
 object Parse extends Parse {
-  import Json._
-
-  /**
-   * Parses the string value and either returns a list of the failures from parsing the string
-   * or an instance of the Json type if parsing succeeds.
-   */
   def parse(value: String): String \/ Json =
     JsonParser.parse(value)
 }
