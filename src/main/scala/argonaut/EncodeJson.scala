@@ -163,7 +163,7 @@ trait EncodeJsons {
   def jencode4[X, A: EncodeJson, B: EncodeJson, C: EncodeJson, D: EncodeJson](f: X => (A, B, C, D)): EncodeJson[X] =
     implicitly[EncodeJson[(A, B, C, D)]].contramap(f)
 
-  def jencode1L[X, A: EncodeJson](f: X => A)(an: JsonString, bn: JsonString): EncodeJson[X] =
+  def jencode1L[X, A: EncodeJson](f: X => A)(an: JsonString): EncodeJson[X] =
     EncodeJson(x => jObjectAssocList({
       val a = f(x)
       List((an, implicitly[EncodeJson[A]] apply a))
