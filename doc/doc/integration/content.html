@@ -1,0 +1,40 @@
+<h1>Integrations</h1>
+
+<div id="content">
+
+<h2>Unfiltered</h2>
+
+<p>
+Grab argonaut-unfiltered by adding the following dependency to sbt:
+</p>
+<pre>
+libraryDependencies ++= Seq(
+  ("io.argonaut" %% "argonaut-unfiltered" % "6.0-SNAPSHOT").cross(CrossVersion.full)
+)</pre>
+
+<pre class="prettyprint lang-scala linenums">
+import argonaut._, Argonaut._
+import unfiltered.request._
+import unfiltered.response._
+
+class App extends unfiltered.filter.Plan {
+  case class Data(value: String)
+
+  implicit def DataEncodeJson: EncodeJson[Data] =
+    jencode1L((d: Data) => d.value)("data")
+  implicit def DataDecodeJson: DecodeJson[Data] =
+    jdecode1L(Data.apply)("data")
+
+  def intent = {
+    case req@ Get("/echo") =>
+      JsonRequest(req).decodeOption[Data] match {
+        case None => BadRequest
+        case Some(data) => Ok ~> JsonResponse(data)
+      }
+  }
+}
+</pre>
+
+<script type="text/javascript">
+  prettyPrint();
+</script>
