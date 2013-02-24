@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import Tools.onVersion
+import sbtrelease.ReleasePlugin._
 
 object build extends Build {
   type Sett = Project.Setting[_]
