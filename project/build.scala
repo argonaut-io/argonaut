@@ -9,7 +9,6 @@ object build extends Build {
 
   val base = Defaults.defaultSettings ++ ScalaSettings.all ++ Seq[Sett](
       organization := "io.argonaut"
-    , version := "6.0-SNAPSHOT"
   )
 
   val scalaz = "org.scalaz" %% "scalaz-core" % "7.0.0-M8"
