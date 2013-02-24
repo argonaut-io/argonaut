@@ -62,10 +62,10 @@ trait DecodeResults {
     PLens(_.result.fold(q => Some(Store(r => failedResult(r._1, r._2), q)),_ => None))
 
   def failedResultMessageL[A]: DecodeResult[A] @?> String =
-    ~LensT.firstLens compose failedResultL[A]
+    ~Lens.firstLens compose failedResultL[A]
 
   def failedResultHistoryL[A]: DecodeResult[A] @?> CursorHistory =
-    ~LensT.secondLens compose failedResultL[A]
+    ~Lens.secondLens compose failedResultL[A]
 
   implicit def DecodeResultMonad: Monad[DecodeResult] = new Monad[DecodeResult] {
     def point[A](a: => A) = DecodeResult(a)

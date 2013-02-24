@@ -158,7 +158,7 @@ trait JsonObjects {
    * The partial lens to the JSON value.
    */
   def jsonObjectPL(f: JsonField): JsonObject @?> Json =
-    PLensT.somePLens compose ~jsonObjectL(f)
+    PLens.somePLens compose ~jsonObjectL(f)
 
   implicit val JsonObjectInstances: Equal[JsonObject] with Show[JsonObject] =
     new Equal[JsonObject] with Show[JsonObject] {
