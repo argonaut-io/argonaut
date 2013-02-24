@@ -54,6 +54,13 @@ object CaliperScalaUtilJSONBenchmarkRunner {
 
 case class CaliperArgonautBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(json.parse)
+  val jsonToPrint = Data.apachebuilds.parseOption.get
+  def timenospaces(reps: Int) = repeat(reps){
+    jsonToPrint.nospaces.length
+  }
+  def timespaces4(reps: Int) = repeat(reps){
+    jsonToPrint.spaces4.length
+  }
 }
 
 case class CaliperLiftBenchmark() extends CaliperBenchmark {
@@ -82,7 +89,7 @@ object ArgonautSimpleBench {
   def main(args: Array[String]) {
     val json = Data.apachebuilds.parseOption.get
     Thread.sleep(10000)
-    (0 to 1000).foldLeft(0l){(left, right) => left + json.nospaces.length + right}
+    (0 to 1000).foldLeft(0l){(left, right) => left + json.spaces4.length + right}
   }
 }
 
