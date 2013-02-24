@@ -116,21 +116,18 @@ sealed trait PrettyParams {
         , n => builder.append(n.shows)
         , s => encloseJsonString(builder, s)
         , e => {
-          val elements: List[StringBuilder => StringBuilder] = e
-            .map(subElement => (builder: StringBuilder) => trav(builder, depth + 1, subElement))
-            .intersperse(b => comma(b))
-          elements.foldLeft(lbracket(builder)){(builder, elem) =>
-            elem(builder)
-          }|> rbracket
+          e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
+            val withComma = if(firstElement) builder else comma(builder)
+            val updatedBuilder = trav(withComma, depth + 1, subElement)
+            (false, updatedBuilder)
+          }._2 |> rbracket
         }
         , o => {
-          val elements: List[StringBuilder => StringBuilder] = o
-            .toList
-            .map(pair => (builder: StringBuilder) => (trav(colon(encloseJsonString(builder, pair._1)), depth + 1, pair._2)))
-            .intersperse(b => comma(b))
-          elements.foldLeft(lbrace(builder)){(builder, elem) =>
-            elem(builder)
-          }|> rbrace
+          o.toList.foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
+            val withComma = if(firstElement) builder else comma(builder)
+            val updatedBuilder = trav(encloseJsonString(withComma, key) |> colon, depth + 1, value)
+            (false, updatedBuilder)
+          }._2 |> rbrace
         }
       )
     }
@@ -141,7 +138,7 @@ sealed trait PrettyParams {
   /**
    * Returns a `Vector[Char]` representation of a pretty-printed JSON value.
    */
-  def lpretty(j: Json): Vector[Char] = Vector.empty[Char] ++ pretty(j).toIndexedSeq
+  def lpretty(j: Json): Vector[Char] = Vector.empty[Char] ++ pretty(j)
 }
 
 object StringEscaping {
@@ -154,7 +151,7 @@ object StringEscaping {
       case '\n' => "\\n"
       case '\r' => "\\r"
       case '\t' => "\\t"
-      case possibleUnicode if possibleUnicode.isControl => "\\u%04x".format(possibleUnicode.toInt)
+      case possibleUnicode if Character.isISOControl(possibleUnicode) => "\\u%04x".format(possibleUnicode.toInt)
       case _ => c.toString
     }
 }
