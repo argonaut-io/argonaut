@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._, LensT._
+import scalaz._, Scalaz._, Lens._
 
 import Json._
 
