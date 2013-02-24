@@ -9,67 +9,65 @@ import annotation.tailrec
  * @author Tony Morris
  */
 sealed trait PrettyParams {
-  import PrettyParams._
-
   /**
    * Takes the current depth and returns the spaces to insert to left of a left brace.
    */
-  val lbraceLeft: AppendIndent
+  val lbraceLeft: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to right of a left brace.
    */
-  val lbraceRight: AppendIndent
+  val lbraceRight: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to left of a right brace.
    */
-  val rbraceLeft: AppendIndent
+  val rbraceLeft: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to right of a right brace.
    */
-  val rbraceRight: AppendIndent
+  val rbraceRight: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to left of a left bracket.
    */
-  val lbracketLeft: AppendIndent
+  val lbracketLeft: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to right of a left bracket.
    */
-  val lbracketRight: AppendIndent
+  val lbracketRight: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to left of a right bracket.
    */
-  val rbracketLeft: AppendIndent
+  val rbracketLeft: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to right of a right bracket.
    */
-  val rbracketRight: AppendIndent
+  val rbracketRight: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to left of a comma.
    */
-  val commaLeft: AppendIndent
+  val commaLeft: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to right of a comma.
    */
-  val commaRight: AppendIndent
+  val commaRight: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to left of a colon.
    */
-  val colonLeft: AppendIndent
+  val colonLeft: Int => String
 
   /**
    * Takes the current depth and returns the spaces to insert to right of a colon.
    */
-  val colonRight: AppendIndent
+  val colonRight: Int => String
 
   private[this] final val openBraceText = "{"
   private[this] final val closeBraceText = "}"
@@ -93,29 +91,23 @@ sealed trait PrettyParams {
       jsonString.foldLeft(builder.append(stringEnclosureText))((working, char) => working.append(escape(char))).append(stringEnclosureText)
     }
     def trav(builder: StringBuilder, depth: Int, k: Json): StringBuilder = {
-
       def lbrace(builder: StringBuilder): StringBuilder = {
-        lbraceRight(lbraceLeft(builder, depth).append(openBraceText), depth + 1)
+        builder.append(lbraceLeft(depth)).append(openBraceText).append(lbraceRight(depth + 1))
       }
-
       def rbrace(builder: StringBuilder): StringBuilder = {
-        rbraceRight(rbraceLeft(builder, depth + 1).append(closeBraceText), depth)
+        builder.append(rbraceLeft(depth + 1)).append(closeBraceText).append(rbraceRight(depth))
       }
-
       def lbracket(builder: StringBuilder): StringBuilder = {
-        lbracketRight(lbracketLeft(builder, depth).append(openArrayText), depth + 1)
+        builder.append(lbracketLeft(depth)).append(openArrayText).append(lbracketRight(depth + 1))
       }
-
       def rbracket(builder: StringBuilder): StringBuilder = {
-        rbracketRight(rbracketLeft(builder, depth + 1).append(closeArrayText), depth)
+        builder.append(rbracketLeft(depth + 1)).append(closeArrayText).append(rbracketRight(depth))
       }
-
       def comma(builder: StringBuilder): StringBuilder = {
-        commaRight(commaLeft(builder, depth + 1).append(commaText), depth + 1)
+        builder.append(commaLeft(depth + 1)).append(commaText).append(commaRight(depth + 1))
       }
-
       def colon(builder: StringBuilder): StringBuilder = {
-        colonRight(colonLeft(builder, depth + 1).append(colonText), depth + 1)
+        builder.append(colonLeft(depth + 1)).append(colonText).append(colonRight(depth + 1))
       }
 
       k.fold[StringBuilder](
@@ -124,29 +116,14 @@ sealed trait PrettyParams {
         , n => builder.append(n.shows)
         , s => encloseJsonString(builder, s)
         , e => {
-          e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
-            val withComma = if(firstElement) builder else comma(builder)
-            val updatedBuilder = trav(withComma, depth + 1, subElement)
-            (false, updatedBuilder)
-          }._2 |> rbracket
-
-          /*
           val elements: List[StringBuilder => StringBuilder] = e
             .map(subElement => (builder: StringBuilder) => trav(builder, depth + 1, subElement))
             .intersperse(b => comma(b))
           elements.foldLeft(lbracket(builder)){(builder, elem) =>
             elem(builder)
           }|> rbracket
-          */
         }
         , o => {
-          o.toList.foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
-            val withComma = if(firstElement) builder else comma(builder)
-            val updatedBuilder = trav(encloseJsonString(withComma, key) |> colon, depth + 1, value)
-            (false, updatedBuilder)
-          }._2 |> rbrace
-
-          /*
           val elements: List[StringBuilder => StringBuilder] = o
             .toList
             .map(pair => (builder: StringBuilder) => (trav(colon(encloseJsonString(builder, pair._1)), depth + 1, pair._2)))
@@ -154,7 +131,6 @@ sealed trait PrettyParams {
           elements.foldLeft(lbrace(builder)){(builder, elem) =>
             elem(builder)
           }|> rbrace
-          */
         }
       )
     }
@@ -178,26 +154,25 @@ object StringEscaping {
       case '\n' => "\\n"
       case '\r' => "\\r"
       case '\t' => "\\t"
-      case possibleUnicode if Character.isISOControl(possibleUnicode) => "\\u%04x".format(possibleUnicode.toInt)
+      case possibleUnicode if possibleUnicode.isControl => "\\u%04x".format(possibleUnicode.toInt)
       case _ => c.toString
     }
 }
 
 object PrettyParams extends PrettyParamss {
-  type AppendIndent = (StringBuilder, Int) => StringBuilder
   def apply(
-             lbraceLeft0: AppendIndent
-           , lbraceRight0: AppendIndent
-           , rbraceLeft0: AppendIndent
-           , rbraceRight0: AppendIndent
-           , lbracketLeft0: AppendIndent
-           , lbracketRight0: AppendIndent
-           , rbracketLeft0: AppendIndent
-           , rbracketRight0: AppendIndent
-           , commaLeft0: AppendIndent
-           , commaRight0: AppendIndent
-           , colonLeft0: AppendIndent
-           , colonRight0: AppendIndent
+             lbraceLeft0: Int => String
+           , lbraceRight0: Int => String
+           , rbraceLeft0: Int => String
+           , rbraceRight0: Int => String
+           , lbracketLeft0: Int => String
+           , lbracketRight0: Int => String
+           , rbracketLeft0: Int => String
+           , rbracketRight0: Int => String
+           , commaLeft0: Int => String
+           , commaRight0: Int => String
+           , colonLeft0: Int => String
+           , colonRight0: Int => String
            ): PrettyParams =
     new PrettyParams {
       val lbraceLeft = lbraceLeft0
@@ -216,30 +191,29 @@ object PrettyParams extends PrettyParamss {
 }
 
 trait PrettyParamss {
-  import PrettyParams._
-  val builderIdentity: AppendIndent = (builder, n) => builder
+  val zeroString = (_: Int) => ""
   /**
    * A pretty-printer configuration that inserts no spaces.
    */
   def nospace: PrettyParams =
     PrettyParams(
-      builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
-    , builderIdentity
+      zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
+    , zeroString
     )
 
   @tailrec
-  final def repeatAppend(stringBuilder: StringBuilder, toAppend: String, n: Int): StringBuilder = {
-    if (n > 0) repeatAppend(stringBuilder.append(toAppend), toAppend, n - 1) else stringBuilder
+  final def repeatAppend(cord: Cord, toAppend: String, n: Int): Cord = {
+    if (n > 0) repeatAppend(cord :+ toAppend, toAppend, n - 1) else cord
   }
 
   /**
@@ -247,18 +221,18 @@ trait PrettyParamss {
    */
   def pretty(indent: String): PrettyParams =
     PrettyParams(
-      builderIdentity
-    , (builder, n) => repeatAppend(builder.append("\n"), indent, n)
-    , (builder, n) => repeatAppend(builder.append("\n"), indent, n - 1)
-    , builderIdentity
-    , builderIdentity
-    , (builder, n) => repeatAppend(builder.append("\n"), indent, n)
-    , (builder, n) => repeatAppend(builder.append("\n"), indent, n - 1)
-    , builderIdentity
-    , builderIdentity
-    , (builder, n) => repeatAppend(builder.append("\n"), indent, n)
-    , (builder, n) => builder.append(" ")
-    , (builder, n) => builder.append(" ")
+      zeroString
+    , n => "\n" + indent * n
+    , n => "\n" + indent * (n - 1)
+    , zeroString
+    , zeroString
+    , n => "\n" + indent * n
+    , n => "\n" + indent * (n - 1)
+    , zeroString
+    , zeroString
+    , n => "\n" + indent * n
+    , n => " "
+    , n => " "
     )
 
   /**
