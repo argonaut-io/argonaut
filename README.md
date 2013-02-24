@@ -27,9 +27,9 @@ Argonaut is a JSON library built using Scala. It provides functionality to speci
 
 ### SBT Settings
 
-Just add argonaut as a dependency (6.0-SNAPSHOT is the only version available on oss.sonatype.org at the moment):
+Just add argonaut as a dependency (6.0-M1 is the current version available on oss.sonatype.org at the moment):
 
-    ("io.argonaut" %% "argonaut" % "6.0-SNAPSHOT").cross(CrossVersion.full)
+    "io.argonaut" %% "argonaut" % "6.0-M1"
 
 ### Release
 
@@ -54,5 +54,3 @@ The library was open-sourced under a [BSD License](https://github.com/markhibber
 The initial developers have since left the employment of Ephox and now maintain this fork `markhibberd/argonaut`.
 
 It is expected that major releases will now come from this repository.
-
-
