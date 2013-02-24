@@ -45,11 +45,18 @@
               cutting a major 6.0 release. Older versions are available from
               <a href="http://repo.mth.io">http://repo.mth.io</a>.
             </p>
-            <p>Depending on argonaut with sbt:</p>
+            <p>Depending on argonaut with sbt, stable:</p>
             <pre>
-libraryDependencies ++= Seq(
-  "io.argonaut" %% "argonaut" % "6.0-M1"
-)</pre>
+"io.argonaut" %% "argonaut" % "6.0-M1"
+</pre>
+            <p>Depending on argonaut with sbt, latest:</p>
+            <pre>
+"io.argonaut" %% "argonaut" % "6.0-SNAPSHOT"
+</pre>
+            <p>
+              Note that argonaut depends on scalaz 7.0-M8.
+            </p>
+
             <p>
               We are still building out our documention. In the meantime,
               please checkout the <a href="https://github.com/markhibberd/argonaut/tree/master/src/test/scala/argonaut/example">example code from the repository</a> and the
