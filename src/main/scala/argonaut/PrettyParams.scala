@@ -119,14 +119,18 @@ sealed trait PrettyParams {
           val elements: List[StringBuilder => StringBuilder] = e
             .map(subElement => (builder: StringBuilder) => trav(builder, depth + 1, subElement))
             .intersperse(b => comma(b))
-          rbracket(elements.foldLeft(lbracket(builder))((builder, elem) => elem(builder)))
+          elements.foldLeft(lbracket(builder)){(builder, elem) =>
+            elem(builder)
+          }|> rbracket
         }
         , o => {
           val elements: List[StringBuilder => StringBuilder] = o
             .toList
             .map(pair => (builder: StringBuilder) => (trav(colon(encloseJsonString(builder, pair._1)), depth + 1, pair._2)))
             .intersperse(b => comma(b))
-          rbrace(elements.foldLeft(lbrace(builder))((builder, elem) => elem(builder)))
+          elements.foldLeft(lbrace(builder)){(builder, elem) =>
+            elem(builder)
+          }|> rbrace
         }
       )
     }
