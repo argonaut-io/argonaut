@@ -23,7 +23,7 @@ object build extends Build {
   val argonaut = Project(
     id = "argonaut"
   , base = file(".")
-  , settings = base ++ ReplSettings.all ++ PublishSettings.all ++ InfoSettings.all ++ Seq[Sett](
+  , settings = base ++ ReplSettings.all ++ releaseSettings ++ PublishSettings.all ++ InfoSettings.all ++ Seq[Sett](
       name := "argonaut"
     , libraryDependencies <++= onVersion(
         all = Seq(scalaz, scalacheck)
