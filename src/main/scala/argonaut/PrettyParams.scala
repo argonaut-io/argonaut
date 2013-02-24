@@ -116,18 +116,18 @@ sealed trait PrettyParams {
         , n => builder.append(n.shows)
         , s => encloseJsonString(builder, s)
         , e => {
-          e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
+          rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
             val withComma = if(firstElement) builder else comma(builder)
             val updatedBuilder = trav(withComma, depth + 1, subElement)
             (false, updatedBuilder)
-          }._2 |> rbracket
+          }._2)
         }
         , o => {
-          o.toList.foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
+          rbrace(o.toList.foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
             val withComma = if(firstElement) builder else comma(builder)
-            val updatedBuilder = trav(encloseJsonString(withComma, key) |> colon, depth + 1, value)
+            val updatedBuilder = trav(colon(encloseJsonString(withComma, key)), depth + 1, value)
             (false, updatedBuilder)
-          }._2 |> rbrace
+          }._2)
         }
       )
     }
