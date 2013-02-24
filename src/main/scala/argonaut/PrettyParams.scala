@@ -86,10 +86,30 @@ sealed trait PrettyParams {
   def pretty(j: Json): String = {
     import Json._
     import StringEscaping._
-    def encloseJsonString(builder: StringBuilder, jsonString: JsonString): StringBuilder = {
-      // TODO: Improve this so that it doesn't need to call escape for every single char.
-      jsonString.foldLeft(builder.append(stringEnclosureText))((working, char) => working.append(escape(char))).append(stringEnclosureText)
+
+    @tailrec
+    def appendJsonString(builder: StringBuilder, jsonString: String, normalChars: Boolean = true): StringBuilder = {
+      if (normalChars) {
+        jsonString.span(isNormalChar) match {
+          case (prefix, suffix) => {
+            val prefixAppended = builder.append(prefix)
+            if (suffix.isEmpty) prefixAppended else appendJsonString(prefixAppended, suffix, false)
+          }
+        }
+      } else {
+        jsonString.span(isNotNormalChar) match {
+          case (prefix, suffix) => {
+            val prefixAppended = prefix.foldLeft(builder)((working, char) => working.append(escape(char)))
+            if (suffix.isEmpty) prefixAppended else appendJsonString(prefixAppended, suffix, true)
+          }
+        }
+      }
     }
+
+    def encloseJsonString(builder: StringBuilder, jsonString: JsonString): StringBuilder = {
+      appendJsonString(builder.append(stringEnclosureText), jsonString).append(stringEnclosureText)
+    }
+
     def trav(builder: StringBuilder, depth: Int, k: Json): StringBuilder = {
       def lbrace(builder: StringBuilder): StringBuilder = {
         builder.append(lbraceLeft(depth)).append(openBraceText).append(lbraceRight(depth + 1))
@@ -142,18 +162,29 @@ sealed trait PrettyParams {
 }
 
 object StringEscaping {
-  def escape(c: Char): String =
-    c match {
-      case '\\' => "\\\\"
-      case '"' => "\\\""
-      case '\b' => "\\b"
-      case '\f' => "\\f"
-      case '\n' => "\\n"
-      case '\r' => "\\r"
-      case '\t' => "\\t"
-      case possibleUnicode if Character.isISOControl(possibleUnicode) => "\\u%04x".format(possibleUnicode.toInt)
-      case _ => c.toString
-    }
+  def escape(c: Char): String = c match {
+    case '\\' => "\\\\"
+    case '"' => "\\\""
+    case '\b' => "\\b"
+    case '\f' => "\\f"
+    case '\n' => "\\n"
+    case '\r' => "\\r"
+    case '\t' => "\\t"
+    case possibleUnicode if Character.isISOControl(possibleUnicode) => "\\u%04x".format(possibleUnicode.toInt)
+    case _ => c.toString
+  }
+  val isNormalChar: Char => Boolean = char => char match {
+    case '\\' => false
+    case '"' => false
+    case '\b' => false
+    case '\f' => false
+    case '\n' => false
+    case '\r' => false
+    case '\t' => false
+    case possibleUnicode if Character.isISOControl(possibleUnicode) => false
+    case _ => true
+  }
+  val isNotNormalChar: Char => Boolean = char => !isNormalChar(char)
 }
 
 object PrettyParams extends PrettyParamss {
