@@ -11,19 +11,7 @@ sealed trait DecodeResult[+A] {
   ): X = result.fold({ case (m, h) => failure(m, h) }, value)
 
   final def loop[X, B >: A](e: (String, CursorHistory) => X, f: B => X \/ DecodeResult[B]): X =
-    error("todo")
-/*
-  @annotation.tailrec
-  final def loop[X](e: (String, CursorHistory) => X, f: A => X \/ DecodeResult[A]): X =
-    if (isError)
-      e(message.get, history.get)
-    else
-      f(value.get) match {
-        case -\/(x) => x
-        case \/-(a) => a.loop(e, f)
-        }
- */
-
+    DecodeResult.loop(this, e, f)
 
   def isError: Boolean =
     result.isLeft
@@ -79,6 +67,16 @@ trait DecodeResults {
     new DecodeResult[A] {
       val result: (String, CursorHistory) \/ A = (s, h).left
     }
+
+  @annotation.tailrec
+  final def loop[A, X](d: DecodeResult[A], e: (String, CursorHistory) => X, f: A => X \/ DecodeResult[A]): X =
+    if (d.isError)
+      e(d.message.get, d.history.get)
+    else
+      f(d.value.get) match {
+        case -\/(x) => x
+        case \/-(a) => loop(a, e, f)
+        }
 
   def failedResultL[A]: DecodeResult[A] @?> (String, CursorHistory) =
     PLens(_.result.fold(q => Some(Store(r => failedResult(r._1, r._2), q)),_ => None))
