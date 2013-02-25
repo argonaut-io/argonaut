@@ -115,16 +115,30 @@ trait DecodeJsons {
     DecodeJson(a => {
       val d = a.downArray
       if(d.succeeded)
-        d.hcursor.traverseA[DecodeResult[List[A]]](Kleisli[({type λ[+α] = State[DecodeResult[List[A]], α]})#λ, HCursor, ACursor](c =>
-            State((x: DecodeResult[List[A]]) => (for {
-              h <- implicitly[DecodeJson[A]] apply c
-              t <- x
-            } yield h :: t, c.right))
-          )) exec DecodeResult(Nil) map (_.reverse)
+        d.hcursor.traverseUntilDone(List[A]().pure[DecodeResult])((c, acc) =>
+          ((for {
+            h <- c.jdecode[A]
+            t <- acc
+          } yield h :: t), c.right)) map (_.reverse)
       else if(a.focus.isArray)
         DecodeResult(Nil)
       else
         DecodeResult.failedResult("[A]List[A]", a.history)
+    })
+
+  implicit def VectorDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Vector[A]] =
+    DecodeJson(a => {
+      val d = a.downArray
+      if(d.succeeded)
+        d.hcursor.traverseUntilDone(Vector[A]().pure[DecodeResult])((c, acc) =>
+          (for {
+            init <- acc
+            last <- c.jdecode[A]
+          } yield init :+ last, c.right))
+      else if(a.focus.isArray)
+        DecodeResult(Vector())
+      else
+        DecodeResult.failedResult("[A]Vector[A]", a.history)
     })
 
   implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =

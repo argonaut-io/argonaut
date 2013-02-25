@@ -52,6 +52,9 @@ trait EncodeJsons {
   implicit def ListEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[List[A]] =
     EncodeJson(a => jArray(a map (e(_))))
 
+  implicit def VectorEncodeJson[A](implicit e: EncodeJson[List[A]]): EncodeJson[Vector[A]] =
+    EncodeJson(a => e(a.toList))
+
   implicit def StreamEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Stream[A]] =
     EncodeJson(a => jArray(a.toList map (e(_))))
 

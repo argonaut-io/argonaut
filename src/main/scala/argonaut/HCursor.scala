@@ -218,7 +218,7 @@ sealed trait HCursor {
   def up: ACursor =
     history.acursorElement(Store(_.up, cursor), CursorOpUp)
 
-  // (HCursor, X) => (Option[HCursor], X) => X => X
+
   def traverseBreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[HCursor]]): Endo[X] =
     Endo(x => {
       @annotation.tailrec
@@ -236,6 +236,7 @@ sealed trait HCursor {
   def traverse[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, HCursor]): Endo[X] =
     traverseBreak(r map (Some(_)))
 
+  // FIX These are rubbish, and not safe. Free me.
   def traverseABreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[ACursor]]): State[X, Boolean] =
     State(x => {
       @annotation.tailrec
@@ -257,6 +258,11 @@ sealed trait HCursor {
   def traverseA[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, ACursor]): State[X, Boolean] =
     traverseABreak(r map (Some(_)))
 
+  def traverseUntil[X](init: X)(f: (HCursor, X) => (X, Option[ACursor])): X =
+    traverseABreak[X](Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[ACursor]](c => State((x: X) => f(c, x)))) exec init
+
+  def traverseUntilDone[X](init: X)(f: (HCursor, X) => (X, ACursor)): X =
+    traverseUntil(init)((c, x) => f(c, x) match { case (xx, a) => (xx, Some(a)) })
 }
 
 object HCursor extends HCursors {
