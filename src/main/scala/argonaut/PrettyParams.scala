@@ -87,6 +87,14 @@ sealed trait PrettyParams {
     import Json._
     import StringEscaping._
 
+    import Memo._
+    val lbraceMemo = mutableHashMapMemo[Int, String]{depth: Int => lbraceLeft(depth) + openBraceText + lbraceRight(depth + 1)}
+    val rbraceMemo = mutableHashMapMemo[Int, String]{depth: Int => rbraceLeft(depth + 1) + closeBraceText + rbraceRight(depth)}
+    val lbracketMemo = mutableHashMapMemo[Int, String]{depth: Int => lbracketLeft(depth) + openArrayText + lbracketRight(depth + 1)}
+    val rbracketMemo = mutableHashMapMemo[Int, String]{depth: Int => rbracketLeft(depth + 1) + closeArrayText + rbracketRight(depth)}
+    val commaMemo = mutableHashMapMemo[Int, String]{depth: Int => commaLeft(depth + 1) + commaText + commaRight(depth + 1)}
+    val colonMemo = mutableHashMapMemo[Int, String]{depth: Int => colonLeft(depth + 1) + colonText + colonRight(depth + 1)}
+
     @tailrec
     def appendJsonString(builder: StringBuilder, jsonString: String, normalChars: Boolean = true): StringBuilder = {
       if (normalChars) {
@@ -111,23 +119,24 @@ sealed trait PrettyParams {
     }
 
     def trav(builder: StringBuilder, depth: Int, k: Json): StringBuilder = {
+
       def lbrace(builder: StringBuilder): StringBuilder = {
-        builder.append(lbraceLeft(depth)).append(openBraceText).append(lbraceRight(depth + 1))
+        builder.append(lbraceMemo(depth))
       }
       def rbrace(builder: StringBuilder): StringBuilder = {
-        builder.append(rbraceLeft(depth + 1)).append(closeBraceText).append(rbraceRight(depth))
+        builder.append(rbraceMemo(depth))
       }
       def lbracket(builder: StringBuilder): StringBuilder = {
-        builder.append(lbracketLeft(depth)).append(openArrayText).append(lbracketRight(depth + 1))
+        builder.append(lbracketMemo(depth))
       }
       def rbracket(builder: StringBuilder): StringBuilder = {
-        builder.append(rbracketLeft(depth + 1)).append(closeArrayText).append(rbracketRight(depth))
+        builder.append(rbracketMemo(depth))
       }
       def comma(builder: StringBuilder): StringBuilder = {
-        builder.append(commaLeft(depth + 1)).append(commaText).append(commaRight(depth + 1))
+        builder.append(commaMemo(depth))
       }
       def colon(builder: StringBuilder): StringBuilder = {
-        builder.append(colonLeft(depth + 1)).append(colonText).append(colonRight(depth + 1))
+        builder.append(colonMemo(depth))
       }
 
       k.fold[StringBuilder](
