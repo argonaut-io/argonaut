@@ -258,11 +258,24 @@ sealed trait HCursor {
   def traverseA[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, ACursor]): State[X, Boolean] =
     traverseABreak(r map (Some(_)))
 
-  def traverseUntil[X](init: X)(f: (HCursor, X) => (X, Option[ACursor])): X =
-    traverseABreak[X](Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[ACursor]](c => State((x: X) => f(c, x)))) exec init
+  def traverseUntil[X](init: X)(f: (X, HCursor) => (X, Option[ACursor])): X =
+    traverseABreak[X](Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[ACursor]](c => State((x: X) => f(x, c)))) exec init
 
-  def traverseUntilDone[X](init: X)(f: (HCursor, X) => (X, ACursor)): X =
-    traverseUntil(init)((c, x) => f(c, x) match { case (xx, a) => (xx, Some(a)) })
+  def traverseUntilDone[X](init: X)(f: (X, HCursor) => (X, ACursor)): X =
+    traverseUntil(init)((x, c) => { val (xx, cc) = f(x, c); (xx, Some(cc)) })
+
+  def traverseUntilX[X](init: X)(f: (X, HCursor) => (X, ACursor)): X = {
+      @annotation.tailrec
+      def spin(x: X, c: HCursor): X = {
+        val (xx, a) = f(x, c)
+        if (a.succeeded)
+          spin(xx, a.hcursor)
+        else
+          xx
+      }
+      spin(init, this)
+  }
+
 }
 
 object HCursor extends HCursors {

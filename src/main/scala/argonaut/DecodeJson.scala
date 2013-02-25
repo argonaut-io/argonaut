@@ -115,7 +115,7 @@ trait DecodeJsons {
     DecodeJson(a => {
       val d = a.downArray
       if(d.succeeded)
-        d.hcursor.traverseUntilDone(List[A]().pure[DecodeResult])((c, acc) =>
+        d.hcursor.traverseUntilDone(List[A]().pure[DecodeResult])((acc, c) =>
           ((for {
             h <- c.jdecode[A]
             t <- acc
@@ -130,11 +130,14 @@ trait DecodeJsons {
     DecodeJson(a => {
       val d = a.downArray
       if(d.succeeded)
-        d.hcursor.traverseUntilDone(Vector[A]().pure[DecodeResult])((c, acc) =>
-          (for {
-            init <- acc
-            last <- c.jdecode[A]
-          } yield init :+ last, c.right))
+        (d.hcursor, Vector[A]()).pure[DecodeResult].loop(DecodeResult.failedResult, (r: (HCursor, Vector[A])) => r match {
+          case (c: HCursor, acc: Vector[A]) =>
+            val a = c.right
+            if (a.succeeded)
+              \/-(a.hcursor.focus.jdecode[A] map (el => (a.hcursor, acc :+ el)))
+            else
+              -\/(acc.pure[DecodeResult])
+        })
       else if(a.focus.isArray)
         DecodeResult(Vector())
       else

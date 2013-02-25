@@ -10,6 +10,24 @@ sealed trait DecodeResult[+A] {
     value: A => X
   ): X = result.fold({ case (m, h) => failure(m, h) }, value)
 
+  final def loop[X, B >: A](e: (String, CursorHistory) => X, f: B => X \/ DecodeResult[B]): X =
+    error("todo")
+/*
+  @annotation.tailrec
+  final def loop[X](e: (String, CursorHistory) => X, f: A => X \/ DecodeResult[A]): X =
+    if (isError)
+      e(message.get, history.get)
+    else
+      f(value.get) match {
+        case -\/(x) => x
+        case \/-(a) => a.loop(e, f)
+        }
+ */
+
+
+  def isError: Boolean =
+    result.isLeft
+
   def map[B](f: A => B): DecodeResult[B] =
     DecodeResult.build(result map f)
 
@@ -17,13 +35,17 @@ sealed trait DecodeResult[+A] {
     DecodeResult.build(result flatMap (f(_).result))
 
   def message: Option[String] =
-    result.swap.toOption map (_._1)
+    failure map (_._1)
 
   def history: Option[CursorHistory] =
-    result.swap.toOption map (_._2)
+    failure map (_._2)
 
   def value: Option[A] =
     result.toOption
+
+  def failure: Option[(String, CursorHistory)] =
+    result.swap.toOption
+
 
   def toEither: Either[(String, CursorHistory), A] =
     result.toEither
