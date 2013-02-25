@@ -219,6 +219,16 @@ sealed trait HCursor {
     history.acursorElement(Store(_.up, cursor), CursorOpUp)
 
 
+  // FIX These are rubbish (that is all of these traverse operations).
+  //     Revisit and tidy. Option[ACursor] in particular doesn't
+  //     represent anything meaningful, the client has to set the
+  //     termination state either None or Some(!_.succeeded), but
+  //     could just have one since it can represent success, failure
+  //     or indeference in the accumulator (X).
+  //
+  //     For now I have added some specialisations to get rid of a
+  //     bunch of dupe. But further work is required.
+
   def traverseBreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[HCursor]]): Endo[X] =
     Endo(x => {
       @annotation.tailrec
@@ -236,7 +246,6 @@ sealed trait HCursor {
   def traverse[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, HCursor]): Endo[X] =
     traverseBreak(r map (Some(_)))
 
-  // FIX These are rubbish, and not safe. Free me.
   def traverseABreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[ACursor]]): State[X, Boolean] =
     State(x => {
       @annotation.tailrec
@@ -258,24 +267,36 @@ sealed trait HCursor {
   def traverseA[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, ACursor]): State[X, Boolean] =
     traverseABreak(r map (Some(_)))
 
+  /**
+   * Traverse until either `f` does not return a cursor or the cursor did not succeed,
+   * accumulating X at each sterp
+   */
   def traverseUntil[X](init: X)(f: (X, HCursor) => (X, Option[ACursor])): X =
     traverseABreak[X](Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[ACursor]](c => State((x: X) => f(x, c)))) exec init
 
+  /**
+   * Traverse until `f` returns a cursor that did not succeed,
+   * accumulating X at each step
+   */
   def traverseUntilDone[X](init: X)(f: (X, HCursor) => (X, ACursor)): X =
     traverseUntil(init)((x, c) => { val (xx, cc) = f(x, c); (xx, Some(cc)) })
 
-  def traverseUntilX[X](init: X)(f: (X, HCursor) => (X, ACursor)): X = {
-      @annotation.tailrec
-      def spin(x: X, c: HCursor): X = {
-        val (xx, a) = f(x, c)
+  /**
+   * Traverse taking `op` at each step, performing `f` on the current cursor
+   * and accumulate X through DecodeResult.
+   *
+   * This operation does not consume stack at each step, so is safe to
+   * work with large structures (that is compared with recursive flatMap).
+   */
+  def traverseDecode[X](init: X)(op: HCursor => ACursor, f: (X, HCursor) => DecodeResult[X]) =
+    f(init, this).map(x => (this, x)).loop[DecodeResult[X], (HCursor, X)](
+      DecodeResult.failedResult, { case (c, acc) =>
+        val a = op(c)
         if (a.succeeded)
-          spin(xx, a.hcursor)
+          (f(acc, a.hcursor) map (x => (a.hcursor, x))).right
         else
-          xx
-      }
-      spin(init, this)
-  }
-
+          acc.pure[DecodeResult].left
+      })
 }
 
 object HCursor extends HCursors {

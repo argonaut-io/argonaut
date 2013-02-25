@@ -115,11 +115,8 @@ trait DecodeJsons {
     DecodeJson(a => {
       val d = a.downArray
       if(d.succeeded)
-        d.hcursor.traverseUntilDone(List[A]().pure[DecodeResult])((acc, c) =>
-          ((for {
-            h <- c.jdecode[A]
-            t <- acc
-          } yield h :: t), c.right)) map (_.reverse)
+        d.hcursor.traverseDecode(List[A]())(_.right, (acc, c) =>
+          c.focus.jdecode[A] map (_ :: acc)) map (_.reverse)
       else if(a.focus.isArray)
         DecodeResult(Nil)
       else
@@ -130,20 +127,15 @@ trait DecodeJsons {
     DecodeJson(a => {
       val d = a.downArray
       if(d.succeeded)
-        (d.hcursor, Vector[A]()).pure[DecodeResult].loop(DecodeResult.failedResult, (r: (HCursor, Vector[A])) => r match {
-          case (c: HCursor, acc: Vector[A]) =>
-            val a = c.right
-            if (a.succeeded)
-              \/-(a.hcursor.focus.jdecode[A] map (el => (a.hcursor, acc :+ el)))
-            else
-              -\/(acc.pure[DecodeResult])
-        })
+        d.hcursor.traverseDecode(Vector[A]())(_.right, (acc, c) =>
+          c.focus.jdecode[A] map (acc :+ _))
       else if(a.focus.isArray)
         DecodeResult(Vector())
       else
         DecodeResult.failedResult("[A]Vector[A]", a.history)
     })
 
+  // FIX Consider same treatment as List/Vector.
   implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
     DecodeJson(a => {
       val d = a.downArray

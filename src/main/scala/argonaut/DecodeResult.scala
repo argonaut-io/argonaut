@@ -34,7 +34,6 @@ sealed trait DecodeResult[+A] {
   def failure: Option[(String, CursorHistory)] =
     result.swap.toOption
 
-
   def toEither: Either[(String, CursorHistory), A] =
     result.toEither
 
