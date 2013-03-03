@@ -168,10 +168,14 @@ trait DecodeJsons {
     optionDecoder(x => if(x.isNull) Some(Float.NaN) else x.number map (_.toFloat), "Float")
 
   implicit def IntDecodeJson: DecodeJson[Int] =
-    optionDecoder(_.string flatMap (s => tryTo(s.toInt)), "Int")
+    optionDecoder(x =>
+      (x.number map (_.toInt)).orElse(
+      (x.string flatMap (s => tryTo(s.toInt)))), "Int")
 
   implicit def LongDecodeJson: DecodeJson[Long] =
-    optionDecoder(_.string flatMap (s => tryTo(s.toLong)), "Long")
+    optionDecoder(x =>
+      (x.number map (_.toLong)).orElse(
+      (x.string flatMap (s => tryTo(s.toLong)))), "Long")
 
   implicit def BooleanDecodeJson: DecodeJson[Boolean] =
     optionDecoder(_.bool, "Boolean")
