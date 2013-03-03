@@ -10,5 +10,5 @@ object ParseValidation extends App {
     }
   """)
 
-  println(if (result.isSuccess) "Parse was successfull" else "Parse failed")
+  println(if (result.isRight) "Parse was successfull" else "Parse failed")
 }

@@ -8,7 +8,7 @@ object ParseWithFailure extends App {
    { broken : hello,
   """
 
-  val errors = Parse.parseWith[List[String]](invalidjson, _ => Nil, _.list)
+  val errors = Parse.parseWith[Option[String]](invalidjson, _ => None, Some.apply)
 
   println("Parse errors: ")
   errors.foreach(println)
