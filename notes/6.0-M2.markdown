@@ -1,0 +1,18 @@
+
+6.0-M2 was primarily work on printing performance but a number
+of other small changes were made:
+
+  * Significant performance improvements to pretty printing code.
+
+  * Long and Int decoders re-instated support for decoding from both
+    numbers and strings.
+
+  * ParserWrap and Parser `Nel` methods were renamed to `Message`.
+    This reflects the fact that the error is a single string and no
+    longer an empty list.
+
+  * Added Encode/Decode codecs for `Vector`.
+
+  * Added specialised traversal operations on `HCursor`.
+
+  * Added tail-recursive co-routine `loop` operation to `DecodeResult`.
