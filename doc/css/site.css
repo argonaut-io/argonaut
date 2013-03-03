@@ -1,8 +1,8 @@
 body {
     font-family: 'Helvetica','Helvetica Neue',Arial,'Liberation Sans',FreeSans,sans-serif;
     font-size: .9em;
-    color: #525252;
-    background-color: #ccc;
+    color: #57534a;
+    background-color: #eee;
 }
 
 #header {
@@ -41,12 +41,12 @@ body {
 }
 
 a {
-    color: #00A;
+    color: #005580;
     text-decoration: none;
 }
 
 a:hover {
-    color: #00A;
+    color: #005580;
     text-decoration: underline;
 }
 
@@ -136,7 +136,7 @@ pre {
     border: 1px solid black;
     background-color: #333;
     color: white;
-    font-weight: bold;
+
     font-size: 14px;
 }
 .section > div.title {
