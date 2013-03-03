@@ -52,8 +52,21 @@ Add to `~/.sbt/0.12.1/sonatype.sbt`
                                "<password>")
 
 
-Run:
+For a snapshot build run:
     ./sbt "+publish"
+
+For a release build run:
+
+    ./sbt "release cross"
+
+Note for a release build you will want to enter the details for the
+release build number and then the subsequent build number. At this
+step it is fine to enter the original build number as the next number
+(for example when doing Milestone or RC builds). As an example:
+
+    Release version [6.0] : 6.0-M2
+    Next version [6.1-SNAPSHOT] : 6.0-SNAPSHOT
+
 
 ### Provenance
 
