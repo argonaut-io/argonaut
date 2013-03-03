@@ -73,7 +73,7 @@ trait Parse[A] {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithNel[B, X: DecodeJson](value: A, success: X => B, failure: String => B): B =
+  def decodeWithMessage[B, X: DecodeJson](value: A, success: X => B, failure: String => B): B =
     decodeWith(value, success, failure, (m, h) => failure(m + ": " + h.shows))
 
   /**

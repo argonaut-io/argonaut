@@ -74,8 +74,8 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithNel[A, X: DecodeJson](success: X => A, failure: String => A): A =
-    parser.decodeWithNel(value, success, failure)
+  def decodeWithMessage[A, X: DecodeJson](success: X => A, failure: String => A): A =
+    parser.decodeWithMessage(value, success, failure)
 
   /**
    * Parses the string value into a JSON value and if it succeeds, decodes to a data-type.
