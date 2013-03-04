@@ -509,6 +509,12 @@ trait Jsons {
     PLens(_.fold(None, _ => None, _ => None, _ => None, _ => None, z => Some(Store(JObject, z))))
 
   /**
+   * A partial lens for element of JSON array.
+   */
+  def jsonArrayPL(n: Int): JsonArray @?> Json =
+    PLens(array => array lift n map (Store(array.updated(n, _), _)))
+
+  /**
    * Construct a JSON value that is `null`.
    */
   val jNull: Json =
