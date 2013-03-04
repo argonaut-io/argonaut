@@ -171,7 +171,7 @@ sealed trait Cursor {
 
   /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `:->-`). */
   def rightN(n: Int): Option[Cursor] =
-    if(n > 0)
+    if(n < 0)
       -<-:(-n)
     else {
       @annotation.tailrec
