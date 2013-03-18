@@ -1,0 +1,11 @@
+
+6.0-M3 was primarily to keep up with Scalaz 7.0.0-M9.
+
+  * Added JsonArray lens thanks to @halcat0x15a
+
+  * Fixed Cursor#rightN which could loop indefinitely
+
+  * ACursor#focus new returns an option. Focus is `Some`
+    only when `succeeded` is `true`. ACursor#focusFailed
+    returns `Some` only when `succeeded is `false`. 
+
