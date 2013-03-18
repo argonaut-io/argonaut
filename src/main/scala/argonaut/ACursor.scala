@@ -38,9 +38,14 @@ sealed trait ACursor {
   def unary_~ : ACursor =
     reattempt
 
-  /** Return the current focus. */
-  def focus: Json =
-    cursor.focus
+  /** Return the current focus, iff we are succeeded */
+  def focus: Option[Json] =
+    if (succeeded) Some(cursor.focus) else None
+
+  /** Return the previous focus, iff we are !succeeded. */
+  def failedFocus: Option[Json] =
+    if (succeeded) Some(cursor.focus) else None
+
 
   /** Update the focus with the given function (alias for `withFocus`). */
   def >->(k: Json => Json): ACursor =
