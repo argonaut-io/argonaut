@@ -314,6 +314,7 @@ object JsonParser {
               case ' ' => process(NormalMode, position + 1, workingTokens, IgnoreToken)
               case '\r' => process(NormalMode, position + 1, workingTokens, IgnoreToken)
               case '\n' => process(NormalMode, position + 1, workingTokens, IgnoreToken)
+              case '\t' => process(NormalMode, position + 1, workingTokens, IgnoreToken)
               case _ => {
                 val numberEndIndex = safeIndexWhere(position, isNotNumberChar)
                 if (numberEndIndex == position) unexpectedContent()
