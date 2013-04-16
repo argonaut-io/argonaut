@@ -15,7 +15,6 @@ EncodeJsons with
 HCursors with
 Jsons with
 JsonIdentitys with
-JsonNumbers with
 JsonObjects with
 PrettyParamss with
 StringWraps

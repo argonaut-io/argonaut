@@ -10,7 +10,7 @@ import scala.util.Random.shuffle
 object Data {
   val maxJsonStructureDepth = 3
 
-  val jsonNumberGenerator: Gen[JNumber] = arbitrary[Double].map(number => JNumber(JsonNumber(number)))
+  val jsonNumberGenerator: Gen[JNumber] = arbitrary[Double].map(number => JNumber(number))
 
   def isValidJSONCharacter(char: Char): Boolean = !char.isControl && char != '\\' && char != '\"'
 
@@ -82,7 +82,7 @@ object Data {
   implicit def ArbitraryJson: Arbitrary[Json] = Arbitrary(jsonValueGenerator())
 
   implicit def ArbitraryJsonNumber: Arbitrary[JsonNumber] =
-    Arbitrary(arbitrary[Double] map (JsonNumber(_)))
+    Arbitrary(arbitrary[Double])
 
   implicit def ArbitraryJsonObject: Arbitrary[JsonObject] =
     Arbitrary(arbitrary[List[(JsonField, Json)]] map (as => JsonObject(InsertionMap(as: _*))))
