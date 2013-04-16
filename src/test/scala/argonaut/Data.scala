@@ -81,9 +81,6 @@ object Data {
 
   implicit def ArbitraryJson: Arbitrary[Json] = Arbitrary(jsonValueGenerator())
 
-  implicit def ArbitraryJsonNumber: Arbitrary[JsonNumber] =
-    Arbitrary(arbitrary[Double])
-
   implicit def ArbitraryJsonObject: Arbitrary[JsonObject] =
     Arbitrary(arbitrary[List[(JsonField, Json)]] map (as => JsonObject(InsertionMap(as: _*))))
 
