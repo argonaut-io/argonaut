@@ -16,39 +16,39 @@ object JsonParser {
   }
   sealed abstract class OpenToken extends JSONToken
   sealed abstract class CloseToken extends JSONToken
-  case object ArrayOpenToken extends OpenToken { 
+  case object ArrayOpenToken extends OpenToken {
     final val originalStringContent = "["
   }
-  case object ArrayCloseToken extends CloseToken { 
+  case object ArrayCloseToken extends CloseToken {
     final val originalStringContent = "]"
   }
-  case object ObjectOpenToken extends OpenToken { 
-    final val originalStringContent = "{" 
+  case object ObjectOpenToken extends OpenToken {
+    final val originalStringContent = "{"
   }
-  case object ObjectCloseToken extends CloseToken { 
-    final val originalStringContent = "}" 
+  case object ObjectCloseToken extends CloseToken {
+    final val originalStringContent = "}"
   }
-  case object EntrySeparatorToken extends JSONToken { 
-    final val originalStringContent = "," 
+  case object EntrySeparatorToken extends JSONToken {
+    final val originalStringContent = ","
   }
-  case object FieldSeparatorToken extends JSONToken { 
-    final val originalStringContent = ":" 
+  case object FieldSeparatorToken extends JSONToken {
+    final val originalStringContent = ":"
   }
-  case object StringBoundsToken extends OpenToken { 
-    final val originalStringContent = "\"" 
+  case object StringBoundsToken extends OpenToken {
+    final val originalStringContent = "\""
   }
   case class NumberToken(chunk: StringChunk) extends JSONToken {
     def originalStringContent = chunk.getString()
   }
   sealed abstract class BooleanToken extends JSONToken
-  case object BooleanTrueToken extends BooleanToken { 
-    final val originalStringContent = "true" 
+  case object BooleanTrueToken extends BooleanToken {
+    final val originalStringContent = "true"
   }
-  case object BooleanFalseToken extends BooleanToken { 
-    final val originalStringContent = "false" 
+  case object BooleanFalseToken extends BooleanToken {
+    final val originalStringContent = "false"
   }
-  case object NullToken extends JSONToken { 
-    final val originalStringContent = "null" 
+  case object NullToken extends JSONToken {
+    final val originalStringContent = "null"
   }
   sealed abstract class StringPartToken extends JSONToken {
     def appendToBuilder(builder: StringBuilder): StringBuilder
@@ -82,7 +82,7 @@ object JsonParser {
   }
 
   private[this] final type TokenSource = String
-  
+
   private[this] final def excerpt(string: String, limit: Int = 50): String = {
     if (string.size > limit) {
       string.take(limit) + "..."
@@ -150,7 +150,7 @@ object JsonParser {
       }
     }
   }
- 
+
   // Note the mutable collection type in the parameters.
   @tailrec
   private[this] final def expectArray(stream: List[JSONToken], first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (List[JSONToken], Json) = {
@@ -185,7 +185,7 @@ object JsonParser {
         numberAsString
           .parseDouble
           .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberAsString).left,
-                doubleValue => \/-((tail, jDouble(doubleValue))))
+                doubleValue => \/-((tail, jNumber(doubleValue))))
       }
       case IgnoreToken :: tail => expectValue(tail)
       case UnexpectedContentToken(excerpt) :: _ => "Unexpected content found: %s".format(excerpt.getString()).left

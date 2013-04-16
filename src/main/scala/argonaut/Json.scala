@@ -257,7 +257,7 @@ sealed trait Json {
    * Returns this JSON number object or the value `0` if it is not a number.
    */
   def numberOrZero: JsonNumber =
-    numberOr(JsonNumber(0D))
+    numberOr(0D)
 
   /**
    * Returns the string of this JSON value, or an empty string if this JSON value is not a string.
@@ -475,6 +475,7 @@ trait Jsons {
   type JsonField = String
   type JsonAssoc = (JsonField, Json)
   type JsonObjectMap = scalaz.InsertionMap[JsonField, Json]
+  type JsonNumber = Double
 
   import scalaz._, Scalaz._, PLens._, StoreT._
 
@@ -533,12 +534,6 @@ trait Jsons {
     JNumber(_)
 
   /**
-   * Construct a JSON value that is a double.
-   */
-  val jDouble: Double => Json =
-    d => JNumber(JsonNumber(d))
-
-  /**
    * Construct a JSON value that is a string.
    */
   val jString: JsonString => Json =
@@ -572,7 +567,7 @@ trait Jsons {
    * A JSON value that is a zero number.
    */
   val jZero: Json =
-    JNumber(JsonNumber(0D))
+    JNumber(0D)
 
   /**
    * A JSON value that is an empty string.
