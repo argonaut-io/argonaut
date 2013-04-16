@@ -18,7 +18,7 @@ object JsonSpecification extends Specification with ScalaCheck {
     "modified string should not be equal" ! prop((j: JString) =>
       j.withString(_ + "test") /== j) ^
     "modified number should not be equal" ! prop((j: JNumber) =>
-      j.withNumber(number => if (number.toDouble === 0.0d) number + JsonNumber(1) else number * JsonNumber(2)) /== j) ^
+      j.withNumber(number => if (number === 0.0d) number + 1 else number * 2) /== j) ^
     "modified array should not be equal" ! prop((j: JArray) =>
       j.withArray(jEmptyArray :: _) /== j) ^
     "modified object should not be equal" ! prop((j: JObject) =>
