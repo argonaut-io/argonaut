@@ -318,41 +318,39 @@ trait DecodeJsons {
   def jdecode4[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X): DecodeJson[X] =
     implicitly[DecodeJson[(A, B, C, D)]].map(x => f(x._1, x._2, x._3, x._4))
 
-  // FIX Remover all hcursor.jdecode, inference no longer an issue, and should be simple replace.
-  
   def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString): DecodeJson[X] =
     DecodeJson(x => for {
-      aa <- (x --\ an).hcursor.jdecode[A]
+      aa <- x.get[A](an)
     } yield f(aa))
 
   def jdecode2L[A: DecodeJson, B: DecodeJson, X](f: (A, B) => X)(an: JsonString, bn: JsonString): DecodeJson[X] =
     DecodeJson(x => for {
-      aa <- (x --\ an).hcursor.jdecode[A]
-      bb <- (x --\ bn).hcursor.jdecode[B]
+      aa <- x.get[A](an)
+      bb <- x.get[B](bn)
     } yield f(aa, bb))
 
   def jdecode3L[A: DecodeJson, B: DecodeJson, C: DecodeJson, X](f: (A, B, C) => X)(an: JsonString, bn: JsonString, cn: JsonString): DecodeJson[X] =
     DecodeJson(x => for {
-      aa <- (x --\ an).hcursor.jdecode[A]
-      bb <- (x --\ bn).hcursor.jdecode[B]
-      cc <- (x --\ cn).hcursor.jdecode[C]
+      aa <- x.get[A](an)
+      bb <- x.get[B](bn)
+      cc <- x.get[C](cn)
     } yield f(aa, bb, cc))
 
   def jdecode4L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString): DecodeJson[X] =
     DecodeJson(x => for {
-      aa <- (x --\ an).hcursor.jdecode[A]
-      bb <- (x --\ bn).hcursor.jdecode[B]
-      cc <- (x --\ cn).hcursor.jdecode[C]
-      dd <- (x --\ dn).hcursor.jdecode[D]
+      aa <- x.get[A](an)
+      bb <- x.get[B](bn)
+      cc <- x.get[C](cn)
+      dd <- x.get[D](dn)
     } yield f(aa, bb, cc, dd))
 
   def jdecode5L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, E: DecodeJson, X](f: (A, B, C, D, E) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, en: JsonString): DecodeJson[X] =
     DecodeJson(x => for {
-      aa <- (x --\ an).hcursor.jdecode[A]
-      bb <- (x --\ bn).hcursor.jdecode[B]
-      cc <- (x --\ cn).hcursor.jdecode[C]
-      dd <- (x --\ dn).hcursor.jdecode[D]
-      ee <- (x --\ en).hcursor.jdecode[E]
+      aa <- x.get[A](an)
+      bb <- x.get[B](bn)
+      cc <- x.get[C](cn)
+      dd <- x.get[D](dn)
+      ee <- x.get[E](en)
     } yield f(aa, bb, cc, dd, ee))
 
 

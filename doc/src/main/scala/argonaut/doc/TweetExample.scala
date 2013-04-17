@@ -33,9 +33,9 @@ object Tweet {
   // Complete decoder definition. Manually using zipper to traverse.
   implicit def TweetDecodeJson: DecodeJson[Tweet] =
     DecodeJson(c => for {
-        createdAt <- (c --\ "created_at").jdecode[String]
-        user <- (c --\ "from_user").jdecode[String]
-        text <- (c --\ "text").jdecode[String]
+        createdAt <- c.get[String]("created_at")
+        user <- c.get[String]("from_user")
+        text <- c.get[String]("text")
         retweets <- (c --\ "metadata" --\ "recent_retweets").jdecode[Option[Int]]
       } yield Tweet(createdAt, user, text, retweets.getOrElse(0)))
 }
