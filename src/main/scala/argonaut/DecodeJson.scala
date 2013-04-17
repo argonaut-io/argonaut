@@ -116,7 +116,7 @@ trait DecodeJsons {
       val d = a.downArray
       if(d.succeeded)
         d.hcursor.traverseDecode(List[A]())(_.right, (acc, c) =>
-          c.focus.jdecode[A] map (_ :: acc)) map (_.reverse)
+          c.jdecode[A] map (_ :: acc)) map (_.reverse)
       else if(a.focus.isArray)
         DecodeResult(Nil)
       else
@@ -128,24 +128,19 @@ trait DecodeJsons {
       val d = a.downArray
       if(d.succeeded)
         d.hcursor.traverseDecode(Vector[A]())(_.right, (acc, c) =>
-          c.focus.jdecode[A] map (acc :+ _))
+          c.jdecode[A] map (acc :+ _))
       else if(a.focus.isArray)
         DecodeResult(Vector())
       else
         DecodeResult.failedResult("[A]Vector[A]", a.history)
     })
 
-  // FIX Consider same treatment as List/Vector.
   implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
     DecodeJson(a => {
       val d = a.downArray
       if(d.succeeded)
-        d.hcursor.traverseA[DecodeResult[Stream[A]]](Kleisli[({type λ[+α] = State[DecodeResult[Stream[A]], α]})#λ, HCursor, ACursor](c =>
-            State((x: DecodeResult[Stream[A]]) => (for {
-              h <- implicitly[DecodeJson[A]] apply c
-              t <- x
-            } yield h #:: t, c.right))
-          )) exec DecodeResult(Stream()) map (_.reverse)
+        d.hcursor.traverseDecode(Stream[A]())(_.right, (acc, c) =>
+          c.jdecode[A] map (_ #:: acc)) map (_.reverse)
       else if(a.focus.isArray)
         DecodeResult(Stream())
       else
@@ -254,57 +249,39 @@ trait DecodeJsons {
   implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
     implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
 
-  // FIX Consider same treatment as List/Vector.
   implicit def Tuple2DecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[(A, B)] =
-    DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
-      Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c =>
-        State((x: DecodeResult[List[HCursor]]) =>
-          (x map (c :: _), c.right))
-      )) exec DecodeResult(Nil) flatMap {
-        case cb :: ca :: Nil => for {
-          xa <- ea(ca)
-          xb <- eb(cb)
-        } yield (xa, xb)
-        case _ => {
-          DecodeResult.failedResult("[A, B]Tuple2[A, B]", a.history)
-        }
+    DecodeJson(c =>
+      c.jdecode[List[HCursor]] flatMap {
+        case ca :: cb :: Nil => for {
+            xa <- ea(ca)
+            xb <- eb(cb)
+          } yield (xa, xb)
+        case _ => DecodeResult.failedResult("[A, B]Tuple2[A, B]", c.history)
       })
 
-  // FIX Consider same treatment as List/Vector.
   implicit def Tuple3DecodeJson[A, B, C](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C]): DecodeJson[(A, B, C)] =
-    DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
-      Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c => {
-        State((x: DecodeResult[List[HCursor]]) => {
-          (x map (c :: _), c.right)
-        })
-      })) exec DecodeResult(Nil) flatMap (x => {
-      x match {
-        case cc :: cb :: ca :: Nil => for {
-          xa <- ea(ca)
-          xb <- eb(cb)
-          xc <- ec(cc)
-        } yield (xa, xb, xc)
-        case _ => DecodeResult.failedResult("[A, B, C]Tuple3[A, B, C]", a.history)
-      }})
-    )
+    DecodeJson(c =>
+      c.jdecode[List[HCursor]] flatMap {
+        case ca :: cb :: cc :: Nil => for {
+            xa <- ea(ca)
+            xb <- eb(cb)
+            xc <- ec(cc)
+          } yield (xa, xb, xc)
+        case x =>
+          DecodeResult.failedResult("[A, B, C]Tuple3[A, B, C]", c.history)
+      })
 
-  // FIX Consider same treatment as List/Vector.
   implicit def Tuple4DecodeJson[A, B, C, D](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C], ed: DecodeJson[D]): DecodeJson[(A, B, C, D)] =
-    DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
-      Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c => {
-        State((x: DecodeResult[List[HCursor]]) => {
-          (x map (c :: _), c.right)
-        })
-      })) exec DecodeResult(Nil) flatMap {
-        case cd :: cc :: cb :: ca :: Nil => for {
+    DecodeJson(c =>
+      c.jdecode[List[HCursor]] flatMap {
+        case ca :: cb :: cc :: cd :: Nil => for {
           xa <- ea(ca)
           xb <- eb(cb)
           xc <- ec(cc)
           xd <- ed(cd)
         } yield (xa, xb, xc, xd)
-        case _ => DecodeResult.failedResult("[A, B, C, D]Tuple4[A, B, C, D]", a.history)
-      }
-    )
+        case _ => DecodeResult.failedResult("[A, B, C, D]Tuple4[A, B, C, D]", c.history)
+      })
 
   def jdecode1[A: DecodeJson, X](f: A => X): DecodeJson[X] =
     implicitly[DecodeJson[A]].map(f)
