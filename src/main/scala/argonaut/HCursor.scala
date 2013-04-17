@@ -2,14 +2,11 @@ package argonaut
 
 import scalaz._, Scalaz._
 
-sealed trait HCursor {
-  val cursor: Cursor
-  val history: CursorHistory
-
+case class HCursor(cursor: Cursor, history: CursorHistory) {
   import Json._
 
   def acursor: ACursor =
-    ACursor(this)
+    ACursor.ok(this)
 
   /**
    * Attempts to decode this cursor focus value to another data type.
@@ -24,7 +21,7 @@ sealed trait HCursor {
     (this --\ name).jdecode[A]
 
   def failedACursor: ACursor =
-    ACursor.failedACursor(this)
+    ACursor.fail(this)
 
   /** Return the current focus. */
   def focus: Json =
@@ -218,6 +215,13 @@ sealed trait HCursor {
   def up: ACursor =
     history.acursorElement(Store(_.up, cursor), CursorOpUp)
 
+  /** Unapplies the cursor to the top-level parent (alias for `undo`). */
+  def unary_- : Json =
+    cursor.undo
+
+  /** Unapplies the cursor to the top-level parent (alias for `unary_-`). */
+  def undo: Json =
+    cursor.undo
 
   // FIX These are rubbish (that is all of these traverse operations).
   //     Revisit and tidy. Option[ACursor] in particular doesn't
@@ -254,10 +258,10 @@ sealed trait HCursor {
         k match {
           case None => (q, true)
           case Some(a) =>
-            if(a.succeeded)
-              spin(q, a.hcursor)
-            else
-              (q, false)
+            a.hcursor match {
+              case None => (q, false)
+              case Some(hcursor) => spin(q, hcursor)
+            }
         }
       }
 
@@ -290,22 +294,16 @@ sealed trait HCursor {
    */
   def traverseDecode[X](init: X)(op: HCursor => ACursor, f: (X, HCursor) => DecodeResult[X]) =
     f(init, this).map(x => (this, x)).loop[DecodeResult[X], (HCursor, X)](
-      DecodeResult.failedResult, { case (c, acc) =>
+      DecodeResult.fail, { case (c, acc) =>
         val a = op(c)
-        if (a.succeeded)
-          (f(acc, a.hcursor) map (x => (a.hcursor, x))).right
-        else
-          acc.pure[DecodeResult].left
+        a.hcursor match {
+          case None => acc.pure[DecodeResult].left
+          case Some(hcursor) => (f(acc, hcursor) map (x => (hcursor, x))).right
+        }
       })
 }
 
-object HCursor extends HCursors {
-  def apply(c: Cursor, h: CursorHistory): HCursor =
-    new HCursor {
-      val cursor = c
-      val history = h
-    }
-}
+object HCursor extends HCursors
 
 trait HCursors {
   val hcursorL: HCursor @> Cursor =

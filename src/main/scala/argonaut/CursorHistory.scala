@@ -5,15 +5,9 @@ import scalaz._, Scalaz._
 /**
  * A list of elements denoting the history of a cursor.
  *
- * @see Shift
  * @author Tony Morris
  */
-sealed trait CursorHistory {
-  /**
-   * Convert cursor history operations to a list (O(n)).
-   */
-  val toList: List[CursorOp]
-
+case class CursorHistory(toList: List[CursorOp]) {
   def head: Option[CursorOp] =
     toList.headOption
 
@@ -21,19 +15,19 @@ sealed trait CursorHistory {
    * Append two lists of cursor history.
    */
   def ++(h: CursorHistory): CursorHistory  =
-    CursorHistory.build(toList ++ h.toList)
+    CursorHistory(toList ++ h.toList)
 
   /**
    * Prepend a cursor operation to the history.
    */
   def +:(o: CursorOp): CursorHistory =
-    CursorHistory.build(o +: toList)
+    CursorHistory(o +: toList)
 
   def failedACursor(c: Cursor): ACursor =
-    ACursor.failedACursor(HCursor(c, this))
+    ACursor.fail(HCursor(c, this))
 
   def acursor(c: Cursor): ACursor =
-    ACursor(HCursor(c, this))
+    ACursor.ok(HCursor(c, this))
 
   def acursorElement(c: Store[Cursor, Option[Cursor]], e: CursorOpElement): ACursor = {
     val x = c.pos
@@ -45,24 +39,19 @@ sealed trait CursorHistory {
 
 }
 
-object CursorHistory extends CursorHistorys {
-  private[argonaut] def apply(e: CursorOp) =
-    build(List(e))
-}
+object CursorHistory extends CursorHistorys
 
 trait CursorHistorys {
-  private[argonaut] def build(l: List[CursorOp]): CursorHistory =
-    new CursorHistory {
-      val toList = l
-    }
+  def start(e: CursorOp) =
+    CursorHistory(List(e))
 
   implicit val CursorHistoryInstances: Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] =
     new Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] {
       override def show(h: CursorHistory) = Show[List[CursorOp]].show(h.toList)
       def equal(h1: CursorHistory, h2: CursorHistory) =
         h1.toList === h2.toList
-      def zero = CursorHistory.build(List())
+      def zero = CursorHistory(List())
       def append(h1: CursorHistory, h2: => CursorHistory) =
-        CursorHistory.build(h1.toList ::: h2.toList)
+        CursorHistory(h1.toList ::: h2.toList)
     }
 }
