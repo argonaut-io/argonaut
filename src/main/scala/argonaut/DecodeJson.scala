@@ -24,15 +24,15 @@ sealed trait DecodeJson[+A] {
    */
   def setName(n: String): DecodeJson[A] =
     DecodeJson(c => apply(c).result.fold(
-      { case (_, h) => DecodeResult.failedResult(n, h) },
-      a => DecodeResult(a)
+      { case (_, h) => DecodeResult.fail(n, h) },
+      a => DecodeResult.ok(a)
     ))
 
   /**
    * Build a new DecodeJson codec with the specified precondition that f(c) == true.
    */
   def validate(f: HCursor => Boolean, message: => String) =
-    DecodeJson(c => if (f(c)) apply(c) else DecodeResult.failedResult(message, c.history))
+    DecodeJson(c => if (f(c)) apply(c) else DecodeResult.fail(message, c.history))
 
   /**
    * Build a new DecodeJson codec with the precondition that the cursor focus is object with exactly n field.
@@ -92,15 +92,15 @@ object DecodeJson extends DecodeJsons {
 trait DecodeJsons {
   def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] =
     DecodeJson(a => k(a.focus) match {
-      case None => DecodeResult.failedResult(e, a.history)
-      case Some(w) => DecodeResult(w)
+      case None => DecodeResult.fail(e, a.history)
+      case Some(w) => DecodeResult.ok(w)
     })
 
   /**
    * Construct a succeeding decoder from the given function.
    */
   def decodeArr[A](f: HCursor => A): DecodeJson[A] =
-    DecodeJson(j => DecodeResult(f(j)))
+    DecodeJson(j => DecodeResult.ok(f(j)))
 
   def tryTo[A](f: => A): Option[A] =
     catching(classOf[IllegalArgumentException]).opt(f)
@@ -109,49 +109,52 @@ trait DecodeJsons {
     decodeArr(q => q)
 
   implicit def JsonDecodeJson: DecodeJson[Json] =
-    DecodeJson(j => DecodeResult(j.focus))
+    DecodeJson(j => DecodeResult.ok(j.focus))
 
   implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
-    DecodeJson(a => {
-      val d = a.downArray
-      if(d.succeeded)
-        d.hcursor.traverseDecode(List[A]())(_.right, (acc, c) =>
-          c.jdecode[A] map (_ :: acc)) map (_.reverse)
-      else if(a.focus.isArray)
-        DecodeResult(Nil)
-      else
-        DecodeResult.failedResult("[A]List[A]", a.history)
-    })
+    DecodeJson(a =>
+      a.downArray.hcursor match {
+        case None =>
+          if (a.focus.isArray)
+            DecodeResult.ok(Nil)
+          else
+            DecodeResult.fail("[A]List[A]", a.history)
+        case Some(hcursor) =>
+          hcursor.traverseDecode(List[A]())(_.right, (acc, c) =>
+            c.jdecode[A] map (_ :: acc)) map (_.reverse)
+      })
 
   implicit def VectorDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Vector[A]] =
-    DecodeJson(a => {
-      val d = a.downArray
-      if(d.succeeded)
-        d.hcursor.traverseDecode(Vector[A]())(_.right, (acc, c) =>
-          c.jdecode[A] map (acc :+ _))
-      else if(a.focus.isArray)
-        DecodeResult(Vector())
-      else
-        DecodeResult.failedResult("[A]Vector[A]", a.history)
-    })
+    DecodeJson(a =>
+      a.downArray.hcursor match {
+        case None =>
+          if (a.focus.isArray)
+            DecodeResult.ok(Vector[A]())
+          else
+            DecodeResult.fail("[A]List[A]", a.history)
+        case Some(hcursor) =>
+          hcursor.traverseDecode(Vector[A]())(_.right, (acc, c) =>
+            c.jdecode[A] map (acc :+ _))
+      })
 
   implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
-    DecodeJson(a => {
-      val d = a.downArray
-      if(d.succeeded)
-        d.hcursor.traverseDecode(Stream[A]())(_.right, (acc, c) =>
-          c.jdecode[A] map (_ #:: acc)) map (_.reverse)
-      else if(a.focus.isArray)
-        DecodeResult(Stream())
-      else
-        DecodeResult.failedResult("[A]Stream[A]", a.history)
-    })
+    DecodeJson(a =>
+      a.downArray.hcursor match {
+        case None =>
+          if (a.focus.isArray)
+            DecodeResult.ok(Stream[A]())
+          else
+            DecodeResult.fail("[A]List[A]", a.history)
+        case Some(hcursor) =>
+          hcursor.traverseDecode(Stream[A]())(_.right, (acc, c) =>
+            c.jdecode[A] map (_ #:: acc)) map (_.reverse)
+      })
 
   implicit def UnitDecodeJson: DecodeJson[Unit] =
     DecodeJson(a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray)
         ().point[DecodeResult]
       else
-        DecodeResult.failedResult("Unit", a.history))
+        DecodeResult.fail("Unit", a.history))
 
   implicit def StringDecodeJson: DecodeJson[String] =
     optionDecoder(_.string, "String")
@@ -198,7 +201,7 @@ trait DecodeJsons {
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] =
     DecodeJson(a => if (a.focus.isNull)
-      DecodeResult(None)
+      DecodeResult.ok(None)
     else
       e(a).option
     )
@@ -213,7 +216,7 @@ trait DecodeJsons {
       (l, r) match {
         case (Some(c), None) => ea(c) map (Left(_))
         case (None, Some(c)) => eb(c) map (Right(_))
-        case _ => DecodeResult.failedResult("[A, B]Either[A, B]", a.history)
+        case _ => DecodeResult.fail("[A, B]Either[A, B]", a.history)
       }
     })
 
@@ -224,24 +227,26 @@ trait DecodeJsons {
       (l, r) match {
         case (Some(c), None) => ea(c) map (Failure(_))
         case (None, Some(c)) => eb(c) map (Success(_))
-        case _ => DecodeResult.failedResult("[A, B]Validation[A, B]", a.history)
+        case _ => DecodeResult.fail("[A, B]Validation[A, B]", a.history)
       }
     })
 
   implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] =
     DecodeJson(a =>
       a.fields match {
-        case None => DecodeResult.failedResult("[V]Map[String, V]", a.history)
+        case None => DecodeResult.fail("[V]Map[String, V]", a.history)
         case Some(s) => {
           def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] =
             x match {
               case Nil => m
-              case h::t => {
-                spin(t, m flatMap  (mm => e((a --\ h).hcursor) map (v => mm + ((h, v))))  )
-              }
+              case h::t =>
+                spin(t, for {
+                    mm <- m
+                    v <- a.get(h)(e)
+                  } yield mm + ((h, v)))
             }
 
-          spin(s, DecodeResult(Map.empty[String, V]))
+          spin(s, DecodeResult.ok(Map.empty[String, V]))
         }
       }
     )
@@ -256,7 +261,7 @@ trait DecodeJsons {
             xa <- ea(ca)
             xb <- eb(cb)
           } yield (xa, xb)
-        case _ => DecodeResult.failedResult("[A, B]Tuple2[A, B]", c.history)
+        case _ => DecodeResult.fail("[A, B]Tuple2[A, B]", c.history)
       })
 
   implicit def Tuple3DecodeJson[A, B, C](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C]): DecodeJson[(A, B, C)] =
@@ -268,7 +273,7 @@ trait DecodeJsons {
             xc <- ec(cc)
           } yield (xa, xb, xc)
         case x =>
-          DecodeResult.failedResult("[A, B, C]Tuple3[A, B, C]", c.history)
+          DecodeResult.fail("[A, B, C]Tuple3[A, B, C]", c.history)
       })
 
   implicit def Tuple4DecodeJson[A, B, C, D](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C], ed: DecodeJson[D]): DecodeJson[(A, B, C, D)] =
@@ -280,7 +285,7 @@ trait DecodeJsons {
           xc <- ec(cc)
           xd <- ed(cd)
         } yield (xa, xb, xc, xd)
-        case _ => DecodeResult.failedResult("[A, B, C, D]Tuple4[A, B, C, D]", c.history)
+        case _ => DecodeResult.fail("[A, B, C, D]Tuple4[A, B, C, D]", c.history)
       })
 
   def jdecode1[A: DecodeJson, X](f: A => X): DecodeJson[X] =

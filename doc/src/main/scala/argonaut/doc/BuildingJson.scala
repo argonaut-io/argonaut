@@ -4,7 +4,7 @@ import argonaut._, Argonaut._
 
 object BuildingJson extends App {
   val jsonString: Json = jString("JSON!")
-  val jsonNumber: Json = jDouble(20)
+  val jsonNumber: Json = jNumber(20)
   val jsonNull: Json = jNull
   val jsonBoolean: Json = jBool(true)
   // jTrue and jFalse create the boolean true and false JSON representations directly.
