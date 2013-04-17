@@ -254,6 +254,7 @@ trait DecodeJsons {
   implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
     implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
 
+  // FIX Consider same treatment as List/Vector.
   implicit def Tuple2DecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[(A, B)] =
     DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
       Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c =>
@@ -269,6 +270,7 @@ trait DecodeJsons {
         }
       })
 
+  // FIX Consider same treatment as List/Vector.
   implicit def Tuple3DecodeJson[A, B, C](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C]): DecodeJson[(A, B, C)] =
     DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
       Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c => {
@@ -286,6 +288,7 @@ trait DecodeJsons {
       }})
     )
 
+  // FIX Consider same treatment as List/Vector.
   implicit def Tuple4DecodeJson[A, B, C, D](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C], ed: DecodeJson[D]): DecodeJson[(A, B, C, D)] =
     DecodeJson(a => a.downArray.hcursor.traverseA[DecodeResult[List[HCursor]]](
       Kleisli[({type λ[+α] = State[DecodeResult[List[HCursor]], α]})#λ, HCursor, ACursor](c => {
@@ -315,6 +318,8 @@ trait DecodeJsons {
   def jdecode4[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X): DecodeJson[X] =
     implicitly[DecodeJson[(A, B, C, D)]].map(x => f(x._1, x._2, x._3, x._4))
 
+  // FIX Remover all hcursor.jdecode, inference no longer an issue, and should be simple replace.
+  
   def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString): DecodeJson[X] =
     DecodeJson(x => for {
       aa <- (x --\ an).hcursor.jdecode[A]
