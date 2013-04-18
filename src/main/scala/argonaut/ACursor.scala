@@ -132,7 +132,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `leftN`). */
   def -<-:(n: Int): ACursor =
-    withHCursor(_.-<-:(n))
+    withHCursor(c => n -<-: c)
 
   /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `-<-:`). */
   def leftN(n: Int): ACursor =
@@ -140,7 +140,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `rightN`). */
   def :->-(n: Int): ACursor =
-    withHCursor(_.:->-(n))
+    withHCursor(c => c :->- n)
 
   /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `:->-`). */
   def rightN(n: Int): ACursor =
@@ -148,7 +148,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor left in a JSON array until the given predicate matches the focus (alias for `leftAt`). */
   def ?<-:(p: Json => Boolean): ACursor =
-    withHCursor(_.?<-:(p))
+    withHCursor(c => p ?<-: c)
 
   /** Move the cursor left in a JSON array until the given predicate matches the focus (alias for `?<-:`). */
   def leftAt(p: Json => Boolean): ACursor =
@@ -156,7 +156,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor right in a JSON array until the given predicate matches the focus (alias for `rightAt`). */
   def :->?(p: Json => Boolean): ACursor =
-    withHCursor(_.:->?(p))
+    withHCursor(c => c :->? p)
 
   /** Move the cursor right in a JSON array until the given predicate matches the focus (alias for `:->?`). */
   def rightAt(p: Json => Boolean): ACursor =
@@ -164,7 +164,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor to the given sibling field in a JSON object (alias for `field`). */
   def --(q: JsonField): ACursor =
-    withHCursor(_.--(q))
+    withHCursor(c => c -- q)
 
   /** Move the cursor to the given sibling field in a JSON object (alias for `--`). */
   def field(q: JsonField): ACursor =
@@ -172,7 +172,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor down to a JSON object at the given field (alias for `downField`). */
   def --\(q: JsonField): ACursor =
-    withHCursor(_.--\(q))
+    withHCursor(c => c --\ q)
 
   /** Move the cursor down to a JSON object at the given field (alias for `--\`). */
   def downField(q: JsonField): ACursor =
@@ -188,7 +188,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor down to a JSON array at the first element satisfying the given predicate (alias for `downAt`). */
   def -\(p: Json => Boolean): ACursor =
-    withHCursor(_.-\(p))
+    withHCursor(c => c -\ p)
 
   /** Move the cursor down to a JSON array at the first element satisfying the given predicate (alias for `-\`). */
   def downAt(p: Json => Boolean): ACursor =
@@ -196,7 +196,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Move the cursor down to a JSON array at the given index (alias for `downN`). */
   def =\(n: Int): ACursor =
-    withHCursor(_.=\(n))
+    withHCursor(c => c =\ n)
 
   /** Move the cursor down to a JSON array at the given index (alias for `=\`). */
   def downN(n: Int): ACursor =
