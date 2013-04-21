@@ -43,6 +43,9 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
 
+  implicit def DerivedEncodeJson[A](implicit codec: CodecJson[A]): EncodeJson[A] =
+    codec.encoder
+
   implicit val IdEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q)
 

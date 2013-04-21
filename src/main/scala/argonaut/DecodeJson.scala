@@ -105,6 +105,9 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   def tryTo[A](f: => A): Option[A] =
     catching(classOf[IllegalArgumentException]).opt(f)
 
+  implicit def DerivedDecodeJson[A](implicit codec: CodecJson[A]): DecodeJson[A] =
+    codec.decoder
+
   implicit def IdDecodeJson: DecodeJson[HCursor] =
     decodeArr(q => q)
 
