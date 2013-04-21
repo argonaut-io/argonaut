@@ -17,7 +17,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     prop((a: A) =>
       implicitly[DecodeJson[A]].apply(implicitly[EncodeJson[A]].apply(a).hcursor).value exists (_ === a)
     )
-  
+
   case class TestClass(a: Int, b: Int, c: String, d: Int, e: Int, f: String, g: Int, h: Int, i: String, j: Int, k: Int, l: String, m: Int, n: Int, o: String, p: Int, q: Int, r: String, s: Int, t: Int, u: String, v: Boolean)
 
   implicit val arbTestClass: Arbitrary[TestClass] = Arbitrary(for {
@@ -59,7 +59,7 @@ object CodecSpecification extends Specification with ScalaCheck {
       ("encoded value = " + encodedValue.shows) |: {
         val decodeResult = encodedValue.jdecode[TestClass]
         ("decode result = " + decodeResult.shows) |: {
-          decodeResult === DecodeResult(testClass)
+          decodeResult === DecodeResult.ok(testClass)
         }
       }
     }
@@ -84,6 +84,6 @@ object CodecSpecification extends Specification with ScalaCheck {
     "Set[String] encode/decode" ! encodedecode[Set[String]] ^
     "Tuple2[String, Int] encode/decode" ! encodedecode[Tuple2[String, Int]] ^
     "Tuple3[String, Int, Boolean] encode/decode" ! encodedecode[Tuple3[String, Int, Boolean]] ^
-    "Tuple4[String, Int, Boolean, Long] encode/decode" ! encodedecode[Tuple4[String, Int, Boolean, Long]] ^ 
+    "Tuple4[String, Int, Boolean, Long] encode/decode" ! encodedecode[Tuple4[String, Int, Boolean, Long]] ^
     "22 field class encode/decode" ! encodeL22DecodeL22 ^ end
 }
