@@ -47,13 +47,21 @@ object CodecSpecification extends Specification with ScalaCheck {
 
   implicit val equalTestClass: Equal[TestClass] = Equal.equalA
 
+  implicit val showTestClass: Show[TestClass] = Show.showFromToString
+
   implicit val testClassEncode: EncodeJson[TestClass] = EncodeJson.jencode22L((x: TestClass) => (x.a, x.b, x.c, x.d, x.e, x.f, x.g, x.h, x.i, x.j, x.k, x.l, x.m, x.n, x.o, x.p, x.q, x.r, x.s, x.t, x.u, x.v))("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
 
   implicit val testClassDecode: DecodeJson[TestClass] = DecodeJson.jdecode22L(TestClass.apply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
 
   def encodeL22DecodeL22(): Prop = {
     prop{testClass: TestClass =>
-      testClass.jencode.jdecode[TestClass].value === testClass.some
+      val encodedValue = testClass.jencode
+      ("encoded value = " + encodedValue.shows) |: {
+        val decodeResult = encodedValue.jdecode[TestClass]
+        ("decode result = " + decodeResult.shows) |: {
+          decodeResult === DecodeResult(testClass)
+        }
+      }
     }
   }
 
@@ -76,5 +84,6 @@ object CodecSpecification extends Specification with ScalaCheck {
     "Set[String] encode/decode" ! encodedecode[Set[String]] ^
     "Tuple2[String, Int] encode/decode" ! encodedecode[Tuple2[String, Int]] ^
     "Tuple3[String, Int, Boolean] encode/decode" ! encodedecode[Tuple3[String, Int, Boolean]] ^
-    "Tuple4[String, Int, Boolean, Long] encode/decode" ! encodedecode[Tuple4[String, Int, Boolean, Long]] ^ end
+    "Tuple4[String, Int, Boolean, Long] encode/decode" ! encodedecode[Tuple4[String, Int, Boolean, Long]] ^ 
+    "22 field class encode/decode" ! encodeL22DecodeL22 ^ end
 }

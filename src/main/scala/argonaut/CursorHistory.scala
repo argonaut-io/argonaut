@@ -43,6 +43,7 @@ sealed trait CursorHistory {
     }
   }
 
+  override def toString(): String = "CursorHistory(%s)".format(this.shows)
 }
 
 object CursorHistory extends CursorHistorys {
