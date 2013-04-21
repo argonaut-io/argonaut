@@ -5,6 +5,8 @@ import scalaz._, Scalaz._
 /**
  * A list of elements denoting the history of a cursor.
  *
+ * Note: Most recent operation appears at head of list.
+ *
  * @author Tony Morris
  */
 case class CursorHistory(toList: List[CursorOp]) {
