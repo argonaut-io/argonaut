@@ -89,7 +89,7 @@ object DecodeJson extends DecodeJsons {
     }
 }
 
-trait DecodeJsons {
+trait DecodeJsons extends GeneratedDecodeJsons {
   def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] =
     DecodeJson(a => k(a.focus) match {
       case None => DecodeResult.fail(e, a.history)
@@ -253,87 +253,4 @@ trait DecodeJsons {
 
   implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
     implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
-
-  implicit def Tuple2DecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[(A, B)] =
-    DecodeJson(c =>
-      c.jdecode[List[HCursor]] flatMap {
-        case ca :: cb :: Nil => for {
-            xa <- ea(ca)
-            xb <- eb(cb)
-          } yield (xa, xb)
-        case _ => DecodeResult.fail("[A, B]Tuple2[A, B]", c.history)
-      })
-
-  implicit def Tuple3DecodeJson[A, B, C](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C]): DecodeJson[(A, B, C)] =
-    DecodeJson(c =>
-      c.jdecode[List[HCursor]] flatMap {
-        case ca :: cb :: cc :: Nil => for {
-            xa <- ea(ca)
-            xb <- eb(cb)
-            xc <- ec(cc)
-          } yield (xa, xb, xc)
-        case x =>
-          DecodeResult.fail("[A, B, C]Tuple3[A, B, C]", c.history)
-      })
-
-  implicit def Tuple4DecodeJson[A, B, C, D](implicit ea: DecodeJson[A], eb: DecodeJson[B], ec: DecodeJson[C], ed: DecodeJson[D]): DecodeJson[(A, B, C, D)] =
-    DecodeJson(c =>
-      c.jdecode[List[HCursor]] flatMap {
-        case ca :: cb :: cc :: cd :: Nil => for {
-          xa <- ea(ca)
-          xb <- eb(cb)
-          xc <- ec(cc)
-          xd <- ed(cd)
-        } yield (xa, xb, xc, xd)
-        case _ => DecodeResult.fail("[A, B, C, D]Tuple4[A, B, C, D]", c.history)
-      })
-
-  def jdecode1[A: DecodeJson, X](f: A => X): DecodeJson[X] =
-    implicitly[DecodeJson[A]].map(f)
-
-  def jdecode2[A: DecodeJson, B: DecodeJson, X](f: (A, B) => X): DecodeJson[X] =
-    implicitly[DecodeJson[(A, B)]].map(x => f(x._1, x._2))
-
-  def jdecode3[A: DecodeJson, B: DecodeJson, C: DecodeJson, X](f: (A, B, C) => X): DecodeJson[X] =
-    implicitly[DecodeJson[(A, B, C)]].map(x => f(x._1, x._2, x._3))
-
-  def jdecode4[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X): DecodeJson[X] =
-    implicitly[DecodeJson[(A, B, C, D)]].map(x => f(x._1, x._2, x._3, x._4))
-
-  def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString): DecodeJson[X] =
-    DecodeJson(x => for {
-      aa <- x.get[A](an)
-    } yield f(aa))
-
-  def jdecode2L[A: DecodeJson, B: DecodeJson, X](f: (A, B) => X)(an: JsonString, bn: JsonString): DecodeJson[X] =
-    DecodeJson(x => for {
-      aa <- x.get[A](an)
-      bb <- x.get[B](bn)
-    } yield f(aa, bb))
-
-  def jdecode3L[A: DecodeJson, B: DecodeJson, C: DecodeJson, X](f: (A, B, C) => X)(an: JsonString, bn: JsonString, cn: JsonString): DecodeJson[X] =
-    DecodeJson(x => for {
-      aa <- x.get[A](an)
-      bb <- x.get[B](bn)
-      cc <- x.get[C](cn)
-    } yield f(aa, bb, cc))
-
-  def jdecode4L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, X](f: (A, B, C, D) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString): DecodeJson[X] =
-    DecodeJson(x => for {
-      aa <- x.get[A](an)
-      bb <- x.get[B](bn)
-      cc <- x.get[C](cn)
-      dd <- x.get[D](dn)
-    } yield f(aa, bb, cc, dd))
-
-  def jdecode5L[A: DecodeJson, B: DecodeJson, C: DecodeJson, D: DecodeJson, E: DecodeJson, X](f: (A, B, C, D, E) => X)(an: JsonString, bn: JsonString, cn: JsonString, dn: JsonString, en: JsonString): DecodeJson[X] =
-    DecodeJson(x => for {
-      aa <- x.get[A](an)
-      bb <- x.get[B](bn)
-      cc <- x.get[C](cn)
-      dd <- x.get[D](dn)
-      ee <- x.get[E](en)
-    } yield f(aa, bb, cc, dd, ee))
-
-
 }

@@ -39,6 +39,7 @@ case class CursorHistory(toList: List[CursorOp]) {
     }
   }
 
+  override def toString(): String = "CursorHistory(%s)".format(this.shows)
 }
 
 object CursorHistory extends CursorHistorys

@@ -25,6 +25,7 @@ object build extends Build {
   , base = file(".")
   , settings = base ++ ReplSettings.all ++ releaseSettings ++ PublishSettings.all ++ InfoSettings.all ++ Seq[Sett](
       name := "argonaut"
+    , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
     , libraryDependencies <++= onVersion(
         all = Seq(scalaz, scalacheck)
       , on292 = Seq(specs2_1_12_3)
