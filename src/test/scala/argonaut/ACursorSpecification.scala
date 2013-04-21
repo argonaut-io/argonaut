@@ -33,15 +33,21 @@ object ACursorSpecification extends Specification with ScalaCheck {
       forAll((op: List[TestOp]) => {
         val r = op.foldLeft(j.acursor)((acc, op) => step(acc, op))
         r.history.toList.inits.toList.forall(paths => paths match {
-          case init :+ penultimate :+ last =>
+          case init ::+ penultimate ::+ last =>
             last.succeeded || last.isReattempt || penultimate.isReattempt
-          case init :+ last  =>
+          case init ::+ last  =>
             last.succeeded || last.isReattempt || init.isEmpty
           case _ =>
             true
         })
       })
     })
+
+  // To support 2.9 where :+ doesn't define an extractor.
+  object ::+ {
+    def unapply[A](l: List[A]) =
+      l.lastOption.map(last => (l.init, last))
+  }
 
   def step(start: ACursor, op: TestOp): ACursor =
     op match {
