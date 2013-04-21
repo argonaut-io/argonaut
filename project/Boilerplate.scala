@@ -36,14 +36,14 @@ object Boilerplate {
   def genDecodeJsons = {
     def decodeJsonContextArities(n: Int): String = (1 to n).map(n => "%s: DecodeJson".format(arityChars(n))).mkString(", ")
 
-    def decodeJsonParams(n: Int): String = (1 to n).map{n => 
+    def decodeJsonParams(n: Int): String = (1 to n).map{n =>
       val char = arityChars(n)
       "decode%s: DecodeJson[%s]".format(char.toLowerCase, char)
     }.mkString(", ")
 
     def content = {
       val tupleDecodes = arities.map{arity =>
-        val forComprehensionLines: String = (1 to arity).map{n => 
+        val forComprehensionLines: String = (1 to arity).map{n =>
           val char = arityChars(n)
           "          x%s <- decode%s(c%s)".format(char.toLowerCase, char.toLowerCase, char.toLowerCase)
         }.mkString("\n")
@@ -57,7 +57,7 @@ object Boilerplate {
            |        case %s => for {
            |%s
            |        } yield (%s)
-           |       case _ => DecodeResult.failedResult("[%s]Tuple%s[%s]", c.history)
+           |       case _ => DecodeResult.fail("[%s]Tuple%s[%s]", c.history)
            |      })
            |""".format(
                   arity,
@@ -79,18 +79,18 @@ object Boilerplate {
                         |""".stripMargin
       val jdecodes = aritiesExceptOne.map{arity =>
         """|
-           |  def jdecode%s[%s, X](f: (%s) => X)(implicit dx: DecodeJson[(%s)]): DecodeJson[X] = 
+           |  def jdecode%s[%s, X](f: (%s) => X)(implicit dx: DecodeJson[(%s)]): DecodeJson[X] =
            |    dx.map(x => f(%s))
            |""".format(
-                  arity, 
-                  functionTypeParameters(arity), 
-                  functionTypeParameters(arity), 
-                  functionTypeParameters(arity), 
+                  arity,
+                  functionTypeParameters(arity),
+                  functionTypeParameters(arity),
+                  functionTypeParameters(arity),
                   tupleFields(arity)
                 ).stripMargin
       }
 
-      val jdecode1L = 
+      val jdecode1L =
         """|
            |  def jdecode1L[A: DecodeJson, X](f: A => X)(an: JsonString): DecodeJson[X] =
            |    DecodeJson(x => for {
@@ -100,13 +100,13 @@ object Boilerplate {
 
 
       val jdecodeLs = aritiesExceptOne.map{arity =>
-        val forComprehensionLines: String = (1 to arity).map{n => 
+        val forComprehensionLines: String = (1 to arity).map{n =>
           val upperChar = arityChars(n)
           val lowerChar = upperChar.toLowerCase
           "       %s%s <- x.get[%s](%sn)".format(lowerChar, lowerChar, upperChar, lowerChar)
         }.mkString("\n")
 
-        val yieldExpression: String = (1 to arity).map{n => 
+        val yieldExpression: String = (1 to arity).map{n =>
           val lowerChar = arityChars(n).toLowerCase
           "%s%s".format(lowerChar, lowerChar)
         }.mkString(", ")
@@ -125,10 +125,10 @@ object Boilerplate {
                   yieldExpression
                 ).stripMargin
       }
-           
+
       (tupleDecodes ++ (jdecode1 +: jdecodes) ++ (jdecode1L +: jdecodeLs)).mkString
     }
-    header + 
+    header +
       """|
          |trait GeneratedDecodeJsons {
          |  this: DecodeJsons =>
@@ -140,13 +140,13 @@ object Boilerplate {
 
   def genEncodeJsons = {
     def encodeJsonContextArities(n: Int): String = (1 to n).map(n => "%s: EncodeJson".format(arityChars(n))).mkString(", ")
- 
-    def encodeJsonParams(n: Int): String = (1 to n).map{n => 
+
+    def encodeJsonParams(n: Int): String = (1 to n).map{n =>
       val char = arityChars(n)
       "encode%s: EncodeJson[%s]".format(char.toLowerCase, char)
     }.mkString(", ")
 
-    def invokeEncodeJsonParams(n: Int): String = (1 to n).map{n => 
+    def invokeEncodeJsonParams(n: Int): String = (1 to n).map{n =>
       val char = arityChars(n).toLowerCase
       "encode%s(%s)".format(char, char)
     }.mkString(", ")
@@ -185,14 +185,14 @@ object Boilerplate {
                 ).stripMargin
       }
 
-      val jencode1L = 
+      val jencode1L =
         """|
            |  def jencode1L[X, A](f: X => A)(an: JsonString)(implicit encodea: EncodeJson[A]): EncodeJson[X] =
            |    EncodeJson(x => jSingleObject(an, encodea.apply(f(x))))
            |""".stripMargin
 
       val jencodeLs = aritiesExceptOne.map{arity =>
-        val encodePairs = (1 to arity).map{n => 
+        val encodePairs = (1 to arity).map{n =>
           val upperChar = arityChars(n)
           val lowerChar = upperChar.toLowerCase
           "(%sn, encode%s.apply(%s))".format(lowerChar, lowerChar, lowerChar)
@@ -218,7 +218,7 @@ object Boilerplate {
       (tupleEncodes ++ (jencode1 +: jencodes) ++ (jencode1L +: jencodeLs)).mkString
     }
 
-    header + 
+    header +
       """|
          |trait GeneratedEncodeJsons {
          |  this: EncodeJsons =>

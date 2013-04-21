@@ -88,9 +88,7 @@ trait DecodeResults {
 
   val decodeResultIsoFunctor: IsoFunctor[DecodeResult, DecodeEither] = new IsoFunctorTemplate[DecodeResult, DecodeEither] {
     def to[A](decodeResult: DecodeResult[A]) = decodeResult.result
-    def from[A](either: DecodeEither[A]) = new DecodeResult[A] {
-      val result = either
-    }
+    def from[A](either: DecodeEither[A]) = DecodeResult[A](either)
   }
 
   def decodeResultIsoSet[A]: IsoSet[DecodeResult[A], DecodeEither[A]] = new IsoSet[DecodeResult[A], DecodeEither[A]] {
