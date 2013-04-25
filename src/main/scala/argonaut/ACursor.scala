@@ -272,12 +272,18 @@ case class ACursor(either: HCursor \/ HCursor) {
     hcursor.map(_.undo)
 }
 
-object ACursor extends ACursors
-
-trait ACursors {
+object ACursor extends ACursors {
   def ok(cursor: HCursor) =
     ACursor(\/-(cursor))
 
   def fail(cursor: HCursor) =
     ACursor(-\/(cursor))
+}
+
+trait ACursors {
+  def okACursor(cursor: HCursor) =
+    ACursor.ok(cursor)
+
+  def failACursor(cursor: HCursor) =
+    ACursor.fail(cursor)
 }

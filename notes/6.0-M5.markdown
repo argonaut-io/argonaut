@@ -1,0 +1,42 @@
+
+6.0-M5 contains a number of bug fixes and improvements. It a number
+of (minor) breaking changes, but they all have direct replacements.
+
+ * Upgrade to scalaz-7.0.0 stable release.
+
+ * Fix Attempt Cursor (`ACursor`) issues. Adresses #29, #35, #36.
+
+ * Added unwind (`#unary_-` and `#undo` methods) to `ACursor` and
+   `HCursor`. Addresses #30.
+
+ * Removed redundant JsonNumber wrapper, replaced with type alias.
+   Addresses #31.
+  * _note_: Any calls to `jDouble` convenience need to now directly
+    call `jNumber` constructor.
+
+ * There are now convenient codec builders for tuples and case
+   classes up to arity of 22. See `jencode{1..22}`, `jencode{1..22}L`,
+   `jdecode{1..22}`, `jdecode{1..22}L`. Addresses #38, is a start on
+   #19.
+
+ * Internal tidy up of DecodeJson codecs. Removed some duplication,
+   these are now a better example of how custom codecs should be
+   defined.
+
+ * Switched a number of types from traits with anonyomous implementations
+   to case classes. Improved consistency of construction and default
+   printing behaviour.
+  * _note_: Any call to `ACursor` or `ACursor.apply`, now needs to call
+    `ACursor.ok`.
+  * _note_: Any call to `ACursor.failedACursor`, now needs to call
+    `ACursor.fail`.
+  * _note_: Any call to `ACursor` and `ACursor.apply`, can now be
+    called with `HCursor \/ HCursor`.
+  * _note_: Any call to `DecodeResult` or `DecodeResult.apply`, now needs to call
+    `DecodeResult.ok`.
+  * _note_: Any call to `DecodeResult.failedResult`, now needs to call
+    `DecodeResult.fail`.
+  * _note_: Any call to `DecodeResult` and `DecodeResult.apply`, can now be
+    called with `(String, CursorHistory) \/ A`.
+  * _note_: Any call to `CursorHistory` or `CursorHistory.apply`, now needs to call
+    `ACursor.start`.

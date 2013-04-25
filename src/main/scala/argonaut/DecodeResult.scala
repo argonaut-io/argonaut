@@ -50,14 +50,20 @@ sealed case class DecodeResult[+A](result:  (String, CursorHistory) \/ A) {
   override def toString(): String = "DecodeResult(%s)".format(result)
 }
 
-object DecodeResult extends DecodeResults
-
-trait DecodeResults {
+object DecodeResult extends DecodeResults {
   def ok[A](value: A): DecodeResult[A] =
     DecodeResult(value.right)
 
   def fail[A](s: String, h: CursorHistory): DecodeResult[A] =
     DecodeResult((s, h).left)
+}
+
+trait DecodeResults {
+  def okResult[A](value: A): DecodeResult[A] =
+    DecodeResult.ok(value)
+
+  def failResult[A](s: String, h: CursorHistory): DecodeResult[A] =
+    DecodeResult.fail(s, h)
 
   @annotation.tailrec
   final def loop[A, X](d: DecodeResult[A], e: (String, CursorHistory) => X, f: A => X \/ DecodeResult[A]): X =
@@ -70,7 +76,7 @@ trait DecodeResults {
         }
 
   def failedResultL[A]: DecodeResult[A] @?> (String, CursorHistory) =
-    PLens(_.result.fold(q => Some(Store(r => fail(r._1, r._2), q)),_ => None))
+    PLens(_.result.fold(q => Some(Store(r => failResult(r._1, r._2), q)),_ => None))
 
   def failedResultMessageL[A]: DecodeResult[A] @?> String =
     ~Lens.firstLens compose failedResultL[A]
