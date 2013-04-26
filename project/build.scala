@@ -12,8 +12,8 @@ object build extends Build {
   )
 
   val scalaz = "org.scalaz" %% "scalaz-core" % "7.0.0"
-  val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test" cross(CrossVersion.full)
-  val specs2_1_12_3 = "org.specs2" %% "specs2" % "1.12.3" % "test"
+  val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
+  val specs2_1_12_4_1 = "org.specs2" %% "specs2" % "1.12.4.1" % "test"
   val specs2_1_14 = "org.specs2" %% "specs2" % "1.14" % "test"
   val caliper = "com.google.caliper" % "caliper" % "0.5-rc1"
   val liftjson = "net.liftweb" % "lift-json_2.9.2" % "2.5-M3"
@@ -28,7 +28,7 @@ object build extends Build {
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
     , libraryDependencies <++= onVersion(
         all = Seq(scalaz, scalacheck)
-      , on292 = Seq(specs2_1_12_3)
+      , on292 = Seq(specs2_1_12_4_1)
       , on210 = Seq(specs2_1_14)
       )
     )
