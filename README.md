@@ -41,7 +41,7 @@ Latest:
 
 ### Release
 
-Add to `~/.sbt/0.12.1/sonatype.sbt`
+Add to `~/.sbt/0.12.3/sonatype.sbt`
 
 
     credentials += Credentials("Sonatype Nexus Repository Manager",
