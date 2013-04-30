@@ -10,134 +10,180 @@ import scalaz._, Scalaz._
  */
 sealed trait JsonObject {
   /**
+   * Convert to a map.
+   */
+  def toMap: Map[JsonField, Json]
+
+  /**
    * Convert to an insertion map.
    */
-  val toMap: InsertionMap[JsonField, Json]
+  def toInsertionMap: InsertionMap[JsonField, Json]
 
   /**
    * Insert the given association.
    */
-  def +(f: JsonField, j: Json): JsonObject =
-    JsonObject(toMap ^+^ (f, j))
+  def +(f: JsonField, j: Json): JsonObject
 
   /**
    * Prepend the given association.
    */
-  def +:(fj: (JsonField, Json)): JsonObject =
-    JsonObject(InsertionMap(fj :: toMap.toList :_*))
+  def +:(fj: (JsonField, Json)): JsonObject
 
   /**
    * Remove the given field association.
    */
-  def -(f: JsonField): JsonObject =
-    JsonObject(toMap ^-^ f)
+  def -(f: JsonField): JsonObject
 
   /**
    * Return the JSON value associated with the given field.
    */
-  def apply(f: JsonField): Option[Json] =
-    toMap get f
+  def apply(f: JsonField): Option[Json]
 
   /**
    * Transform all associated JSON values.
    */
-  def withJsons(k: Json => Json): JsonObject =
-    JsonObject(toMap map k)
+  def withJsons(k: Json => Json): JsonObject
 
   /**
    * Returns true if there are no associations.
    */
-  def isEmpty: Boolean =
-    toMap.isEmpty
+  def isEmpty: Boolean
 
   /**
    * Returns true if there is at least one association.
    */
-  def isNotEmpty: Boolean =
-    !isEmpty
+  def isNotEmpty: Boolean
 
   /**
    * Returns true if there is an association with the given field.
    */
-  def ??(f: JsonField): Boolean =
-    toMap contains f
+  def ??(f: JsonField): Boolean
 
   /**
    * Returns the list of associations in insertion order.
    */
-  def toList: List[(JsonAssoc)] =
-    toMap.toList
+  def toList: List[(JsonAssoc)]
 
   /**
    * Returns all associated values in insertion order.
    */
-  def values: List[Json] =
-    toList map (_._2)
+  def values: List[Json]
 
   /**
    * Returns a kleisli function that gets the JSON value associated with the given field.
    */
-  def kleisli: Kleisli[Option, JsonField, Json] =
-    Kleisli(toMap get _)
+  def kleisli: Kleisli[Option, JsonField, Json]
 
   /**
    * Returns all association keys in insertion order.
    */
-  def fields: List[JsonField] =
-    toMap.keys
+  def fields: List[JsonField]
 
   /**
    * Returns all association keys in arbitrary order.
    */
-  def fieldSet: Set[JsonField] =
-    toMap.keySet
+  def fieldSet: Set[JsonField]
 
   /**
    * Map Json values.
    */
-  def map(f: Json => Json) =
-    toMap.map(f)
+  def map(f: Json => Json): JsonObject
 
   /**
    * Traverse Json values.
    */
-  def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] =
-    toMap.traverse(f) map (JsonObject(_))
+  def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject]
 
   /**
    * Returns the number of associations.
    */
-  def size: Int =
-    toMap.size
-
-  override def toString: String =
-    "object[" + (toMap.toList map (Show[(JsonField, Json)] shows _) mkString ", ") + "]"
-
-  // FIX work around bug in scalaz InsertionMap, should just delegate, fix post 7.0.0-M7.
-  override def equals(o: Any) =
-    o.isInstanceOf[JsonObject] && {
-      val a = o.asInstanceOf[JsonObject].toMap
-      val b = toMap
-      a.size == b.size && a.forall({
-        case (k, v) => b.get(k) == Some(v)
-      })
-    }
-
-  override def hashCode =
-    toMap.hashCode
+  def size: Int
 }
 
 object JsonObject extends JsonObjects {
-  private[argonaut] def apply(x: InsertionMap[JsonField, Json]): JsonObject =
-    new JsonObject {
-      val toMap = x
+  private[this] val fieldsShow: Show[(JsonField, Json)] = Show[(JsonField, Json)]
+
+  def apply(insertionMap: InsertionMap[JsonField, Json]): JsonObject = insertionMap.toList.foldLeft(empty){case (acc, (k, v)) => acc + (k, v)}
+
+  private[argonaut] case class JsonObjectInstance(fieldsMap: Map[JsonField, Json] = Map.empty, orderedFields: Vector[JsonField] = Vector.empty) extends JsonObject {
+
+    def toMap: Map[JsonField, Json] = fieldsMap
+
+    def toInsertionMap: InsertionMap[JsonField, Json] = {
+      orderedFields.foldLeft(InsertionMap.empty[JsonField, Json]){(acc, field) =>
+        acc ^+^ (field, fieldsMap(field))
+      }
     }
+
+    def +(f: JsonField, j: Json): JsonObject = {
+      if (fieldsMap.contains(f)) {
+        copy(fieldsMap = fieldsMap.updated(f, j))
+      } else {
+        copy(fieldsMap = fieldsMap.updated(f, j), orderedFields = orderedFields :+ f)
+      }
+    }
+
+    def +:(fj: (JsonField, Json)): JsonObject = {
+      val (f, j) = fj
+      if (fieldsMap.contains(f)) {
+        copy(fieldsMap = fieldsMap.updated(f, j))
+      } else {
+        copy(fieldsMap = fieldsMap.updated(f, j), orderedFields = f +: orderedFields)
+      }
+    }
+
+
+    def -(f: JsonField): JsonObject = {
+      copy(fieldsMap = fieldsMap - f, orderedFields = orderedFields.filterNot(_ == f))
+    }
+
+    def apply(f: JsonField): Option[Json] = fieldsMap.get(f)
+
+    def withJsons(k: Json => Json): JsonObject = map(k)
+
+    def isEmpty: Boolean = fieldsMap.isEmpty
+
+    def isNotEmpty: Boolean = !isEmpty
+
+    def ??(f: JsonField): Boolean = fieldsMap.contains(f)
+
+    def toList: List[(JsonAssoc)] = orderedFields.map(field => (field, fieldsMap(field))).toList
+
+    def values: List[Json] = orderedFields.map(field => fieldsMap(field)).toList
+
+    def kleisli: Kleisli[Option, JsonField, Json] = Kleisli(fieldsMap get _)
+
+    def fields: List[JsonField] = orderedFields.toList
+
+    def fieldSet: Set[JsonField] = orderedFields.toSet
+
+    def map(f: Json => Json): JsonObject = copy(fieldsMap = fieldsMap.foldLeft(Map.empty[JsonField, Json]){case (acc, (key, value)) => acc.updated(key, f(value))})
+
+    def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
+      orderedFields.foldLeft(FF.point(Map.empty[JsonField, Json])){case (acc, k) =>
+        FF.apply2(acc, f(fieldsMap(k)))(_.updated(k, _))
+      }.map(mappedFields => copy(fieldsMap = mappedFields))
+    }
+
+    def size: Int = fields.size
+
+    override def toString: String =
+      "object[%s]".format(fieldsMap.map(fieldsShow shows _).mkString(","))
+
+    override def equals(o: Any) = {
+      o match {
+        case JsonObjectInstance(otherMap, _) => fieldsMap == otherMap
+        case _ => false
+      }
+    }
+
+    override def hashCode = fieldsMap.hashCode
+  }
 
   /**
    * Construct an empty association.
    */
-  def empty: JsonObject =
-    JsonObject(InsertionMap.empty)
+  def empty: JsonObject = JsonObjectInstance()
 }
 
 trait JsonObjects {
@@ -152,7 +198,10 @@ trait JsonObjects {
    * The lens to the JSON value.
    */
   def jsonObjectL(f: JsonField): JsonObject @> Option[Json] =
-    InsertionMap.insertionMapL(f).xmapA((m: InsertionMap[JsonField, Json]) => JsonObject(m))(_.toMap)
+    Lens(jsonObject => Store(_ match {
+      case None => jsonObject - f
+      case Some(v) => jsonObject + (f, v)
+    }, jsonObject(f)))
 
   /**
    * The partial lens to the JSON value.

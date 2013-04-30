@@ -94,9 +94,8 @@ case class CaliperScalaUtilJSONBenchmark() extends CaliperBenchmark {
 
 object ArgonautSimpleBench {
   def main(args: Array[String]) {
-    val json = Data.apachebuilds.parseOption.get
     Thread.sleep(10000)
-    (0 to 100000).foldLeft(0l){(left, right) => left + json.spaces4.length + right}
+    (0 to 3000).foldLeft(0l){(left, right) => left + Data.apachebuilds.parseOption.get.spaces4.length + right}
   }
 }
 

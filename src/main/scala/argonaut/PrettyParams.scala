@@ -69,6 +69,11 @@ sealed trait PrettyParams {
    */
   val colonRight: Int => String
 
+  /**
+   * Determines if the field ordering should be preserved.
+   */
+  val preserveOrder: Boolean
+
   private[this] final val openBraceText = "{"
   private[this] final val closeBraceText = "}"
   private[this] final val openArrayText = "["
@@ -152,7 +157,7 @@ sealed trait PrettyParams {
           }._2)
         }
         , o => {
-          rbrace(o.toList.foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
+          rbrace((if (preserveOrder) o.toList else o.toMap).foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
             val withComma = if(firstElement) builder else comma(builder)
             val updatedBuilder = trav(colon(encloseJsonString(withComma, key)), depth + 1, value)
             (false, updatedBuilder)
@@ -210,6 +215,7 @@ object PrettyParams extends PrettyParamss {
            , commaRight0: Int => String
            , colonLeft0: Int => String
            , colonRight0: Int => String
+           , preserveOrder0: Boolean
            ): PrettyParams =
     new PrettyParams {
       val lbraceLeft = lbraceLeft0
@@ -224,6 +230,7 @@ object PrettyParams extends PrettyParamss {
       val commaRight = commaRight0
       val colonLeft = colonLeft0
       val colonRight = colonRight0
+      val preserveOrder = preserveOrder0
     }
 }
 
@@ -246,6 +253,7 @@ trait PrettyParamss {
     , zeroString
     , zeroString
     , zeroString
+    , false
     )
 
   @tailrec
@@ -270,6 +278,7 @@ trait PrettyParamss {
     , n => "\n" + indent * n
     , n => " "
     , n => " "
+    , false
     )
 
   /**

@@ -132,9 +132,9 @@ object JsonParser {
   private[this] final def expectFieldSeparator(stream: List[JSONToken]) = expectedSpacerToken(stream, FieldSeparatorToken, "Expected field separator token")
 
   @tailrec
-  private[this] final def expectObject(stream: List[JSONToken], first: Boolean = true, fields: InsertionMap[JsonField, Json] = InsertionMap()): String \/ (List[JSONToken], Json) = {
+  private[this] final def expectObject(stream: List[JSONToken], first: Boolean = true, fields: JsonObject = JsonObject.empty): String \/ (List[JSONToken], Json) = {
     stream match {
-      case ObjectCloseToken :: tail => \/-((tail, jObjectMap(fields)))
+      case ObjectCloseToken :: tail => \/-((tail, jObject(fields)))
       case IgnoreToken :: tail => expectObject(tail, first, fields)
       case _ => {
         val next = for {
@@ -142,7 +142,7 @@ object JsonParser {
           streamAndKey <- expectString(afterEntrySeparator)
           afterFieldSeparator <- expectFieldSeparator(streamAndKey._1)
           streamAndValue <- expectValue(afterFieldSeparator)
-        } yield (streamAndValue._1, fields ^+^ (streamAndKey._2.s, streamAndValue._2))
+        } yield (streamAndValue._1, fields + (streamAndKey._2.s, streamAndValue._2))
         next match {
           case \/-((newStream, newFields)) => expectObject(newStream, false, newFields)
           case -\/(failure) => failure.left
@@ -203,20 +203,20 @@ object JsonParser {
 
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def collectStringParts(stream: List[JSONToken], workingTokens: Builder[StringPartToken, List[StringPartToken]] = List.newBuilder): String \/ (List[JSONToken], Builder[StringPartToken, List[StringPartToken]]) = {
+  private[this] final def collectStringParts(stream: List[JSONToken], workingTokens: StringBuilder = new StringBuilder()): String \/ (List[JSONToken], StringBuilder) = {
     stream match {
-      case (stringPartToken: StringPartToken) :: tail => collectStringParts(tail, workingTokens += stringPartToken)
+      case (stringPartToken: StringPartToken) :: tail => collectStringParts(tail, stringPartToken.appendToBuilder(workingTokens))
       case _ => \/-((stream, workingTokens))
     }
   }
 
-  private[this] final val appendStringPartToBuilder = (builder: StringBuilder, part: StringPartToken) => part.appendToBuilder(builder)
+  //private[this] final val appendStringPartToBuilder = (builder: StringBuilder, part: StringPartToken) => part.appendToBuilder(builder)
 
   private[this] final def expectStringNoStartBounds(stream: List[JSONToken]): String \/ (List[JSONToken], JString) = {
     for {
       elements <- collectStringParts(stream)
       afterClose <- expectStringBounds(elements._1)
-    } yield (afterClose, JString(elements._2.result.foldLeft(new StringBuilder())(appendStringPartToBuilder).toString))
+    } yield (afterClose, JString(elements._2.toString))
   }
 
   private[this] final val isNotNumberChar = (char: Char) => !((char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.')
@@ -229,8 +229,9 @@ object JsonParser {
     (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
   }
 
-  case class StringChunk(string: TokenSource, start: Int, end: Int) {
-    def appendToBuilder(builder: StringBuilder): StringBuilder = builder.append(string, start, end)
+  final case class StringChunk(string: TokenSource, start: Int, end: Int) {
+    @inline
+    final def appendToBuilder(builder: StringBuilder): StringBuilder = builder.append(string, start, end)
 
     final def getString(): String = string.substring(start, end)
   }
@@ -239,7 +240,7 @@ object JsonParser {
   case object NormalMode extends ProcessMode
   case object StringMode extends ProcessMode
 
-  def processSource(json: TokenSource): List[JSONToken] = {
+  final def processSource(json: TokenSource): List[JSONToken] = {
     val length = json.length
     @tailrec
     def process(mode: ProcessMode = NormalMode,
@@ -266,7 +267,7 @@ object JsonParser {
       @tailrec
       def safeIndexWhere(index: Int, predicate: (Char) => Boolean): Int = {
         if (index >= length) length
-        else if (predicate(json(index))) index
+        else if (predicate(json.charAt(index))) index
         else safeIndexWhere(index + 1, predicate)
       }
 
