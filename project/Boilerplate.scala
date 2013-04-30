@@ -42,7 +42,7 @@ object Boilerplate {
     }.mkString(", ")
 
     def content = {
-      val tupleDecodes = arities.map{arity =>
+      val tupleDecodes = aritiesExceptOne.map{arity =>
         val forComprehensionLines: String = (1 to arity).map{n =>
           val char = arityChars(n)
           "          x%s <- decode%s(c%s)".format(char.toLowerCase, char.toLowerCase, char.toLowerCase)
@@ -152,7 +152,7 @@ object Boilerplate {
     }.mkString(", ")
 
     def content = {
-      val tupleEncodes = arities.map{arity =>
+      val tupleEncodes = aritiesExceptOne.map{arity =>
         """|
            |  implicit def Tuple%sEncodeJson[%s](implicit %s): EncodeJson[(%s)] =
            |    EncodeJson({
