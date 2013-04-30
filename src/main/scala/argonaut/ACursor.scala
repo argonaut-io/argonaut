@@ -30,6 +30,13 @@ case class ACursor(either: HCursor \/ HCursor) {
     }
 
   /**
+   * Attempts to decode this cursor focus value to another data type.
+   * Alias for `jdecode`.
+   */
+  def as[A](implicit e: DecodeJson[A]): DecodeResult[A] =
+    jdecode[A]
+
+  /**
    * Attempts to move down onto a field `name` and decode the focus.
    */
   def get[A](name: String)(implicit e: DecodeJson[A]): DecodeResult[A] =

@@ -397,6 +397,12 @@ sealed trait Json {
     e((+this).hcursor)
 
   /**
+   * Attempts to decode this JSON value to another data type, alias for `jdecode`.
+   */
+  def as[A](implicit e: DecodeJson[A]): DecodeResult[A] =
+    jdecode[A]
+
+  /**
    * Pretty-print this JSON value to a string using the given pretty-printing parameters.
    */
   def pretty(p: PrettyParams): String =

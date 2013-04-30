@@ -91,4 +91,17 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    */
   def decodeOption[X: DecodeJson]: Option[X] =
     parser.decodeOption(value)
+
+
+  /**
+   * Parses and decodes the string value to a possible JSON value.
+   */
+  def decodeEither[X: DecodeJson]: String \/ X =
+    parser.decodeEither(value)
+
+  /**
+   * Parses and decodes the string value to a possible JSON value.
+   */
+  def decodeValidation[X: DecodeJson]: Validation[String, X] =
+    parser.decodeValidation(value)
 }

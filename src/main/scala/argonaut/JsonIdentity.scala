@@ -8,6 +8,12 @@ trait JsonIdentity[J] {
    */
   def jencode(implicit e: EncodeJson[J]): Json =
     e(j)
+
+  /**
+   * Encode to a JSON value using the given implicit encoder. Alias for `jencode`.
+   */
+  def asJson(implicit e: EncodeJson[J]): Json =
+    jencode
 }
 
 object JsonIdentity extends JsonIdentitys
@@ -15,9 +21,9 @@ object JsonIdentity extends JsonIdentitys
 trait JsonIdentitys {
   implicit def ToJsonIdentity[J](k: J): JsonIdentity[J] =
     new JsonIdentity[J] {
-      val j = k  
+      val j = k
     }
-  
+
   implicit def FromJsonIdentity[J](k: JsonIdentity[J]): J =
     k.j
 }

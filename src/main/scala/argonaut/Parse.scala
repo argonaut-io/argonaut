@@ -91,6 +91,17 @@ trait Parse[A] {
   def decodeOption[X: DecodeJson](value: A): Option[X] =
     decode(value).toOption
 
+  /**
+   * Parses and decodes the value to a possible JSON value.
+   */
+  def decodeEither[X: DecodeJson](value: A): String \/ X =
+    decodeWithMessage[String \/ X, X](value, _.right[String], _.left[X])
+
+  /**
+   * Parses and decodes the value to a possible JSON value.
+   */
+  def decodeValidation[X: DecodeJson](value: A): Validation[String, X] =
+    decodeEither(value).validation
 }
 
 /**

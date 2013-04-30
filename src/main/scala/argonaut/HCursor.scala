@@ -12,13 +12,20 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
    * Attempts to decode this cursor focus value to another data type.
    */
   def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
-    e(this)
+    e.decode(this)
+
+  /**
+   * Attempts to decode this cursor focus value to another data type.
+   * Alias for `jdecode`.
+   */
+  def as[A](implicit e: DecodeJson[A]): DecodeResult[A] =
+    jdecode[A]
 
   /**
    * Attempts to move down onto a field `name` and decode the focus.
    */
   def get[A](name: String)(implicit e: DecodeJson[A]): DecodeResult[A] =
-    (this --\ name).jdecode[A]
+    (this --\ name).as[A]
 
   def failedACursor: ACursor =
     ACursor.fail(this)
