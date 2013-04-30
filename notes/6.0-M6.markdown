@@ -1,0 +1,17 @@
+6.0-M6 contains some major changes.
+
+ * Major rework of `JsonObject` to elliminate pretty printing bottleneck, #43.
+
+ * Introduced `CodecJson` to allow for `EncodeJson` and `DecodeJson` to
+   be specified together. `CodecJson` includes a `laws` attribute to
+   assist with testing codecs, #18, #41, #45.
+
+ * Introduced `codec*` conveniences up to 22 for building `CodecJson`
+   type class instances.
+
+ * Introduced `casecodec*` conveniences up to 22 for building `CodecJson`
+   type class instances for case classes. Note this relies on
+   `_.unapply andThen (_.get)`.
+
+ * Fixed major regression in implicit search for EncodeJson/DecodeJson
+   caused by ambiguous Tuple1 instances. #44.
