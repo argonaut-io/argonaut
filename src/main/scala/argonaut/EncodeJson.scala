@@ -9,11 +9,17 @@ import Json._
  *
  * @author Tony Morris
  */
-sealed trait EncodeJson[-A] {
+trait EncodeJson[-A] {
+  /**
+   * Encode the given value. Alias for `encode`.
+   */
+  def apply(a: A): Json =
+    encode(a)
+
   /**
    * Encode the given value.
    */
-  def apply(a: A): Json
+  def encode(a: A): Json
 
   /**
    * Contravariant functor.
@@ -35,7 +41,7 @@ sealed trait EncodeJson[-A] {
 object EncodeJson extends EncodeJsons {
   def apply[A](f: A => Json): EncodeJson[A] =
     new EncodeJson[A] {
-      def apply(a: A) = f(a)
+      def encode(a: A) = f(a)
     }
 }
 
@@ -43,11 +49,11 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
 
-  implicit def DerivedEncodeJson[A](implicit codec: CodecJson[A]): EncodeJson[A] =
-    codec.encoder
-
   implicit val IdEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q)
+
+  implicit val HCursorEncodeJson: EncodeJson[HCursor] =
+    EncodeJson(q => q.focus)
 
   implicit val UnitEncodeJson: EncodeJson[Unit] =
     EncodeJson(_ => jEmptyObject)

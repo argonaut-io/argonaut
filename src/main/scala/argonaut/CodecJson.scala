@@ -2,18 +2,26 @@ package argonaut
 
 import scalaz._, Scalaz._
 
-sealed trait CodecJson[A] {
-  val encoder: EncodeJson[A]
-  val decoder: DecodeJson[A]
+sealed trait CodecJson[A] extends EncodeJson[A] with DecodeJson[A] {
+  trait CodecLaw {
+    def encodedecode(a: A)(implicit A: Equal[A]) =
+      decodeJson(encode(a)).value.exists (_ === a)
+  }
+
+  def codecLaw = new CodecLaw {}
 }
 
 object CodecJson extends CodecJsons {
-  def apply[A](encode: A => Json, decode: HCursor => DecodeResult[A]): CodecJson[A] =
+  def apply[A](encoder: A => Json, decoder: HCursor => DecodeResult[A]): CodecJson[A] =
     new CodecJson[A] {
-      val encoder = EncodeJson(encode)
-      val decoder = DecodeJson(decode)
+      def encode(a: A) = encoder(a)
+      def decode(c: HCursor) = decoder(c)
     }
 }
 
-trait CodecJsons {
+trait CodecJsons extends GeneratedCodecJsons with LowPriorityCodecJsons
+
+trait LowPriorityCodecJsons {
+  implicit def DerivedCodecJson[A](implicit E: EncodeJson[A], D: DecodeJson[A]) =
+    CodecJson(E.encode, D.decode)
 }

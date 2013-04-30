@@ -15,7 +15,9 @@ object Boilerplate {
 
     val generatedEncodeJson = write(dir / "argonaut" / "GeneratedEncodeJsons.scala", genEncodeJsons)
 
-    Seq(generatedDecodeJson, generatedEncodeJson)
+    val generatedCodecJson = write(dir / "argonaut" / "GeneratedCodecJsons.scala", genCodecJsons)
+
+    Seq(generatedDecodeJson, generatedEncodeJson, generatedCodecJson)
   }
 
   def header = {
@@ -32,6 +34,9 @@ object Boilerplate {
   def listPatternMatch(arity: Int): String = ((1 to arity).map(n => "c" + arityChars(n).toLowerCase).toList ::: "Nil" :: Nil).mkString(" :: ")
 
   def jsonStringParams(arity: Int): String = (1 to arity).map(n => "%sn: JsonString".format(arityChars(n).toLowerCase)).mkString(", ")
+
+  def jsonStringParamNames(arity: Int): String = (1 to arity).map(n => "%sn".format(arityChars(n).toLowerCase)).mkString(", ")
+
 
   def genDecodeJsons = {
     def decodeJsonContextArities(n: Int): String = (1 to n).map(n => "%s: DecodeJson".format(arityChars(n))).mkString(", ")
@@ -227,4 +232,71 @@ object Boilerplate {
          |}
          |""".format(content).stripMargin
   }
+
+  def genCodecJsons = {
+    def codecJsonContextArities(n: Int): String = (1 to n).map(n => "%s: EncodeJson: DecodeJson".format(arityChars(n))).mkString(", ")
+
+    def content = {
+
+      val codec1 =
+        """|
+           |  def codec1[A: EncodeJson: DecodeJson, X](f: A => X, g: X => A)(an: JsonString): CodecJson[X] =
+           |    CodecJson(jencode1L(g)(an).encode, jdecode1L(f)(an).decode)
+           |""".stripMargin
+
+
+      val codecs = aritiesExceptOne.map{arity =>
+        """|
+           |  def codec%s[%s, X](f: (%s) => X, g: X => (%s))(%s): CodecJson[X] =
+           |    CodecJson(jencode%sL(g)(%s).encode, jdecode%sL(f)(%s).decode)
+           |""".format(
+                  arity,
+                  codecJsonContextArities(arity),
+                  functionTypeParameters(arity),
+                  functionTypeParameters(arity),
+                  jsonStringParams(arity),
+                  arity,
+                  jsonStringParamNames(arity),
+                  arity,
+                  jsonStringParamNames(arity)
+                ).stripMargin
+      }
+
+      val casecodec1 =
+        """|
+           |  def casecodec1[A: EncodeJson: DecodeJson, X](f: A => X, g: X => Option[A])(an: JsonString): CodecJson[X] =
+           |    CodecJson(jencode1L(g)(an).encode, jdecode1L(f)(an).decode)
+           |""".stripMargin
+
+
+      val casecodecs = aritiesExceptOne.map{arity =>
+        """|
+           |  def casecodec%s[%s, X](f: (%s) => X, g: X => Option[(%s)])(%s): CodecJson[X] =
+           |    CodecJson(jencode%sL(g andThen (_.get))(%s).encode, jdecode%sL(f)(%s).decode)
+           |""".format(
+                  arity,
+                  codecJsonContextArities(arity),
+                  functionTypeParameters(arity),
+                  functionTypeParameters(arity),
+                  jsonStringParams(arity),
+                  arity,
+                  jsonStringParamNames(arity),
+                  arity,
+                  jsonStringParamNames(arity)
+                ).stripMargin
+      }
+
+      ((codec1 +: codecs) ++ (casecodec1 +: casecodecs)).mkString
+    }
+    header +
+      """|
+         |trait GeneratedCodecJsons {
+         |  import Json._
+         |  import DecodeJson._
+         |  import EncodeJson._
+         |%s
+         |}
+         |""".format(content).stripMargin
+  }
+
 }

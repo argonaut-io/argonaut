@@ -4,8 +4,23 @@ import scala.util.control.Exception.catching
 import scalaz._, Scalaz._
 import Json._
 
-sealed trait DecodeJson[+A] {
-  def apply(c: HCursor): DecodeResult[A]
+trait DecodeJson[+A] {
+  /**
+   * Decode the given hcursor. Alias for `decode`.
+   */
+  def apply(c: HCursor): DecodeResult[A] =
+    decode(c)
+
+  /**
+   * Decode the given hcursor.
+   */
+  def decode(c: HCursor): DecodeResult[A]
+
+  /**
+   * Decode the given json.
+   */
+  def decodeJson(j: Json): DecodeResult[A] =
+    decode(j.hcursor)
 
   /**
    * Covariant functor.
@@ -84,7 +99,7 @@ sealed trait DecodeJson[+A] {
 object DecodeJson extends DecodeJsons {
   def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] =
     new DecodeJson[A] {
-      def apply(c: HCursor) =
+      def decode(c: HCursor) =
         r(c)
     }
 }
@@ -105,10 +120,10 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   def tryTo[A](f: => A): Option[A] =
     catching(classOf[IllegalArgumentException]).opt(f)
 
-  implicit def DerivedDecodeJson[A](implicit codec: CodecJson[A]): DecodeJson[A] =
-    codec.decoder
+  implicit def IdDecodeJson: DecodeJson[Json] =
+    decodeArr(q => q.focus)
 
-  implicit def IdDecodeJson: DecodeJson[HCursor] =
+  implicit def HCursorDecodeJson: DecodeJson[HCursor] =
     decodeArr(q => q)
 
   implicit def JsonDecodeJson: DecodeJson[Json] =
