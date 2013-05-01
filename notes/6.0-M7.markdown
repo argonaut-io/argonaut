@@ -1,0 +1,5 @@
+6.0-M7 contains some minor bug fixes.
+
+ * Remove implicit for derived `CodecJson`. Still available via CodecJson.derived.
+
+ * Fixed val initialization in JsonObject, #46.
