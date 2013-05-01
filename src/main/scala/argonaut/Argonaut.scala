@@ -4,6 +4,7 @@ object Argonaut extends Argonauts
 
 trait Argonauts extends
 ACursors with
+CodecJsons with
 Contexts with
 Cursors with
 CursorHistorys with

@@ -14,8 +14,8 @@ import Scalaz._
 
 
 object CodecSpecification extends Specification with ScalaCheck {
-  def encodedecode[A: CodecJson : Arbitrary : Equal] =
-    forAll(implicitly[CodecJson[A]].codecLaw.encodedecode _)
+  def encodedecode[A: EncodeJson: DecodeJson : Arbitrary : Equal] =
+    forAll(CodecJson.derived[A].codecLaw.encodedecode _)
 
   def is = "Codec" ^
     "Unit encode/decode" ! encodedecode[Unit] ^

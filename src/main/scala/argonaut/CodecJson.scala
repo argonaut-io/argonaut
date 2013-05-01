@@ -17,11 +17,9 @@ object CodecJson extends CodecJsons {
       def encode(a: A) = encoder(a)
       def decode(c: HCursor) = decoder(c)
     }
-}
 
-trait CodecJsons extends GeneratedCodecJsons with LowPriorityCodecJsons
-
-trait LowPriorityCodecJsons {
-  implicit def DerivedCodecJson[A](implicit E: EncodeJson[A], D: DecodeJson[A]) =
+  def derived[A](implicit E: EncodeJson[A], D: DecodeJson[A]) =
     CodecJson(E.encode, D.decode)
 }
+
+trait CodecJsons extends GeneratedCodecJsons
