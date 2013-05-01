@@ -100,85 +100,82 @@ sealed trait JsonObject {
   def size: Int
 }
 
-object JsonObject extends JsonObjects {
-  private[this] val fieldsShow: Show[(JsonField, Json)] = Show[(JsonField, Json)]
+private[argonaut] case class JsonObjectInstance(
+  fieldsMap: Map[JsonField, Json] = Map.empty,
+  orderedFields: Vector[JsonField] = Vector.empty
+) extends JsonObject {
 
-  def apply(insertionMap: InsertionMap[JsonField, Json]): JsonObject = insertionMap.toList.foldLeft(empty){case (acc, (k, v)) => acc + (k, v)}
+  def toMap: Map[JsonField, Json] = fieldsMap
 
-  private[argonaut] case class JsonObjectInstance(fieldsMap: Map[JsonField, Json] = Map.empty, orderedFields: Vector[JsonField] = Vector.empty) extends JsonObject {
+  def toInsertionMap: InsertionMap[JsonField, Json] =
+    orderedFields.foldLeft(InsertionMap.empty[JsonField, Json]){(acc, field) =>
+      acc ^+^ (field, fieldsMap(field))}
 
-    def toMap: Map[JsonField, Json] = fieldsMap
-
-    def toInsertionMap: InsertionMap[JsonField, Json] = {
-      orderedFields.foldLeft(InsertionMap.empty[JsonField, Json]){(acc, field) =>
-        acc ^+^ (field, fieldsMap(field))
-      }
+  def +(f: JsonField, j: Json): JsonObject =
+    if (fieldsMap.contains(f)) {
+      copy(fieldsMap = fieldsMap.updated(f, j))
+    } else {
+      copy(fieldsMap = fieldsMap.updated(f, j), orderedFields = orderedFields :+ f)
     }
 
-    def +(f: JsonField, j: Json): JsonObject = {
-      if (fieldsMap.contains(f)) {
-        copy(fieldsMap = fieldsMap.updated(f, j))
-      } else {
-        copy(fieldsMap = fieldsMap.updated(f, j), orderedFields = orderedFields :+ f)
-      }
-    }
-
-    def +:(fj: (JsonField, Json)): JsonObject = {
-      val (f, j) = fj
-      if (fieldsMap.contains(f)) {
-        copy(fieldsMap = fieldsMap.updated(f, j))
-      } else {
-        copy(fieldsMap = fieldsMap.updated(f, j), orderedFields = f +: orderedFields)
-      }
-    }
-
-
-    def -(f: JsonField): JsonObject = {
-      copy(fieldsMap = fieldsMap - f, orderedFields = orderedFields.filterNot(_ == f))
-    }
-
-    def apply(f: JsonField): Option[Json] = fieldsMap.get(f)
-
-    def withJsons(k: Json => Json): JsonObject = map(k)
-
-    def isEmpty: Boolean = fieldsMap.isEmpty
-
-    def isNotEmpty: Boolean = !isEmpty
-
-    def ??(f: JsonField): Boolean = fieldsMap.contains(f)
-
-    def toList: List[(JsonAssoc)] = orderedFields.map(field => (field, fieldsMap(field))).toList
-
-    def values: List[Json] = orderedFields.map(field => fieldsMap(field)).toList
-
-    def kleisli: Kleisli[Option, JsonField, Json] = Kleisli(fieldsMap get _)
-
-    def fields: List[JsonField] = orderedFields.toList
-
-    def fieldSet: Set[JsonField] = orderedFields.toSet
-
-    def map(f: Json => Json): JsonObject = copy(fieldsMap = fieldsMap.foldLeft(Map.empty[JsonField, Json]){case (acc, (key, value)) => acc.updated(key, f(value))})
-
-    def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
-      orderedFields.foldLeft(FF.point(Map.empty[JsonField, Json])){case (acc, k) =>
-        FF.apply2(acc, f(fieldsMap(k)))(_.updated(k, _))
-      }.map(mappedFields => copy(fieldsMap = mappedFields))
-    }
-
-    def size: Int = fields.size
-
-    override def toString: String =
-      "object[%s]".format(fieldsMap.map(fieldsShow shows _).mkString(","))
-
-    override def equals(o: Any) = {
-      o match {
-        case JsonObjectInstance(otherMap, _) => fieldsMap == otherMap
-        case _ => false
-      }
-    }
-
-    override def hashCode = fieldsMap.hashCode
+  def +:(fj: (JsonField, Json)): JsonObject = {
+    val (f, j) = fj
+    if (fieldsMap.contains(f))
+      copy(fieldsMap = fieldsMap.updated(f, j))
+    else
+      copy(fieldsMap = fieldsMap.updated(f, j), orderedFields = f +: orderedFields)
   }
+
+  def -(f: JsonField): JsonObject =
+    copy(fieldsMap = fieldsMap - f, orderedFields = orderedFields.filterNot(_ == f))
+
+  def apply(f: JsonField): Option[Json] = fieldsMap.get(f)
+
+  def withJsons(k: Json => Json): JsonObject = map(k)
+
+  def isEmpty: Boolean = fieldsMap.isEmpty
+
+  def isNotEmpty: Boolean = !isEmpty
+
+  def ??(f: JsonField): Boolean = fieldsMap.contains(f)
+
+  def toList: List[(JsonAssoc)] = orderedFields.map(field => (field, fieldsMap(field))).toList
+
+  def values: List[Json] = orderedFields.map(field => fieldsMap(field)).toList
+
+  def kleisli: Kleisli[Option, JsonField, Json] = Kleisli(fieldsMap get _)
+
+  def fields: List[JsonField] = orderedFields.toList
+
+  def fieldSet: Set[JsonField] = orderedFields.toSet
+
+  def map(f: Json => Json): JsonObject = copy(fieldsMap = fieldsMap.foldLeft(Map.empty[JsonField, Json]){case (acc, (key, value)) => acc.updated(key, f(value))})
+
+  def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
+    orderedFields.foldLeft(FF.point(Map.empty[JsonField, Json])){case (acc, k) =>
+      FF.apply2(acc, f(fieldsMap(k)))(_.updated(k, _))
+                                                               }.map(mappedFields => copy(fieldsMap = mappedFields))
+  }
+
+  def size: Int = fields.size
+
+  override def toString: String =
+    "object[%s]".format(fieldsMap.map(_.shows).mkString(","))
+
+  override def equals(o: Any) =
+    o match {
+      case JsonObjectInstance(otherMap, _) => fieldsMap == otherMap
+      case _ => false
+    }
+
+  override def hashCode =
+    fieldsMap.hashCode
+}
+
+object JsonObject extends JsonObjects {
+
+  def apply(insertionMap: InsertionMap[JsonField, Json]): JsonObject =
+    insertionMap.toList.foldLeft(empty){case (acc, (k, v)) => acc + (k, v)}
 
   /**
    * Construct an empty association.
@@ -209,13 +206,9 @@ trait JsonObjects {
   def jsonObjectPL(f: JsonField): JsonObject @?> Json =
     PLens.somePLens compose ~jsonObjectL(f)
 
-  implicit val JsonObjectInstances: Equal[JsonObject] with Show[JsonObject] =
-    new Equal[JsonObject] with Show[JsonObject] {
-      def equal(j1: JsonObject, j2: JsonObject) = {
-        j1 == j2
-      }
-      override def show(a: JsonObject) =
-        Show.showFromToString show a
-    }
+  implicit val JsonObjectShow =
+    Show.showFromToString[JsonObject]
 
+  implicit val JsonObjectEqual =
+    Equal.equalA[JsonObject]
 }
