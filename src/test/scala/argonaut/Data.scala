@@ -122,4 +122,22 @@ object Data {
 
   implicit def ArbitraryScalazEither[A: Arbitrary, B: Arbitrary]: Arbitrary[A \/ B] =
     Arbitrary(arbitrary[Either[A, B]] map (\/.fromEither(_)))
+
+  implicit val ArbitraryPrettyParams: Arbitrary[PrettyParams] = Arbitrary(
+    for {
+      lbraceLeft <- arbitrary[Int => String]
+      lbraceRight <- arbitrary[Int => String]
+      rbraceLeft <- arbitrary[Int => String]
+      rbraceRight <- arbitrary[Int => String]
+      lbracketLeft <- arbitrary[Int => String]
+      lbracketRight <- arbitrary[Int => String]
+      rbracketLeft <- arbitrary[Int => String]
+      rbracketRight <- arbitrary[Int => String]
+      commaLeft <- arbitrary[Int => String]
+      commaRight <- arbitrary[Int => String]
+      colonLeft <- arbitrary[Int => String]
+      colonRight <- arbitrary[Int => String]
+      preserveOrder <- arbitrary[Boolean]
+    } yield PrettyParams(lbraceLeft, lbraceRight, rbraceLeft, rbraceRight, lbracketLeft, lbracketRight, rbracketLeft, rbracketRight, commaLeft, commaRight, colonLeft, colonRight, preserveOrder)
+  )
 }

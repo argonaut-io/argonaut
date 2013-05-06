@@ -147,7 +147,7 @@ sealed trait PrettyParams {
       k.fold[StringBuilder](
         builder.append(nullText)
         , bool => builder.append(if (bool) trueText else falseText)
-        , n => builder.append(n.shows)
+        , n => builder.append(if (n.isWhole) "%.0f".format(n) else n.toString)
         , s => encloseJsonString(builder, s)
         , e => {
           rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
@@ -292,4 +292,82 @@ trait PrettyParamss {
    */
   def spaces4: PrettyParams =
     pretty("    ")
+
+  /**
+   * The lens to the `lbraceLeft` configuration value.
+   */
+  def lbraceLeftL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(_, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbraceLeft))
+
+  /**
+   * The lens to the `lbraceRight` configuration value.
+   */
+  def lbraceRightL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, _, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbraceRight))
+
+  /**
+   * The lens to the `rbraceLeft` configuration value.
+   */
+  def rbraceLeftL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, _, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbraceLeft))
+
+  /**
+   * The lens to the `rbraceRight` configuration value.
+   */
+  def rbraceRightL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, _, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbraceRight))
+
+  /**
+   * The lens to the `lbracketLeft` configuration value.
+   */
+  def lbracketLeftL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, _, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbracketLeft))
+
+  /**
+   * The lens to the `lbracketRight` configuration value.
+   */
+  def lbracketRightL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, _, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbracketRight))
+
+  /**
+   * The lens to the `rbracketLeft` configuration value.
+   */
+  def rbracketLeftL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, _, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbracketLeft))
+
+  /**
+   * The lens to the `rbracketRight` configuration value.
+   */
+  def rbracketRightL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, _, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbracketRight))
+
+  /**
+   * The lens to the `commaLeft` configuration value.
+   */
+  def commaLeftL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, _, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.commaLeft))
+
+  /**
+   * The lens to the `commaRight` configuration value.
+   */
+  def commaRightL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, _, p.colonLeft, p.colonRight, p.preserveOrder), p.commaRight))
+
+  /**
+   * The lens to the `colonLeft` configuration value.
+   */
+  def colonLeftL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, _, p.colonRight, p.preserveOrder), p.colonLeft))
+
+  /**
+   * The lens to the `colonRight` configuration value.
+   */
+  def colonRightL: PrettyParams @> (Int => String) =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, _, p.preserveOrder), p.colonRight))
+
+  /**
+   * The lens to the `preserveOrder` configuration value.
+   */
+  def preserveOrderL: PrettyParams @> Boolean =
+    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, _), p.preserveOrder))
 }
