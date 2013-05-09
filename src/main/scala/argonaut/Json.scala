@@ -466,7 +466,13 @@ private[argonaut] case class JString(s: String) extends Json
 private[argonaut] case class JArray(a: JsonArray) extends Json
 private[argonaut] case class JObject(o: JsonObject) extends Json
 
-object Json extends Jsons
+object Json extends Jsons {
+  def obj(fields: (JsonField, Json)*) =
+    jObjectAssocList(fields.toList)
+
+  def array(elements: Json*) =
+    jArray(elements.toList)
+}
 
 /**
  * Constructors and other utilities for JSON values.
@@ -476,6 +482,7 @@ object Json extends Jsons
  * @author Mark Hibberd
  */
 trait Jsons {
+  type JsonBoolean = Boolean
   type JsonArray = List[Json]
   type JsonString = String
   type JsonField = String
@@ -593,6 +600,13 @@ trait Jsons {
   def jSingleArray(j: Json): Json =
     JArray(List(j))
 
+
+  /**
+   * Returns a function that takes a single value and produces a JSON array that contains only that value.
+   */
+  def jArrayElemets(elements: Json*): Json =
+    jArray(elements.toList)
+
   /**
    * A JSON value that is an empty object.
    */
@@ -616,6 +630,12 @@ trait Jsons {
    */
   def jObjectAssocList(x: List[(JsonField, Json)]): Json =
     JObject(JsonObject(InsertionMap(x: _*)))
+
+  /**
+   * Construct a JSON value that is an object from an association list (var args).
+   */
+  def jObjectFields(x: (JsonField, Json)*): Json =
+    jObjectAssocList(x.toList)
 
   import JsonIdentity._
 

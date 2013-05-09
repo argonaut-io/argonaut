@@ -2,7 +2,7 @@ package argonaut
 
 import scalaz._, Scalaz._, Isomorphism._
 
-sealed case class DecodeResult[+A](result:  (String, CursorHistory) \/ A) {
+case class DecodeResult[+A](result:  (String, CursorHistory) \/ A) {
   def fold[X](
     failure: (String, CursorHistory) => X,
     value: A => X
