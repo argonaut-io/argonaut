@@ -1,0 +1,8 @@
+6.0-RC1 contains only minor improvements and fixes.
+
+ * Add Json.{apply,obj,array} convenience builders after feedback
+   on constructing ad-hoc structures.
+
+ * Re-instated pretty printer lenses for building custom printers. See #27.
+
+ * Pretty printer improvements to clean up printing of whole numbers. See #37.
