@@ -467,6 +467,9 @@ private[argonaut] case class JArray(a: JsonArray) extends Json
 private[argonaut] case class JObject(o: JsonObject) extends Json
 
 object Json extends Jsons {
+  def apply(fields: (JsonField, Json)*) =
+    jObjectAssocList(fields.toList)
+
   def obj(fields: (JsonField, Json)*) =
     jObjectAssocList(fields.toList)
 

@@ -7,13 +7,13 @@ import org.specs2.specification._
 
 object JsonExample extends Specification {
   val json =
-    Json.obj(
+    Json(
       "name" := "fred",
       "age" := 23,
       "wallet" := List(
-        Json.obj("value" := 100),
-        Json.obj("value" := 10),
-        Json.obj("value" := 50)
+        Json { "value" := 100 },
+        Json { "value" := 10 },
+        Json { "value" := 50 }
       )
     )
 
