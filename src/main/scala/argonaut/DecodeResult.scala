@@ -26,14 +26,24 @@ case class DecodeResult[+A](result:  (String, CursorHistory) \/ A) {
   def history: Option[CursorHistory] =
     failure map (_._2)
 
+  def toOption: Option[A] =
+    result.toOption
+
+  def toDisjunction: (String, CursorHistory) \/ A =
+    result
+
+  def toEither: Either[(String, CursorHistory), A] =
+    result.toEither
+
+  def getOr[AA >: A](els: => AA): AA =
+    toOption.getOrElse(els)
+
+  /** alias for `toOption` */
   def value: Option[A] =
     result.toOption
 
   def failure: Option[(String, CursorHistory)] =
     result.swap.toOption
-
-  def toEither: Either[(String, CursorHistory), A] =
-    result.toEither
 
   def option: DecodeResult[Option[A]] =
     result.fold(
