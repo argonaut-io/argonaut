@@ -639,7 +639,7 @@ trait Jsons {
 
   import JsonIdentity._
 
-  implicit def JsonInstances: Equal[Json] with Show[Json] =
+  implicit val JsonInstances: Equal[Json] with Show[Json] =
     new Equal[Json] with Show[Json] {
       def equal(a1: Json, a2: Json) =
         a1 match {

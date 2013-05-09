@@ -27,11 +27,11 @@ Argonaut is a JSON library built using Scala. It provides functionality to speci
 
 ### SBT Settings
 
-Just add argonaut as a dependency (6.0-M5 is the current version available on oss.sonatype.org at the moment).
+Just add argonaut as a dependency (6.0-M7 is the current version available on oss.sonatype.org at the moment).
 
 Stable:
 
-    "io.argonaut" %% "argonaut" % "6.0-M5"
+    "io.argonaut" %% "argonaut" % "6.0-M7"
 
 Latest:
 
