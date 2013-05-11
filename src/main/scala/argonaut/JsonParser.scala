@@ -1,6 +1,6 @@
 package argonaut
 
-import annotation.tailrec
+import scala.annotation._
 import scalaz._
 import Scalaz._
 import Json._
@@ -36,7 +36,7 @@ object JsonParser {
     @tailrec
     def validSuffixContent(from: Int): Boolean = {
       if (from >= jsonLength) true
-      else json.charAt(from) match {
+      else json(from) match {
         case ' ' | '\r' | '\n' | '\t' => validSuffixContent(from + 1)
         case _ => false
       }
@@ -56,7 +56,7 @@ object JsonParser {
   @tailrec
   private[this] final def expectedSpacerToken(stream: TokenSource, position: Int, token: Char, failMessage: String): String \/ Int = {
     if (position >= stream.length) "JSON terminates unexpectedly".left
-    else stream.charAt(position) match {
+    else stream(position) match {
       case `token` => \/-(position + 1)
       case ' ' | '\r' | '\n' | '\t' => expectedSpacerToken(stream, position + 1, token, failMessage)
       case _ => -\/("%s but found: %s".format(failMessage, excerpt(stream, position)))
@@ -72,7 +72,7 @@ object JsonParser {
   @tailrec
   private[this] final def expectObject(stream: TokenSource, position: Int, first: Boolean = true, fields: JsonObject = JsonObject.empty): String \/ (Int, Json) = {
     if (position >= stream.length) "JSON terminates unexpectedly".left
-    else stream.charAt(position) match {
+    else stream(position) match {
       case '}' => \/-((position + 1, jObject(fields)))
       case ' ' | '\r' | '\n' | '\t' => expectObject(stream, position + 1, first, fields)
       case _ => {
@@ -94,7 +94,7 @@ object JsonParser {
   @tailrec
   private[this] final def expectArray(stream: TokenSource, position: Int, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (Int, Json) = {
     if (position >= stream.length) "JSON terminates unexpectedly".left
-    else stream.charAt(position) match {
+    else stream(position) match {
       case ']' => \/-((position + 1, jArray(fields.result)))
       case ' ' | '\r' | '\n' | '\t' => expectArray(stream, position + 1, first, fields)
       case _ => {
@@ -111,14 +111,17 @@ object JsonParser {
   }
 
   @tailrec
-  private[this] final def safeIndexWhere(stream: TokenSource, index: Int, predicate: (Char) => Boolean): Int = {
-    if (index >= stream.length) stream.length
-    else if (predicate(stream(index))) index
-    else safeIndexWhere(stream, index + 1, predicate)
-  }
-
-  @tailrec
   private[this] final def expectValue(stream: TokenSource, position: Int): String \/ (Int, Json) = {
+    @tailrec
+    def safeNumberIndex(index: Int): Int = {
+      if (index >= stream.length) stream.length
+      else {
+        val char = stream(index)
+        if ((char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.') safeNumberIndex(index + 1)
+        else index
+      }
+    }
+    
     if (position >= stream.length) "JSON terminates unexpectedly".left
     else stream(position) match {
       case '[' => expectArray(stream, position + 1)
@@ -129,7 +132,7 @@ object JsonParser {
       case 'n' if stream.startsWith("null", position) => \/-((position + 4, jNull))
       case ' ' | '\r' | '\n' | '\t' => expectValue(stream, position + 1)
       case _ => {
-        val numberEndIndex = safeIndexWhere(stream, position, isNotNumberChar)
+        val numberEndIndex = safeNumberIndex(position)
         if (numberEndIndex == position) unexpectedContent(stream, position)
         else {
           val numberAsString = stream.substring(position, numberEndIndex)
@@ -159,9 +162,23 @@ object JsonParser {
     @tailrec
     def checkUnicode(from: Int, unicodeShift: Int = 0): Boolean = {
       if (unicodeShift >= 4) true
-      else if (isUnicodeSequenceChar(stream(from + unicodeShift))) checkUnicode(from, unicodeShift + 1)
-      else false
+      else {
+        val char = stream(from + unicodeShift)
+        if ((char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')) checkUnicode(from, unicodeShift + 1)
+        else false
+      }
     }
+
+    @tailrec
+    def safeNormalCharIndex(index: Int): Int = {
+      if (index >= stream.length) stream.length
+      else {
+        val char = stream(index)
+        if (char == '"' || char == '\\') index
+        else safeNormalCharIndex(index + 1)
+      }
+    }
+
     if (position >= stream.length) "JSON terminates unexpectedly".left
     else stream(position) match {
       case '"' => \/-((position + 1, workingString))
@@ -180,7 +197,7 @@ object JsonParser {
         } else unexpectedContent(stream, position)
       }
       case other => {
-        val normalCharEnd = safeIndexWhere(stream, position, isNotNormalChar)
+        val normalCharEnd = safeNormalCharIndex(position)
         collectStringParts(stream, normalCharEnd, workingString.append(stream, position, normalCharEnd))
       }
     }
@@ -190,15 +207,5 @@ object JsonParser {
     for {
       elements <- collectStringParts(stream, position)
     } yield (elements._1, elements._2.toString)
-  }
-
-  private[this] final val isNotNumberChar = (char: Char) => !((char >= '0' && char <= '9') || char == '+' || char == '-' || char == 'e' || char == 'E' || char == '.')
-
-  private[this] final val isNotNormalChar = (char: Char) => {
-    !(char != '"' && char != '\\')
-  }
-
-  private[this] final def isUnicodeSequenceChar(char: Char) = {
-    (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F') || (char >= '0' && char <= '9')
   }
 }
