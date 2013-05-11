@@ -111,7 +111,7 @@ object JsonParser {
   }
 
   @tailrec
-  def safeIndexWhere(stream: TokenSource, index: Int, predicate: (Char) => Boolean): Int = {
+  private[this] final def safeIndexWhere(stream: TokenSource, index: Int, predicate: (Char) => Boolean): Int = {
     if (index >= stream.length) stream.length
     else if (predicate(stream(index))) index
     else safeIndexWhere(stream, index + 1, predicate)
