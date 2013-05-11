@@ -40,11 +40,11 @@ object KnownResults extends DataTables {
     "158699798998941697"                                          ! jNumber(158699798998941697D)
 
   def parseFailures =
-    "JSON"                                            | "parse result"                                                                                                    |
+    "JSON"                                            | "parse result"                                                                                |
     """[][]"""                                        ! "JSON contains invalid suffix content: []".left[Json]                                         |
     """{}{}"""                                        ! "JSON contains invalid suffix content: {}".left[Json]                                         |
     "\"\"\"\""                                        ! "JSON contains invalid suffix content: \"\"".left[Json]                                       |
-    "\"test"                                          ! "Expected string bounds but found: ".left[Json]                                               |
+    "\"test"                                          ! "JSON terminates unexpectedly".left[Json]                                                     |
     "[7,,]"                                           ! "Unexpected content found: ,]".left[Json]                                                     |
     """{"firstKey":100,"secondKey":}"""               ! "Unexpected content found: }".left[Json]                                                      |
     """{"firstKey":}"""                               ! "Unexpected content found: }".left[Json]                                                      |
