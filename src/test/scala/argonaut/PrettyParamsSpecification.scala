@@ -5,6 +5,7 @@ import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop
 import org.scalacheck.Prop._
 import org.scalacheck.Properties
+import org.scalacheck.Gen
 import Data._
 import Argonaut._
 import org.specs2._, org.specs2.specification._
@@ -41,6 +42,26 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     }
   }
 
+  val jsonSpacesMap: Map[Int, String] = Map(
+    0 -> """{"key1":"value1","key2":[9,21,0]}""",
+    2 -> """|{
+            |  "key1" : "value1",
+            |  "key2" : [
+            |    9,
+            |    21,
+            |    0
+            |  ]
+            |}""".stripMargin,
+    4 -> """|{
+            |    "key1" : "value1",
+            |    "key2" : [
+            |        9,
+            |        21,
+            |        0
+            |    ]
+            |}""".stripMargin
+  )
+
   def is = 
     lbraceLeft ^
     lbraceRight ^
@@ -54,7 +75,9 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     commaRight ^
     colonLeft ^
     colonRight ^
-    preserveOrder
+    preserveOrder ^
+    spacesComparison ^
+    numbers
   
   val lbraceLeft: Fragments = "lbraceLeft" ^
     "lens laws" ! lens.laws(PrettyParams.lbraceLeftL) ^ 
@@ -138,5 +161,21 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
       } else {
         json.objectOrEmpty.toMap === pairs.toMap
       }
+    } ^ end
+  val spacesComparison: Fragments = "nospaces/spaces2/spaces4" ! forAllNoShrink(Gen.oneOf(0, 2, 4), Gen.oneOf(0, 2, 4)){(firstIndex, secondIndex) =>
+    val json = jsonSpacesMap(firstIndex).parseOption.get
+    val printedJson = secondIndex match {
+      case 0 => json.nospaces
+      case 2 => json.spaces2
+      case 4 => json.spaces4
+    }
+    printedJson === jsonSpacesMap(secondIndex)
+  } ^ end
+  val numbers: Fragments = "number printing" ^ 
+    "whole number pretty print" ! prop{(n: Long) =>
+      jNumber(n).nospaces === "%.0f".format(n.toDouble)
+    } ^
+    "fractional number pretty print" ! forAll(arbitrary[(Double, Double)].filter{case (first, second) => second != 0}.map(pair => pair._1 / pair._2).filter(d => d != d.floor)){d =>
+      jNumber(d).nospaces === d.toString
     } ^ end
 }
