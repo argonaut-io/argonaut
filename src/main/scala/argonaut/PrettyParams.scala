@@ -1,7 +1,7 @@
 package argonaut
 
 import scalaz._, Scalaz._
-import annotation.tailrec
+import scala.annotation._
 
 /**
  * Parameters for pretty-printing a JSON value.
@@ -85,20 +85,39 @@ sealed trait PrettyParams {
   private[this] final val falseText = "false"
   private[this] final val stringEnclosureText = "\""
 
+  import Memo._
+
+  private[this] def vectorMemo() = {
+    var vector: Vector[String] = Vector.empty
+  
+    val memoFunction: (Int => String) => Int => String = f => k => {
+      val localVector = vector
+      val adjustedK = if (k < 0) 0 else k
+      if (localVector.size > adjustedK) {
+        localVector(adjustedK)
+      } else {
+        val newVector = Vector.tabulate(adjustedK + 1)(f)
+        vector = newVector
+        newVector.last
+      }
+    }
+    memo(memoFunction)
+  }
+
+  // TODO: Vector based memoisation.
+  private[this] final val lbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(lbraceLeft(depth), openBraceText, lbraceRight(depth + 1))}
+  private[this] final val rbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(rbraceLeft(depth + 1), closeBraceText, rbraceRight(depth + 1))}
+  private[this] final val lbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(lbracketLeft(depth), openArrayText, lbracketRight(depth + 1))}
+  private[this] final val rbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(rbracketLeft(depth + 1), closeArrayText, rbracketRight(depth))}
+  private[this] final val commaMemo = vectorMemo(){depth: Int => "%s%s%s".format(commaLeft(depth + 1), commaText, commaRight(depth + 1))}
+  private[this] final val colonMemo = vectorMemo(){depth: Int => "%s%s%s".format(colonLeft(depth + 1), colonText, colonRight(depth + 1))}
+
   /**
    * Returns a string representation of a pretty-printed JSON value.
    */
-  def pretty(j: Json): String = {
+  final def pretty(j: Json): String = {
     import Json._
     import StringEscaping._
-
-    import Memo._
-    val lbraceMemo = mutableHashMapMemo[Int, String]{depth: Int => lbraceLeft(depth) + openBraceText + lbraceRight(depth + 1)}
-    val rbraceMemo = mutableHashMapMemo[Int, String]{depth: Int => rbraceLeft(depth + 1) + closeBraceText + rbraceRight(depth)}
-    val lbracketMemo = mutableHashMapMemo[Int, String]{depth: Int => lbracketLeft(depth) + openArrayText + lbracketRight(depth + 1)}
-    val rbracketMemo = mutableHashMapMemo[Int, String]{depth: Int => rbracketLeft(depth + 1) + closeArrayText + rbracketRight(depth)}
-    val commaMemo = mutableHashMapMemo[Int, String]{depth: Int => commaLeft(depth + 1) + commaText + commaRight(depth + 1)}
-    val colonMemo = mutableHashMapMemo[Int, String]{depth: Int => colonLeft(depth + 1) + colonText + colonRight(depth + 1)}
 
     @tailrec
     def appendJsonString(builder: StringBuilder, jsonString: String, normalChars: Boolean = true): StringBuilder = {
@@ -147,7 +166,7 @@ sealed trait PrettyParams {
       k.fold[StringBuilder](
         builder.append(nullText)
         , bool => builder.append(if (bool) trueText else falseText)
-        , n => builder.append(if (n.isWhole) "%.0f".format(n) else n.toString)
+        , n => builder.append(if (n == n.floor) "%.0f".format(n) else n.toString)
         , s => encloseJsonString(builder, s)
         , e => {
           rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
@@ -172,11 +191,11 @@ sealed trait PrettyParams {
   /**
    * Returns a `Vector[Char]` representation of a pretty-printed JSON value.
    */
-  def lpretty(j: Json): Vector[Char] = Vector.empty[Char] ++ pretty(j)
+  final def lpretty(j: Json): Vector[Char] = Vector.empty[Char] ++ pretty(j)
 }
 
 object StringEscaping {
-  def escape(c: Char): String = c match {
+  final def escape(c: Char): String = (c: @switch) match {
     case '\\' => "\\\\"
     case '"' => "\\\""
     case '\b' => "\\b"
@@ -184,10 +203,9 @@ object StringEscaping {
     case '\n' => "\\n"
     case '\r' => "\\r"
     case '\t' => "\\t"
-    case possibleUnicode if Character.isISOControl(possibleUnicode) => "\\u%04x".format(possibleUnicode.toInt)
-    case _ => c.toString
+    case possibleUnicode => if (Character.isISOControl(possibleUnicode)) "\\u%04x".format(possibleUnicode.toInt) else possibleUnicode.toString
   }
-  val isNormalChar: Char => Boolean = char => char match {
+  final val isNormalChar: Char => Boolean = char => (char: @switch) match {
     case '\\' => false
     case '"' => false
     case '\b' => false
@@ -195,10 +213,9 @@ object StringEscaping {
     case '\n' => false
     case '\r' => false
     case '\t' => false
-    case possibleUnicode if Character.isISOControl(possibleUnicode) => false
-    case _ => true
+    case possibleUnicode => !Character.isISOControl(possibleUnicode)
   }
-  val isNotNormalChar: Char => Boolean = char => !isNormalChar(char)
+  final val isNotNormalChar: Char => Boolean = char => !isNormalChar(char)
 }
 
 object PrettyParams extends PrettyParamss {
@@ -235,11 +252,11 @@ object PrettyParams extends PrettyParamss {
 }
 
 trait PrettyParamss {
-  val zeroString = (_: Int) => ""
+  private[this] final val zeroString = (_: Int) => ""
   /**
    * A pretty-printer configuration that inserts no spaces.
    */
-  def nospace: PrettyParams =
+  final val nospace: PrettyParams =
     PrettyParams(
       zeroString
     , zeroString
@@ -256,15 +273,10 @@ trait PrettyParamss {
     , false
     )
 
-  @tailrec
-  final def repeatAppend(cord: Cord, toAppend: String, n: Int): Cord = {
-    if (n > 0) repeatAppend(cord :+ toAppend, toAppend, n - 1) else cord
-  }
-
   /**
    * A pretty-printer configuration that indents by the given spaces.
    */
-  def pretty(indent: String): PrettyParams =
+  final def pretty(indent: String): PrettyParams =
     PrettyParams(
       zeroString
     , n => "\n" + indent * n
@@ -284,13 +296,13 @@ trait PrettyParamss {
   /**
    * A pretty-printer configuration that indents by two spaces.
    */
-  def spaces2: PrettyParams =
+  final val spaces2: PrettyParams =
     pretty("  ")
 
   /**
    * A pretty-printer configuration that indents by four spaces.
    */
-  def spaces4: PrettyParams =
+  final val spaces4: PrettyParams =
     pretty("    ")
 
   /**
