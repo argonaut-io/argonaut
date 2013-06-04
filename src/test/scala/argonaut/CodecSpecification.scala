@@ -1,17 +1,11 @@
 package argonaut
 
-import org.scalacheck.Arbitrary
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Prop
-import org.scalacheck.Prop._
-import org.scalacheck.Properties
 import Data._
 import JsonIdentity._
+import scalaz._, Scalaz._
+import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
 import org.specs2.matcher._
-import scalaz._
-import Scalaz._
-
 
 object CodecSpecification extends Specification with ScalaCheck {
   def encodedecode[A: EncodeJson: DecodeJson : Arbitrary : Equal] =

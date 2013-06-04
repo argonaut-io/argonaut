@@ -24,7 +24,7 @@ object CodecExample extends Specification {
       implicit val EncodePerson: EncodeJson[Person] =
         jencode2((p: Person) => (p.name, p.age))
 
-      encodeDecode("""["Fred","40"]""")
+      encodeDecode("""["Fred",40]""")
     } ^
     "Object codec" ! {
       implicit val DecodePerson: DecodeJson[Person] =
@@ -33,6 +33,6 @@ object CodecExample extends Specification {
       implicit val EncodePerson: EncodeJson[Person] =
         jencode2L((p: Person) => (p.name, p.age))("name", "age")
 
-      encodeDecode("""{"name":"Fred","age":"40"}""")
+      encodeDecode("""{"name":"Fred","age":40}""")
     }
 }
