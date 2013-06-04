@@ -24,10 +24,7 @@ case class ACursor(either: HCursor \/ HCursor) {
    * Attempts to decode this cursor focus value to another data type.
    */
   def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
-    either match {
-      case -\/(invalid) => DecodeResult.fail("Attempt to decode value on failed cursor.", invalid.history)
-      case \/-(valid) => valid.jdecode[A]
-    }
+    e.tryDecode(this)
 
   /**
    * Attempts to decode this cursor focus value to another data type.

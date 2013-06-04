@@ -14,7 +14,16 @@ trait DecodeJson[+A] {
   /**
    * Decode the given hcursor.
    */
-  def decode(c: HCursor): DecodeResult[A]
+  def decode(c: HCursor): DecodeResult[A] =
+    tryDecode(c.acursor)
+
+  /**
+   * Decode the given acursor.
+   */
+  def tryDecode(c: ACursor): DecodeResult[A] = c.either match {
+    case -\/(invalid) => DecodeResult.fail("Attempt to decode value on failed cursor.", invalid.history)
+    case \/-(valid) => decode(valid)
+  }
 
   /**
    * Decode the given json.
@@ -99,7 +108,13 @@ trait DecodeJson[+A] {
 object DecodeJson extends DecodeJsons {
   def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] =
     new DecodeJson[A] {
-      def decode(c: HCursor) =
+      override def decode(c: HCursor) =
+        r(c)
+    }
+
+  def withReattempt[A](r: ACursor => DecodeResult[A]): DecodeJson[A] =
+    new DecodeJson[A] {
+      override def tryDecode(c: ACursor) =
         r(c)
     }
 }
@@ -218,11 +233,15 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     optionDecoder(_.string flatMap (s => if(s == 1) Some(s(0)) else None), "java.lang.Character")
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] =
-    DecodeJson(a => if (a.focus.isNull)
-      DecodeResult.ok(None)
-    else
-      e(a).option
-    )
+    DecodeJson.withReattempt(a => a.success match {
+      case None =>
+        DecodeResult.ok(None)
+      case Some(valid) =>
+        if (valid.focus.isNull)
+          DecodeResult.ok(None)
+        else
+          e(valid).option
+    })
 
   implicit def ScalazEitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[A \/ B] =
     implicitly[DecodeJson[Either[A, B]]].map(\/.fromEither(_))
