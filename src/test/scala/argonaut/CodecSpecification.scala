@@ -20,6 +20,9 @@ object CodecSpecification extends Specification with ScalaCheck {
   def is = "Codec" ^
     "Unit encode/decode" ! encodedecode[Unit] ^
     "List[String] encode/decode" ! encodedecode[List[String]] ^
+    "List[Int] encode/decode" ! encodedecode[List[Int]] ^
+    "List[Long] encode/decode" ! encodedecode[List[Long]] ^
+    "List[Double] encode/decode" ! encodedecode[List[Double]] ^
     "Vector[String] encode/decode" ! encodedecode[Vector[String]] ^
     "Stream[String] encode/decode" ! encodedecode[Stream[String]] ^
     "String encode/decode" ! encodedecode[String] ^

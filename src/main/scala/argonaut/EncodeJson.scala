@@ -77,7 +77,7 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(a => jNumber(a))
 
   implicit val IntEncodeJson: EncodeJson[Int] =
-    EncodeJson(a => jString(a.toString))
+    EncodeJson(a => jNumber(a.toDouble))
 
   implicit val LongEncodeJson: EncodeJson[Long] =
     EncodeJson(a => jString(a.toString))
