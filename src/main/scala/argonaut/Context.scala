@@ -3,7 +3,7 @@ package argonaut
 import Json._
 import scalaz._, Scalaz._
 
-trait Context {
+sealed trait Context {
   val toList: List[ContextElement]
 
   def +:(e: ContextElement): Context =
