@@ -1,0 +1,5 @@
+#!/bin/sh
+
+base=`(readlink "$0" || printf "%s" "$0") | xargs dirname`/..
+
+(cd "$base" && ./sbt "; set crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.1") ; +publish ; release cross")
