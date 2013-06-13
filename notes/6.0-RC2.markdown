@@ -1,0 +1,11 @@
+6.0-RC2 contains a critical fix to the optional decoder and lots of performance improvements.
+
+ * Parser performance improvements. See #47.
+
+ * Printer performance improvements. See #48.
+
+ * Fix option decoder. See #49 and markhibberd/argonaut.io#1.
+
+   This includes a significant enhancement to DecodeJson to explicitly
+   allow error handling on previously failed cursor navigation. This
+   change should be source compatible with RC1 though.
