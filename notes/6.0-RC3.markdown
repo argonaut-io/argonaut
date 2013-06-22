@@ -1,0 +1,3 @@
+6.0-RC3 contains a critical fix for an ambiguous implicit for DecodeJson[Json].
+
+ * Remove ambiguous implicit, and fix naming consistency for Json Encode/Decode. See #51.
