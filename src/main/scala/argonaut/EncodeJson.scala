@@ -49,7 +49,7 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
 
-  implicit val IdEncodeJson: EncodeJson[Json] =
+  implicit val JsonEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q)
 
   implicit val HCursorEncodeJson: EncodeJson[HCursor] =
