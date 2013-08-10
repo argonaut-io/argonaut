@@ -111,6 +111,12 @@ sealed trait Json {
     jObjectPL.get(this)
 
   /**
+   * Returns the possible object of this JSON value as an association list.
+   */
+  def assoc: Option[List[JsonAssoc]] =
+    obj.map(_.toList)
+
+  /**
    * If this is a JSON boolean value, invert the `true` and `false` values, otherwise, leave unchanged.
    */
   def not: Json =
