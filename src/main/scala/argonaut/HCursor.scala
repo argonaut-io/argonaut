@@ -300,7 +300,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
    * work with large structures (that is compared with recursive flatMap).
    */
   def traverseDecode[X](init: X)(op: HCursor => ACursor, f: (X, HCursor) => DecodeResult[X]) =
-    f(init, this).map(x => (this, x)).loop[DecodeResult[X], (HCursor, X)](
+    f(init, this).map(x => (this, x)).loop[DecodeResult[X]](
       DecodeResult.fail, { case (c, acc) =>
         val a = op(c)
         a.hcursor match {

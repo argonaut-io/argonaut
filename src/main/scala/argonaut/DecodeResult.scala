@@ -2,13 +2,13 @@ package argonaut
 
 import scalaz._, Scalaz._, Isomorphism._
 
-case class DecodeResult[+A](result:  (String, CursorHistory) \/ A) {
+case class DecodeResult[A](result:  (String, CursorHistory) \/ A) {
   def fold[X](
     failure: (String, CursorHistory) => X,
     value: A => X
   ): X = result.fold({ case (m, h) => failure(m, h) }, value)
 
-  final def loop[X, B >: A](e: (String, CursorHistory) => X, f: B => X \/ DecodeResult[B]): X =
+  final def loop[X](e: (String, CursorHistory) => X, f: A => X \/ DecodeResult[A]): X =
     DecodeResult.loop(this, e, f)
 
   def isError: Boolean =
