@@ -13,8 +13,8 @@ object build extends Build {
 
   val scalaz = "org.scalaz" %% "scalaz-core" % "7.1.0-SNAPSHOT"
   val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
-  val scalazScalaCheckBinding = "org.scalaz" %% "scalaz-scalacheck-binding" % "7.0.0" % "test"
-  val specs2_2_1_1 = "org.specs2" %% "specs2" % "2.1.1" % "test"
+  val scalazScalaCheckBinding = "org.scalaz" %% "scalaz-scalacheck-binding" % "7.1.0-SNAPSHOT" % "test"
+  val specs2 = "org.specs2" %% "specs2" % "2.2-scalaz-7.1.0-SNAPSHOT" % "test"
   val caliper = "com.google.caliper" % "caliper" % "0.5-rc1"
   val liftjson = "net.liftweb" % "lift-json_2.9.2" % "2.5-M3"
   val jackson = "com.fasterxml.jackson.core" % "jackson-core" % "2.1.1"
@@ -31,7 +31,7 @@ object build extends Build {
       , "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
       )
     , libraryDependencies <++= onVersion(
-        all = Seq(scalaz, scalacheck, scalazScalaCheckBinding, specs2_2_1_1)
+        all = Seq(scalaz, scalacheck, scalazScalaCheckBinding, specs2)
       )
     )
   )
