@@ -19,16 +19,20 @@ Argonaut is licenced under BSD3 (see `LICENCE`). See more at [http://argonaut.io
 
 ### SBT Settings
 
-Just add argonaut as a dependency (6.0-RC3 is the current version available on oss.sonatype.org at the moment).
+Just add argonaut as a dependency.
 
 Stable:
 
-    "io.argonaut" %% "argonaut" % "6.0-RC3"
+    "io.argonaut" %% "argonaut" % "6.0"
 
 Latest:
 
-    "io.argonaut" %% "argonaut" % "6.0-SNAPSHOT" changing()
+    "io.argonaut" %% "argonaut" % "6.1-SNAPSHOT" changing()
 
+
+Note that the 6.0 release supports scala 2.9.2, 2.9.3 and 2.10.* with scalaz 7.0.*.
+
+Note that the 6.1 development stream supports scala 2.10.* with scalaz 7.1.*.
 
 
 ### Release

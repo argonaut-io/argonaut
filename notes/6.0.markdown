@@ -1,0 +1,19 @@
+6.0 RELEASE.
+
+ * Finally.
+
+ * Identical to RC3.
+
+For full 6.0 release details see:
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-M2.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-M3.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-M4.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-M5.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-M6.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-M7.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-RC1.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-RC2.markdown>
+ * <https://github.com/markhibberd/argonaut/blob/master/notes/6.0-RC3.markdown>
+
+Special thanks to all the contributors that have helped out.
+ * <https://github.com/markhibberd/argonaut/contributors>
