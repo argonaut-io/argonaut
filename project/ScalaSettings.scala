@@ -6,8 +6,8 @@ object ScalaSettings {
   type Sett = Project.Setting[_]
 
   lazy val all: Seq[Sett] = Seq(
-    scalaVersion := "2.10.1"
-  , crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.0", "2.10.1")
+    scalaVersion := "2.10.2"
+  , crossScalaVersions := Seq("2.10.2")
   , fork in test := true
   , scalacOptions <++= onVersionTask(
       all = Seq("-deprecation", "-unchecked", "-optimise")
