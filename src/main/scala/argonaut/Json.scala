@@ -200,8 +200,8 @@ sealed trait Json {
   /**
    * Return `true` if this JSON value is a boolean.
    */
-  def isBool: Boolean =
-    isTrue || isFalse
+  def isBool: Boolean = 
+    bool.isDefined
 
   /**
    * Return `true` if this JSON value is a number.
