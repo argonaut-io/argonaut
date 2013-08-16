@@ -11,9 +11,9 @@ object build extends Build {
       organization := "io.argonaut"
   )
 
-  val scalaz = "org.scalaz" %% "scalaz-core" % "7.0.2"
+  val scalaz = "org.scalaz" %% "scalaz-core" % "7.0.3"
   val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
-  val scalazScalaCheckBinding = "org.scalaz" %% "scalaz-scalacheck-binding" % "7.0.0" % "test"
+  val scalazScalaCheckBinding = "org.scalaz" %% "scalaz-scalacheck-binding" % "7.0.3" % "test"
   val specs2_1_12_4_1 = "org.specs2" %% "specs2" % "1.12.4.1" % "test"
   val specs2_1_14 = "org.specs2" %% "specs2" % "1.14" % "test"
   val caliper = "com.google.caliper" % "caliper" % "0.5-rc1"
