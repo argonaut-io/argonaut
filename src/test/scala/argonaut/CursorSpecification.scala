@@ -42,5 +42,36 @@ object CursorSpecification extends Specification with ScalaCheck {
     "right->left" ! prop((c: Cursor) =>
       c.right forall (_.left exists (_ === c))) ^
     "downArray->up" ! prop((c: Cursor) =>
-      c.downArray forall (_.up exists (_ === c))) ^ end
+      c.downArray forall (_.up exists (_ === c))) ^
+    "downArray" ! prop((x: Json, xs: List[Json]) =>
+      jArray(x :: xs).cursor.downArray.map(_.focus) must_== Some(x)) ^
+    "downAt constant" ! prop((x: Json, xs: List[Json]) =>
+      jArray(x :: xs).cursor.downAt(_ => true).map(_.focus) must_== Some(x)) ^
+    "downAt constant true is same as down array" ! prop((xs: List[Json]) =>
+      jArray(xs).cursor.downAt(_ => true).map(_.focus) must_== jArray(xs).cursor.downArray.map(_.focus)) ^
+    "downAt" ! prop((ys: List[Json], x: Json, xs: List[Json]) =>
+      jArray(ys ::: (x :: xs)).cursor.downAt(_ == x).map(_.focus) must_== Some(x)) ^
+    "first" ! prop((y: Json, ys: List[Json], x: Json, xs: List[Json]) =>
+      jArray((y :: ys) ::: (x :: xs)).cursor.downAt(_ == x).flatMap(_.first).map(_.focus) must_== Some(y)) ^
+    "last" ! prop((ys: List[Json], x: Json, xs: List[Json], z: Json) =>
+      jArray(ys ::: (x :: xs) ::: List(z)).cursor.downAt(_ == x).flatMap(_.last).map(_.focus) must_== Some(z)) ^
+    "rightAt" ! prop((xx: Json, x: Json, xs: List[Json]) =>
+      jArray(xx :: x :: xs).cursor.downArray.flatMap(_.rightAt(_ => true)).map(_.focus) must_==  Some(x)) ^
+    "right" ! prop((x: Json, xs: List[Json]) =>
+      jArray(x :: xs).cursor.downArray.flatMap(_.right).map(_.focus) must_== xs.headOption) ^
+    "right is same as rightN(1)" ! prop((x: Json, xs: List[Json]) =>
+      jArray(x :: xs).cursor.downArray.flatMap(_.right).map(_.focus) must_==
+       jArray(x :: xs).cursor.downArray.flatMap(_.rightN(1)).map(_.focus)) ^
+    "rightN(0) is a no op" ! prop((ys: List[Json], x: Json, xs: List[Json]) =>
+      jArray(x :: xs).cursor.downArray.map(_.focus) must_==
+       jArray(x :: xs).cursor.downArray.flatMap(_.rightN(0)).map(_.focus)) ^
+    "leftN" ! prop((ys: List[Json], x: Json, xs: List[Json]) => !ys.contains(x) ==> {
+      jArray(ys ::: (x :: xs)).cursor.downAt(_ == x).flatMap(_.leftN(Math.max(ys.size, 1))).map(_.focus) must_==  ys.headOption }) ^
+    "rightN" ! prop((ys: List[Json], x: Json, xs: List[Json]) => !ys.contains(x) ==> {
+      jArray(ys ::: (x :: xs)).cursor.downAt(_ == x).flatMap(_.rightN(Math.max(xs.size, 1))).map(_.focus) must_==  xs.lastOption }) ^
+    "find" ! prop((x: Json, xs: List[Json]) =>
+      jArray(x :: xs).cursor.downArray.flatMap(_.find(_ => true)).map(_.focus) === Some(x)) ^ end
+
+
+
 }
