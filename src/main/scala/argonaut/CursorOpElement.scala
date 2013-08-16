@@ -50,6 +50,7 @@ case class CursorOpLeftN(n: Int) extends CursorOpElement
 case class CursorOpRightN(n: Int) extends CursorOpElement
 case class CursorOpLeftAt(p: Json => Boolean) extends CursorOpElement
 case class CursorOpRightAt(p: Json => Boolean) extends CursorOpElement
+case class CursorOpFind(p: Json => Boolean) extends CursorOpElement
 case class CursorOpField(f: JsonField) extends CursorOpElement
 case class CursorOpDownField(f: JsonField) extends CursorOpElement
 case object CursorOpDownArray extends CursorOpElement
@@ -80,6 +81,7 @@ trait CursorOpElements {
           case CursorOpRightN(n) => ":->-(" + n + ")"
           case CursorOpLeftAt(_) => "?<-:"
           case CursorOpRightAt(_) => ":->?"
+          case CursorOpFind(_) => "find"
           case CursorOpField(f) => "--(" + f + ")"
           case CursorOpDownField(f) => "--\\(" + f + ")"
           case CursorOpDownArray => "\\\\"
@@ -120,6 +122,12 @@ trait CursorOpElements {
   def cursorOpRightAtL: CursorOpElement @?> (Json => Boolean) =
     PLens {
       case CursorOpRightAt(p) => Some(Store(CursorOpRightAt(_), p))
+      case _ => None
+    }
+
+  def cursorOpFindL: CursorOpElement @?> (Json => Boolean) =
+    PLens {
+      case CursorOpFind(p) => Some(Store(CursorOpFind(_), p))
       case _ => None
     }
 

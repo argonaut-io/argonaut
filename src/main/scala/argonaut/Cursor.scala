@@ -179,7 +179,7 @@ sealed trait Cursor {
         if (x == 0)
           c
         else
-          r(x + 1, c flatMap (_.right))
+          r(x - 1, c flatMap (_.right))
       r(n, Some(this))
     }
 
@@ -204,15 +204,19 @@ sealed trait Cursor {
     rightAt(p)
 
   /** Move the cursor right in a JSON array until the given predicate matches the focus (alias for `:->?`). */
-  def rightAt(p: Json => Boolean): Option[Cursor] = {
+  def rightAt(p: Json => Boolean): Option[Cursor] =
+    right.flatMap(_.find(p))
+
+  /** Find the first element at or to the right of focus in a JSON array where the given predicate matches the focus. */
+  def find(p: Json => Boolean): Option[Cursor] = {
     @annotation.tailrec
     def r(c: Option[Cursor]): Option[Cursor] =
       c match {
         case None => None
-        case Some(w) => r(if(p(w.focus)) Some(w) else w.right)
+        case Some(w) => if (p(w.focus)) Some(w) else r(w.right)
       }
 
-    r(right)
+    r(Some(this))
   }
 
   /** Move the cursor to the given sibling field in a JSON object (alias for `field`). */
@@ -252,7 +256,7 @@ sealed trait Cursor {
 
   /** Move the cursor down to a JSON array at the first element satisfying the given predicate (alias for `-\`). */
   def downAt(p: Json => Boolean): Option[Cursor] =
-    downArray flatMap (_ :->? p)
+    downArray flatMap (_ find p)
 
   /** Move the cursor down to a JSON array at the given index (alias for `downN`). */
   def =\(n: Int): Option[Cursor] =

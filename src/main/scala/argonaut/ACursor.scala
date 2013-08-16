@@ -166,6 +166,10 @@ case class ACursor(either: HCursor \/ HCursor) {
   def rightAt(p: Json => Boolean): ACursor =
     withHCursor(_.rightAt(p))
 
+  /** Find the first element at or to the right of focus in a JSON array where the given predicate matches the focus. */
+  def find(p: Json => Boolean): ACursor =
+    withHCursor(_.find(p))
+
   /** Move the cursor to the given sibling field in a JSON object (alias for `field`). */
   def --(q: JsonField): ACursor =
     withHCursor(c => c -- q)

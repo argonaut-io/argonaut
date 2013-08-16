@@ -130,6 +130,10 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
   def rightAt(p: Json => Boolean): ACursor =
     history.acursorElement(Store(_.rightAt(p), cursor), CursorOpRightAt(p))
 
+  /** Find the first element at or to the right of focus in a JSON array where the given predicate matches the focus. */
+  def find(p: Json => Boolean): ACursor =
+    history.acursorElement(Store(_.find(p), cursor), CursorOpRightAt(p))
+
   /** Move the cursor to the given sibling field in a JSON object (alias for `field`). */
   def --(q: JsonField): ACursor =
     field(q)
