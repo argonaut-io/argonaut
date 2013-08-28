@@ -553,7 +553,8 @@ trait Jsons {
    * Construct a JSON value that is a number.
    */
   val jNumber: JsonNumber => Json =
-    JNumber(_)
+    (number: JsonNumber) =>
+      (number.isNaN || number.isInfinity) ? jNull | JNumber(number)
 
   /**
    * Construct a JSON value that is a string.
