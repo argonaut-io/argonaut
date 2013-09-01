@@ -23,14 +23,18 @@ Just add argonaut as a dependency.
 
 Stable:
 
-    "io.argonaut" %% "argonaut" % "6.0"
+    "io.argonaut" %% "argonaut" % "6.0.1"
 
 Latest:
 
     "io.argonaut" %% "argonaut" % "6.1-SNAPSHOT" changing()
 
+Milestone:
 
-Note that the 6.0 release supports scala 2.9.2, 2.9.3 and 2.10.* with scalaz 7.0.*.
+    "io.argonaut" %% "argonaut" % "6.1-M1" 
+
+
+Note that the 6.0.x release supports scala 2.9.2, 2.9.3 and 2.10.* with scalaz 7.0.*.
 
 Note that the 6.1 development stream supports scala 2.10.* with scalaz 7.1.*.
 
