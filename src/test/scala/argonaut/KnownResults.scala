@@ -11,12 +11,12 @@ object KnownResults extends DataTables {
     "JSON"                                                        | "Typed Result"                                                                                                        |
     """[]"""                                                      ! jEmptyArray                                                                                                           |
     """{}"""                                                      ! jEmptyObject                                                                                                          |
-    """[10]"""                                                    ! jSingleArray(jNumber(10))                                                                                             |
-    """ [ 10 ] """                                                ! jSingleArray(jNumber(10))                                                                                             |
-    """{"number":20}"""                                           ! jSingleObject("number", jNumber(20))                                                                                  |
-    """{"firstKey":100,"secondKey":"secondValue"}"""              ! ("secondKey", jString("secondValue")) ->: ("firstKey", jNumber(100)) ->: jEmptyObject                                 |
-    """{ "firstKey" : 100 , "secondKey" : "secondValue" }"""      ! ("secondKey", jString("secondValue")) ->: ("firstKey", jNumber(100)) ->: jEmptyObject                                 |
-    """[100,"secondValue"]"""                                     ! jArray(List(jNumber(100), jString("secondValue")))                                                                    |
+    """[10]"""                                                    ! jSingleArray(jNumberOrNull(10))                                                                                       |
+    """ [ 10 ] """                                                ! jSingleArray(jNumberOrNull(10))                                                                                       |
+    """{"number":20}"""                                           ! jSingleObject("number", jNumberOrNull(20))                                                                            |
+    """{"firstKey":100,"secondKey":"secondValue"}"""              ! ("secondKey", jString("secondValue")) ->: ("firstKey", jNumberOrNull(100)) ->: jEmptyObject                           |
+    """{ "firstKey" : 100 , "secondKey" : "secondValue" }"""      ! ("secondKey", jString("secondValue")) ->: ("firstKey", jNumberOrNull(100)) ->: jEmptyObject                           |
+    """[100,"secondValue"]"""                                     ! jArray(List(jNumberOrNull(100), jString("secondValue")))                                                              |
     """[[]]"""                                                    ! jSingleArray(jEmptyArray)                                                                                             |
     """[[[]]]"""                                                  ! jSingleArray(jSingleArray(jEmptyArray))                                                                               |
     """[[],[]]"""                                                 ! jArray(List(jEmptyArray, jEmptyArray))                                                                                |
@@ -31,13 +31,13 @@ object KnownResults extends DataTables {
     """"\\""""                                                    ! jString("\\")                                                                                                         |
     """"\/""""                                                    ! jString("/")                                                                                                          |
     """"\"""""                                                    ! jString("\"")                                                                                                         |
-    "1"                                                           ! jNumber(1)                                                                                                            |
-    "-1"                                                          ! jNumber(-1)                                                                                                           |
-    "0"                                                           ! jNumber(0)                                                                                                            |
-    "1E999"                                                       ! jNumber("1E999".toDouble)                                                                                             |
-    "1E+999"                                                      ! jNumber("1E+999".toDouble)                                                                                            |
-    "1E-999"                                                      ! jNumber("1E-999".toDouble)                                                                                            |
-    "158699798998941697"                                          ! jNumber(158699798998941697D)
+    "1"                                                           ! jNumberOrNull(1)                                                                                                      |
+    "-1"                                                          ! jNumberOrNull(-1)                                                                                                     |
+    "0"                                                           ! jNumberOrNull(0)                                                                                                      |
+    "1E999"                                                       ! jNumberOrNull("1E999".toDouble)                                                                                       |
+    "1E+999"                                                      ! jNumberOrNull("1E+999".toDouble)                                                                                      |
+    "1E-999"                                                      ! jNumberOrNull("1E-999".toDouble)                                                                                      |
+    "158699798998941697"                                          ! jNumberOrNull(158699798998941697D)
 
   def parseFailures =
     "JSON"                                            | "parse result"                                                                                |

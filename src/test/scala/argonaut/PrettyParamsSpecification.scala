@@ -62,7 +62,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
             |}""".stripMargin
   )
 
-  def is = 
+  def is =
     lbraceLeft ^
     lbraceRight ^
     rbraceLeft ^
@@ -78,15 +78,15 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     preserveOrder ^
     spacesComparison ^
     numbers
-  
+
   val lbraceLeft: Fragments = "lbraceLeft" ^
-    "lens laws" ! lens.laws(PrettyParams.lbraceLeftL) ^ 
+    "lens laws" ! lens.laws(PrettyParams.lbraceLeftL) ^
     "indent" ! prop{(indent: String) =>
       val prettyParams = lbraceLeftL.set(PrettyParams.nospace, _ => indent)
       prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """%s{"test":"value"}""".format(indent)
     } ^ end
   val lbraceRight: Fragments = "lbraceRightL" ^
-    "lens laws" ! lens.laws(PrettyParams.lbraceRightL) ^ 
+    "lens laws" ! lens.laws(PrettyParams.lbraceRightL) ^
     "indent" ! prop{(indent: String) =>
       val prettyParams = lbraceRightL.set(PrettyParams.nospace, _ => indent)
       prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{%s"test":"value"}""".format(indent)
@@ -107,37 +107,37 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     "lens laws" ! lens.laws(PrettyParams.lbracketLeftL) ^
     "indent" ! prop{(indent: String) =>
       val prettyParams = lbracketLeftL.set(PrettyParams.nospace, _ => indent)
-      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """%s[true,false]""".format(indent)     
+      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """%s[true,false]""".format(indent)
     } ^ end
   val lbracketRight: Fragments = "lbracketRightL" ^
     "lens laws" ! lens.laws(PrettyParams.lbracketRightL) ^
      "indent" ! prop{(indent: String) =>
       val prettyParams = lbracketRightL.set(PrettyParams.nospace, _ => indent)
-      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[%strue,false]""".format(indent)     
-    } ^ end 
+      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[%strue,false]""".format(indent)
+    } ^ end
   val rbracketLeft: Fragments = "rbracketLeftL" ^
     "lens laws" ! lens.laws(PrettyParams.lbracketRightL) ^
      "indent" ! prop{(indent: String) =>
       val prettyParams = rbracketLeftL.set(PrettyParams.nospace, _ => indent)
-      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false%s]""".format(indent)     
+      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false%s]""".format(indent)
     } ^ end
   val rbracketRight: Fragments = "rbracketRightL" ^
     "lens laws" ! lens.laws(PrettyParams.rbracketRightL) ^
      "indent" ! prop{(indent: String) =>
       val prettyParams = rbracketRightL.set(PrettyParams.nospace, _ => indent)
-      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false]%s""".format(indent)     
+      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false]%s""".format(indent)
     } ^ end
   val commaLeft: Fragments = "commaLeftL" ^
     "lens laws" ! lens.laws(PrettyParams.commaLeftL) ^
      "indent" ! prop{(indent: String) =>
       val prettyParams = commaLeftL.set(PrettyParams.nospace, _ => indent)
-      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true%s,false]""".format(indent)     
+      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true%s,false]""".format(indent)
     } ^ end
   val commaRight: Fragments = "commaRightL" ^
     "lens laws" ! lens.laws(PrettyParams.commaRightL) ^
      "indent" ! prop{(indent: String) =>
       val prettyParams = commaRightL.set(PrettyParams.nospace, _ => indent)
-      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,%sfalse]""".format(indent)     
+      prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,%sfalse]""".format(indent)
     } ^ end
   val colonLeft: Fragments = "colonLeftL" ^
     "lens laws" ! lens.laws(PrettyParams.colonLeftL) ^
@@ -153,7 +153,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     } ^ end
   val preserveOrder: Fragments = "preserveOrderL" ^
     "lens laws" ! lens.laws(PrettyParams.preserveOrderL) ^
-    "order preservation" ! prop {(preserve: Boolean, pairs: List[(JsonField, Json)]) => 
+    "order preservation" ! prop {(preserve: Boolean, pairs: List[(JsonField, Json)]) =>
       val prettyParams = preserveOrderL.set(PrettyParams.nospace, preserve)
       val json = prettyParams.pretty(jObjectAssocList(pairs)).parseOption.get
       if (preserve) {
@@ -171,11 +171,11 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     }
     printedJson === jsonSpacesMap(secondIndex)
   } ^ end
-  val numbers: Fragments = "number printing" ^ 
+  val numbers: Fragments = "number printing" ^
     "whole number pretty print" ! prop{(n: Long) =>
-      jNumber(n).nospaces === "%.0f".format(n.toDouble)
+      jNumberOrNull(n).nospaces === "%.0f".format(n.toDouble)
     } ^
     "fractional number pretty print" ! forAll(arbitrary[(Double, Double)].filter{case (first, second) => second != 0}.map(pair => pair._1 / pair._2).filter(d => d != d.floor)){d =>
-      jNumber(d).nospaces === d.toString
+      jNumberOrNull(d).nospaces === d.toString
     } ^ end
 }

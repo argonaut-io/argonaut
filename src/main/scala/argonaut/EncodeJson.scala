@@ -71,13 +71,13 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(jString)
 
   implicit val DoubleEncodeJson: EncodeJson[Double] =
-    EncodeJson(jNumber)
+    EncodeJson(jNumberOrNull)
 
   implicit val FloatEncodeJson: EncodeJson[Float] =
-    EncodeJson(a => jNumber(a))
+    EncodeJson(a => jNumberOrNull(a))
 
   implicit val IntEncodeJson: EncodeJson[Int] =
-    EncodeJson(a => jNumber(a.toDouble))
+    EncodeJson(a => jNumberOrNull(a.toDouble))
 
   implicit val LongEncodeJson: EncodeJson[Long] =
     EncodeJson(a => jString(a.toString))
@@ -89,10 +89,10 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(a => jString(a.toString))
 
   implicit val JDoubleEncodeJson: EncodeJson[java.lang.Double] =
-    EncodeJson(a => jNumber(a.doubleValue))
+    EncodeJson(a => jNumberOrNull(a.doubleValue))
 
   implicit val JFloatEncodeJson: EncodeJson[java.lang.Float] =
-    EncodeJson(a => jNumber(a.floatValue.toDouble))
+    EncodeJson(a => jNumberOrNull(a.floatValue.toDouble))
 
   implicit val JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
     EncodeJson(a => jString(a.toString))

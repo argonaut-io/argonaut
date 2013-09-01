@@ -200,7 +200,7 @@ sealed trait Json {
   /**
    * Return `true` if this JSON value is a boolean.
    */
-  def isBool: Boolean = 
+  def isBool: Boolean =
     bool.isDefined
 
   /**
@@ -551,10 +551,33 @@ trait Jsons {
 
   /**
    * Construct a JSON value that is a number.
+   *
+   * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  val jNumber: JsonNumber => Json =
-    (number: JsonNumber) =>
-      (number.isNaN || number.isInfinity) ? jNull | JNumber(number)
+  val jNumber: JsonNumber => Option[Json] =
+    number =>
+      (!number.isNaN && !number.isInfinity).option(JNumber(number))
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to jNull. This matches
+   * the behaviour of most browsers, but is a lossy operation
+   * as you can no longer distinguish between NaN and Infinity.
+   */
+  val jNumberOrNull: JsonNumber => Json =
+    number => jNumber(number).getOrElse(jNull)
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to their string implementations.
+   *
+   * This is an argonaut specific transformation that allows all
+   * doubles to be encoded without losing information, but aware
+   * interoperability is unlikely without custom handling of
+   * these values. See also `jNumber` and `jNumberOrNull`.
+   */
+  val jNumberOrString: JsonNumber => Json =
+    number => jNumber(number).getOrElse(jString(number.toString))
 
   /**
    * Construct a JSON value that is a string.

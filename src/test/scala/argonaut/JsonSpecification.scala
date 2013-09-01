@@ -43,8 +43,8 @@ object JsonSpecification extends Specification with ScalaCheck {
       !j.isArray || (e -->>: j).array.map(_.head) === e.some) ^
     "jBool isBool" ! prop((b: Boolean) =>
       jBool(b).isBool) ^
-    "jNumber isNumber" ! prop((n: JsonNumber) =>
-      jNumber(n).isNumber) ^
+    "jNumber isNumber" ! prop((n: JsonNumber) => !n.isNaN && !n.isInfinity ==>
+      jNumberOrNull(n).isNumber) ^
     "jString isString" ! prop((s: String) =>
       jString(s).isString) ^
     "jArray isArray" ! prop((a: List[Json]) =>
