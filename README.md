@@ -31,7 +31,7 @@ Latest:
 
 Milestone:
 
-    "io.argonaut" %% "argonaut" % "6.1-M1" 
+    "io.argonaut" %% "argonaut" % "6.1-M2"
 
 
 Note that the 6.0.x release supports scala 2.9.2, 2.9.3 and 2.10.* with scalaz 7.0.*.
