@@ -1,0 +1,3 @@
+6.0.1 RELEASE.
+
+ * FIXes to cursor manipulation of Json Arrays.
