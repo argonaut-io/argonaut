@@ -11,13 +11,13 @@ object build extends Build {
       organization := "io.argonaut"
   )
 
-  val scalaz = "org.scalaz" %% "scalaz-core" % "7.1.0-SNAPSHOT"
-  val scalacheck = "org.scalacheck" %% "scalacheck" % "1.10.0" % "test"
-  val scalazScalaCheckBinding = "org.scalaz" %% "scalaz-scalacheck-binding" % "7.1.0-SNAPSHOT" % "test"
-  val specs2 = "org.specs2" %% "specs2" % "2.2-scalaz-7.1.0-SNAPSHOT" % "test"
-  val caliper = "com.google.caliper" % "caliper" % "0.5-rc1"
-  val liftjson = "net.liftweb" % "lift-json_2.9.2" % "2.5-M3"
-  val jackson = "com.fasterxml.jackson.core" % "jackson-core" % "2.1.1"
+  val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % "7.1.0-M3"
+  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.10.0"                % "test"
+  val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % "7.1.0-M3"              % "test"
+  val specs2                     = "org.specs2"                   %% "specs2"                    % "2.2.2-scalaz-7.1.0-M3" % "test"
+  val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
+  val liftjson                   = "net.liftweb"                  %  "lift-json_2.9.2"           % "2.5-M3"
+  val jackson                    = "com.fasterxml.jackson.core"   % "jackson-core"               % "2.1.1"
 
 
   val argonaut = Project(
