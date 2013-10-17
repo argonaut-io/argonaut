@@ -82,7 +82,7 @@ trait DecodeJson[A] {
   /**
    * Choose the first succeeding decoder.
    */
-  def |||[AA >: A](x: => DecodeJson[AA]): DecodeJson[AA] =
+  def |||(x: => DecodeJson[A]): DecodeJson[A] =
     DecodeJson(c => {
       val q = apply(c)
       q.result.fold(_ => x(c), _ => q)
