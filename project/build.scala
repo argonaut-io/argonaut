@@ -33,7 +33,7 @@ object build extends Build {
       , on210 = Seq(specs2_1_14)
       )
     )
-  )
+  ).dependsOn(uri("git://github.com/non/jawn#topic/facade"))
 
   val benchmark = Project(
     id = "benchmark"
