@@ -1,6 +1,6 @@
 # Argonaut
 
-[![Build Status](https://travis-ci.org/markhibberd/argonaut.png)](https://travis-ci.org/markhibberd/argonaut)
+[![Build Status](https://travis-ci.org/argonaut-io/argonaut.png)](https://travis-ci.org/argonaut-io/argonaut)
 
 
 ### What is Argonaut?
