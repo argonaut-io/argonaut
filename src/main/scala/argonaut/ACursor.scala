@@ -37,10 +37,7 @@ case class ACursor(either: HCursor \/ HCursor) {
    * Attempts to move down onto a field `name` and decode the focus.
    */
   def get[A](name: String)(implicit e: DecodeJson[A]): DecodeResult[A] =
-    either match {
-      case -\/(invalid) => DecodeResult.fail("Attempt to decode value on failed cursor.", invalid.history)
-      case \/-(valid) => valid.get[A](name)
-    }
+    downField(name).as[A]
 
   def succeeded: Boolean =
     hcursor.isDefined
