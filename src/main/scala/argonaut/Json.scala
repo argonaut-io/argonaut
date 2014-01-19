@@ -635,9 +635,9 @@ trait Jsons {
 
 
   /**
-   * Returns a function that takes a single value and produces a JSON array that contains only that value.
+   * Construct a JSON value that is an array from a list of elements (var args).
    */
-  def jArrayElemets(elements: Json*): Json =
+  def jArrayElements(elements: Json*): Json =
     jArray(elements.toList)
 
   /**
