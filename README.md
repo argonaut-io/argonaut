@@ -23,7 +23,7 @@ Just add argonaut as a dependency.
 
 Stable:
 
-    "io.argonaut" %% "argonaut" % "6.0.1"
+    "io.argonaut" %% "argonaut" % "6.0.2"
 
 Latest:
 
