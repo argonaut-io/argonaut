@@ -3,6 +3,14 @@ package argonaut
 import scalaz._, Scalaz._
 
 sealed trait CursorOp {
+  def fold[X](reattempt: => X, el: (CursorOpElement, Boolean) => X) =
+    this match {
+      case Reattempt =>
+        reattempt
+      case El(op, success) =>
+        el(op, success)
+    }
+
   def isReattempt: Boolean =
     this == Reattempt
 
@@ -21,8 +29,9 @@ sealed trait CursorOp {
       case El(_, s) => !s
     }
 }
-private case object Reattempt extends CursorOp
-private case class El(o: CursorOpElement, success: Boolean) extends CursorOp
+
+case object Reattempt extends CursorOp
+case class El(o: CursorOpElement, success: Boolean) extends CursorOp
 
 object CursorOp extends CursorOps {
   def apply(o: CursorOpElement): CursorOp =
