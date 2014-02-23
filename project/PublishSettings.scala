@@ -19,8 +19,8 @@ object PublishSettings {
   lazy val pom: Sett =
     pomExtra := (
       <scm>
-        <url>git@github.com:markhibberd/argonaut.git</url>
-        <connection>scm:git:git@github.com:markhibberd/argonaut.git</connection>
+        <url>git@github.com:argonaut-io/argonaut.git</url>
+        <connection>scm:git:git@github.com:argonaut-io/argonaut.git</connection>
       </scm>
       <developers>
         <developer>
