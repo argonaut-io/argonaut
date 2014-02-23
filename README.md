@@ -14,7 +14,7 @@ Argonaut is licenced under BSD3 (see `LICENCE`). See more at [http://argonaut.io
 
 * [User Docs](http://argonaut.io/doc/)
 * [Scala Docs](http://argonaut.io/scaladocs/)
-* [Examples](https://github.com/markhibberd/argonaut/tree/master/src/test/scala/argonaut/example)
+* [Examples](https://github.com/argonaut-io/argonaut/tree/master/src/test/scala/argonaut/example)
 
 
 ### SBT Settings
@@ -70,8 +70,8 @@ step it is fine to enter the original build number as the next number
 
 Argonaut was initially developed to support products at [Ephox](http://ephox.com).
 
-The library was open-sourced under a [BSD License](https://github.com/markhibberd/argonaut/blob/master/LICENSE), drawing users, support and improvements from a number of contributors.
+The library was open-sourced under a [BSD License](https://github.com/argonaut-io/argonaut/blob/master/LICENSE), drawing users, support and improvements from a number of contributors.
 
-The initial developers have since left the employment of Ephox and now maintain this fork `markhibberd/argonaut`.
+The initial developers have since left the employment of Ephox and now maintain this fork `argonaut-io/argonaut`.
 
 It is expected that major releases will now come from this repository.
