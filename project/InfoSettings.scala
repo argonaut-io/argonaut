@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object InfoSettings {
-  type Sett = Project.Setting[_]
+  type Sett = Def.Setting[_]
 
   def all = Seq[Sett](versioninfo)
 

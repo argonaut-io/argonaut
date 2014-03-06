@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 
 object ReplSettings {
-  type Sett = Project.Setting[_]
+  type Sett = Def.Setting[_]
 
   lazy val all = Seq[Sett](
     initialCommands := """

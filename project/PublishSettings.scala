@@ -3,7 +3,7 @@ import Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 
 object PublishSettings {
-  type Sett = Project.Setting[_]
+  type Sett = Def.Setting[_]
 
   lazy val all = Seq[Sett](
     pom
