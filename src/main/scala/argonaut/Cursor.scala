@@ -453,7 +453,7 @@ sealed trait Cursor {
     goup(this)
   }
 
-  def traverseBreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, Cursor, Option[Cursor]]): Endo[X] =
+  def traverseBreak[X](r: Kleisli[({type λ[α] = State[X, α]})#λ, Cursor, Option[Cursor]]): Endo[X] =
     Endo(x => {
       @annotation.tailrec
       def spin(z: X, d: Cursor): X = {
@@ -467,7 +467,7 @@ sealed trait Cursor {
       spin(x, this)
     })
 
-  def traverse[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, Cursor, Cursor]): Endo[X] =
+  def traverse[X](r: Kleisli[({type λ[α] = State[X, α]})#λ, Cursor, Cursor]): Endo[X] =
     traverseBreak(r map (Some(_)))
 
 }

@@ -2,4 +2,4 @@
 
 base=`(readlink "$0" || printf "%s" "$0") | xargs dirname`/..
 
-(cd "$base" && ./sbt '; set crossScalaVersions := Seq("2.10.2") ; +publish')
+(cd "$base" && ./sbt '; set crossScalaVersions := Seq("2.10.3", "2.11.0-RC1") ; +publish-signed')

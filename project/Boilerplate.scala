@@ -3,7 +3,7 @@ import sbt._
 object Boilerplate {
   val arities = (1 to 22)
   val aritiesExceptOne = (2 to 22)
-  val arityChars: Map[Int, Char] = arities.map(n => (n, ('A' + n - 1).toChar)).toMap
+  val arityChars: Map[Int, String] = arities.map(n => (n, ('A' + n - 1).toChar.toString)).toMap
 
   def write(path: File, fileContents: String): File = {
     IO.write(path, fileContents)

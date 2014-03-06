@@ -244,7 +244,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
   //     For now I have added some specialisations to get rid of a
   //     bunch of dupe. But further work is required.
 
-  def traverseBreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[HCursor]]): Endo[X] =
+  def traverseBreak[X](r: Kleisli[({type λ[α] = State[X, α]})#λ, HCursor, Option[HCursor]]): Endo[X] =
     Endo(x => {
       @annotation.tailrec
       def spin(z: X, d: HCursor): X = {
@@ -258,10 +258,10 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
       spin(x, this)
     })
 
-  def traverse[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, HCursor]): Endo[X] =
+  def traverse[X](r: Kleisli[({type λ[α] = State[X, α]})#λ, HCursor, HCursor]): Endo[X] =
     traverseBreak(r map (Some(_)))
 
-  def traverseABreak[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, Option[ACursor]]): State[X, Boolean] =
+  def traverseABreak[X](r: Kleisli[({type λ[α] = State[X, α]})#λ, HCursor, Option[ACursor]]): State[X, Boolean] =
     State(x => {
       @annotation.tailrec
       def spin(z: X, d: HCursor): (X, Boolean) = {
@@ -279,7 +279,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
       spin(x, this)
     })
 
-  def traverseA[X](r: Kleisli[({type λ[+α] = State[X, α]})#λ, HCursor, ACursor]): State[X, Boolean] =
+  def traverseA[X](r: Kleisli[({type λ[α] = State[X, α]})#λ, HCursor, ACursor]): State[X, Boolean] =
     traverseABreak(r map (Some(_)))
 
   /**
