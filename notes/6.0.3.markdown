@@ -1,0 +1,5 @@
+6.0.3 RELEASE.
+
+ * Support for scala 2.11.0-M1, Fixes #54, #82. Thanks to @xuwei-k
+
+
