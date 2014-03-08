@@ -23,7 +23,7 @@ Just add argonaut as a dependency.
 
 Stable:
 
-    "io.argonaut" %% "argonaut" % "6.0.2"
+    "io.argonaut" %% "argonaut" % "6.0.3"
 
 Latest:
 
@@ -34,14 +34,14 @@ Milestone:
     "io.argonaut" %% "argonaut" % "6.1-M2"
 
 
-Note that the 6.0.x release supports scala 2.9.2, 2.9.3 and 2.10.* with scalaz 7.0.*.
+Note that the 6.0.x release supports scala 2.9.2, 2.9.3, 2.10.* and 2.11.0-RC1 with scalaz 7.0.*.
 
 Note that the 6.1 development stream supports scala 2.10.* with scalaz 7.1.*.
 
 
 ### Release
 
-Add to `~/.sbt/0.12.3/sonatype.sbt`
+Add to `~/.sbt/0.13.1/sonatype.sbt`
 
 
     credentials += Credentials("Sonatype Nexus Repository Manager",
