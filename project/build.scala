@@ -13,10 +13,10 @@ object build extends Build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.1.0-M5"
+  val scalazVersion              = "7.1.0-M6"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test"
-  val specs2                     = "org.specs2"                   %% "specs2"                    % "2.3.10-scalaz-7.1.0-M5" % "test"
+  val specs2                     = "org.specs2"                   %% "specs2"                    % "2.3.10-scalaz-7.1.0-M6" % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %  "lift-json_2.9.2"           % "2.5-M3"
   val jackson                    = "com.fasterxml.jackson.core"   % "jackson-core"               % "2.1.1"
