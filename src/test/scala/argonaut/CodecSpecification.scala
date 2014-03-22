@@ -3,6 +3,7 @@ package argonaut
 import Data._
 import JsonIdentity._
 import scalaz._, Scalaz._
+import scalaz.scalacheck.ScalaCheckBinding._
 import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
 import org.specs2.matcher._
@@ -27,6 +28,12 @@ object CodecSpecification extends Specification with ScalaCheck {
     "Long encode/decode" ! encodedecode[Long] ^
     "Boolean encode/decode" ! encodedecode[Boolean] ^
     "Char encode/decode" ! encodedecode[Char] ^
+    "java.lang.Double encode/decode" ! encodedecode[java.lang.Double] ^
+    "java.lang.Float encode/decode" ! encodedecode[java.lang.Float] ^
+    "java.lang.Integer encode/decode" ! encodedecode[java.lang.Integer] ^
+    "java.lang.Long encode/decode" ! encodedecode[java.lang.Long] ^
+    "java.lang.Boolean encode/decode" ! encodedecode[java.lang.Boolean] ^
+    "java.lang.Character encode/decode" ! encodedecode[java.lang.Character] ^
     "Option[String] encode/decode" ! encodedecode[Option[String]] ^
     "Either[String, Int] encode/decode" ! encodedecode[Either[String, Int]] ^
     "String \\/ Int encode/decode" ! encodedecode[String \/ Int] ^
@@ -38,6 +45,31 @@ object CodecSpecification extends Specification with ScalaCheck {
     "22 field class with codec" ! { import CodecInstances._; encodedecode[TestClass] } ^
     "22 field class with codec derived" ! { import EncodeDecodeInstances._; encodedecode[TestClass] } ^ end
 
+
+  implicit val jDoubleArbitrary: Arbitrary[java.lang.Double] =
+    implicitly[Arbitrary[Double]].map(a => a)
+
+  implicit val jFloatArbitrary: Arbitrary[java.lang.Float] =
+    implicitly[Arbitrary[Float]].map(a => a)
+
+  implicit val jIntegerArbitrary: Arbitrary[java.lang.Integer] =
+    implicitly[Arbitrary[Int]].map(a => a)
+
+  implicit val jLongArbitrary: Arbitrary[java.lang.Long] =
+    implicitly[Arbitrary[Long]].map(a => a)
+
+  implicit val jBooleanArbitrary: Arbitrary[java.lang.Boolean] =
+    implicitly[Arbitrary[Boolean]].map(a => a)
+
+  implicit val jCharacterArbitrary: Arbitrary[java.lang.Character] =
+    implicitly[Arbitrary[Char]].map(a => a)
+
+  implicit val jDoubleEqual: Equal[java.lang.Double] = Equal.equalA
+  implicit val jFloatEqual: Equal[java.lang.Float] = Equal.equalA
+  implicit val jIntegerEqual: Equal[java.lang.Integer] = Equal.equalA
+  implicit val jLongEqual: Equal[java.lang.Long] = Equal.equalA
+  implicit val jBooleanEqual: Equal[java.lang.Boolean] = Equal.equalA
+  implicit val jCharacterEqual: Equal[java.lang.Character] = Equal.equalA
 
   case class TestClass(a: Int, b: Int, c: String, d: Int, e: Int, f: String, g: Int, h: Int, i: String, j: Int, k: Int, l: String, m: Int, n: Int, o: String, p: Int, q: Int, r: String, s: Int, t: Int, u: String, v: Boolean)
 

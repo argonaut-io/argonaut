@@ -227,7 +227,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     optionDecoder(_.bool map (q => q), "java.lang.Boolean")
 
   implicit def JCharacterDecodeJson: DecodeJson[java.lang.Character] =
-    optionDecoder(_.string flatMap (s => if(s == 1) Some(s(0)) else None), "java.lang.Character")
+    optionDecoder(_.string flatMap (s => if(s.length == 1) Some(s(0)) else None), "java.lang.Character")
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] =
     DecodeJson.withReattempt(a => a.success match {
