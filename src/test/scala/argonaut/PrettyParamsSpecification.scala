@@ -10,6 +10,7 @@ import Data._
 import Argonaut._
 import org.specs2._, org.specs2.specification._
 import org.specs2.matcher._
+import org.specs2.execute.AsResult
 import scalaz._
 import Scalaz._
 import scalaz.scalacheck.ScalazProperties._
@@ -17,6 +18,11 @@ import scalaz.scalacheck.ScalazArbitrary._
 
 
 object PrettyParamsSpecification extends Specification with ScalaCheck {
+
+  implicit def propertiesAsResult(implicit p: Parameters): AsResult[Properties] = new AsResult[Properties] {
+    def asResult(prop: =>Properties) = checkProp(prop)(p)
+  }
+
   // Synthetic Equal implementations used for testing.
   implicit val intToStringEqual: Equal[Int => String] = new Equal[Int => String] {
     val indents: List[Int] = (0 to 5).toList :+ 100
