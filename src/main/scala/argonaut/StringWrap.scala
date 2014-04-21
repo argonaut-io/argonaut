@@ -27,14 +27,28 @@ sealed trait StringWrap {
   /*
    * Construct an optional pair of the key and JSON value.
    *
+   * This is an alias for `:?=` which is now preferred due to
+   * better precendence.
+   *
    * Example:
    * {{{
-   *   ("key1" :?= None) ->?: ("key2" :=? Some("value2")) ->?: jEmptyObject
+   *   ("key1" :=? None) ->?: ("key2" :=? Some("value2")) ->?: jEmptyObject
    * }}}
    */
   def :=?[A: EncodeJson](a: Option[A]) =
-    a map (aa =>  (value, implicitly[EncodeJson[A]].apply(aa)))
+    this :?=(a)
 
+
+  /*
+   * Construct an optional pair of the key and JSON value.
+   *
+   * Example:
+   * {{{
+   *   ("key1" :?= None) ->?: ("key2" :?= Some("value2")) ->?: jEmptyObject
+   * }}}
+   */
+  def :?=[A: EncodeJson](a: Option[A]) =
+    a map (aa =>  (value, implicitly[EncodeJson[A]].apply(aa)))
 }
 
 object StringWrap extends StringWraps
