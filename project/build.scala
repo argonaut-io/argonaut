@@ -20,6 +20,7 @@ object build extends Build {
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %  "lift-json_2.9.2"           % "2.5-M3"
   val jackson                    = "com.fasterxml.jackson.core"   % "jackson-core"               % "2.1.1"
+  val shapeless                  = "com.chuusai"                  % "shapeless"                  % "2.0.0" cross CrossVersion.full
 
   val argonaut = Project(
     id = "argonaut"
@@ -32,7 +33,7 @@ object build extends Build {
       , "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
       )
     , libraryDependencies <++= onVersion(
-        all = Seq(scalaz, scalazScalaCheckBinding, specs2)
+        all = Seq(scalaz, scalazScalaCheckBinding, specs2, shapeless)
       )
      /* no mima until 6.1.0 release */
     , previousArtifact := None
