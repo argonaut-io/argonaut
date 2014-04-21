@@ -22,6 +22,15 @@ object StringWrapSpecification extends Specification with ScalaCheck {
 
   def is =
     "parse" ^
+      "Optional encode" ! {
+        (("optional" :?= (None: Option[String])) ->?: jEmptyObject) must_== jEmptyObject
+      } ^
+      "Optional encode alias" ! prop{(o: Option[Int]) =>
+        (("optional" :?= o) ->?: jEmptyObject) must_== (("optional" :?= o) ->?: jEmptyObject)
+      } ^
+      "Optional encode precedence" ! {
+        ("optional" :?= Some(1) filter (x => x > 0)) must_== Some("optional" := 1)
+      } ^
       "returns a success wrapped Json for valid JSON" ! prop{(json: Json) =>
         json.nospaces.parse === json.right[String]
       } ^
