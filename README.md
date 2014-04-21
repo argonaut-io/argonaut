@@ -75,3 +75,4 @@ The library was open-sourced under a [BSD License](https://github.com/argonaut-i
 The initial developers have since left the employment of Ephox and now maintain this fork `argonaut-io/argonaut`.
 
 It is expected that major releases will now come from this repository.
+
