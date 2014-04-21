@@ -17,27 +17,43 @@ object build extends Build {
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.5"                 % "test"
-  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "2.4"                    % "test"
+  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "2.4"                    % "test" excludeAll ExclusionRule(organization = "org.scalamacros")
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5.0"
+  def shapeless(v: String)   =
+    if (v.contains("2.10"))        "com.chuusai"                  %  s"shapeless_${v}"           % "2.0.0"
+    else                           "com.chuusai"                  %% s"shapeless"                % "2.0.0"
+
+  def reflect(v: String)         =
+                               Seq("org.scala-lang"               %  "scala-compiler"            % v,
+                                   "org.scala-lang"               %  "scala-reflect"             % v) ++
+    (if (v.contains("2.10"))   Seq("org.scalamacros"              %% "quasiquotes"               % "2.0.0") else Seq())
+
 
   val argonaut = Project(
     id = "argonaut"
   , base = file(".")
-  , settings = base ++ 
-    ReplSettings.all ++ 
-    releaseSettings ++ 
-    PublishSettings.all ++ 
-    InfoSettings.all ++ 
+  , settings = base ++
+    ReplSettings.all ++
+    releaseSettings ++
+    PublishSettings.all ++
+    InfoSettings.all ++
     net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq[Sett](
       name := "argonaut"
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
-    , libraryDependencies ++= Seq(scalaz, scalazScalaCheckBinding, monocle, scalacheck, specs2Scalacheck)
+    , libraryDependencies ++= Seq(
+        scalaz
+      , scalazScalaCheckBinding
+      , monocle
+      , scalacheck
+      , specs2Scalacheck
+      , shapeless(scalaVersion.value)
+      ) ++ reflect(scalaVersion.value)
      /* no mima until 6.1.0 release */
     , previousArtifact := None
 /*    , binaryIssueFilters ++= {

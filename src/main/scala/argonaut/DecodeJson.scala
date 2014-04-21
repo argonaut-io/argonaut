@@ -16,8 +16,7 @@ trait DecodeJson[A] {
   /**
    * Decode the given hcursor.
    */
-  def decode(c: HCursor): DecodeResult[A] =
-    tryDecode(c.acursor)
+  def decode(c: HCursor): DecodeResult[A]
 
   /**
    * Decode the given acursor.
@@ -110,18 +109,67 @@ trait DecodeJson[A] {
 object DecodeJson extends DecodeJsons {
   def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] =
     new DecodeJson[A] {
-      override def decode(c: HCursor) =
+      def decode(c: HCursor) =
         r(c)
     }
 
   def withReattempt[A](r: ACursor => DecodeResult[A]): DecodeJson[A] =
     new DecodeJson[A] {
+      def decode(c: HCursor): DecodeResult[A] =
+        tryDecode(c.acursor)
+
       override def tryDecode(c: ACursor) =
         r(c)
     }
+
+  /* ==== shapeless for profit ==== */
+
+  import shapeless._
+
+  def derive[A](implicit ev: LabelledTypeClass[DecodeJson]): DecodeJson[A] =
+    macro GenericMacros.deriveLabelledInstance[DecodeJson, A]
+
+  object auto {
+    implicit def AutoDecodeJson[A](implicit ev: LabelledTypeClass[DecodeJson]): DecodeJson[A] =
+      macro GenericMacros.deriveLabelledInstance[DecodeJson, A]
+  }
+
+  implicit def DecodeJsonTypeClass: LabelledTypeClass[DecodeJson] = new LabelledTypeClass[DecodeJson] {
+    def emptyCoproduct =
+      DecodeJson(c =>
+        DecodeResult.fail("CNil", c.history)
+      )
+
+    def coproduct[L, R <: Coproduct](name: String, CL: => DecodeJson[L], CR: => DecodeJson[R]): DecodeJson[L :+: R] =
+      DecodeJson { c =>
+        (c --\ name).focus.fold[DecodeResult[L :+: R]](
+          CR.decode(c).map(Inr(_))
+        )(aJson => aJson.as(CL).map(Inl(_)))
+      }
+
+    def emptyProduct =
+      DecodeJson(c =>
+        c.focus.obj.filter(_.isEmpty).fold[DecodeResult[HNil]](
+          DecodeResult.fail("HNil", c.history)
+        )(_ => (HNil: HNil).point[DecodeResult])
+      )
+
+    def product[A, T <: HList](name: String, A: DecodeJson[A], T: DecodeJson[T]) =
+      DecodeJson { c =>
+        val aJson = c --\ name
+        (aJson.as(A) |@| aJson.delete.as(T))(_ :: _)
+      }
+
+    def project[F, G](instance: => DecodeJson[G], to : F => G, from : G => F) =
+      instance.map(from)
+  }
+
+  def of[A: DecodeJson] =
+    implicitly[DecodeJson[A]]
 }
 
-trait DecodeJsons extends GeneratedDecodeJsons {
+trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
+
   def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] =
     DecodeJson(a => k(a.focus) match {
       case None => DecodeResult.fail(e, a.history)
