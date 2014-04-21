@@ -12,4 +12,4 @@ notifications:
       - "irc.freenode.org#argonaut"
     skip_join: true
     template:
-      - "\x0313lens\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
+      - "\x0313argonaut\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
