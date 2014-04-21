@@ -6,3 +6,10 @@ jdk:
   - oraclejdk7
   - openjdk6
   - openjdk7
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#argonaut"
+    skip_join: true
+    template:
+      - "\x0313lens\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
