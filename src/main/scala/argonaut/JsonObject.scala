@@ -154,7 +154,7 @@ private[argonaut] case class JsonObjectInstance(
   def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
     orderedFields.foldLeft(FF.point(Map.empty[JsonField, Json])){case (acc, k) =>
       FF.apply2(acc, f(fieldsMap(k)))(_.updated(k, _))
-                                                               }.map(mappedFields => copy(fieldsMap = mappedFields))
+    }.map(mappedFields => copy(fieldsMap = mappedFields))
   }
 
   def size: Int = fields.size
@@ -173,7 +173,6 @@ private[argonaut] case class JsonObjectInstance(
 }
 
 object JsonObject extends JsonObjects {
-
   def apply(insertionMap: InsertionMap[JsonField, Json]): JsonObject =
     insertionMap.toList.foldLeft(empty){case (acc, (k, v)) => acc + (k, v)}
 
