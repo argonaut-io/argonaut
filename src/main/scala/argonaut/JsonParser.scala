@@ -10,17 +10,7 @@ import scala.collection.mutable.Builder
 object JsonParser {
   private[this] final type TokenSource = String
 
-  private[this] final val escapedChars: Map[Char, String] = Map(
-    'r' -> "\r",
-    'n' -> "\n",
-    't' -> "\t",
-    'b' -> "\b",
-    'f' -> "\f",
-    '\\' -> """\""",
-    '/' -> """/""",
-    '"' -> "\""
-  )
-
+  @inline
   private[this] final def excerpt(string: String, position: Int, limit: Int = 50): String = {
     val remaining = string.drop(position)
     if (remaining.size > limit) {
@@ -54,6 +44,7 @@ object JsonParser {
   }
 
   @tailrec
+  @inline
   private[this] final def expectedSpacerToken(stream: TokenSource, position: Int, token: Char, failMessage: String): String \/ Int = {
     if (position >= stream.length) "JSON terminates unexpectedly".left
     else stream(position) match {
@@ -63,10 +54,13 @@ object JsonParser {
     }
   }
 
+  @inline
   private[this] final def expectStringBounds(stream: TokenSource, position: Int) = expectedSpacerToken(stream, position, '"', "Expected string bounds")
 
+  @inline
   private[this] final def expectEntrySeparator(stream: TokenSource, position: Int) = expectedSpacerToken(stream, position, ',', "Expected entry separator token")
 
+  @inline
   private[this] final def expectFieldSeparator(stream: TokenSource, position: Int) = expectedSpacerToken(stream, position, ':', "Expected field separator token")
 
   @tailrec
@@ -145,6 +139,7 @@ object JsonParser {
     }
   }
 
+  @inline
   private[this] final def expectString(stream: TokenSource, position: Int): String \/ (Int, String) = {
     for {
       afterOpen <- expectStringBounds(stream, position)
@@ -152,6 +147,7 @@ object JsonParser {
     } yield afterString
   }
 
+  @inline
   private[this] final def unexpectedContent[T](stream: TokenSource, position: Int): String \/ T = {
     "Unexpected content found: %s".format(excerpt(stream, position)).left[T]
   }
@@ -160,6 +156,7 @@ object JsonParser {
   @tailrec
   private[this] final def collectStringParts(stream: TokenSource, position: Int, workingString: StringBuilder = new StringBuilder()): String \/ (Int, StringBuilder) = {
     @tailrec
+    @inline
     def checkUnicode(from: Int, unicodeShift: Int = 0): Boolean = {
       if (unicodeShift >= 4) true
       else {
@@ -170,6 +167,7 @@ object JsonParser {
     }
 
     @tailrec
+    @inline
     def safeNormalCharIndex(index: Int): Int = {
       if (index >= stream.length) stream.length
       else {
@@ -189,10 +187,15 @@ object JsonParser {
               collectStringParts(stream, position + 6, workingString.appendCodePoint(Integer.parseInt(stream.substring(position + 2, position + 6), 16)))
             }
             case 'u' => unexpectedContent(stream, position)
-            case otherChar => escapedChars.get(otherChar) match {
-              case Some(escapedCharText) => collectStringParts(stream, position + 2, workingString.append(escapedCharText))
-              case _ => unexpectedContent(stream, position)
-            }
+            case 'r' => collectStringParts(stream, position + 2, workingString.append("\r"))
+            case 'n' => collectStringParts(stream, position + 2, workingString.append("\n"))
+            case 't' => collectStringParts(stream, position + 2, workingString.append("\t"))
+            case 'b' => collectStringParts(stream, position + 2, workingString.append("\b"))
+            case 'f' => collectStringParts(stream, position + 2, workingString.append("\f"))
+            case '\\' => collectStringParts(stream, position + 2, workingString.append("""\"""))
+            case '/' => collectStringParts(stream, position + 2, workingString.append("""/"""))
+            case '"' => collectStringParts(stream, position + 2, workingString.append("\""))
+            case _ => unexpectedContent(stream, position)
           }
         } else unexpectedContent(stream, position)
       }
@@ -203,6 +206,7 @@ object JsonParser {
     }
   }
 
+  @inline
   private[this] final def expectStringNoStartBounds(stream: TokenSource, position: Int): String \/ (Int, String) = {
     for {
       elements <- collectStringParts(stream, position)
