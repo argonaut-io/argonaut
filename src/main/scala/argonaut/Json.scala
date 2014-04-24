@@ -633,7 +633,6 @@ trait Jsons {
   def jSingleArray(j: Json): Json =
     JArray(List(j))
 
-
   /**
    * Construct a JSON value that is an array from a list of elements (var args).
    */
