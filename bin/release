@@ -4,4 +4,4 @@ base=`(readlink "$0" || printf "%s" "$0") | xargs dirname`/..
 
 JVM_OPTS="-Dfile.encoding=UTF8 -XX:MaxPermSize=512m -Xms512m -Xmx3g -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC"; export JVM_OPTS
 
-(cd "$base" && ./sbt '; set crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.4", "2.11.0") ; release cross')
+(cd "$base" && ./sbt '; set crossScalaVersions := Seq("2.9.2", "2.9.3", "2.10.4", "2.11.1") ; release cross')
