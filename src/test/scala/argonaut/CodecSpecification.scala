@@ -2,6 +2,7 @@ package argonaut
 
 import Data._
 import JsonIdentity._
+import scala.collection.immutable.SortedSet
 import scalaz._, Scalaz._
 import scalaz.scalacheck.ScalaCheckBinding._
 import org.scalacheck._, Arbitrary._, Prop._
@@ -21,6 +22,8 @@ object CodecSpecification extends Specification with ScalaCheck {
     "List[Double] encode/decode" ! encodedecode[List[Double]] ^
     "Vector[String] encode/decode" ! encodedecode[Vector[String]] ^
     "Stream[String] encode/decode" ! encodedecode[Stream[String]] ^
+    "SortedSet[String] encode/decode" ! encodedecode[SortedSet[String]] ^
+    "SortedSet[Int] encode/decode" ! encodedecode[SortedSet[Int]] ^
     "String encode/decode" ! encodedecode[String] ^
     "Double encode/decode" ! encodedecode[Double] ^
     "Float encode/decode" ! encodedecode[Float] ^
@@ -70,6 +73,7 @@ object CodecSpecification extends Specification with ScalaCheck {
   implicit val jLongEqual: Equal[java.lang.Long] = Equal.equalA
   implicit val jBooleanEqual: Equal[java.lang.Boolean] = Equal.equalA
   implicit val jCharacterEqual: Equal[java.lang.Character] = Equal.equalA
+  implicit def sortedSetEqual[A]: Equal[SortedSet[A]] = Equal.equalA
 
   case class TestClass(a: Int, b: Int, c: String, d: Int, e: Int, f: String, g: Int, h: Int, i: String, j: Int, k: Int, l: String, m: Int, n: Int, o: String, p: Int, q: Int, r: String, s: Int, t: Int, u: String, v: Boolean)
 
