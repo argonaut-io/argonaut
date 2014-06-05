@@ -1,5 +1,7 @@
 package argonaut
 
+import scala.collection.SortedSet
+import scala.collection.immutable.{ SortedSet => ImmutableSortedSet }
 import scalaz._, Scalaz._, Lens._
 
 import Json._
@@ -65,6 +67,12 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(a => e(a.toList))
 
   implicit def StreamEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Stream[A]] =
+    EncodeJson(a => jArray(a.toList map (e(_))))
+
+  implicit def SortedSetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[SortedSet[A]] =
+    EncodeJson(a => jArray(a.toList map (e(_))))
+
+  implicit def ImmutableSortedSetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[ImmutableSortedSet[A]] =
     EncodeJson(a => jArray(a.toList map (e(_))))
 
   implicit val StringEncodeJson: EncodeJson[String] =

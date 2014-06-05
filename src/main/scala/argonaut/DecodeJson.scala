@@ -1,5 +1,7 @@
 package argonaut
 
+import scala.math.{ Ordering => ScalaOrdering }
+import scala.collection.immutable.SortedSet
 import scala.util.control.Exception.catching
 import scalaz._, Scalaz._
 import Json._
@@ -152,6 +154,19 @@ trait DecodeJsons extends GeneratedDecodeJsons {
         case Some(hcursor) =>
           hcursor.traverseDecode(List[A]())(_.right, (acc, c) =>
             c.jdecode[A] map (_ :: acc)) map (_.reverse)
+      })
+
+  implicit def SortedSetDecodeJson[A](implicit e: DecodeJson[A], o: ScalaOrdering[A]): DecodeJson[SortedSet[A]] =
+    DecodeJson(a ⇒
+      a.downArray.hcursor match {
+        case None ⇒
+          if (a.focus.isArray)
+            DecodeResult.ok(SortedSet[A]())
+          else
+            DecodeResult.fail("[A]SortedSet[A]", a.history)
+        case Some(hcursor) ⇒
+          hcursor.traverseDecode(SortedSet[A]())(_.right, (acc, c) ⇒
+            c.jdecode[A] map (acc + _))
       })
 
   implicit def VectorDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Vector[A]] =
