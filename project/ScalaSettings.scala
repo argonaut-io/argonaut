@@ -9,12 +9,12 @@ object ScalaSettings {
 
   lazy val all: Seq[Sett] = Seq(
     scalaVersion := "2.10.3"
-  , crossScalaVersions := Seq("2.10.3", "2.11.0-RC1")
+  , crossScalaVersions := Seq("2.10.3", "2.11.1")
   , fork in test := true
   , scalacOptions <++= onVersionTask(
-      all = Seq("-deprecation", "-unchecked", "-optimise")
-    , on210 = on210or211
-    , on211 = on210or211
+      all = Seq("-deprecation", "-unchecked")
+    , on210 = on210or211 :+ "-optimise"
+    , on211 = on210or211 // https://issues.scala-lang.org/browse/SI-8598
     )
   )
 }
