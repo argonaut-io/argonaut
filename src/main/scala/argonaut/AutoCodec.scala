@@ -1,11 +1,22 @@
 package argonaut
 
 import argonaut._, Argonaut._
-import scalaz._, Scalaz._
+import scalaz.{ Coproduct => _, _}, Scalaz._
 import shapeless._
 
-object AutoEncodeJson extends LabelledProductTypeClassCompanion[EncodeJson] {
-  implicit def EncodeJsonTypeClass: LabelledProductTypeClass[EncodeJson] = new LabelledProductTypeClass[EncodeJson] {
+object AutoEncodeJson extends LabelledTypeClassCompanion[EncodeJson] {
+
+  implicit def EncodeJsonTypeClass: LabelledTypeClass[EncodeJson] = new LabelledTypeClass[EncodeJson] {
+    // what would this look like...
+    def emptyCoproduct =
+      EncodeJson(_ => jEmptyObject)
+
+    def coproduct[L, R <: Coproduct](name: String, CL: => EncodeJson[L], CR: => EncodeJson[R]): EncodeJson[L :+: R] =
+      EncodeJson(a => a match {
+        case Inl(x) => Json((name -> CL.encode(x)))
+        case Inr(t) => CR.encode(t)
+      })
+
     def emptyProduct =
       EncodeJson(_ => jEmptyObject)
 
@@ -17,8 +28,21 @@ object AutoEncodeJson extends LabelledProductTypeClassCompanion[EncodeJson] {
   }
 }
 
-object AutoDecodeJson extends LabelledProductTypeClassCompanion[DecodeJson] {
-  implicit def DecodeJsonTypeClass: LabelledProductTypeClass[DecodeJson] = new LabelledProductTypeClass[DecodeJson] {
+object AutoDecodeJson extends LabelledTypeClassCompanion[DecodeJson] {
+
+  implicit def DecodeJsonTypeClass: LabelledTypeClass[DecodeJson] = new LabelledTypeClass[DecodeJson] {
+    def emptyCoproduct =
+      DecodeJson(c =>
+        DecodeResult.fail("CNil", c.history)
+      )
+
+    def coproduct[L, R <: Coproduct](name: String, CL: => DecodeJson[L], CR: => DecodeJson[R]): DecodeJson[L :+: R] =
+      DecodeJson { c =>
+        (c --\ name).focus.fold[DecodeResult[L :+: R]](
+          CR.decode(c).map(Inr(_))
+        )(aJson => aJson.as(CL).map(Inl(_)))
+      }
+
     def emptyProduct =
       DecodeJson(c =>
         c.focus.obj.filter(_.isEmpty).fold[DecodeResult[HNil]](
