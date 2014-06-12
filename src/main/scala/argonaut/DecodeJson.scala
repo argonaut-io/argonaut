@@ -84,9 +84,9 @@ trait DecodeJson[A] {
   /**
    * Choose the first succeeding decoder.
    */
-  def |||(x: => DecodeJson[A]): DecodeJson[A] =
-    DecodeJson(c => {
-      val q = apply(c)
+  def |||[AA >: A](x: => DecodeJson[AA]): DecodeJson[AA] =
+    DecodeJson[AA](c => {
+      val q = apply(c).map(a => a: AA)
       q.result.fold(_ => x(c), _ => q)
     })
 
