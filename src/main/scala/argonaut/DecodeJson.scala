@@ -220,6 +220,11 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       (x.number map (_.toLong)).orElse(
       (x.string flatMap (s => tryTo(s.toLong)))), "Long")
 
+  implicit def ShortDecodeJson: DecodeJson[Short] =
+    optionDecoder(x =>
+      (x.number map (_.toShort)).orElse(
+      (x.string flatMap (s => tryTo(s.toShort)))), "Short")
+
   implicit def BooleanDecodeJson: DecodeJson[Boolean] =
     optionDecoder(_.bool, "Boolean")
 
@@ -237,6 +242,9 @@ trait DecodeJsons extends GeneratedDecodeJsons {
 
   implicit def JLongDecodeJson: DecodeJson[java.lang.Long] =
     optionDecoder(_.string flatMap (s => tryTo(s.toLong)), "java.lang.Long")
+
+  implicit def JShortDecodeJson: DecodeJson[java.lang.Short] =
+    optionDecoder(_.string flatMap (s => tryTo(s.toShort)), "java.lang.Short")
 
   implicit def JBooleanDecodeJson: DecodeJson[java.lang.Boolean] =
     optionDecoder(_.bool map (q => q), "java.lang.Boolean")

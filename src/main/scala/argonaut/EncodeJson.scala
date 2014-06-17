@@ -86,6 +86,9 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   implicit val LongEncodeJson: EncodeJson[Long] =
     EncodeJson(a => jString(a.toString))
 
+  implicit val ShortEncodeJson: EncodeJson[Short] =
+    EncodeJson(a => jString(a.toString))
+
   implicit val BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool)
 
@@ -102,6 +105,9 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(a => jString(a.toString))
 
   implicit val JLongEncodeJson: EncodeJson[java.lang.Long] =
+    EncodeJson(a => jString(a.toString))
+
+  implicit val JShortEncodeJson: EncodeJson[java.lang.Short] =
     EncodeJson(a => jString(a.toString))
 
   implicit val JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =

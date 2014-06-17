@@ -10,6 +10,16 @@ import org.specs2._, org.specs2.specification._
 import org.specs2.matcher._
 
 object CodecSpecification extends Specification with ScalaCheck {
+  implicit val shortEquality: Equal[Short] = new Equal[Short] {
+    override def equal(a: Short, b: Short) = a == b
+    override def equalIsNatural = true
+  }
+
+  implicit val jShortEquality: Equal[java.lang.Short] = new Equal[java.lang.Short] {
+    override def equal(a: java.lang.Short, b: java.lang.Short) = a == b
+    override def equalIsNatural = true
+  }
+
   def encodedecode[A: EncodeJson: DecodeJson : Arbitrary : Equal] =
     forAll(CodecJson.derived[A].codecLaw.encodedecode _)
 
@@ -29,12 +39,14 @@ object CodecSpecification extends Specification with ScalaCheck {
     "Float encode/decode" ! encodedecode[Float] ^
     "Int encode/decode" ! encodedecode[Int] ^
     "Long encode/decode" ! encodedecode[Long] ^
+    "Short encode/decode" ! encodedecode[Short] ^
     "Boolean encode/decode" ! encodedecode[Boolean] ^
     "Char encode/decode" ! encodedecode[Char] ^
     "java.lang.Double encode/decode" ! encodedecode[java.lang.Double] ^
     "java.lang.Float encode/decode" ! encodedecode[java.lang.Float] ^
     "java.lang.Integer encode/decode" ! encodedecode[java.lang.Integer] ^
     "java.lang.Long encode/decode" ! encodedecode[java.lang.Long] ^
+    "java.lang.Short encode/decode" ! encodedecode[java.lang.Short] ^
     "java.lang.Boolean encode/decode" ! encodedecode[java.lang.Boolean] ^
     "java.lang.Character encode/decode" ! encodedecode[java.lang.Character] ^
     "Option[String] encode/decode" ! encodedecode[Option[String]] ^
@@ -60,6 +72,9 @@ object CodecSpecification extends Specification with ScalaCheck {
 
   implicit val jLongArbitrary: Arbitrary[java.lang.Long] =
     implicitly[Arbitrary[Long]].map(a => a)
+
+  implicit val jShortArbitrary: Arbitrary[java.lang.Short] =
+    implicitly[Arbitrary[Short]].map(a => a)
 
   implicit val jBooleanArbitrary: Arbitrary[java.lang.Boolean] =
     implicitly[Arbitrary[Boolean]].map(a => a)
