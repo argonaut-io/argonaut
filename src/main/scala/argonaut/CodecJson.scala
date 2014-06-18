@@ -16,6 +16,9 @@ sealed trait CodecJson[A] extends EncodeJson[A] with DecodeJson[A] {
   }
 
   def codecLaw = new CodecLaw {}
+
+  def xmap[B](f: A => B)(g: B => A): CodecJson[B] =
+    CodecJson.derived(Encoder contramap g, Decoder map f)
 }
 
 object CodecJson extends CodecJsons {
@@ -25,7 +28,7 @@ object CodecJson extends CodecJsons {
   def withReattempt[A](encoder: A => Json, decoder: ACursor => DecodeResult[A]): CodecJson[A] =
     derived(EncodeJson(encoder), DecodeJson.withReattempt(decoder))
 
-  def derived[A](implicit E: EncodeJson[A], D: DecodeJson[A]) =
+  def derived[A](implicit E: EncodeJson[A], D: DecodeJson[A]): CodecJson[A] =
     new CodecJson[A] {
       val Encoder = E
       val Decoder = D
