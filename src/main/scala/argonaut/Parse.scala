@@ -108,11 +108,16 @@ trait Parse[A] {
  * Library functions for parsing json.
  */
 object Parse extends Parse[String] {
+  import monocle.SimpleOptional
   /**
    * Parses the string value and either returns a list of the failures from parsing the string
    * or an instance of the Json type if parsing succeeds.
    */
   def parse(value: String): String \/ Json =
     JsonParser.parse(value)
+
+  val parseOptional: SimpleOptional[String, Json] = SimpleOptional[String, Json](parse(_).toOption, (s, optJson) =>
+    optJson.map(_.nospaces).getOrElse(s)
+  )
 
 }

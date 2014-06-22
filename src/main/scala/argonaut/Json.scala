@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
+import scalaz.{Each => _, _}, Scalaz._
 
 /**
  * A data type representing possible <a href="http://www.json.org/">JSON</a> values.
@@ -500,6 +500,64 @@ trait Jsons {
   type JsonNumber = Double
 
   import scalaz._, Scalaz._, PLens._, StoreT._
+  import monocle.{SimplePrism,Traversal,SimpleOptional, SimpleLens}
+  import monocle.function.At
+  import monocle.function.Each
+  import monocle.function.SafeCast._
+
+  /**
+   * A Prism for JSON boolean values.
+   */
+  def jBoolPrism: SimplePrism[Json, Boolean] =
+    SimplePrism[Json, Boolean](jBool, _.fold(None, b => Some(b), _ => None, _ => None, _ => None, _ => None))
+
+  /**
+   * An Prism for JSON number values.
+   * Note: It is an invalid Prism for NaN, +Infinity and -Infinity as they are not valid json.
+   */
+  def jDoublePrism: SimplePrism[Json, Double] =
+    SimplePrism[Json, Double](d => JNumber(d), _.fold(None, _ => None, n => Some(n), _ => None, _ => None, _ => None))
+
+  /**
+   * A Prism for JSON int values.
+   */
+  def jIntPrism: SimplePrism[Json, Int] =
+    SimplePrism[Json, Int](i => JNumber(i.toDouble), _.fold(None, _ => None, n => safeCast[Double, Int].getOption(n), _ => None, _ => None, _ => None))
+
+  /**
+   * A partial lens for JSON string values.
+   */
+  def jStringPrism: SimplePrism[Json, JsonString] =
+    SimplePrism[Json, JsonString](jString, _.fold(None, _ => None, _ => None, s => Some(s), _ => None, _ => None))
+
+  /**
+   * A partial lens for JSON array values.
+   */
+  def jArrayPrism: SimplePrism[Json, JsonArray] =
+    SimplePrism[Json, JsonArray](jArray ,_.fold(None, _ => None, _ => None, _ => None, a => Some(a), _ => None))
+
+  /**
+   * A partial lens for JSON object values.
+   */
+  def jObjectPrism: SimplePrism[Json, JsonObject] =
+    SimplePrism[Json, JsonObject](jObject ,_.fold(None, _ => None, _ => None, _ => None, _ => None, o => Some(o)))
+
+  implicit def jObjectEach: Each[JsonObject, Json] = new Each[JsonObject, Json]{
+    def each = new Traversal[JsonObject, JsonObject, Json, Json]{
+      def multiLift[F[_]: Applicative](from: JsonObject, f: Json => F[Json]): F[JsonObject] =
+        from.traverse(f)
+    }
+  }
+
+  implicit def jObjectAt: At[JsonObject, JsonField, Json] = new At[JsonObject, JsonField, Json]{
+    def at(field: JsonField): SimpleLens[JsonObject, Option[Json]] =
+      SimpleLens[JsonObject, Option[Json]](_.apply(field), (jObj, optValue) => optValue match {
+        case Some(value) => jObj + (field, value)
+        case None        => jObj - field
+      })
+  }
+
+
 
   /**
    * A partial lens for JSON boolean values.
