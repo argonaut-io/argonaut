@@ -18,7 +18,8 @@ object build extends Build {
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %  "lift-json_2.9.2"           % "2.5-M3"
-  val jackson                    = "com.fasterxml.jackson.core"   % "jackson-core"               % "2.3.2"
+  val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.3.2"
+  val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5-SNAPSHOT"
 
   val argonaut = Project(
     id = "argonaut"
@@ -26,12 +27,10 @@ object build extends Build {
   , settings = base ++ ReplSettings.all ++ releaseSettings ++ PublishSettings.all ++ InfoSettings.all ++ Seq[Sett](
       name := "argonaut"
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
-    , resolvers ++= Seq(
-        "Sonatype OSS Releases" at "http://oss.sonatype.org/content/repositories/releases/"
-      , "Sonatype OSS Snapshots" at "http://oss.sonatype.org/content/repositories/snapshots/"
-      )
+    , resolvers += Resolver.sonatypeRepo("releases")
+    , resolvers += Resolver.sonatypeRepo("snapshots")
     , libraryDependencies <++= onVersion(
-        all = Seq(scalaz, scalazScalaCheckBinding)
+        all = Seq(scalaz, scalazScalaCheckBinding, monocle)
       , on210 = Seq("org.specs2" % "specs2-scalacheck_2.10" % "2.3.12-scalaz-7.1.0-M6" % "test")
       , on211 = Seq("org.specs2" % "specs2-scalacheck_2.11" % "2.3.12-scalaz-7.1.0-M7" % "test")
       )
