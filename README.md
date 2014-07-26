@@ -31,12 +31,12 @@ Latest:
 
 Milestone:
 
-    "io.argonaut" %% "argonaut" % "6.1-M2"
+    "io.argonaut" %% "argonaut" % "6.1-M3"
 
 
-Note that the 6.0.x release supports scala 2.9.2, 2.9.3, 2.10.* and 2.11.0 with scalaz 7.0.*.
+Note that the 6.0.x release supports scala 2.9.2, 2.9.3, 2.10.* and 2.11.* with scalaz 7.0.*.
 
-Note that the 6.1 development stream supports scala 2.10.* with scalaz 7.1.*.
+Note that the 6.1 development stream supports scala 2.10.* and 2.11.* with scalaz 7.1.*.
 
 
 ### Release
@@ -62,7 +62,7 @@ release build number and then the subsequent build number. At this
 step it is fine to enter the original build number as the next number
 (for example when doing Milestone or RC builds). As an example:
 
-    Release version [6.0] : 6.0-M2
+    Release version [6.0] : 6.0-M3
     Next version [6.1-SNAPSHOT] : 6.0-SNAPSHOT
 
 
