@@ -9,7 +9,7 @@ object ScalaSettings {
 
   lazy val all: Seq[Sett] = Seq(
     scalaVersion := "2.10.3"
-  , crossScalaVersions := Seq("2.10.3", "2.11.1")
+  , crossScalaVersions := Seq("2.10.3", "2.11.2")
   , fork in test := true
   , scalacOptions <++= onVersionTask(
       all = Seq("-deprecation", "-unchecked")
