@@ -153,7 +153,7 @@ object JsonParser {
           numberAsString
             .parseDouble
             .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberAsString).left,
-                  doubleValue => \/-((numberEndIndex, jNumberOrNull(doubleValue))))
+                  doubleValue => \/-((numberEndIndex, jNumber(JsonNumberDouble(doubleValue)))))
         }
       }
     }

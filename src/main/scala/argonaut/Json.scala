@@ -263,7 +263,7 @@ sealed trait Json {
    * Returns this JSON number object or the value `0` if it is not a number.
    */
   def numberOrZero: JsonNumber =
-    numberOr(0D)
+    numberOr(JsonNumberDouble(0D))
 
   /**
    * Returns the string of this JSON value, or an empty string if this JSON value is not a string.
@@ -497,7 +497,7 @@ trait Jsons {
   type JsonField = String
   type JsonAssoc = (JsonField, Json)
   type JsonObjectMap = scalaz.InsertionMap[JsonField, Json]
-  type JsonNumber = Double
+  //type JsonNumber = Double
 
   import PLens._, StoreT._
 
@@ -516,7 +516,7 @@ trait Jsons {
    * Note: It is an invalid Prism for NaN, +Infinity and -Infinity as they are not valid json.
    */
   def jDoublePrism: SimplePrism[Json, Double] =
-    SimplePrism[Json, Double](d => JNumber(d), _.fold(None, _ => None, n => Some(n), _ => None, _ => None, _ => None))
+    SimplePrism[Json, Double](d => JNumber(JsonNumberDouble(d)), _.fold(None, _ => None, n => Some(n.toDouble), _ => None, _ => None, _ => None))
 
   /**
    * A Prism for JSON integer values.
@@ -626,30 +626,9 @@ trait Jsons {
    *
    * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  val jNumber: JsonNumber => Option[Json] =
+  val jNumber: JsonNumber => Json =
     number =>
-      (!number.isNaN && !number.isInfinity).option(JNumber(number))
-
-  /**
-   * Construct a JSON value that is a number. Transforming
-   * NaN, +Infinity and -Infinity to jNull. This matches
-   * the behaviour of most browsers, but is a lossy operation
-   * as you can no longer distinguish between NaN and Infinity.
-   */
-  val jNumberOrNull: JsonNumber => Json =
-    number => jNumber(number).getOrElse(jNull)
-
-  /**
-   * Construct a JSON value that is a number. Transforming
-   * NaN, +Infinity and -Infinity to their string implementations.
-   *
-   * This is an argonaut specific transformation that allows all
-   * doubles to be encoded without losing information, but aware
-   * interoperability is unlikely without custom handling of
-   * these values. See also `jNumber` and `jNumberOrNull`.
-   */
-  val jNumberOrString: JsonNumber => Json =
-    number => jNumber(number).getOrElse(jString(number.toString))
+      JNumber(number)
 
   /**
    * Construct a JSON value that is a string.
@@ -685,7 +664,7 @@ trait Jsons {
    * A JSON value that is a zero number.
    */
   val jZero: Json =
-    JNumber(0D)
+    JNumber(JsonNumberDouble(0D))
 
   /**
    * A JSON value that is an empty string.
