@@ -499,14 +499,11 @@ trait Jsons {
   type JsonObjectMap = scalaz.InsertionMap[JsonField, Json]
   type JsonNumber = Double
 
-  import scalaz._, Scalaz._, PLens._, StoreT._
+  import PLens._, StoreT._
 
-  import monocle.{SimplePrism,Traversal, SimpleTraversal, SimpleLens}
-  import monocle.function.At
-  import monocle.function.Each
-  import monocle.function.FilterIndex
-  import monocle.function.Index
-  import monocle.function.SafeCast._
+  import monocle._
+  import monocle.function._
+  import monocle.std._
 
   /**
    * A Prism for JSON boolean values.
@@ -561,7 +558,7 @@ trait Jsons {
   }
 
   implicit val jObjectFilterIndex = new FilterIndex[JsonObject, JsonField, Json]{
-    import scalaz.syntax.traverse._
+    import _root_.scalaz.syntax.traverse._
     def filterIndex(predicate: JsonField => Boolean) = new SimpleTraversal[JsonObject, Json]{
       def multiLift[F[_]: Applicative](from: JsonObject, f: Json => F[Json]): F[JsonObject] =
         Applicative[F].map(
