@@ -35,7 +35,7 @@ object OpticsExample extends Specification {
     "safe cast json to Boolean" in {
       jBoolPrism.getOption(jBool(true)) must beSome(true)
       jBoolPrism.getOption(jBool(false)) must beSome(false)
-      jBoolPrism.getOption(jNumberOrString(3.5)) must beNone
+      jBoolPrism.getOption(jNumber(JsonNumberDouble(3.5))) must beNone
 
       jBoolPrism.modify(jBool(true), !_) mustEqual jBool(false)
     }

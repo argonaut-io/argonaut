@@ -23,7 +23,7 @@ object JsonParserSpecification extends Specification with DataTables with ScalaC
   val whitespaceObject: Json = ("field1" := 12.0d) ->: ("field2" := "test") ->: jEmptyObject
 
   val whitespaceArrayGen: Gen[String] = whitespaceGen.map(whitespace => """#[#"value1"#,#12#]#""".replace("#", whitespace))
-  val whitespaceArray: Json = jArray(jString("value1") :: jNumberOrNull(12) :: Nil)
+  val whitespaceArray: Json = jArray(jString("value1") :: jNumber(JsonNumberDouble(12)) :: Nil)
 
   def is = "parse" ^
     "Whitespace is handled correctly for an object" ! forAllNoShrink(whitespaceObjectGen){json =>
