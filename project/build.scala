@@ -18,7 +18,7 @@ object build extends Build {
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %  "lift-json_2.9.2"           % "2.5-M3"
-  val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.3.2"
+  val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5-SNAPSHOT"
 
   val argonaut = Project(
