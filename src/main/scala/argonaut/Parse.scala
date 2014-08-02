@@ -116,8 +116,8 @@ object Parse extends Parse[String] {
   def parse(value: String): String \/ Json =
     JsonParser.parse(value)
 
-  val parseOptional: SimpleOptional[String, Json] = SimpleOptional[String, Json](parse(_).toOption, (s, optJson) =>
-    optJson.map(_.nospaces).getOrElse(s)
-  )
+//  val parseOptional: SimpleOptional[String, Json] = SimpleOptional[String, Json](parse(_).toOption, (s, optJson) =>
+//    optJson.map(_.nospaces).getOrElse(s)
+//  )
 
 }
