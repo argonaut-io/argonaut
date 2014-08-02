@@ -10,6 +10,20 @@ import scala.collection.mutable.Builder
 object JsonParser {
   private[this] final type TokenSource = String
 
+  private[this] case class JsonObjectBuilder(
+    var fieldsMapBuilder: Builder[(JsonField, Json), Map[JsonField, Json]] = Map.newBuilder,
+    var orderedFieldsBuilder: Builder[JsonField, Vector[JsonField]] = Vector.newBuilder) {
+    def add(key: JsonField, value: Json): JsonObjectBuilder = {
+      fieldsMapBuilder += ((key, value))
+      orderedFieldsBuilder += key
+      this
+    }
+
+    def build(): JsonObject = {
+      JsonObjectInstance(fieldsMapBuilder.result(), orderedFieldsBuilder.result())
+    }
+  }
+
   @inline
   private[this] final def excerpt(string: String, position: Int, limit: Int = 50): String = {
     val remaining = string.drop(position)
@@ -64,10 +78,10 @@ object JsonParser {
   private[this] final def expectFieldSeparator(stream: TokenSource, position: Int) = expectedSpacerToken(stream, position, ':', "Expected field separator token")
 
   @tailrec
-  private[this] final def expectObject(stream: TokenSource, position: Int, first: Boolean = true, fields: JsonObject = JsonObject.empty): String \/ (Int, Json) = {
+  private[this] final def expectObject(stream: TokenSource, position: Int, first: Boolean = true, fields: JsonObjectBuilder = new JsonObjectBuilder()): String \/ (Int, Json) = {
     if (position >= stream.length) "JSON terminates unexpectedly".left
     else stream(position) match {
-      case '}' => \/-((position + 1, jObject(fields)))
+      case '}' => \/-((position + 1, jObject(fields.build())))
       case ' ' | '\r' | '\n' | '\t' => expectObject(stream, position + 1, first, fields)
       case _ => {
         val next = for {
@@ -75,7 +89,7 @@ object JsonParser {
           streamAndKey <- expectString(stream, afterEntrySeparator)
           afterFieldSeparator <- expectFieldSeparator(stream, streamAndKey._1)
           streamAndValue <- expectValue(stream, afterFieldSeparator)
-        } yield (streamAndValue._1, fields + (streamAndKey._2, streamAndValue._2))
+        } yield (streamAndValue._1, fields.add(streamAndKey._2, streamAndValue._2))
         next match {
           case \/-((newPosition, newFields)) => expectObject(stream, newPosition, false, newFields)
           case -\/(failure) => failure.left
