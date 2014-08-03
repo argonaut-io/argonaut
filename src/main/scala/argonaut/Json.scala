@@ -521,8 +521,8 @@ trait Jsons {
   /**
    * A Prism for JSON integer values.
    */
-  def jIntPrism: SimplePrism[Json, Int] =
-    SimplePrism[Json, Int](i => JNumber(i.toDouble), _.fold(None, _ => None, n => safeCast[Double, Int].getOption(n), _ => None, _ => None, _ => None))
+//  def jIntPrism: SimplePrism[Json, Int] =
+//    SimplePrism[Json, Int](i => JNumber(i.toDouble), _.fold(None, _ => None, n => safeCast[Double, Int].getOption(n), _ => None, _ => None, _ => None))
 
   /**
    * A Prism for JSON string values.

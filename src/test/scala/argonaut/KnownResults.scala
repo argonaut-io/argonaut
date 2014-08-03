@@ -44,7 +44,7 @@ object KnownResults extends DataTables {
     """[][]"""                                        ! "JSON contains invalid suffix content: []".left[Json]                                         |
     """{}{}"""                                        ! "JSON contains invalid suffix content: {}".left[Json]                                         |
     "\"\"\"\""                                        ! "JSON contains invalid suffix content: \"\"".left[Json]                                       |
-    "\"test"                                          ! "JSON terminates unexpectedly".left[Json]                                                     |
+    "\"test"                                          ! "JSON terminates unexpectedly.".left[Json]                                                    |
     "[7,,]"                                           ! "Unexpected content found: ,]".left[Json]                                                     |
     """{"firstKey":100,"secondKey":}"""               ! "Unexpected content found: }".left[Json]                                                      |
     """{"firstKey":}"""                               ! "Unexpected content found: }".left[Json]                                                      |

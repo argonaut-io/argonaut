@@ -19,7 +19,7 @@ object build extends Build {
   val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "2.4"                     % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %  "lift-json_2.9.2"           % "2.5-M3"
-  val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.3.2"
+  val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5.0"
 
   val argonaut = Project(
@@ -48,6 +48,8 @@ object build extends Build {
   , dependencies = Seq(argonaut)
   , settings = base ++ Seq[Sett](
       name := "argonaut-benchmark"
+    , resolvers += Resolver.sonatypeRepo("releases")
+    , resolvers += Resolver.sonatypeRepo("snapshots")
     , fork in run := true
     , libraryDependencies ++= Seq(caliper, liftjson, jackson)
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }
