@@ -558,7 +558,7 @@ trait Jsons {
   }
 
   implicit val jObjectFilterIndex = new FilterIndex[JsonObject, JsonField, Json]{
-    import _root_.scalaz.syntax.traverse._
+    import scalaz.syntax.traverse._
     def filterIndex(predicate: JsonField => Boolean) = new SimpleTraversal[JsonObject, Json]{
       def multiLift[F[_]: Applicative](from: JsonObject, f: Json => F[Json]): F[JsonObject] =
         Applicative[F].map(
