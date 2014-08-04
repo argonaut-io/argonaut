@@ -7,7 +7,6 @@ import scalaz._, Scalaz._
 import scalaz.scalacheck.ScalaCheckBinding._
 import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
-import org.specs2.matcher._
 
 object CodecSpecification extends Specification with ScalaCheck {
   implicit val shortEquality: Equal[Short] = new Equal[Short] {
@@ -20,46 +19,49 @@ object CodecSpecification extends Specification with ScalaCheck {
     override def equalIsNatural = true
   }
 
-  def encodedecode[A: EncodeJson: DecodeJson : Arbitrary : Equal] =
-    forAll(CodecJson.derived[A].codecLaw.encodedecode _)
+  def encodedecode[A: EncodeJson: DecodeJson: Arbitrary: Equal] =
+    forAll(CodecJson.derived[A].codecLaw.encodedecode(_))
 
-  def is = "Codec" ^
-    "Unit encode/decode" ! encodedecode[Unit] ^
-    "Json encode/decode" ! encodedecode[Json] ^
-    "List[String] encode/decode" ! encodedecode[List[String]] ^
-    "List[Int] encode/decode" ! encodedecode[List[Int]] ^
-    "List[Long] encode/decode" ! encodedecode[List[Long]] ^
-    "List[Double] encode/decode" ! encodedecode[List[Double]] ^
-    "Vector[String] encode/decode" ! encodedecode[Vector[String]] ^
-    "Stream[String] encode/decode" ! encodedecode[Stream[String]] ^
-    "SortedSet[String] encode/decode" ! encodedecode[SortedSet[String]] ^
-    "SortedSet[Int] encode/decode" ! encodedecode[SortedSet[Int]] ^
-    "String encode/decode" ! encodedecode[String] ^
-    "Double encode/decode" ! encodedecode[Double] ^
-    "Float encode/decode" ! encodedecode[Float] ^
-    "Int encode/decode" ! encodedecode[Int] ^
-    "Long encode/decode" ! encodedecode[Long] ^
-    "Short encode/decode" ! encodedecode[Short] ^
-    "Boolean encode/decode" ! encodedecode[Boolean] ^
-    "Char encode/decode" ! encodedecode[Char] ^
-    "java.lang.Double encode/decode" ! encodedecode[java.lang.Double] ^
-    "java.lang.Float encode/decode" ! encodedecode[java.lang.Float] ^
-    "java.lang.Integer encode/decode" ! encodedecode[java.lang.Integer] ^
-    "java.lang.Long encode/decode" ! encodedecode[java.lang.Long] ^
-    "java.lang.Short encode/decode" ! encodedecode[java.lang.Short] ^
-    "java.lang.Boolean encode/decode" ! encodedecode[java.lang.Boolean] ^
-    "java.lang.Character encode/decode" ! encodedecode[java.lang.Character] ^
-    "Option[String] encode/decode" ! encodedecode[Option[String]] ^
-    "Either[String, Int] encode/decode" ! encodedecode[Either[String, Int]] ^
-    "String \\/ Int encode/decode" ! encodedecode[String \/ Int] ^
-    "Map[String, Int] encode/decode" ! encodedecode[Map[String, Int]] ^
-    "Set[String] encode/decode" ! encodedecode[Set[String]] ^
-    "Tuple2[String, Int] encode/decode" ! encodedecode[Tuple2[String, Int]] ^
-    "Tuple3[String, Int, Boolean] encode/decode" ! encodedecode[Tuple3[String, Int, Boolean]] ^
-    "Tuple4[String, Int, Boolean, Long] encode/decode" ! encodedecode[Tuple4[String, Int, Boolean, Long]] ^
-    "22 field class with codec" ! { import CodecInstances._; encodedecode[TestClass] } ^
-    "22 field class with codec derived" ! { import EncodeDecodeInstances._; encodedecode[TestClass] } ^ end
+  implicit val SortedSetEquality = Equal[SortedSet[Int]]
 
+  def is = s2"""
+  Codec
+    Unit encode/decode ${encodedecode[Unit]} 
+    Json encode/decode ${encodedecode[Json]}
+    List[String] encode/decode ${encodedecode[List[String]]}
+    List[Int] encode/decode ${encodedecode[List[Int]]}
+    List[Long] encode/decode ${encodedecode[List[Long]]}
+    List[Double] encode/decode ${encodedecode[List[Double]]}
+    Vector[String] encode/decode ${encodedecode[Vector[String]]}
+    Stream[String] encode/decode ${encodedecode[Stream[String]]}
+    SortedSet[String] encode/decode ${encodedecode[SortedSet[String]]}
+    SortedSet[Int] encode/decode ${encodedecode[SortedSet[Int]]}
+    String encode/decode ${encodedecode[String]}
+    Double encode/decode ${encodedecode[Double]}
+    Float encode/decode ${encodedecode[Float]}
+    Int encode/decode ${encodedecode[Int]}
+    Long encode/decode ${encodedecode[Long]}
+    Short encode/decode ${encodedecode[Short]}
+    Boolean encode/decode ${encodedecode[Boolean]}
+    Char encode/decode ${encodedecode[Char]}
+    java.lang.Double encode/decode ${encodedecode[java.lang.Double]}
+    java.lang.Float encode/decode ${encodedecode[java.lang.Float]}
+    java.lang.Integer encode/decode ${encodedecode[java.lang.Integer]}
+    java.lang.Long encode/decode ${encodedecode[java.lang.Long]}
+    java.lang.Short encode/decode ${encodedecode[java.lang.Short]}
+    java.lang.Boolean encode/decode ${encodedecode[java.lang.Boolean]}
+    java.lang.Character encode/decode ${encodedecode[java.lang.Character]}
+    Option[String] encode/decode ${encodedecode[Option[String]]}
+    Either[String, Int] encode/decode ${encodedecode[Either[String, Int]]}
+    String \\/ Int encode/decode ${encodedecode[String \/ Int]}
+    Map[String, Int] encode/decode ${encodedecode[Map[String, Int]]}
+    Set[String] encode/decode ${encodedecode[Set[String]]}
+    Tuple2[String, Int] encode/decode ${encodedecode[Tuple2[String, Int]]}
+    Tuple3[String, Int, Boolean] encode/decode ${encodedecode[Tuple3[String, Int, Boolean]]}
+    Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
+    22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}}
+    22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
+  """
 
   implicit val jDoubleArbitrary: Arbitrary[java.lang.Double] =
     implicitly[Arbitrary[Double]].map(a => a)
