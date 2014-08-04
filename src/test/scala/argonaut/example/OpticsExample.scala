@@ -3,11 +3,9 @@ package argonaut.example
 import argonaut.Json._
 import argonaut.StringWrap._
 import argonaut.{JsonObject, Parse, Json}
-import monocle.function.At._
-import monocle.function.Each._
-import monocle.function.HeadOption._
-import monocle.function.Index._
-import monocle.function.FilterIndex._
+import monocle._
+import monocle.function._
+import monocle.std._
 import monocle.syntax._
 import org.specs2.mutable.Specification
 
