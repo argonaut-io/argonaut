@@ -17,7 +17,7 @@ sealed trait JsonObject {
   /**
    * Convert to an insertion map.
    */
-  @deprecated("InsertionMap is deprecated in scalaz 7.1", "6.1")
+  @deprecated("InsertionMap is deprecated in scalaz 7.1, use toList instead", "6.1")
   def toInsertionMap: InsertionMap[JsonField, Json]
 
   /**
@@ -63,7 +63,7 @@ sealed trait JsonObject {
   /**
    * Returns the list of associations in insertion order.
    */
-  def toList: List[(JsonAssoc)]
+  def toList: List[JsonAssoc]
 
   /**
    * Returns all associated values in insertion order.
@@ -108,7 +108,7 @@ private[argonaut] case class JsonObjectInstance(
 
   def toMap: Map[JsonField, Json] = fieldsMap
 
-  @deprecated("InsertionMap is deprecated in scalaz 7.1", "6.1")
+  @deprecated("InsertionMap is deprecated in scalaz 7.1, use toList instead", "6.1")
   def toInsertionMap: InsertionMap[JsonField, Json] =
     orderedFields.foldLeft(InsertionMap.empty[JsonField, Json]){(acc, field) =>
       acc ^+^ (field, fieldsMap(field))}
@@ -152,7 +152,7 @@ private[argonaut] case class JsonObjectInstance(
   def fieldSet: Set[JsonField] = orderedFields.toSet
 
   def map(f: Json => Json): JsonObject = copy(fieldsMap = fieldsMap.foldLeft(Map.empty[JsonField, Json]){case (acc, (key, value)) => acc.updated(key, f(value))})
-
+  
   def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
     orderedFields.foldLeft(FF.point(Map.empty[JsonField, Json])){case (acc, k) =>
       FF.apply2(acc, f(fieldsMap(k)))(_.updated(k, _))
@@ -160,7 +160,7 @@ private[argonaut] case class JsonObjectInstance(
   }
 
   def size: Int = fields.size
-
+  
   override def toString: String =
     "object[%s]".format(fieldsMap.map(_.shows).mkString(","))
 
