@@ -2,7 +2,7 @@ package argonaut
 
 import scalaz._, Scalaz._
 import org.scalacheck.Arbitrary._
-import org.scalacheck.Gen.{frequency, choose, listOfN, value, oneOf}
+import org.scalacheck.Gen.{frequency, choose, listOfN, const => value, oneOf}
 import Json._
 import org.scalacheck.{Gen, Arbitrary}
 import scala.util.Random.shuffle
@@ -32,7 +32,7 @@ object Data {
     Arbitrary(Gen.listOf(arbTuple2[T, U].arbitrary).map(_.toMap))
 
   def jsonObjectGenerator(depth: Int = maxJsonStructureDepth): Gen[JObject] = arbImmutableMap(Arbitrary(arbitrary[String]), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary.map{map =>
-    JObject(JsonObject(InsertionMap(map.toSeq: _*)))
+    JObject(JsonObject.from(map.toList))
   }
 
   val nonJsonObjectGenerator = oneOf(jsonNumberGenerator, jsonStringGenerator, jsonBoolGenerator, jsonNothingGenerator, jsonArrayGenerator())
@@ -49,7 +49,7 @@ object Data {
 
   def objectsOfObjectsGenerator(depth: Int = maxJsonStructureDepth): Gen[Json] = {
     if (depth > 1) {
-      listOfN(2, arbTuple2(Arbitrary(arbitrary[String]), Arbitrary(objectsOfObjectsGenerator(depth - 1))).arbitrary).map(fields => JObject(JsonObject(InsertionMap(fields: _*))))
+      listOfN(2, arbTuple2(Arbitrary(arbitrary[String]), Arbitrary(objectsOfObjectsGenerator(depth - 1))).arbitrary).map(fields => JObject(JsonObject.from(fields)))
     } else {
       oneOf(jsonNumberGenerator, jsonStringGenerator, jsonBoolGenerator, jsonNothingGenerator)
     }
@@ -85,13 +85,13 @@ object Data {
   implicit def ArbitraryJson: Arbitrary[Json] = Arbitrary(jsonValueGenerator())
 
   implicit def ArbitraryJsonObject: Arbitrary[JsonObject] =
-    Arbitrary(arbitrary[List[(JsonField, Json)]] map (as => JsonObject(InsertionMap(as: _*))))
+    Arbitrary(arbitrary[List[(JsonField, Json)]] map { JsonObject.from(_) })
 
   implicit def ArbitraryCursor: Arbitrary[Cursor] = {
     Arbitrary(arbitrary[Json] flatMap (j => {
       val c = +j
       j.arrayOrObject(
-        Gen.value(c)
+        Gen.const(c)
       , _ =>
           for {
             r <- frequency((90, arbitrary[Cursor]), (10, c))

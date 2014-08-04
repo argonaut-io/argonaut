@@ -17,6 +17,7 @@ sealed trait JsonObject {
   /**
    * Convert to an insertion map.
    */
+  @deprecated("InsertionMap is deprecated in scalaz 7.1", "6.1")
   def toInsertionMap: InsertionMap[JsonField, Json]
 
   /**
@@ -107,6 +108,7 @@ private[argonaut] case class JsonObjectInstance(
 
   def toMap: Map[JsonField, Json] = fieldsMap
 
+  @deprecated("InsertionMap is deprecated in scalaz 7.1", "6.1")
   def toInsertionMap: InsertionMap[JsonField, Json] =
     orderedFields.foldLeft(InsertionMap.empty[JsonField, Json]){(acc, field) =>
       acc ^+^ (field, fieldsMap(field))}
@@ -173,8 +175,12 @@ private[argonaut] case class JsonObjectInstance(
 }
 
 object JsonObject extends JsonObjects {
+  def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject =
+    f.foldLeft(empty){ case (acc, (k, v)) => acc + (k, v) }
+
+  @deprecated("InsertionMap is deprecated in scalaz 7.1. Use `from[[F[_]: Foldable]] instead", "6.1")
   def apply(insertionMap: InsertionMap[JsonField, Json]): JsonObject =
-    insertionMap.toList.foldLeft(empty){case (acc, (k, v)) => acc + (k, v)}
+    from(insertionMap.toList)
 
   /**
    * Construct an empty association.
