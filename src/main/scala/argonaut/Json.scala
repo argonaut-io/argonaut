@@ -568,7 +568,7 @@ trait Jsons {
           from.toList.traverse[F, (JsonField, Json)]{ case (field, json) =>
             Applicative[F].map(if(predicate(field)) f(json) else json.point[F])(field -> _)
           }
-        )(list => JsonObject(InsertionMap(list: _*)))
+        )(JsonObject.from(_))
     }
   }
 
@@ -736,7 +736,7 @@ trait Jsons {
    * Construct a JSON value that is an object from an association list.
    */
   def jObjectAssocList(x: List[(JsonField, Json)]): Json =
-    JObject(JsonObject(InsertionMap(x: _*)))
+    JObject(JsonObject.from(x))
 
   /**
    * Construct a JSON value that is an object from an association list (var args).
