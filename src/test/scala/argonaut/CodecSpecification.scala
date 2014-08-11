@@ -3,6 +3,7 @@ package argonaut
 import Data._
 import JsonIdentity._
 import scala.collection.immutable.SortedSet
+import scala.collection.mutable.ArrayBuffer
 import scalaz._, Scalaz._
 import scalaz.scalacheck.ScalaCheckBinding._
 import org.scalacheck._, Arbitrary._, Prop._
@@ -18,6 +19,12 @@ object CodecSpecification extends Specification with ScalaCheck {
     override def equal(a: java.lang.Short, b: java.lang.Short) = a == b
     override def equalIsNatural = true
   }
+
+  implicit def ArrayEquality[A: Equal]: Equal[Array[A]] = 
+    Equal[List[A]].contramap(_.toList)
+
+  implicit def ArrayBufferEquality[A: Equal]: Equal[ArrayBuffer[A]] = 
+    Equal[List[A]].contramap(_.toList)
 
   def encodedecode[A: EncodeJson: DecodeJson: Arbitrary: Equal] =
     forAll(CodecJson.derived[A].codecLaw.encodedecode(_))
@@ -36,6 +43,8 @@ object CodecSpecification extends Specification with ScalaCheck {
     Stream[String] encode/decode ${encodedecode[Stream[String]]}
     SortedSet[String] encode/decode ${encodedecode[SortedSet[String]]}
     SortedSet[Int] encode/decode ${encodedecode[SortedSet[Int]]}
+    Array[String] encode/decode ${encodedecode[Array[String]]}
+    ArrayBuffer[String] encode/decode ${encodedecode[ArrayBuffer[String]]}
     String encode/decode ${encodedecode[String]}
     Double encode/decode ${encodedecode[Double]}
     Float encode/decode ${encodedecode[Float]}

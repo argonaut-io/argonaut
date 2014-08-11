@@ -143,56 +143,17 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   implicit def JsonDecodeJson: DecodeJson[Json] =
     decodeArr(j => j.focus)
 
-  implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
+  implicit def TraversableOnceDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: collection.generic.CanBuildFrom[C[_], A, C[A]]): DecodeJson[C[A]] =
     DecodeJson(a =>
       a.downArray.hcursor match {
         case None =>
           if (a.focus.isArray)
-            DecodeResult.ok(Nil)
+            DecodeResult.ok(c.apply.result)
           else
             DecodeResult.fail("[A]List[A]", a.history)
         case Some(hcursor) =>
-          hcursor.traverseDecode(List[A]())(_.right, (acc, c) =>
-            c.jdecode[A] map (_ :: acc)) map (_.reverse)
-      })
-
-  implicit def SortedSetDecodeJson[A](implicit e: DecodeJson[A], o: ScalaOrdering[A]): DecodeJson[SortedSet[A]] =
-    DecodeJson(a ⇒
-      a.downArray.hcursor match {
-        case None ⇒
-          if (a.focus.isArray)
-            DecodeResult.ok(SortedSet[A]())
-          else
-            DecodeResult.fail("[A]SortedSet[A]", a.history)
-        case Some(hcursor) ⇒
-          hcursor.traverseDecode(SortedSet[A]())(_.right, (acc, c) ⇒
-            c.jdecode[A] map (acc + _))
-      })
-
-  implicit def VectorDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Vector[A]] =
-    DecodeJson(a =>
-      a.downArray.hcursor match {
-        case None =>
-          if (a.focus.isArray)
-            DecodeResult.ok(Vector[A]())
-          else
-            DecodeResult.fail("[A]List[A]", a.history)
-        case Some(hcursor) =>
-          hcursor.traverseDecode(Vector[A]())(_.right, (acc, c) =>
-            c.jdecode[A] map (acc :+ _))
-      })
-
-  implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
-    DecodeJson(a =>
-      a.downArray.hcursor match {
-        case None =>
-          if (a.focus.isArray)
-            DecodeResult.ok(Stream[A]())
-          else
-            DecodeResult.fail("[A]List[A]", a.history)
-        case Some(hcursor) =>
-          hcursor.traverseDecode(Stream[A]())(_.right, (acc, c) =>
-            c.jdecode[A] map (_ #:: acc)) map (_.reverse)
+          hcursor.traverseDecode(c.apply)(_.right, (acc, c) =>
+            c.jdecode[A] map (acc += _)).map(_.result)
       })
 
   implicit def UnitDecodeJson: DecodeJson[Unit] =
