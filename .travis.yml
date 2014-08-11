@@ -4,8 +4,8 @@ scala:
    - 2.11.2
 jdk:
   - oraclejdk7
+  - oraclejdk8
   - openjdk6
-  - openjdk7
 notifications:
   irc:
     channels:

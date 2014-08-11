@@ -31,7 +31,7 @@ Latest:
 
 Milestone:
 
-    "io.argonaut" %% "argonaut" % "6.1-M3"
+    "io.argonaut" %% "argonaut" % "6.1-M4"
 
 
 Note that the 6.0.x release supports scala 2.9.2, 2.9.3, 2.10.* and 2.11.* with scalaz 7.0.*.
@@ -75,4 +75,3 @@ The library was open-sourced under a [BSD License](https://github.com/argonaut-i
 The initial developers have since left the employment of Ephox and now maintain this fork `argonaut-io/argonaut`.
 
 It is expected that major releases will now come from this repository.
-

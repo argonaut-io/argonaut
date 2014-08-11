@@ -499,14 +499,11 @@ trait Jsons {
   type JsonObjectMap = scalaz.InsertionMap[JsonField, Json]
   type JsonNumber = Double
 
-  import scalaz._, Scalaz._, PLens._, StoreT._
+  import PLens._, StoreT._
 
-  import monocle.{SimplePrism,Traversal, SimpleTraversal, SimpleLens}
-  import monocle.function.At
-  import monocle.function.Each
-  import monocle.function.FilterIndex
-  import monocle.function.Index
-  import monocle.function.SafeCast._
+  import monocle._
+  import monocle.function._
+  import monocle.std._
 
   /**
    * A Prism for JSON boolean values.
@@ -524,8 +521,8 @@ trait Jsons {
   /**
    * A Prism for JSON integer values.
    */
-//  def jIntPrism: SimplePrism[Json, Int] =
-//    SimplePrism[Json, Int](i => JNumber(i.toDouble), _.fold(None, _ => None, n => safeCast[Double, Int].getOption(n), _ => None, _ => None, _ => None))
+  def jIntPrism: SimplePrism[Json, Int] =
+    SimplePrism[Json, Int](i => JNumber(i.toDouble), _.fold(None, _ => None, n => safeCast[Double, Int].getOption(n), _ => None, _ => None, _ => None))
 
   /**
    * A Prism for JSON string values.

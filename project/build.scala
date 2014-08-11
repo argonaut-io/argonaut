@@ -17,6 +17,7 @@ object build extends Build {
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.5"                 % "test"
+  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "2.4"                    % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %  "lift-json_2.9.2"           % "2.5-M3"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
@@ -35,13 +36,8 @@ object build extends Build {
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
-    , libraryDependencies <++= onVersion(
-        all = Seq(scalaz, scalazScalaCheckBinding, scalacheck, monocle)
-      , on210 = Seq("org.specs2" %% "specs2-scalacheck" % "2.4" % "test")
-      , on211 = Seq("org.specs2" %% "specs2-scalacheck" % "2.4" % "test")
-      )
     , autoScalaLibrary := false
-
+    , libraryDependencies ++= Seq(scalaz, scalazScalaCheckBinding, monocle, scalacheck, specs2Scalacheck)
      /* no mima until 6.1.0 release */
     , previousArtifact := None
 /*    , binaryIssueFilters ++= {
