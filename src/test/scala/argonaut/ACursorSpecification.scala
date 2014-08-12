@@ -10,38 +10,44 @@ import Scalaz._
 
 object ACursorSpecification extends Specification with ScalaCheck {
 
-  def is = "ACursor" ^
-    "History must reflect success after single step." ! prop((j: Json) => {
-      forAll((op: TestOp) => {
-        val r = step(j.acursor, op)
-        if (r.succeeded)
-          r.history.head.forall(h => h.isReattempt || h.succeeded)
-        else
-          r.history.head.exists(_.failed)
-      })
-    }) ^
-    "History must reflect success after multiple steps." ! prop((j: Json) => {
-      forAll((op: List[TestOp]) => {
-        val r = op.foldLeft(j.acursor)((acc, op) => step(acc, op))
-        if (r.succeeded)
-          r.history.head.forall(h => h.isReattempt || h.succeeded)
-        else
-          r.history.head.exists(_.failed)
-      })
-    }) ^
-    "Nothing accept reattempt may occur after failure." ! prop((j: Json) => {
-      forAll((op: List[TestOp]) => {
-        val r = op.foldLeft(j.acursor)((acc, op) => step(acc, op))
-        r.history.toList.inits.toList.forall(paths => paths match {
-          case init ::+ penultimate ::+ last =>
-            last.succeeded || last.isReattempt || penultimate.isReattempt
-          case init ::+ last  =>
-            last.succeeded || last.isReattempt || init.isEmpty
-          case _ =>
-            true
-        })
+  def is = s2"""ACursor
+    History must reflect success after single step.     $singleStepSuccess
+    History must reflect success after multiple steps.  $multiStepSuccess
+    Nothing accept reattempt may occur after failure.   $reattemptAfterFailure
+  """
+
+  def singleStepSuccess = prop((j: Json) => {
+    forAll((op: TestOp) => {
+      val r = step(j.acursor, op)
+      if (r.succeeded)
+        r.history.head.forall(h => h.isReattempt || h.succeeded)
+      else
+        r.history.head.exists(_.failed)
+    })
+  })
+  def multiStepSuccess = prop((j: Json) => {
+    forAll((op: List[TestOp]) => {
+      val r = op.foldLeft(j.acursor)((acc, op) => step(acc, op))
+      if (r.succeeded)
+        r.history.head.forall(h => h.isReattempt || h.succeeded)
+      else
+        r.history.head.exists(_.failed)
+    })
+  })
+
+  def reattemptAfterFailure = prop((j: Json) => {
+    forAll((op: List[TestOp]) => {
+      val r = op.foldLeft(j.acursor)((acc, op) => step(acc, op))
+      r.history.toList.inits.toList.forall(paths => paths match {
+        case init ::+ penultimate ::+ last =>
+          last.succeeded || last.isReattempt || penultimate.isReattempt
+        case init ::+ last =>
+          last.succeeded || last.isReattempt || init.isEmpty
+        case _ =>
+          true
       })
     })
+  })
 
   // To support 2.9 where :+ doesn't define an extractor.
   object ::+ {
@@ -84,7 +90,6 @@ object ACursorSpecification extends Specification with ScalaCheck {
   def withField(a: ACursor, f: (ACursor, JsonField) => ACursor): ACursor =
     a.focus.flatMap(c => field(c).map(field => f(a, field))).getOrElse(a)
 
-
   trait TestOp
   case object Reattempt extends TestOp
   case object First extends TestOp
@@ -102,6 +107,5 @@ object ACursorSpecification extends Specification with ScalaCheck {
       (9, Gen.oneOf(Down, Up, Left, Right, Delete)),
       (1, arbitrary[Json] map (Set))
     ))
-
 
 }

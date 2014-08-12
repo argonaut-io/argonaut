@@ -25,36 +25,48 @@ object JsonParserSpecification extends Specification with DataTables with ScalaC
   val whitespaceArrayGen: Gen[String] = whitespaceGen.map(whitespace => """#[#"value1"#,#12#]#""".replace("#", whitespace))
   val whitespaceArray: Json = jArray(jString("value1") :: jNumberOrNull(12) :: Nil)
 
-  def is = "parse" ^
-    "Whitespace is handled correctly for an object" ! forAllNoShrink(whitespaceObjectGen){json =>
+  def is = s2"""
+  parse
+    Whitespace is handled correctly for an object              $whitespaceForObject
+    Whitespace is handled correctly for an array               $whitespaceForArray
+    Valid JSON parses into expected values                     $validJson
+    Invalid JSON parses into expected failures                 $invalidJson
+    Printed and then parsed again generates the same structure $printParse
+  """
+
+  def whitespaceForObject =
+    forAllNoShrink(whitespaceObjectGen) { json =>
       val parseResult = JsonParser.parse(json)
       ("parseResult = " + parseResult) |:
-      ("whitespaceObject = " + whitespaceObject) |:
-      parseResult === whitespaceObject.right[String]
-    } ^
-    "Whitespace is handled correctly for an array" ! forAllNoShrink(whitespaceArrayGen){json =>
+        ("whitespaceObject = " + whitespaceObject) |:
+        parseResult === whitespaceObject.right[String]
+    }
+
+  def whitespaceForArray =
+    forAllNoShrink(whitespaceArrayGen) { json =>
       val parseResult = JsonParser.parse(json)
       ("parseResult = " + parseResult) |:
-      ("whitespaceArray = " + whitespaceArray) |:
-      parseResult === whitespaceArray.right[String]
-    } ^
-    "Valid JSON parses into expected values" ! {
-      KnownResults.validResultPairings |> {(json, expectedJSONValue) =>
-        val actualParseResult = JsonParser.parse(json)
-        actualParseResult === expectedJSONValue.right[String]
-      }
-    } ^
-    "Invalid JSON parses into expected failures" ! {
-      KnownResults.parseFailures |> {(json, parseResult) =>
-        val actualParseResult = JsonParser.parse(json)
-        actualParseResult === parseResult
-      }
-    } ^
-    "Printed and then parsed again generates the same structure" ! prop{(json: Json) =>
+        ("whitespaceArray = " + whitespaceArray) |:
+        parseResult === whitespaceArray.right[String]
+    }
+  def validJson =
+    KnownResults.validResultPairings |> { (json, expectedJSONValue) =>
+      val actualParseResult = JsonParser.parse(json)
+      actualParseResult === expectedJSONValue.right[String]
+    }
+
+  def invalidJson =
+    KnownResults.parseFailures |> { (json, parseResult) =>
+      val actualParseResult = JsonParser.parse(json)
+      actualParseResult === parseResult
+    }
+
+  def printParse =
+    prop { (json: Json) =>
       val printedJSON = json.nospaces
       ("printedJSON = " + printedJSON) |: {
         val parsed = printedJSON.parse
         ("parsed = " + parsed) |: parsed === json.right
       }
-    } ^ end
+    }
 }
