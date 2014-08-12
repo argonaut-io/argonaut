@@ -16,9 +16,7 @@ object JsonFilesSpecification extends Specification with ScalaCheck {
   implicit def JsonFileArbitrary: Arbitrary[JsonFile] =
     Arbitrary(Gen.oneOf(find.map(JsonFile)))
 
-  def is = "Predefined files" ^
-    "can print and get same result" ! propNoShrink(test) ^
-    end
+  def is = s2""" Predefined files can print and get same result" ! ${propNoShrink(test)} """
 
   val test: JsonFile => Result =
     jsonfile => {
