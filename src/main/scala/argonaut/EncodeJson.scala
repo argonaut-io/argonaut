@@ -1,8 +1,7 @@
 package argonaut
 
-import scala.collection.immutable.SortedSet
-import scalaz._, Scalaz._, Lens._
-
+import scalaz._
+import Scalaz._
 import Json._
 
 /**
@@ -32,10 +31,10 @@ trait EncodeJson[A] {
    * Split on this encoder and the given encoder.
    */
   def <&>[B](x: => EncodeJson[B]): EncodeJson[A \/ B] =
-  EncodeJson {
-    case -\/(a) => apply(a)
-    case \/-(b) => x(b)
-  }
+    EncodeJson {
+      case -\/(a) => apply(a)
+      case \/-(b) => x(b)
+    }
 
 }
 
@@ -59,17 +58,9 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   implicit val UnitEncodeJson: EncodeJson[Unit] =
     EncodeJson(_ => jEmptyObject)
 
-  implicit def ListEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[List[A]] =
-    EncodeJson(a => jArray(a map (e(_))))
-
-  implicit def VectorEncodeJson[A](implicit e: EncodeJson[List[A]]): EncodeJson[Vector[A]] =
-    EncodeJson(a => e(a.toList))
-
-  implicit def StreamEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Stream[A]] =
-    EncodeJson(a => jArray(a.toList map (e(_))))
-
-  implicit def SortedSetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[SortedSet[A]] =
-    EncodeJson(a => jArray(a.toList map (e(_))))
+  implicit def TraversableOnceEncodeJson[A, C[_]](implicit e: EncodeJson[A], is: collection.generic.IsTraversableOnce[C[A]]): EncodeJson[C[A]] =
+    // cast is necessary as a: is.A, not A
+    EncodeJson(a => jArray(is.conversion(a).toList.map(a => e(a.asInstanceOf[A]))))
 
   implicit val StringEncodeJson: EncodeJson[String] =
     EncodeJson(jString)
@@ -118,7 +109,7 @@ trait EncodeJsons extends GeneratedEncodeJsons {
 
   implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] =
     EncodeJson(_ match {
-      case None => jNull
+      case None    => jNull
       case Some(a) => e(a)
     })
 
@@ -130,14 +121,13 @@ trait EncodeJsons extends GeneratedEncodeJsons {
 
   implicit def EitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Either[A, B]] =
     EncodeJson(_ match {
-      case Left(a) => jSingleObject("Left", ea(a))
+      case Left(a)  => jSingleObject("Left", ea(a))
       case Right(b) => jSingleObject("Right", eb(b))
     })
 
   implicit def ValidationEncodeJson[E, A](implicit ea: EncodeJson[E], eb: EncodeJson[A]): EncodeJson[Validation[E, A]] =
     EncodeJson(_ fold (
-      e => jSingleObject("Failure", ea(e))
-    , a => jSingleObject("Success", eb(a))
+      e => jSingleObject("Failure", ea(e)), a => jSingleObject("Success", eb(a))
     ))
 
   implicit def MapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[Map[String, V]] =
@@ -147,11 +137,7 @@ trait EncodeJsons extends GeneratedEncodeJsons {
       }
     ))
 
-  implicit def SetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Set[A]] =
-    EncodeJson(ListEncodeJson[A] contramap ((_: Set[A]).toList) apply _)
-
   implicit val EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
     def contramap[A, B](r: EncodeJson[A])(f: B => A) = r contramap f
   }
-
 }
