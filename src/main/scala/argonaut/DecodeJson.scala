@@ -143,7 +143,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   implicit def JsonDecodeJson: DecodeJson[Json] =
     decodeArr(j => j.focus)
 
-  implicit def TraversableOnceDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: collection.generic.CanBuildFrom[C[_], A, C[A]]): DecodeJson[C[A]] =
+  implicit def CanBuildFronDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: collection.generic.CanBuildFrom[C[_], A, C[A]]): DecodeJson[C[A]] =
     DecodeJson(a =>
       a.downArray.hcursor match {
         case None =>
