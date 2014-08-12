@@ -26,11 +26,12 @@ object JsonExample extends Specification {
   implicit val CodecCoin = casecodec1(Coin.apply, Coin.unapply)("value")
   implicit val CodecPerson = casecodec3(Person.apply, Person.unapply)("name", "age", "wallet")
 
-  def is = "JsonExample" ^
-    "Can decode hand crafted object" ! {
-      json.as[Person].toOption must beSome(value)
-    } ^
-    "Can encode to match hand crafted object" ! {
-      value.asJson must_== json
-    }
+  def is = s2"""
+  Can decode hand crafted object ${
+    json.as[Person].toOption must beSome(value)
+  }
+  Can encode to match hand crafted object ${
+    value.asJson must_== json
+  }
+  """
 }
