@@ -18,4 +18,5 @@ Jsons with
 JsonIdentitys with
 JsonObjects with
 PrettyParamss with
-StringWraps
+StringWraps with
+JsonInterpolator

@@ -1,4 +1,4 @@
-package argonaut.example
+package argonaut
 
 import argonaut._, Argonaut._
 import scalaz._, Scalaz._
@@ -11,34 +11,27 @@ object JsonInterpolatorSpecification extends Specification {
       "name" := "fred",
       "age" := 23,
       "wallet" := List(
-        Json { "value" := 100 },
-        Json { "value" := 10 },
-        Json { "value" := 50 }
+        Json( "value" := 100 ),
+        Json( "value" := 10 ),
+        Json( "value" := 50 )
       )
     )
 
   val interpolatedJson =
     json"""
-          |{
-          |    "name": "fred",
-          |    "age": 23,
-          |    "wallet": [
-          |        { "value": 100 },
-          |        { "value": 10  },
-          |        { "value": 50  }
-          |    ]
-          |}
-        """.stripMargin
-
-  case class Coin(value: Int)
-  case class Person(name: String, age: Int, wallet: List[Coin])
-
-  implicit val CodecCoin = casecodec1(Coin.apply, Coin.unapply)("value")
-  implicit val CodecPerson = casecodec3(Person.apply, Person.unapply)("name", "age", "wallet")
+          {
+            "name": "fred",
+            "age": 23,
+            "wallet": [
+              { "value": 100 },
+              { "value": 10 },
+              { "value": 50}
+            ]
+          }
+          """.getOrElse(throw new Exception())
 
   def is = s2"""
-  Constructed Json matches interpolated Json ${
-    constructedJson must_== interpolatedJson
-  }
+    Constructed Json matches interpolated Json
+    ${ constructedJson must_== interpolatedJson }
   """
 }
