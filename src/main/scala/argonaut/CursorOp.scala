@@ -21,8 +21,9 @@ sealed trait CursorOp {
       case El(_, s) => !s
     }
 }
-private case object Reattempt extends CursorOp
-private case class El(o: CursorOpElement, success: Boolean) extends CursorOp
+
+case object Reattempt extends CursorOp
+case class El(o: CursorOpElement, success: Boolean) extends CursorOp
 
 object CursorOp extends CursorOps {
   def apply(o: CursorOpElement): CursorOp =
