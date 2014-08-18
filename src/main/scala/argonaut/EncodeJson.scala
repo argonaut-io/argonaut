@@ -1,7 +1,6 @@
 package argonaut
 
-import scalaz._
-import Scalaz._
+import scalaz.{ Coproduct => _, _}, Scalaz._
 import Json._
 
 /**
@@ -43,9 +42,45 @@ object EncodeJson extends EncodeJsons {
     new EncodeJson[A] {
       def encode(a: A) = f(a)
     }
+
+  /* ==== shapeless for profit ==== */
+
+  import shapeless._
+
+  def derive[A](implicit ev: LabelledTypeClass[EncodeJson]): EncodeJson[A] =
+    macro GenericMacros.deriveLabelledInstance[EncodeJson, A]
+
+  object auto {
+    implicit def AutoEncodeJson[A](implicit ev: LabelledTypeClass[EncodeJson]): EncodeJson[A] =
+      macro GenericMacros.deriveLabelledInstance[EncodeJson, A]
+  }
+
+  implicit def EncodeJsonTypeClass: LabelledTypeClass[EncodeJson] = new LabelledTypeClass[EncodeJson] {
+    def emptyCoproduct =
+      EncodeJson(_ => jEmptyObject)
+
+    def coproduct[L, R <: Coproduct](name: String, CL: => EncodeJson[L], CR: => EncodeJson[R]): EncodeJson[L :+: R] =
+      EncodeJson(a => a match {
+        case Inl(x) => Json((name -> CL.encode(x)))
+        case Inr(t) => CR.encode(t)
+      })
+
+    def emptyProduct =
+      EncodeJson(_ => jEmptyObject)
+
+    def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]) =
+      EncodeJson(a => (name -> A.encode(a.head)) ->: T.encode(a.tail))
+
+    def project[F, G](instance: => EncodeJson[G], to : F => G, from : G => F) =
+      instance.contramap(to)
+  }
+
+  def of[A: EncodeJson] =
+    implicitly[EncodeJson[A]]
+
 }
 
-trait EncodeJsons extends GeneratedEncodeJsons {
+trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
 
@@ -113,7 +148,7 @@ trait EncodeJsons extends GeneratedEncodeJsons {
       case Some(a) => e(a)
     })
 
-  implicit def ScalazEitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[A \/ B] =
+  implicit def DisjunctionEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[A \/ B] =
     EncodeJson(_.fold(
       a => jSingleObject("Left", ea(a)),
       b => jSingleObject("Right", eb(b))

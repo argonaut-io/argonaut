@@ -20,10 +20,10 @@ object CodecSpecification extends Specification with ScalaCheck {
     override def equalIsNatural = true
   }
 
-  implicit def ArrayEquality[A: Equal]: Equal[Array[A]] = 
+  implicit def ArrayEquality[A: Equal]: Equal[Array[A]] =
     Equal[List[A]].contramap(_.toList)
 
-  implicit def ArrayBufferEquality[A: Equal]: Equal[ArrayBuffer[A]] = 
+  implicit def ArrayBufferEquality[A: Equal]: Equal[ArrayBuffer[A]] =
     Equal[List[A]].contramap(_.toList)
 
   def encodedecode[A: EncodeJson: DecodeJson: Arbitrary: Equal] =
@@ -33,7 +33,7 @@ object CodecSpecification extends Specification with ScalaCheck {
 
   def is = s2"""
   Codec
-    Unit encode/decode ${encodedecode[Unit]} 
+    Unit encode/decode ${encodedecode[Unit]}
     Json encode/decode ${encodedecode[Json]}
     List[String] encode/decode ${encodedecode[List[String]]}
     List[Int] encode/decode ${encodedecode[List[Int]]}
@@ -70,6 +70,10 @@ object CodecSpecification extends Specification with ScalaCheck {
     Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
     22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}}
     22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
+    Witness Encode/Decode derived together ${ok}
+    Witness Encode/Decode auto together ${ok}
+
+
   """
 
   implicit val jDoubleArbitrary: Arbitrary[java.lang.Double] =
@@ -140,5 +144,35 @@ object CodecSpecification extends Specification with ScalaCheck {
 
   object CodecInstances {
     implicit val testClassEncode: CodecJson[TestClass] = CodecJson.casecodec22(TestClass.apply, TestClass.unapply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
+  }
+
+  object derived {
+    case class Person(name: String, age: Int)
+
+    implicit def PersonEncodeJson: EncodeJson[Person] =
+      EncodeJson.derive[Person]
+
+    implicit def PersonDecodeJson: DecodeJson[Person] =
+      DecodeJson.derive[Person]
+
+    EncodeJson.of[Person]
+    DecodeJson.of[Person]
+
+    CodecJson.derived[Person]
+  }
+
+  object auto {
+    import shapeless._
+    import EncodeJson.auto._
+    import DecodeJson.auto._
+    import StringWrap._
+    import JsonIdentity._
+
+    case class Person(name: String, age: Int)
+
+    EncodeJson.of[Person]
+    DecodeJson.of[Person]
+
+    CodecJson.derived[Person]
   }
 }
