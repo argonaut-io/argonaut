@@ -166,7 +166,7 @@ sealed trait PrettyParams {
       k.fold[StringBuilder](
         builder.append(nullText)
         , bool => builder.append(if (bool) trueText else falseText)
-        , n => builder.append(if (n == n.floor) "%.0f".format(n) else n.toString)
+        , n => builder.append(if (n == n.floor) BigDecimal(n).toBigInt.toString else n.toString)
         , s => encloseJsonString(builder, s)
         , e => {
           rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
