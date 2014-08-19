@@ -11,27 +11,28 @@ object JsonInterpolatorSpecification extends Specification {
       "name" := "fred",
       "age" := 23,
       "wallet" := List(
-        Json( "value" := 100 ),
-        Json( "value" := 10 ),
-        Json( "value" := 50 )
+        Json("value" := 100),
+        Json("value" := 10),
+        Json("value" := 50)
       )
     )
 
+  val age = 23
   val interpolatedJson =
     json"""
           {
-            "name": "fred",
-            "age": 23,
-            "wallet": [
-              { "value": 100 },
-              { "value": 10 },
-              { "value": 50}
-            ]
+              "name": "fred",
+              "age": $age,
+              "wallet": [
+                  { "value": 100 },
+                  { "value": 10  },
+                  { "value": 50  }
+              ]
           }
-          """.getOrElse(throw new Exception())
+        """.getOrElse(throw new Exception())
 
   def is = s2"""
-    Constructed Json matches interpolated Json
-    ${ constructedJson must_== interpolatedJson }
+    Constructed Json matcheshandle(hr.cmd, hr, hr.requestId) interpolated Json
+    ${constructedJson must_== interpolatedJson}
   """
 }

@@ -5,15 +5,17 @@ import scalaz.\/
 trait JsonInterpolator {
 
   implicit class JsonHelper(sc: StringContext) {
-    def json(args: Any*): String \/ Json = {
-      val strings = sc.parts.iterator
-      val expressions = args.iterator
-      var buf = new StringBuffer(strings.next)
-      while (strings.hasNext) {
-        buf append expressions.next
-        buf append strings.next
+    def json(expressions: Any*): String \/ Json = {
+      val stringsItr = sc.parts.iterator
+      val expressionsItr = expressions.iterator
+      
+      // Combine string parts, starting with fencepost
+      var buffer = new StringBuffer(stringsItr.next)
+      while (stringsItr.hasNext) {
+        buffer.append(expressionsItr.next)
+        buffer.append(stringsItr.next)
       }
-      Parse.parse(buf.toString)
+      Parse.parse(buffer.toString)
     }
   }
 
