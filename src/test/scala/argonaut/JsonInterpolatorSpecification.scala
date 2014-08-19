@@ -32,7 +32,7 @@ object JsonInterpolatorSpecification extends Specification {
         """.getOrElse(throw new Exception())
 
   def is = s2"""
-    Constructed Json matcheshandle(hr.cmd, hr, hr.requestId) interpolated Json
+    Constructed Json matches interpolated Json
     ${constructedJson must_== interpolatedJson}
   """
 }
