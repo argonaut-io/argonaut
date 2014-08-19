@@ -173,9 +173,9 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   } ^ end
   val numbers: Fragments = "number printing" ^
     "whole number pretty print" ! prop{(n: Long) =>
-      jNumberOrNull(n).nospaces === "%.0f".format(n.toDouble)
+      jNumber(JsonNumberDouble(n)).nospaces === "%.0f".format(n.toDouble)
     } ^
     "fractional number pretty print" ! forAll(arbitrary[(Double, Double)].filter{case (first, second) => second != 0}.map(pair => pair._1 / pair._2).filter(d => d != d.floor)){d =>
-      jNumberOrNull(d).nospaces === d.toString
+      jNumber(JsonNumberDouble(d)).nospaces === d.toString
     } ^ end
 }
