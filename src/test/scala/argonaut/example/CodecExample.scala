@@ -35,5 +35,21 @@ object CodecExample extends Specification {
 
     encodeDecode("""{"name":"Fred","age":40}""")
   }
+  Object codec with filtering ${
+    implicit val DecodePersonOver30: DecodeJson[Person] =
+      DecodeJson(c =>
+        for {
+          name <- (c --\ "name").as[String]
+          age <- (c --\ "age").as[Int] if age > 30
+        } yield Person(name, age)
+      )
+
+    implicit val EncodePerson: EncodeJson[Person] =
+      jencode2L((p: Person) => (p.name, p.age))("name", "age")
+
+    encodeDecode("""{"name":"Fred","age":40}""")
+    
+    """{"name":"Fred","age":20}""".decodeOption[Person] must beNone
+  }
   """
 }
