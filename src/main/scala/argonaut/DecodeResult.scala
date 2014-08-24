@@ -20,6 +20,12 @@ case class DecodeResult[A](result:  (String, CursorHistory) \/ A) {
   def flatMap[B](f: A => DecodeResult[B]): DecodeResult[B] =
     DecodeResult(result flatMap (f(_).result))
 
+  def filter(f: A => Boolean) =
+    DecodeResult(result filter f)
+
+  def withFilter(f: A => Boolean) =
+    filter(f)
+
   def message: Option[String] =
     failure map (_._1)
 
