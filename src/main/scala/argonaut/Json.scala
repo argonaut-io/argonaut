@@ -149,25 +149,25 @@ sealed trait Json {
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
    */
-  def ->:(k: => JsonAssoc): Json =
+  def ->:(k: JsonAssoc): Json =
     withObject(o => (k._1, k._2) +: o)
 
   /**
    * If this is a JSON object, and the association is set, then prepend the given value, otherwise, return a JSON object with only the given value.
    */
-  def ->?:(o: => Option[JsonAssoc]): Json =
+  def ->?:(o: Option[JsonAssoc]): Json =
     o.map(->:(_)).getOrElse(this)
 
   /**
    * If this is a JSON array, then prepend the given value, otherwise, return a JSON array with only the given value.
    */
-  def -->>:(k: => Json): Json =
+  def -->>:(k: Json): Json =
     withArray(k :: _)
 
   /**
    * If this is a JSON array, and the element is set, then prepend the given value, otherwise, return a JSON array with only the given value.
    */
-  def -->>?:(o: => Option[Json]): Json =
+  def -->>?:(o: Option[Json]): Json =
     o.map(j => withArray(j :: _)).getOrElse(this)
 
   /**
