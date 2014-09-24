@@ -175,7 +175,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     "whole number pretty print" ! prop{(n: Long) =>
       jNumberOrNull(n).nospaces === n.toString
     } ^
-    "fractional number pretty print" ! forAll(arbitrary[(Double, Double)].filter{case (first, second) => second != 0}.map(pair => pair._1 / pair._2).filter(d => d != d.floor)){d =>
+    "fractional number pretty print" ! prop{(d: Double) =>
       jNumberOrNull(d).nospaces === d.toString
     } ^ end
 }
