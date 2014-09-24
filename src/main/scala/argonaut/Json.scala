@@ -263,7 +263,7 @@ sealed trait Json {
    * Returns this JSON number object or the value `0` if it is not a number.
    */
   def numberOrZero: JsonNumber =
-    numberOr(0D)
+    numberOr(JsonLong(0L))
 
   /**
    * Returns the string of this JSON value, or an empty string if this JSON value is not a string.
@@ -497,7 +497,6 @@ trait Jsons {
   type JsonField = String
   type JsonAssoc = (JsonField, Json)
   type JsonObjectMap = scalaz.InsertionMap[JsonField, Json]
-  type JsonNumber = Double
 
   import PLens._, StoreT._
 
@@ -516,13 +515,27 @@ trait Jsons {
    * Note: It is an invalid Prism for NaN, +Infinity and -Infinity as they are not valid json.
    */
   def jDoublePrism: SimplePrism[Json, Double] =
-    SimplePrism[Json, Double](d => JNumber(d), _.fold(None, _ => None, n => Some(n), _ => None, _ => None, _ => None))
+    SimplePrism[Json, Double](
+      d => JNumber(JsonDouble(d)),
+      _.fold(None,
+             _ => None,
+             n => Some(n.toDouble),
+             _ => None,
+             _ => None,
+             _ => None))
 
   /**
    * A Prism for JSON integer values.
    */
   def jIntPrism: SimplePrism[Json, Int] =
-    SimplePrism[Json, Int](i => JNumber(i.toDouble), _.fold(None, _ => None, n => safeCast[Double, Int].getOption(n), _ => None, _ => None, _ => None))
+    SimplePrism[Json, Int](
+      i => JNumber(JsonLong(i.toLong)),
+      _.fold(None,
+             _ => None,
+             n => n.safeInt,
+             _ => None,
+             _ => None,
+             _ => None))
 
   /**
    * A Prism for JSON string values.
@@ -626,9 +639,7 @@ trait Jsons {
    *
    * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  val jNumber: JsonNumber => Option[Json] =
-    number =>
-      (!number.isNaN && !number.isInfinity).option(JNumber(number))
+  def jNumber(n: Int): Option[Json] = JsonLong(n).asJson
 
   /**
    * Construct a JSON value that is a number. Transforming
@@ -636,8 +647,7 @@ trait Jsons {
    * the behaviour of most browsers, but is a lossy operation
    * as you can no longer distinguish between NaN and Infinity.
    */
-  val jNumberOrNull: JsonNumber => Json =
-    number => jNumber(number).getOrElse(jNull)
+  def jNumberOrNull(n: Int): Json = JsonLong(n).asJsonOrNull
 
   /**
    * Construct a JSON value that is a number. Transforming
@@ -648,8 +658,59 @@ trait Jsons {
    * interoperability is unlikely without custom handling of
    * these values. See also `jNumber` and `jNumberOrNull`.
    */
-  val jNumberOrString: JsonNumber => Json =
-    number => jNumber(number).getOrElse(jString(number.toString))
+  def jNumberOrString(n: Int): Json = JsonLong(n).asJsonOrString
+
+  /**
+   * Construct a JSON value that is a number.
+   *
+   * Note: NaN, +Infinity and -Infinity are not valid json.
+   */
+  def jNumber(n: Long): Option[Json] = JsonLong(n).asJson
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to jNull. This matches
+   * the behaviour of most browsers, but is a lossy operation
+   * as you can no longer distinguish between NaN and Infinity.
+   */
+  def jNumberOrNull(n: Long): Json = JsonLong(n).asJsonOrNull
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to their string implementations.
+   *
+   * This is an argonaut specific transformation that allows all
+   * doubles to be encoded without losing information, but aware
+   * interoperability is unlikely without custom handling of
+   * these values. See also `jNumber` and `jNumberOrNull`.
+   */
+  def jNumberOrString(n: Long): Json = JsonLong(n).asJsonOrString
+
+  /**
+   * Construct a JSON value that is a number.
+   *
+   * Note: NaN, +Infinity and -Infinity are not valid json.
+   */
+  def jNumber(n: Double): Option[Json] = JsonDouble(n).asJson
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to jNull. This matches
+   * the behaviour of most browsers, but is a lossy operation
+   * as you can no longer distinguish between NaN and Infinity.
+   */
+  def jNumberOrNull(n: Double): Json = JsonDouble(n).asJsonOrNull
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to their string implementations.
+   *
+   * This is an argonaut specific transformation that allows all
+   * doubles to be encoded without losing information, but aware
+   * interoperability is unlikely without custom handling of
+   * these values. See also `jNumber` and `jNumberOrNull`.
+   */
+  def jNumberOrString(n: Double): Json = JsonDouble(n).asJsonOrString
 
   /**
    * Construct a JSON value that is a string.
@@ -685,7 +746,7 @@ trait Jsons {
    * A JSON value that is a zero number.
    */
   val jZero: Json =
-    JNumber(0D)
+    JNumber(JsonLong(0L))
 
   /**
    * A JSON value that is an empty string.
@@ -749,7 +810,7 @@ trait Jsons {
         a1 match {
               case JNull      => a2.isNull
               case JBool(b)   => a2.bool exists (_ == b)
-              case JNumber(n) => a2.number exists (_ == n)
+              case JNumber(n) => a2.number exists (_ === n)
               case JString(s) => a2.string exists (_ == s)
               case JArray(a)  => a2.array exists (_ === a)
               case JObject(o) => a2.obj exists (_ === o)

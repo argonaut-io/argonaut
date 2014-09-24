@@ -37,7 +37,7 @@ object KnownResults extends DataTables {
     "1E999"                                                       ! jNumberOrNull("1E999".toDouble)                                                                                       |
     "1E+999"                                                      ! jNumberOrNull("1E+999".toDouble)                                                                                      |
     "1E-999"                                                      ! jNumberOrNull("1E-999".toDouble)                                                                                      |
-    "158699798998941697"                                          ! jNumberOrNull(158699798998941697D)
+    "158699798998941697"                                          ! jNumberOrNull(158699798998941697L)
 
   def parseFailures =
     "JSON"                                            | "parse result"                                                                                |

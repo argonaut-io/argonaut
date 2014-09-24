@@ -150,10 +150,10 @@ object JsonParser {
         if (numberEndIndex == position) unexpectedContent(stream, position)
         else {
           val numberAsString = stream.substring(position, numberEndIndex)
-          numberAsString
-            .parseDouble
-            .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberAsString).left,
-                  doubleValue => \/-((numberEndIndex, jNumberOrNull(doubleValue))))
+          (numberAsString.parseLong.map(JsonLong(_)) orElse
+           numberAsString.parseDouble.map(JsonDouble(_))).fold(
+            nfe => "Value [%s] cannot be parsed into a number.".format(numberAsString).left,
+            jn => \/-((numberEndIndex, jn.asJsonOrNull)))
         }
       }
     }
