@@ -55,6 +55,8 @@ object CodecSpecification extends Specification with ScalaCheck {
     Int encode/decode ${encodedecode[Int]}
     Long encode/decode ${encodedecode[Long]}
     Short encode/decode ${encodedecode[Short]}
+    BigInt encode/decode ${encodedecode[BigInt]}
+    BigDecimal encode/decode ${encodedecode[BigDecimal]}
     Boolean encode/decode ${encodedecode[Boolean]}
     Char encode/decode ${encodedecode[Char]}
     java.lang.Double encode/decode ${encodedecode[java.lang.Double]}
