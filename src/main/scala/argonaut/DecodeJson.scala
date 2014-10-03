@@ -319,4 +319,20 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
 
   implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
     implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
+
+  implicit def IMapDecodeJson[A: DecodeJson: Order]: DecodeJson[String ==>> A] =
+    MapDecodeJson[A].map(a => ==>>.fromList(a.toList)) setName "[A]==>>[String, A]"
+
+  implicit def IListDecodeJson[A: DecodeJson]: DecodeJson[IList[A]] =
+    implicitly[DecodeJson[List[A]]] map (IList.fromList) setName "[A]IList[A]"
+
+  implicit def DListDecodeJson[A: DecodeJson]: DecodeJson[DList[A]] =
+    implicitly[DecodeJson[List[A]]] map (DList.fromList(_)) setName "[A]DList[A]"
+
+  implicit def EphemeralStreamDecodeJson[A: DecodeJson]: DecodeJson[EphemeralStream[A]] =
+    implicitly[DecodeJson[List[A]]] map (list => EphemeralStream.apply(list: _*)) setName "[A]EphemeralStream[A]"
+
+  implicit def ISetDecodeJson[A: DecodeJson: Order]: DecodeJson[ISet[A]] =
+    implicitly[DecodeJson[List[A]]] map (ISet.fromList(_)) setName "[A]ISet[A]"
+
 }

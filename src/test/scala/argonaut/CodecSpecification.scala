@@ -6,6 +6,7 @@ import scala.collection.immutable.SortedSet
 import scala.collection.mutable.ArrayBuffer
 import scalaz._, Scalaz._
 import scalaz.scalacheck.ScalaCheckBinding._
+import scalaz.scalacheck.ScalazArbitrary.{UnitArbitrary => _, _}
 import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
 
@@ -65,6 +66,11 @@ object CodecSpecification extends Specification with ScalaCheck {
     String \\/ Int encode/decode ${encodedecode[String \/ Int]}
     Map[String, Int] encode/decode ${encodedecode[Map[String, Int]]}
     Set[String] encode/decode ${encodedecode[Set[String]]}
+    ISet[Int] encode/decode ${encodedecode[ISet[Int]]}
+    IList[Int] encode/decode ${encodedecode[IList[Int]]}
+    DList[Int] encode/decode ${encodedecode[DList[Int]]}
+    EphemeralStream[Int] encode/decode ${encodedecode[EphemeralStream[Int]]}
+    IMap[String, Int] encode/decode ${encodedecode[IMap[String, Int]]}
     Tuple2[String, Int] encode/decode ${encodedecode[Tuple2[String, Int]]}
     Tuple3[String, Int, Boolean] encode/decode ${encodedecode[Tuple3[String, Int, Boolean]]}
     Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
