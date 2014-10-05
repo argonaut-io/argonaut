@@ -84,6 +84,9 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
 
+  def fromFoldable[F[_], A](implicit A: EncodeJson[A], F: Foldable[F]): EncodeJson[F[A]] =
+    EncodeJson(fa => jArray(F.foldLeft(fa, Nil: List[Json])((list, a) => A.encode(a) :: list).reverse))
+
   implicit val JsonEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q)
 
@@ -170,6 +173,25 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
       x.toList map {
         case (k, v) => (k, e(v))
       }
+    ))
+
+  implicit def IListEncodeJson[A: EncodeJson]: EncodeJson[IList[A]] =
+    fromFoldable[IList, A]
+
+  implicit def DListEncodeJson[A: EncodeJson]: EncodeJson[DList[A]] =
+    fromFoldable[DList, A]
+
+  implicit def EphemeralStreamEncodeJson[A: EncodeJson]: EncodeJson[EphemeralStream[A]] =
+    fromFoldable[EphemeralStream, A]
+
+  implicit def ISetEncodeJson[A: EncodeJson]: EncodeJson[ISet[A]] =
+    fromFoldable[ISet, A]
+
+  implicit def IMapEncodeJson[A](implicit A: EncodeJson[A]): EncodeJson[String ==>> A] =
+    EncodeJson(x => jObjectAssocList(
+      x.foldrWithKey(Nil: List[(String, Json)])(
+        (k, v, list) => (k, A(v)) :: list
+      )
     ))
 
   implicit val EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
