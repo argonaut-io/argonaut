@@ -13,6 +13,8 @@ object PrettyParamsExample extends Specification {
   implicit val PersonCodecJson: CodecJson[Person] = casecodec4(Person.apply, Person.unapply)("name", "age", "address", "favouriteNumbers")
 
   val person = Person("fred", 23, Some(Address("street", 123, None)), Some(List(1, 2, 3)))
+  val personNoFavouriteNumbers = person.copy(favouriteNumbers = None)
+
   val prettyParams = PrettyParams.spaces2.copy(preserveOrder = true)
 
   val defaultPrettyParams2Spaces = prettyParams
@@ -51,12 +53,27 @@ object PrettyParamsExample extends Specification {
   |}
   """.trim.stripMargin
 
+  val prettyParamsDropNullKeys = prettyParams.copy(dropNullKeys = true)
+  val prettyParamsDropNullKeysJson = """
+  |{
+  |  "name" : "fred",
+  |  "age" : 23,
+  |  "address" : {
+  |    "street" : "street",
+  |    "number" : 123
+  |  }
+  |}
+  """.trim.stripMargin
+
   def is = s2"""
   Can print default pretty params with 2 spaces ${
     person.asJson.pretty(defaultPrettyParams2Spaces) must_== defaultPrettyParams2SpacesJson
   }
   Can print default pretty params with 2 spaces no space before colon ${
     person.asJson.pretty(defaultPrettyParams2SpacesNoSpaceBeforeColon) must_== defaultPrettyParams2SpacesNoSpaceBeforeColonJson
+  }
+  Can print default pretty params with 2 spaces with no null keys ${
+    personNoFavouriteNumbers.asJson.pretty(prettyParamsDropNullKeys) must_== prettyParamsDropNullKeysJson
   }
   """
 }

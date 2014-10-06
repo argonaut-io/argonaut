@@ -23,6 +23,7 @@ import monocle.Macro._
  * @param colonLeft Spaces to insert to left of a colon.
  * @param colonRight Spaces to insert to right of a colon.
  * @param preserveOrder Determines if field ordering should be preserved.
+ * @param dropNullKeys Determines if object fields with values of null are dropped from the output.
  */
 case class PrettyParams(
     indent: String
@@ -39,6 +40,7 @@ case class PrettyParams(
   , colonLeft: String
   , colonRight: String
   , preserveOrder: Boolean
+  , dropNullKeys: Boolean
 ) {
 
   private[this] final val openBraceText = "{"
@@ -169,9 +171,13 @@ case class PrettyParams(
         }
         , o => {
           rbrace((if (preserveOrder) o.toList else o.toMap).foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
-            val withComma = if(firstElement) builder else comma(builder)
-            val updatedBuilder = trav(colon(encloseJsonString(withComma, key)), depth + 1, value)
-            (false, updatedBuilder)
+            val ignoreKey = dropNullKeys && value.isNull
+            if (ignoreKey) {
+              (firstElement, builder)
+            } else {
+              val withComma = if (firstElement) builder else comma(builder)
+              (false, trav(colon(encloseJsonString(withComma, key)), depth + 1, value))
+            }
           }._2)
         }
       )
@@ -233,6 +239,7 @@ trait PrettyParamss {
     , colonLeft = ""
     , colonRight = ""
     , preserveOrder = false
+    , dropNullKeys = false
     )
 
   /**
@@ -254,6 +261,7 @@ trait PrettyParamss {
     , colonLeft = " "
     , colonRight = " "
     , preserveOrder = false
+    , dropNullKeys = false
     )
 
   /**
@@ -282,4 +290,5 @@ trait PrettyParamss {
   val colonLeftL = mkLens[PrettyParams, String]("colonLeft")
   val colonRightL = mkLens[PrettyParams, String]("colonRight")
   val preserveOrderL = mkLens[PrettyParams, Boolean]("preserveOrder")
+  val dropNullKeysL = mkLens[PrettyParams, Boolean]("dropNullKeys")
 }

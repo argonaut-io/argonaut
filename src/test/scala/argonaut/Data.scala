@@ -139,6 +139,7 @@ object Data {
       colonLeft <- arbitrary[String]
       colonRight <- arbitrary[String]
       preserveOrder <- arbitrary[Boolean]
+      dropNullKeys <- arbitrary[Boolean]
     } yield PrettyParams(
       indent = indent
     , lbraceLeft = lbraceLeft
@@ -154,6 +155,7 @@ object Data {
     , colonLeft = colonLeft
     , colonRight = colonRight
     , preserveOrder = preserveOrder
+    , dropNullKeys = dropNullKeys
     )
   )
 }
