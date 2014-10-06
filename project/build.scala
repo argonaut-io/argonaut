@@ -15,6 +15,7 @@ object build extends Build {
 
   val scalazVersion              = "7.1.0"
   val paradiseVersion            = "2.0.1"
+  val monocleVersion             = "0.5.0"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.5"                 % "test"
@@ -22,7 +23,9 @@ object build extends Build {
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
-  val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5.0"
+  val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
+  val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
+  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-compiler" % v,
@@ -48,6 +51,8 @@ object build extends Build {
         scalaz
       , scalazScalaCheckBinding
       , monocle
+      , monocleMacro
+      , monocleLaw
       , scalacheck
       , specs2Scalacheck
       ) ++ reflect(scalaVersion.value)
@@ -65,7 +70,6 @@ object build extends Build {
   val benchmark = Project(
     id = "benchmark"
   , base = file("benchmark")
-  , dependencies = Seq(argonaut)
   , settings = base ++ Seq[Sett](
       name := "argonaut-benchmark"
     , resolvers += Resolver.sonatypeRepo("releases")
@@ -75,7 +79,7 @@ object build extends Build {
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }
     , scalacOptions += "-language:_"
     )
-  )
+  ) dependsOn (argonaut)
 
   val doc = Project(
     id = "doc"

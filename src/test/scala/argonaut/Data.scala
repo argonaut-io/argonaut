@@ -266,6 +266,20 @@ object Data {
       colonLeft <- arbitrary[Int => String]
       colonRight <- arbitrary[Int => String]
       preserveOrder <- arbitrary[Boolean]
-    } yield PrettyParams(lbraceLeft, lbraceRight, rbraceLeft, rbraceRight, lbracketLeft, lbracketRight, rbracketLeft, rbracketRight, commaLeft, commaRight, colonLeft, colonRight, preserveOrder)
+    } yield PrettyParams(
+      lbraceLeft = lbraceLeft
+    , lbraceRight = lbraceRight
+    , rbraceLeft = rbraceLeft
+    , rbraceRight = rbraceRight
+    , lbracketLeft = lbracketLeft
+    , lbracketRight = lbracketRight
+    , rbracketLeft = rbracketLeft
+    , rbracketRight = rbracketRight
+    , commaLeft = commaLeft
+    , commaRight = commaRight
+    , colonLeft = colonLeft
+    , colonRight = colonRight
+    , preserveOrder = preserveOrder
+    )
   )
 }
