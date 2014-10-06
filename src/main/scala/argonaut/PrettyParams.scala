@@ -18,8 +18,10 @@ import monocle.Macro._
  * @param lbracketRight Spaces to insert to right of a left bracket.
  * @param rbracketLeft Spaces to insert to left of a right bracket.
  * @param rbracketRight Spaces to insert to right of a right bracket.
- * @param commaLeft Spaces to insert to left of a comma.
- * @param commaRight Spaces to insert to right of a comma.
+ * @param arrayCommaLeft Spaces to insert to left of a comma in an array.
+ * @param arrayCommaRight Spaces to insert to right of a comma in an array.
+ * @param objectCommaLeft Spaces to insert to left of a comma in an object.
+ * @param objectCommaRight Spaces to insert to right of a comma in an object.
  * @param colonLeft Spaces to insert to left of a colon.
  * @param colonRight Spaces to insert to right of a colon.
  * @param preserveOrder Determines if field ordering should be preserved.
@@ -35,8 +37,10 @@ case class PrettyParams(
   , lbracketRight: String
   , rbracketLeft: String
   , rbracketRight: String
-  , commaLeft: String
-  , commaRight: String
+  , arrayCommaLeft: String
+  , arrayCommaRight: String
+  , objectCommaLeft: String
+  , objectCommaRight: String
   , colonLeft: String
   , colonRight: String
   , preserveOrder: Boolean
@@ -62,8 +66,10 @@ case class PrettyParams(
   private[this] val _lbracketRight = addIndentation(lbracketRight)
   private[this] val _rbracketLeft = addIndentation(rbracketLeft)
   private[this] val _rbracketRight = addIndentation(rbracketRight)
-  private[this] val _commaLeft = addIndentation(commaLeft)
-  private[this] val _commaRight = addIndentation(commaRight)
+  private[this] val _arrayCommaLeft = addIndentation(arrayCommaLeft)
+  private[this] val _arrayCommaRight = addIndentation(arrayCommaRight)
+  private[this] val _objectCommaLeft = addIndentation(objectCommaLeft)
+  private[this] val _objectCommaRight = addIndentation(objectCommaRight)
   private[this] val _colonLeft = addIndentation(colonLeft)
   private[this] val _colonRight = addIndentation(colonRight)
 
@@ -103,7 +109,8 @@ case class PrettyParams(
   private[this] final val rbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(_rbraceLeft(depth), closeBraceText, _rbraceRight(depth + 1))}
   private[this] final val lbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(_lbracketLeft(depth), openArrayText, _lbracketRight(depth + 1))}
   private[this] final val rbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(_rbracketLeft(depth), closeArrayText, _rbracketRight(depth))}
-  private[this] final val commaMemo = vectorMemo(){depth: Int => "%s%s%s".format(_commaLeft(depth + 1), commaText, _commaRight(depth + 1))}
+  private[this] final val arrayCommaMemo = vectorMemo(){depth: Int => "%s%s%s".format(_arrayCommaLeft(depth + 1), commaText, _arrayCommaRight(depth + 1))}
+  private[this] final val objectCommaMemo = vectorMemo(){depth: Int => "%s%s%s".format(_objectCommaLeft(depth + 1), commaText, _objectCommaRight(depth + 1))}
   private[this] final val colonMemo = vectorMemo(){depth: Int => "%s%s%s".format(_colonLeft(depth + 1), colonText, _colonRight(depth + 1))}
 
   /**
@@ -150,8 +157,11 @@ case class PrettyParams(
       def rbracket(builder: StringBuilder): StringBuilder = {
         builder.append(rbracketMemo(depth))
       }
-      def comma(builder: StringBuilder): StringBuilder = {
-        builder.append(commaMemo(depth))
+      def arrayComma(builder: StringBuilder): StringBuilder = {
+        builder.append(arrayCommaMemo(depth))
+      }
+      def objectComma(builder: StringBuilder): StringBuilder = {
+        builder.append(objectCommaMemo(depth))
       }
       def colon(builder: StringBuilder): StringBuilder = {
         builder.append(colonMemo(depth))
@@ -164,7 +174,7 @@ case class PrettyParams(
         , s => encloseJsonString(builder, s)
         , e => {
           rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
-            val withComma = if(firstElement) builder else comma(builder)
+            val withComma = if (firstElement) builder else arrayComma(builder)
             val updatedBuilder = trav(withComma, depth + 1, subElement)
             (false, updatedBuilder)
           }._2)
@@ -175,7 +185,7 @@ case class PrettyParams(
             if (ignoreKey) {
               (firstElement, builder)
             } else {
-              val withComma = if (firstElement) builder else comma(builder)
+              val withComma = if (firstElement) builder else objectComma(builder)
               (false, trav(colon(encloseJsonString(withComma, key)), depth + 1, value))
             }
           }._2)
@@ -234,8 +244,10 @@ trait PrettyParamss {
     , lbracketRight = ""
     , rbracketLeft = ""
     , rbracketRight = ""
-    , commaLeft = ""
-    , commaRight = ""
+    , arrayCommaLeft = ""
+    , arrayCommaRight = ""
+    , objectCommaLeft = ""
+    , objectCommaRight = ""
     , colonLeft = ""
     , colonRight = ""
     , preserveOrder = false
@@ -256,8 +268,10 @@ trait PrettyParamss {
     , lbracketRight = "\n"
     , rbracketLeft = "\n"
     , rbracketRight = ""
-    , commaLeft = ""
-    , commaRight = "\n"
+    , arrayCommaLeft = ""
+    , arrayCommaRight = "\n"
+    , objectCommaLeft = ""
+    , objectCommaRight = "\n"
     , colonLeft = " "
     , colonRight = " "
     , preserveOrder = false
@@ -285,8 +299,10 @@ trait PrettyParamss {
   val lbracketRightL = mkLens[PrettyParams, String]("lbracketRight")
   val rbracketLeftL = mkLens[PrettyParams, String]("rbracketLeft")
   val rbracketRightL = mkLens[PrettyParams, String]("rbracketRight")
-  val commaLeftL = mkLens[PrettyParams, String]("commaLeft")
-  val commaRightL = mkLens[PrettyParams, String]("commaRight")
+  val arrayCommaLeftL = mkLens[PrettyParams, String]("arrayCommaLeft")
+  val arrayCommaRightL = mkLens[PrettyParams, String]("arrayCommaRight")
+  val objectCommaLeftL = mkLens[PrettyParams, String]("objectCommaLeft")
+  val objectCommaRightL = mkLens[PrettyParams, String]("objectCommaRight")
   val colonLeftL = mkLens[PrettyParams, String]("colonLeft")
   val colonRightL = mkLens[PrettyParams, String]("colonRight")
   val preserveOrderL = mkLens[PrettyParams, Boolean]("preserveOrder")
