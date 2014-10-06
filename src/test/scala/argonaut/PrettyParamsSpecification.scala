@@ -29,14 +29,15 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   }
 
   val jsonSpacesMap: Map[Int, String] = Map(
-    0 -> """{"key1":"value1","key2":[9,21,0]}""",
+    0 -> """{"key1":"value1","key2":[9,21,0],"key3":null}""",
     2 -> """|{
             |  "key1" : "value1",
             |  "key2" : [
             |    9,
             |    21,
             |    0
-            |  ]
+            |  ],
+            |  "key3" : null
             |}""".stripMargin,
     4 -> """|{
             |    "key1" : "value1",
@@ -44,7 +45,8 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
             |        9,
             |        21,
             |        0
-            |    ]
+            |    ],
+            |    "key3" : null
             |}""".stripMargin
   )
 
@@ -63,6 +65,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     colonLeft         $colonLeftLens
     colonRight        $colonRightLens
     preserveOrder     $preserveOrderLens
+    dropNullKeys      $dropNullKeysLens
 
   Indentation
     lbraceLeft        $lbraceLeftIndent
@@ -87,6 +90,16 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   Number Printing
     whole number pretty print       $numberPrintingWholeNumber
     fractional number pretty print  $numberPrintingFractionalNumber
+
+  Null keys
+    null keys are present when all keys are null       ${nullKeys.onlyNullKey}
+    null keys are present when first key is null       ${nullKeys.firstKeyNull}
+    null keys are present when middle key is null      ${nullKeys.middleKeyNull}
+    null keys are present when last key is null        ${nullKeys.lastKeyNull}
+    null keys are not present when all keys are null   ${noNullKeys.onlyNullKey}
+    null keys are not present when first key is null   ${noNullKeys.firstKeyNull}
+    null keys are not present when middle key is null  ${noNullKeys.middleKeyNull}
+    null keys are not present when last key is null    ${noNullKeys.lastKeyNull}
   """
 
   def lbraceLeftLens = LensLaws(PrettyParams.lbraceLeftL)
@@ -102,6 +115,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   def colonLeftLens = LensLaws(PrettyParams.colonLeftL)
   def colonRightLens = LensLaws(PrettyParams.colonRightL)
   def preserveOrderLens = LensLaws(PrettyParams.preserveOrderL)
+  def dropNullKeysLens = LensLaws(PrettyParams.dropNullKeysL)
 
   def lbraceLeftIndent = prop{(indent: String) =>
     val prettyParams = PrettyParams.nospace.copy(lbraceLeft = indent)
@@ -181,5 +195,31 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   }
   def numberPrintingFractionalNumber = forAll(arbitrary[(Double, Double)].filter{case (first, second) => second != 0}.map(pair => pair._1 / pair._2).filter(d => d != d.floor)){d =>
     jNumberOrNull(d).nospaces === d.toString
+  }
+
+  val nullKeys = NullKey(
+      dropNullKeys = false
+    , onlyNullKeyExpected = """{"testNullKey":null}"""
+    , firstKeyNullExpected = """{"testNullKey":null,"test":"value","testTwo":"valueTwo"}"""
+    , middleKeyNullExpected = """{"test":"value","testNullKey":null,"testTwo":"valueTwo"}"""
+    , lastKeyNullExpected = """{"test":"value","testTwo":"valueTwo","testNullKey":null}"""
+  )
+  val noNullKeys = {
+    val result = """{"test":"value","testTwo":"valueTwo"}"""
+    NullKey(
+      dropNullKeys = true
+    , onlyNullKeyExpected = """{}"""
+    , firstKeyNullExpected = result
+    , middleKeyNullExpected = result
+    , lastKeyNullExpected = result
+    )
+  }
+  case class NullKey(dropNullKeys: Boolean, onlyNullKeyExpected: String, firstKeyNullExpected: String, middleKeyNullExpected: String, lastKeyNullExpected: String) {
+    val prettyParams = PrettyParams.nospace.copy(preserveOrder = true, dropNullKeys = dropNullKeys)
+
+    def onlyNullKey = prettyParams.pretty(("testNullKey" := jNull) ->: jEmptyObject) === onlyNullKeyExpected
+    def firstKeyNull = prettyParams.pretty(("testNullKey" := jNull) ->: ("test" := "value") ->: ("testTwo" := "valueTwo") ->: jEmptyObject) === firstKeyNullExpected
+    def middleKeyNull = prettyParams.pretty(("test" := "value") ->: ("testNullKey" := jNull) ->: ("testTwo" := "valueTwo") ->: jEmptyObject) === middleKeyNullExpected
+    def lastKeyNull = prettyParams.pretty(("test" := "value") ->: ("testTwo" := "valueTwo") ->: ("testNullKey" := jNull) ->: jEmptyObject) === lastKeyNullExpected
   }
 }
