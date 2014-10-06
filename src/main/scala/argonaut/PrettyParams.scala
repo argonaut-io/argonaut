@@ -9,33 +9,35 @@ import monocle.Macro._
  *
  * @author Tony Morris
  *
- * @param lbraceLeft Takes the current depth and returns the spaces to insert to left of a left brace.
- * @param lbraceRight Takes the current depth and returns the spaces to insert to right of a left brace.
- * @param rbraceLeft Takes the current depth and returns the spaces to insert to left of a right brace.
- * @param rbraceRight Takes the current depth and returns the spaces to insert to right of a right brace.
- * @param lbracketLeft Takes the current depth and returns the spaces to insert to left of a left bracket.
- * @param lbracketRight Takes the current depth and returns the spaces to insert to right of a left bracket.
- * @param rbracketLeft Takes the current depth and returns the spaces to insert to left of a right bracket.
- * @param rbracketRight Takes the current depth and returns the spaces to insert to right of a right bracket.
- * @param commaLeft Takes the current depth and returns the spaces to insert to left of a comma.
- * @param commaRight Takes the current depth and returns the spaces to insert to right of a comma.
- * @param colonLeft Takes the current depth and returns the spaces to insert to left of a colon.
- * @param colonRight Takes the current depth and returns the spaces to insert to right of a colon.
- * @param preserveOrder Determines if the field ordering should be preserved.
+ * @param indent The indentation to use if any format strings contain a new line.
+ * @param lbraceLeft Spaces to insert to left of a left brace.
+ * @param lbraceRight Spaces to insert to right of a left brace.
+ * @param rbraceLeft Spaces to insert to left of a right brace.
+ * @param rbraceRight Spaces to insert to right of a right brace.
+ * @param lbracketLeft Spaces to insert to left of a left bracket.
+ * @param lbracketRight Spaces to insert to right of a left bracket.
+ * @param rbracketLeft Spaces to insert to left of a right bracket.
+ * @param rbracketRight Spaces to insert to right of a right bracket.
+ * @param commaLeft Spaces to insert to left of a comma.
+ * @param commaRight Spaces to insert to right of a comma.
+ * @param colonLeft Spaces to insert to left of a colon.
+ * @param colonRight Spaces to insert to right of a colon.
+ * @param preserveOrder Determines if field ordering should be preserved.
  */
 case class PrettyParams(
-    lbraceLeft: Int => String
-  , lbraceRight: Int => String
-  , rbraceLeft: Int => String
-  , rbraceRight: Int => String
-  , lbracketLeft: Int => String
-  , lbracketRight: Int => String
-  , rbracketLeft: Int => String
-  , rbracketRight: Int => String
-  , commaLeft: Int => String
-  , commaRight: Int => String
-  , colonLeft: Int => String
-  , colonRight: Int => String
+    indent: String
+  , lbraceLeft: String
+  , lbraceRight: String
+  , rbraceLeft: String
+  , rbraceRight: String
+  , lbracketLeft: String
+  , lbracketRight: String
+  , rbracketLeft: String
+  , rbracketRight: String
+  , commaLeft: String
+  , commaRight: String
+  , colonLeft: String
+  , colonRight: String
   , preserveOrder: Boolean
 ) {
 
@@ -49,6 +51,31 @@ case class PrettyParams(
   private[this] final val trueText = "true"
   private[this] final val falseText = "false"
   private[this] final val stringEnclosureText = "\""
+
+  private[this] val _lbraceLeft = addIndentation(lbraceLeft)
+  private[this] val _lbraceRight = addIndentation(lbraceRight)
+  private[this] val _rbraceLeft = addIndentation(rbraceLeft)
+  private[this] val _rbraceRight = addIndentation(rbraceRight)
+  private[this] val _lbracketLeft = addIndentation(lbracketLeft)
+  private[this] val _lbracketRight = addIndentation(lbracketRight)
+  private[this] val _rbracketLeft = addIndentation(rbracketLeft)
+  private[this] val _rbracketRight = addIndentation(rbracketRight)
+  private[this] val _commaLeft = addIndentation(commaLeft)
+  private[this] val _commaRight = addIndentation(commaRight)
+  private[this] val _colonLeft = addIndentation(colonLeft)
+  private[this] val _colonRight = addIndentation(colonRight)
+
+  private[this] def addIndentation(s: String): Int => String = {
+    val lastNewLineIndex = s.lastIndexOf("\n")
+    if (lastNewLineIndex < 0) {
+      _ => s
+    } else {
+      val afterLastNewLineIndex = lastNewLineIndex + 1
+      val start = s.substring(0, afterLastNewLineIndex)
+      val end = s.substring(afterLastNewLineIndex)
+      n => start + indent * n + end
+    }
+  }
 
   import Memo._
 
@@ -70,12 +97,12 @@ case class PrettyParams(
   }
 
   // TODO: Vector based memoisation.
-  private[this] final val lbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(lbraceLeft(depth), openBraceText, lbraceRight(depth + 1))}
-  private[this] final val rbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(rbraceLeft(depth + 1), closeBraceText, rbraceRight(depth + 1))}
-  private[this] final val lbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(lbracketLeft(depth), openArrayText, lbracketRight(depth + 1))}
-  private[this] final val rbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(rbracketLeft(depth + 1), closeArrayText, rbracketRight(depth))}
-  private[this] final val commaMemo = vectorMemo(){depth: Int => "%s%s%s".format(commaLeft(depth + 1), commaText, commaRight(depth + 1))}
-  private[this] final val colonMemo = vectorMemo(){depth: Int => "%s%s%s".format(colonLeft(depth + 1), colonText, colonRight(depth + 1))}
+  private[this] final val lbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(_lbraceLeft(depth), openBraceText, _lbraceRight(depth + 1))}
+  private[this] final val rbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(_rbraceLeft(depth), closeBraceText, _rbraceRight(depth + 1))}
+  private[this] final val lbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(_lbracketLeft(depth), openArrayText, _lbracketRight(depth + 1))}
+  private[this] final val rbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(_rbracketLeft(depth), closeArrayText, _rbracketRight(depth))}
+  private[this] final val commaMemo = vectorMemo(){depth: Int => "%s%s%s".format(_commaLeft(depth + 1), commaText, _commaRight(depth + 1))}
+  private[this] final val colonMemo = vectorMemo(){depth: Int => "%s%s%s".format(_colonLeft(depth + 1), colonText, _colonRight(depth + 1))}
 
   /**
    * Returns a string representation of a pretty-printed JSON value.
@@ -191,24 +218,25 @@ object StringEscaping {
 object PrettyParams extends PrettyParamss
 
 trait PrettyParamss {
-  private[this] final val zeroString = (_: Int) => ""
+
   /**
    * A pretty-printer configuration that inserts no spaces.
    */
   final val nospace: PrettyParams =
     PrettyParams(
-      lbraceLeft = zeroString
-    , lbraceRight = zeroString
-    , rbraceLeft = zeroString
-    , rbraceRight = zeroString
-    , lbracketLeft = zeroString
-    , lbracketRight = zeroString
-    , rbracketLeft = zeroString
-    , rbracketRight = zeroString
-    , commaLeft = zeroString
-    , commaRight = zeroString
-    , colonLeft = zeroString
-    , colonRight = zeroString
+      indent = ""
+    , lbraceLeft = ""
+    , lbraceRight = ""
+    , rbraceLeft = ""
+    , rbraceRight = ""
+    , lbracketLeft = ""
+    , lbracketRight = ""
+    , rbracketLeft = ""
+    , rbracketRight = ""
+    , commaLeft = ""
+    , commaRight = ""
+    , colonLeft = ""
+    , colonRight = ""
     , preserveOrder = false
     )
 
@@ -217,18 +245,19 @@ trait PrettyParamss {
    */
   final def pretty(indent: String): PrettyParams =
     PrettyParams(
-      lbraceLeft = zeroString
-    , lbraceRight = n => "\n" + indent * n
-    , rbraceLeft = n => "\n" + indent * (n - 1)
-    , rbraceRight = zeroString
-    , lbracketLeft = zeroString
-    , lbracketRight = n => "\n" + indent * n
-    , rbracketLeft = n => "\n" + indent * (n - 1)
-    , rbracketRight = zeroString
-    , commaLeft = zeroString
-    , commaRight = n => "\n" + indent * n
-    , colonLeft = n => " "
-    , colonRight = n => " "
+      indent = indent
+    , lbraceLeft = ""
+    , lbraceRight = "\n"
+    , rbraceLeft = "\n"
+    , rbraceRight = ""
+    , lbracketLeft = ""
+    , lbracketRight = "\n"
+    , rbracketLeft = "\n"
+    , rbracketRight = ""
+    , commaLeft = ""
+    , commaRight = "\n"
+    , colonLeft = " "
+    , colonRight = " "
     , preserveOrder = false
     )
 
@@ -244,17 +273,18 @@ trait PrettyParamss {
   final val spaces4: PrettyParams =
     pretty("    ")
 
-  val lbraceLeftL = mkLens[PrettyParams, Int => String]("lbraceLeft")
-  val lbraceRightL = mkLens[PrettyParams, Int => String]("lbraceRight")
-  val rbraceLeftL = mkLens[PrettyParams, Int => String]("rbraceLeft")
-  val rbraceRightL = mkLens[PrettyParams, Int => String]("rbraceRight")
-  val lbracketLeftL = mkLens[PrettyParams, Int => String]("lbracketLeft")
-  val lbracketRightL = mkLens[PrettyParams, Int => String]("lbracketRight")
-  val rbracketLeftL = mkLens[PrettyParams, Int => String]("rbracketLeft")
-  val rbracketRightL = mkLens[PrettyParams, Int => String]("rbracketRight")
-  val commaLeftL = mkLens[PrettyParams, Int => String]("commaLeft")
-  val commaRightL = mkLens[PrettyParams, Int => String]("commaRight")
-  val colonLeftL = mkLens[PrettyParams, Int => String]("colonLeft")
-  val colonRightL = mkLens[PrettyParams, Int => String]("colonRight")
+  val indentL = mkLens[PrettyParams, String]("indent")
+  val lbraceLeftL = mkLens[PrettyParams, String]("lbraceLeft")
+  val lbraceRightL = mkLens[PrettyParams, String]("lbraceRight")
+  val rbraceLeftL = mkLens[PrettyParams, String]("rbraceLeft")
+  val rbraceRightL = mkLens[PrettyParams, String]("rbraceRight")
+  val lbracketLeftL = mkLens[PrettyParams, String]("lbracketLeft")
+  val lbracketRightL = mkLens[PrettyParams, String]("lbracketRight")
+  val rbracketLeftL = mkLens[PrettyParams, String]("rbracketLeft")
+  val rbracketRightL = mkLens[PrettyParams, String]("rbracketRight")
+  val commaLeftL = mkLens[PrettyParams, String]("commaLeft")
+  val commaRightL = mkLens[PrettyParams, String]("commaRight")
+  val colonLeftL = mkLens[PrettyParams, String]("colonLeft")
+  val colonRightL = mkLens[PrettyParams, String]("colonRight")
   val preserveOrderL = mkLens[PrettyParams, Boolean]("preserveOrder")
 }

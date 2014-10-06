@@ -253,21 +253,23 @@ object Data {
 
   implicit val ArbitraryPrettyParams: Arbitrary[PrettyParams] = Arbitrary(
     for {
-      lbraceLeft <- arbitrary[Int => String]
-      lbraceRight <- arbitrary[Int => String]
-      rbraceLeft <- arbitrary[Int => String]
-      rbraceRight <- arbitrary[Int => String]
-      lbracketLeft <- arbitrary[Int => String]
-      lbracketRight <- arbitrary[Int => String]
-      rbracketLeft <- arbitrary[Int => String]
-      rbracketRight <- arbitrary[Int => String]
-      commaLeft <- arbitrary[Int => String]
-      commaRight <- arbitrary[Int => String]
-      colonLeft <- arbitrary[Int => String]
-      colonRight <- arbitrary[Int => String]
+      indent <- arbitrary[String]
+      lbraceLeft <- arbitrary[String]
+      lbraceRight <- arbitrary[String]
+      rbraceLeft <- arbitrary[String]
+      rbraceRight <- arbitrary[String]
+      lbracketLeft <- arbitrary[String]
+      lbracketRight <- arbitrary[String]
+      rbracketLeft <- arbitrary[String]
+      rbracketRight <- arbitrary[String]
+      commaLeft <- arbitrary[String]
+      commaRight <- arbitrary[String]
+      colonLeft <- arbitrary[String]
+      colonRight <- arbitrary[String]
       preserveOrder <- arbitrary[Boolean]
     } yield PrettyParams(
-      lbraceLeft = lbraceLeft
+      indent = indent
+    , lbraceLeft = lbraceLeft
     , lbraceRight = lbraceRight
     , rbraceLeft = rbraceLeft
     , rbraceRight = rbraceRight
