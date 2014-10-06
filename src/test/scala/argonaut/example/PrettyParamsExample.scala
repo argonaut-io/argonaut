@@ -65,6 +65,22 @@ object PrettyParamsExample extends Specification {
   |}
   """.trim.stripMargin
 
+  val prettyParamsArrayElementsOnSameLine = prettyParams.copy(arrayCommaRight = " ")
+  val prettyParamsArrayElementsOnSameLineJson = """
+  |{
+  |  "name" : "fred",
+  |  "age" : 23,
+  |  "address" : {
+  |    "street" : "street",
+  |    "number" : 123,
+  |    "unit" : null
+  |  },
+  |  "favouriteNumbers" : [
+  |    1, 2, 3
+  |  ]
+  |}
+  """.trim.stripMargin
+
   def is = s2"""
   Can print default pretty params with 2 spaces ${
     person.asJson.pretty(defaultPrettyParams2Spaces) must_== defaultPrettyParams2SpacesJson
@@ -74,6 +90,9 @@ object PrettyParamsExample extends Specification {
   }
   Can print default pretty params with 2 spaces with no null keys ${
     personNoFavouriteNumbers.asJson.pretty(prettyParamsDropNullKeys) must_== prettyParamsDropNullKeysJson
+  }
+  Can print default pretty params with 2 spaces with array elements on the same line ${
+    person.asJson.pretty(prettyParamsArrayElementsOnSameLine) must_== prettyParamsArrayElementsOnSameLineJson
   }
   """
 }

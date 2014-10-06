@@ -262,8 +262,10 @@ object Data {
       lbracketRight <- arbitrary[String]
       rbracketLeft <- arbitrary[String]
       rbracketRight <- arbitrary[String]
-      commaLeft <- arbitrary[String]
-      commaRight <- arbitrary[String]
+      arrayCommaLeft <- arbitrary[String]
+      arrayCommaRight <- arbitrary[String]
+      objectCommaLeft <- arbitrary[String]
+      objectCommaRight <- arbitrary[String]
       colonLeft <- arbitrary[String]
       colonRight <- arbitrary[String]
       preserveOrder <- arbitrary[Boolean]
@@ -278,8 +280,10 @@ object Data {
     , lbracketRight = lbracketRight
     , rbracketLeft = rbracketLeft
     , rbracketRight = rbracketRight
-    , commaLeft = commaLeft
-    , commaRight = commaRight
+    , arrayCommaLeft = arrayCommaLeft
+    , arrayCommaRight = arrayCommaRight
+    , objectCommaLeft = objectCommaLeft
+    , objectCommaRight = objectCommaRight
     , colonLeft = colonLeft
     , colonRight = colonRight
     , preserveOrder = preserveOrder

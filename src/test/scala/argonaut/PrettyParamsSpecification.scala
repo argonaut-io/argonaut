@@ -60,8 +60,10 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     lbracketRight     $lbracketRightLens
     rbracketLeft      $rbracketLeftLens
     rbracketRight     $rbracketRightLens
-    commaLeft         $commaLeftLens
-    commaRight        $commaRightLens
+    arrayCommaLeft    $arrayCommaLeftLens
+    arrayCommaRight   $arrayCommaRightLens
+    objectCommaLeft   $objectCommaLeftLens
+    objectCommaRight  $objectCommaRightLens
     colonLeft         $colonLeftLens
     colonRight        $colonRightLens
     preserveOrder     $preserveOrderLens
@@ -76,8 +78,10 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     lbracketRight     $lbracketRightIndent
     rbracketLeft      $rbracketLeftIndent
     rbracketRight     $rbracketRightIndent
-    commaLeft         $commaLeftIndent
-    commaRight        $commaRightIndent
+    arrayCommaLeft    $arrayCommaLeftIndent
+    arrayCommaRight   $arrayCommaRightIndent
+    objectCommaLeft   $objectCommaLeftIndent
+    objectCommaRight  $objectCommaRightIndent
     colonLeft         $colonLeftIndent
     colonRight        $colonRightIndent
 
@@ -110,8 +114,10 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   def lbracketRightLens = LensLaws(PrettyParams.lbracketRightL)
   def rbracketLeftLens = LensLaws(PrettyParams.rbracketLeftL)
   def rbracketRightLens = LensLaws(PrettyParams.rbracketRightL)
-  def commaLeftLens = LensLaws(PrettyParams.commaLeftL)
-  def commaRightLens = LensLaws(PrettyParams.commaRightL)
+  def arrayCommaLeftLens = LensLaws(PrettyParams.arrayCommaLeftL)
+  def arrayCommaRightLens = LensLaws(PrettyParams.arrayCommaRightL)
+  def objectCommaLeftLens = LensLaws(PrettyParams.objectCommaLeftL)
+  def objectCommaRightLens = LensLaws(PrettyParams.objectCommaRightL)
   def colonLeftLens = LensLaws(PrettyParams.colonLeftL)
   def colonRightLens = LensLaws(PrettyParams.colonRightL)
   def preserveOrderLens = LensLaws(PrettyParams.preserveOrderL)
@@ -149,13 +155,21 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     val prettyParams = PrettyParams.nospace.copy(rbracketRight = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false]%s""".format(indent)
   }
-  def commaLeftIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(commaLeft = indent)
+  def arrayCommaLeftIndent = prop{(indent: String) =>
+    val prettyParams = PrettyParams.nospace.copy(arrayCommaLeft = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true%s,false]""".format(indent)
   }
-  def commaRightIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(commaRight = indent)
+  def arrayCommaRightIndent = prop{(indent: String) =>
+    val prettyParams = PrettyParams.nospace.copy(arrayCommaRight = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,%sfalse]""".format(indent)
+  }
+  def objectCommaLeftIndent = prop{(indent: String) =>
+    val prettyParams = PrettyParams.nospace.copy(preserveOrder = true, objectCommaLeft = indent)
+    prettyParams.pretty(("test" := "value") ->: ("test2" := "value2") ->: jEmptyObject) === """{"test":"value"%s,"test2":"value2"}""".format(indent)
+  }
+  def objectCommaRightIndent = prop{(indent: String) =>
+    val prettyParams = PrettyParams.nospace.copy(preserveOrder = true, objectCommaRight = indent)
+    prettyParams.pretty(("test" := "value") ->: ("test2" := "value2") ->: jEmptyObject) === """{"test":"value",%s"test2":"value2"}""".format(indent)
   }
   def colonLeftIndent = prop{(indent: String) =>
     val prettyParams = PrettyParams.nospace.copy(colonLeft = indent)
