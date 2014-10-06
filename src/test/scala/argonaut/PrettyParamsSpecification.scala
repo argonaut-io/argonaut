@@ -29,13 +29,15 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   }
 
   val jsonSpacesMap: Map[Int, String] = Map(
-    0 -> """{"key1":"value1","key2":[9,21,0],"key3":null}""",
+    0 -> """{"key1":"value1","key2":[9,21,0],"key2a":[],"key3":null}""",
     2 -> """|{
             |  "key1" : "value1",
             |  "key2" : [
             |    9,
             |    21,
             |    0
+            |  ],
+            |  "key2a" : [
             |  ],
             |  "key3" : null
             |}""".stripMargin,
@@ -45,6 +47,8 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
             |        9,
             |        21,
             |        0
+            |    ],
+            |    "key2a" : [
             |    ],
             |    "key3" : null
             |}""".stripMargin
@@ -60,6 +64,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     lbracketRight     $lbracketRightLens
     rbracketLeft      $rbracketLeftLens
     rbracketRight     $rbracketRightLens
+    lrbracketsEmpty   $lrbracketsEmptyLens
     arrayCommaLeft    $arrayCommaLeftLens
     arrayCommaRight   $arrayCommaRightLens
     objectCommaLeft   $objectCommaLeftLens
@@ -78,6 +83,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     lbracketRight     $lbracketRightIndent
     rbracketLeft      $rbracketLeftIndent
     rbracketRight     $rbracketRightIndent
+    lrbracketsEmpty   $lrbracketsEmptyIndent
     arrayCommaLeft    $arrayCommaLeftIndent
     arrayCommaRight   $arrayCommaRightIndent
     objectCommaLeft   $objectCommaLeftIndent
@@ -114,6 +120,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   def lbracketRightLens = LensLaws(PrettyParams.lbracketRightL)
   def rbracketLeftLens = LensLaws(PrettyParams.rbracketLeftL)
   def rbracketRightLens = LensLaws(PrettyParams.rbracketRightL)
+  def lrbracketsEmptyLens = LensLaws(PrettyParams.lrbracketsEmptyL)
   def arrayCommaLeftLens = LensLaws(PrettyParams.arrayCommaLeftL)
   def arrayCommaRightLens = LensLaws(PrettyParams.arrayCommaRightL)
   def objectCommaLeftLens = LensLaws(PrettyParams.objectCommaLeftL)
@@ -154,6 +161,10 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   def rbracketRightIndent = prop{(indent: String) =>
     val prettyParams = PrettyParams.nospace.copy(rbracketRight = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false]%s""".format(indent)
+  }
+  def lrbracketsEmptyIndent = prop{(indent: String) =>
+    val prettyParams = PrettyParams.nospace.copy(lrbracketsEmpty = indent)
+    prettyParams.pretty(jEmptyArray) === """[%s]""".format(indent)
   }
   def arrayCommaLeftIndent = prop{(indent: String) =>
     val prettyParams = PrettyParams.nospace.copy(arrayCommaLeft = indent)
