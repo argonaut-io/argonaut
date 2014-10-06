@@ -18,6 +18,7 @@ import monocle.Macro._
  * @param lbracketRight Spaces to insert to right of a left bracket.
  * @param rbracketLeft Spaces to insert to left of a right bracket.
  * @param rbracketRight Spaces to insert to right of a right bracket.
+ * @param lrbracketsEmpty Spaces to insert for an empty array.
  * @param arrayCommaLeft Spaces to insert to left of a comma in an array.
  * @param arrayCommaRight Spaces to insert to right of a comma in an array.
  * @param objectCommaLeft Spaces to insert to left of a comma in an object.
@@ -37,6 +38,7 @@ case class PrettyParams(
   , lbracketRight: String
   , rbracketLeft: String
   , rbracketRight: String
+  , lrbracketsEmpty: String
   , arrayCommaLeft: String
   , arrayCommaRight: String
   , objectCommaLeft: String
@@ -66,6 +68,7 @@ case class PrettyParams(
   private[this] val _lbracketRight = addIndentation(lbracketRight)
   private[this] val _rbracketLeft = addIndentation(rbracketLeft)
   private[this] val _rbracketRight = addIndentation(rbracketRight)
+  private[this] val _lrbracketsEmpty = addIndentation(lrbracketsEmpty)
   private[this] val _arrayCommaLeft = addIndentation(arrayCommaLeft)
   private[this] val _arrayCommaRight = addIndentation(arrayCommaRight)
   private[this] val _objectCommaLeft = addIndentation(objectCommaLeft)
@@ -109,6 +112,7 @@ case class PrettyParams(
   private[this] final val rbraceMemo = vectorMemo(){depth: Int => "%s%s%s".format(_rbraceLeft(depth), closeBraceText, _rbraceRight(depth + 1))}
   private[this] final val lbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(_lbracketLeft(depth), openArrayText, _lbracketRight(depth + 1))}
   private[this] final val rbracketMemo = vectorMemo(){depth: Int => "%s%s%s".format(_rbracketLeft(depth), closeArrayText, _rbracketRight(depth))}
+  private[this] final val lrbracketsEmptyMemo = vectorMemo(){depth: Int => "%s%s%s".format(openArrayText, _lrbracketsEmpty(depth), closeArrayText)}
   private[this] final val arrayCommaMemo = vectorMemo(){depth: Int => "%s%s%s".format(_arrayCommaLeft(depth + 1), commaText, _arrayCommaRight(depth + 1))}
   private[this] final val objectCommaMemo = vectorMemo(){depth: Int => "%s%s%s".format(_objectCommaLeft(depth + 1), commaText, _objectCommaRight(depth + 1))}
   private[this] final val colonMemo = vectorMemo(){depth: Int => "%s%s%s".format(_colonLeft(depth + 1), colonText, _colonRight(depth + 1))}
@@ -157,6 +161,9 @@ case class PrettyParams(
       def rbracket(builder: StringBuilder): StringBuilder = {
         builder.append(rbracketMemo(depth))
       }
+      def lrbracketsEmpty(builder: StringBuilder): StringBuilder = {
+        builder.append(lrbracketsEmptyMemo(depth))
+      }
       def arrayComma(builder: StringBuilder): StringBuilder = {
         builder.append(arrayCommaMemo(depth))
       }
@@ -172,7 +179,9 @@ case class PrettyParams(
         , bool => builder.append(if (bool) trueText else falseText)
         , n => builder.append(if (n == n.floor) BigDecimal(n).toBigInt.toString else n.toString)
         , s => encloseJsonString(builder, s)
-        , e => {
+        , e => if (e.isEmpty) {
+          lrbracketsEmpty(builder)
+        } else {
           rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
             val withComma = if (firstElement) builder else arrayComma(builder)
             val updatedBuilder = trav(withComma, depth + 1, subElement)
@@ -244,6 +253,7 @@ trait PrettyParamss {
     , lbracketRight = ""
     , rbracketLeft = ""
     , rbracketRight = ""
+    , lrbracketsEmpty = ""
     , arrayCommaLeft = ""
     , arrayCommaRight = ""
     , objectCommaLeft = ""
@@ -268,6 +278,7 @@ trait PrettyParamss {
     , lbracketRight = "\n"
     , rbracketLeft = "\n"
     , rbracketRight = ""
+    , lrbracketsEmpty = "\n"
     , arrayCommaLeft = ""
     , arrayCommaRight = "\n"
     , objectCommaLeft = ""
@@ -299,6 +310,7 @@ trait PrettyParamss {
   val lbracketRightL = mkLens[PrettyParams, String]("lbracketRight")
   val rbracketLeftL = mkLens[PrettyParams, String]("rbracketLeft")
   val rbracketRightL = mkLens[PrettyParams, String]("rbracketRight")
+  val lrbracketsEmptyL = mkLens[PrettyParams, String]("lrbracketsEmpty")
   val arrayCommaLeftL = mkLens[PrettyParams, String]("arrayCommaLeft")
   val arrayCommaRightL = mkLens[PrettyParams, String]("arrayCommaRight")
   val objectCommaLeftL = mkLens[PrettyParams, String]("objectCommaLeft")

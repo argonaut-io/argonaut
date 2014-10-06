@@ -134,6 +134,7 @@ object Data {
       lbracketRight <- arbitrary[String]
       rbracketLeft <- arbitrary[String]
       rbracketRight <- arbitrary[String]
+      lrbracketsEmpty <- arbitrary[String]
       arrayCommaLeft <- arbitrary[String]
       arrayCommaRight <- arbitrary[String]
       objectCommaLeft <- arbitrary[String]
@@ -152,6 +153,7 @@ object Data {
     , lbracketRight = lbracketRight
     , rbracketLeft = rbracketLeft
     , rbracketRight = rbracketRight
+    , lrbracketsEmpty = lrbracketsEmpty
     , arrayCommaLeft = arrayCommaLeft
     , arrayCommaRight = arrayCommaRight
     , objectCommaLeft = objectCommaLeft
