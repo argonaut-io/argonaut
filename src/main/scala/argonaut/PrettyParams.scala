@@ -2,77 +2,42 @@ package argonaut
 
 import scalaz._, Scalaz._
 import scala.annotation._
+import monocle.Macro._
 
 /**
  * Parameters for pretty-printing a JSON value.
  *
  * @author Tony Morris
+ *
+ * @param lbraceLeft Takes the current depth and returns the spaces to insert to left of a left brace.
+ * @param lbraceRight Takes the current depth and returns the spaces to insert to right of a left brace.
+ * @param rbraceLeft Takes the current depth and returns the spaces to insert to left of a right brace.
+ * @param rbraceRight Takes the current depth and returns the spaces to insert to right of a right brace.
+ * @param lbracketLeft Takes the current depth and returns the spaces to insert to left of a left bracket.
+ * @param lbracketRight Takes the current depth and returns the spaces to insert to right of a left bracket.
+ * @param rbracketLeft Takes the current depth and returns the spaces to insert to left of a right bracket.
+ * @param rbracketRight Takes the current depth and returns the spaces to insert to right of a right bracket.
+ * @param commaLeft Takes the current depth and returns the spaces to insert to left of a comma.
+ * @param commaRight Takes the current depth and returns the spaces to insert to right of a comma.
+ * @param colonLeft Takes the current depth and returns the spaces to insert to left of a colon.
+ * @param colonRight Takes the current depth and returns the spaces to insert to right of a colon.
+ * @param preserveOrder Determines if the field ordering should be preserved.
  */
-sealed trait PrettyParams {
-  /**
-   * Takes the current depth and returns the spaces to insert to left of a left brace.
-   */
-  val lbraceLeft: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to right of a left brace.
-   */
-  val lbraceRight: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to left of a right brace.
-   */
-  val rbraceLeft: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to right of a right brace.
-   */
-  val rbraceRight: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to left of a left bracket.
-   */
-  val lbracketLeft: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to right of a left bracket.
-   */
-  val lbracketRight: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to left of a right bracket.
-   */
-  val rbracketLeft: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to right of a right bracket.
-   */
-  val rbracketRight: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to left of a comma.
-   */
-  val commaLeft: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to right of a comma.
-   */
-  val commaRight: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to left of a colon.
-   */
-  val colonLeft: Int => String
-
-  /**
-   * Takes the current depth and returns the spaces to insert to right of a colon.
-   */
-  val colonRight: Int => String
-
-  /**
-   * Determines if the field ordering should be preserved.
-   */
-  val preserveOrder: Boolean
+case class PrettyParams(
+    lbraceLeft: Int => String
+  , lbraceRight: Int => String
+  , rbraceLeft: Int => String
+  , rbraceRight: Int => String
+  , lbracketLeft: Int => String
+  , lbracketRight: Int => String
+  , rbracketLeft: Int => String
+  , rbracketRight: Int => String
+  , commaLeft: Int => String
+  , commaRight: Int => String
+  , colonLeft: Int => String
+  , colonRight: Int => String
+  , preserveOrder: Boolean
+) {
 
   private[this] final val openBraceText = "{"
   private[this] final val closeBraceText = "}"
@@ -89,7 +54,7 @@ sealed trait PrettyParams {
 
   private[this] def vectorMemo() = {
     var vector: Vector[String] = Vector.empty
-  
+
     val memoFunction: (Int => String) => Int => String = f => k => {
       val localVector = vector
       val adjustedK = if (k < 0) 0 else k
@@ -218,38 +183,7 @@ object StringEscaping {
   final val isNotNormalChar: Char => Boolean = char => !isNormalChar(char)
 }
 
-object PrettyParams extends PrettyParamss {
-  def apply(
-             lbraceLeft0: Int => String
-           , lbraceRight0: Int => String
-           , rbraceLeft0: Int => String
-           , rbraceRight0: Int => String
-           , lbracketLeft0: Int => String
-           , lbracketRight0: Int => String
-           , rbracketLeft0: Int => String
-           , rbracketRight0: Int => String
-           , commaLeft0: Int => String
-           , commaRight0: Int => String
-           , colonLeft0: Int => String
-           , colonRight0: Int => String
-           , preserveOrder0: Boolean
-           ): PrettyParams =
-    new PrettyParams {
-      val lbraceLeft = lbraceLeft0
-      val lbraceRight = lbraceRight0
-      val rbraceLeft = rbraceLeft0
-      val rbraceRight = rbraceRight0
-      val lbracketLeft = lbracketLeft0
-      val lbracketRight = lbracketRight0
-      val rbracketLeft = rbracketLeft0
-      val rbracketRight = rbracketRight0
-      val commaLeft = commaLeft0
-      val commaRight = commaRight0
-      val colonLeft = colonLeft0
-      val colonRight = colonRight0
-      val preserveOrder = preserveOrder0
-    }
-}
+object PrettyParams extends PrettyParamss
 
 trait PrettyParamss {
   private[this] final val zeroString = (_: Int) => ""
@@ -258,19 +192,19 @@ trait PrettyParamss {
    */
   final val nospace: PrettyParams =
     PrettyParams(
-      zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , zeroString
-    , false
+      lbraceLeft = zeroString
+    , lbraceRight = zeroString
+    , rbraceLeft = zeroString
+    , rbraceRight = zeroString
+    , lbracketLeft = zeroString
+    , lbracketRight = zeroString
+    , rbracketLeft = zeroString
+    , rbracketRight = zeroString
+    , commaLeft = zeroString
+    , commaRight = zeroString
+    , colonLeft = zeroString
+    , colonRight = zeroString
+    , preserveOrder = false
     )
 
   /**
@@ -278,19 +212,19 @@ trait PrettyParamss {
    */
   final def pretty(indent: String): PrettyParams =
     PrettyParams(
-      zeroString
-    , n => "\n" + indent * n
-    , n => "\n" + indent * (n - 1)
-    , zeroString
-    , zeroString
-    , n => "\n" + indent * n
-    , n => "\n" + indent * (n - 1)
-    , zeroString
-    , zeroString
-    , n => "\n" + indent * n
-    , n => " "
-    , n => " "
-    , false
+      lbraceLeft = zeroString
+    , lbraceRight = n => "\n" + indent * n
+    , rbraceLeft = n => "\n" + indent * (n - 1)
+    , rbraceRight = zeroString
+    , lbracketLeft = zeroString
+    , lbracketRight = n => "\n" + indent * n
+    , rbracketLeft = n => "\n" + indent * (n - 1)
+    , rbracketRight = zeroString
+    , commaLeft = zeroString
+    , commaRight = n => "\n" + indent * n
+    , colonLeft = n => " "
+    , colonRight = n => " "
+    , preserveOrder = false
     )
 
   /**
@@ -305,81 +239,17 @@ trait PrettyParamss {
   final val spaces4: PrettyParams =
     pretty("    ")
 
-  /**
-   * The lens to the `lbraceLeft` configuration value.
-   */
-  def lbraceLeftL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(_, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbraceLeft))
-
-  /**
-   * The lens to the `lbraceRight` configuration value.
-   */
-  def lbraceRightL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, _, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbraceRight))
-
-  /**
-   * The lens to the `rbraceLeft` configuration value.
-   */
-  def rbraceLeftL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, _, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbraceLeft))
-
-  /**
-   * The lens to the `rbraceRight` configuration value.
-   */
-  def rbraceRightL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, _, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbraceRight))
-
-  /**
-   * The lens to the `lbracketLeft` configuration value.
-   */
-  def lbracketLeftL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, _, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbracketLeft))
-
-  /**
-   * The lens to the `lbracketRight` configuration value.
-   */
-  def lbracketRightL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, _, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.lbracketRight))
-
-  /**
-   * The lens to the `rbracketLeft` configuration value.
-   */
-  def rbracketLeftL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, _, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbracketLeft))
-
-  /**
-   * The lens to the `rbracketRight` configuration value.
-   */
-  def rbracketRightL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, _, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.rbracketRight))
-
-  /**
-   * The lens to the `commaLeft` configuration value.
-   */
-  def commaLeftL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, _, p.commaRight, p.colonLeft, p.colonRight, p.preserveOrder), p.commaLeft))
-
-  /**
-   * The lens to the `commaRight` configuration value.
-   */
-  def commaRightL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, _, p.colonLeft, p.colonRight, p.preserveOrder), p.commaRight))
-
-  /**
-   * The lens to the `colonLeft` configuration value.
-   */
-  def colonLeftL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, _, p.colonRight, p.preserveOrder), p.colonLeft))
-
-  /**
-   * The lens to the `colonRight` configuration value.
-   */
-  def colonRightL: PrettyParams @> (Int => String) =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, _, p.preserveOrder), p.colonRight))
-
-  /**
-   * The lens to the `preserveOrder` configuration value.
-   */
-  def preserveOrderL: PrettyParams @> Boolean =
-    Lens(p => Store(PrettyParams(p.lbraceLeft, p.lbraceRight, p.rbraceLeft, p.rbraceRight, p.lbracketLeft, p.lbracketRight, p.rbracketLeft, p.rbracketRight, p.commaLeft, p.commaRight, p.colonLeft, p.colonRight, _), p.preserveOrder))
+  val lbraceLeftL = mkLens[PrettyParams, Int => String]("lbraceLeft")
+  val lbraceRightL = mkLens[PrettyParams, Int => String]("lbraceRight")
+  val rbraceLeftL = mkLens[PrettyParams, Int => String]("rbraceLeft")
+  val rbraceRightL = mkLens[PrettyParams, Int => String]("rbraceRight")
+  val lbracketLeftL = mkLens[PrettyParams, Int => String]("lbracketLeft")
+  val lbracketRightL = mkLens[PrettyParams, Int => String]("lbracketRight")
+  val rbracketLeftL = mkLens[PrettyParams, Int => String]("rbracketLeft")
+  val rbracketRightL = mkLens[PrettyParams, Int => String]("rbracketRight")
+  val commaLeftL = mkLens[PrettyParams, Int => String]("commaLeft")
+  val commaRightL = mkLens[PrettyParams, Int => String]("commaRight")
+  val colonLeftL = mkLens[PrettyParams, Int => String]("colonLeft")
+  val colonRightL = mkLens[PrettyParams, Int => String]("colonRight")
+  val preserveOrderL = mkLens[PrettyParams, Boolean]("preserveOrder")
 }

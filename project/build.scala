@@ -21,7 +21,10 @@ object build extends Build {
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
-  val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5.0"
+  val monocleVersion             = "0.5.0"
+  val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
+  val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
+  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
   def shapeless(v: String)   =
     if (v.contains("2.10"))        "com.chuusai"                  %  s"shapeless_${v}"           % "2.0.0"
     else                           "com.chuusai"                  %% s"shapeless"                % "2.0.0"
@@ -50,6 +53,8 @@ object build extends Build {
         scalaz
       , scalazScalaCheckBinding
       , monocle
+      , monocleMacro
+      , monocleLaw
       , scalacheck
       , specs2Scalacheck
       , shapeless(scalaVersion.value)
@@ -68,7 +73,6 @@ object build extends Build {
   val benchmark = Project(
     id = "benchmark"
   , base = file("benchmark")
-  , dependencies = Seq(argonaut)
   , settings = base ++ Seq[Sett](
       name := "argonaut-benchmark"
     , resolvers += Resolver.sonatypeRepo("releases")
@@ -77,7 +81,7 @@ object build extends Build {
     , libraryDependencies ++= Seq(caliper, liftjson, jackson)
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }
     )
-  )
+  ) dependsOn (argonaut)
 
   val doc = Project(
     id = "doc"
