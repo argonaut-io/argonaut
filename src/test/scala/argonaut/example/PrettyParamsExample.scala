@@ -33,7 +33,7 @@ object PrettyParamsExample extends Specification {
   |}
   """.trim.stripMargin
 
-  val defaultPrettyParams2SpacesNoSpaceBeforeColon = prettyParams.copy(colonLeft = _ => "")
+  val defaultPrettyParams2SpacesNoSpaceBeforeColon = prettyParams.copy(colonLeft = "")
   val defaultPrettyParams2SpacesNoSpaceBeforeColonJson = """
   |{
   |  "name": "fred",

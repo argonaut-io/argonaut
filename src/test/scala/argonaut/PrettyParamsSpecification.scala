@@ -104,51 +104,51 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   def preserveOrderLens = LensLaws(PrettyParams.preserveOrderL)
 
   def lbraceLeftIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(lbraceLeft = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(lbraceLeft = indent)
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """%s{"test":"value"}""".format(indent)
   }
   def lbraceRightIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(lbraceRight = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(lbraceRight = indent)
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{%s"test":"value"}""".format(indent)
   }
   def rbraceLeftIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(rbraceLeft = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(rbraceLeft = indent)
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{"test":"value"%s}""".format(indent)
   }
   def rbraceRightIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(rbraceRight = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(rbraceRight = indent)
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{"test":"value"}%s""".format(indent)
   }
   def lbracketLeftIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(lbracketLeft = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(lbracketLeft = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """%s[true,false]""".format(indent)
   }
   def lbracketRightIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(lbracketRight = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(lbracketRight = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[%strue,false]""".format(indent)
   }
   def rbracketLeftIndent =  prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(rbracketLeft = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(rbracketLeft = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false%s]""".format(indent)
   }
   def rbracketRightIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(rbracketRight = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(rbracketRight = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,false]%s""".format(indent)
   }
   def commaLeftIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(commaLeft = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(commaLeft = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true%s,false]""".format(indent)
   }
   def commaRightIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(commaRight = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(commaRight = indent)
     prettyParams.pretty(jArray(List(jTrue, jFalse))) === """[true,%sfalse]""".format(indent)
   }
   def colonLeftIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(colonLeft = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(colonLeft = indent)
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{"test"%s:"value"}""".format(indent)
   }
   def colonRightIndent = prop{(indent: String) =>
-    val prettyParams = PrettyParams.nospace.copy(colonRight = _ => indent)
+    val prettyParams = PrettyParams.nospace.copy(colonRight = indent)
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{"test":%s"value"}""".format(indent)
   }
   def orderPreservation = prop {(preserve: Boolean, pairs: List[(JsonField, Json)]) =>
