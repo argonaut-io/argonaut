@@ -19,7 +19,7 @@ EncodeJson Auto Derivation
 --------------------------
 
   Product-types correspond              ${auto.products}
-  Sum-types correspond                  NOT COMPILING-- auto.sums
+  Sum-types correspond                  ${auto.sums}
 
 """
 
@@ -59,12 +59,6 @@ EncodeJson Auto Derivation
     def products = prop((p: Person) =>
       p.asJson must_== Json("Person" := Json("name" := p.name, "age" := p.age)))
 
-    /* FIX this should work, but doesn't --
-
-    sealed trait Shape
-    case class Circle(radius: Int) extends Shape
-    case class Square(side: Int) extends Shape
-
     implicit def ShapeArbitrary: Arbitrary[Shape] = Arbitrary(Gen.oneOf(
       arbitrary[Int].map(Circle.apply)
     , arbitrary[Int].map(Square.apply)
@@ -73,10 +67,10 @@ EncodeJson Auto Derivation
     EncodeJson.of[Shape]
 
     def sums = prop((s: Shape) =>
-      s.asJson(x) must_== (s match {
+      s.asJson must_== (s match {
         case Circle(radius) => Json("Circle" := Json("radius" := radius))
         case Square(side) => Json("Square" := Json("side" := side))
-      }))  */
+      }))
   }
 
   object derived {

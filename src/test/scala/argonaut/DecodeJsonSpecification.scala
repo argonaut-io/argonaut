@@ -5,6 +5,12 @@ import shapeless._
 import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
 
+// Defining these below (close to ShapeArbitrary say) makes the DecodeJson derivation fail
+// Same thing for EncodeJson
+sealed trait Shape
+case class Circle(radius: Int) extends Shape
+case class Square(side: Int) extends Shape
+
 object DecodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
 
 DecodeJson Witness Compilation
@@ -19,7 +25,7 @@ DecodeJson Auto Derivation
 --------------------------
 
   Product-types correspond              ${auto.products}
-  Sum-types correspond                  NOT COMPILING-- auto.sums
+  Sum-types correspond                  ${auto.sums}
 
 """
 
@@ -61,12 +67,6 @@ DecodeJson Auto Derivation
       Json("Person" := Json("name" := p.name, "age" := p.age)).as[Person].toOption must_== Some(p))
 
 
-    /* FIX this should work, but doesn't --
-
-    sealed trait Shape
-    case class Circle(radius: Int) extends Shape
-    case class Square(side: Int) extends Shape
-
     implicit def ShapeArbitrary: Arbitrary[Shape] = Arbitrary(Gen.oneOf(
       arbitrary[Int].map(Circle.apply)
     , arbitrary[Int].map(Square.apply)
@@ -77,8 +77,6 @@ DecodeJson Auto Derivation
         case Circle(radius) => Json("Circle" := Json("radius" := radius))
         case Square(side) => Json("Square" := Json("side" := side))
       }).as[Shape].toOption must_== Some(s))
-
-    */
   }
 
   object derived {
