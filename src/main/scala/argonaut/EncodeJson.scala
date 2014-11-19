@@ -187,6 +187,9 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
   implicit def ISetEncodeJson[A: EncodeJson]: EncodeJson[ISet[A]] =
     fromFoldable[ISet, A]
 
+  implicit def NonEmptyListEncodeJson[A: EncodeJson]: EncodeJson[NonEmptyList[A]] =
+    fromFoldable[NonEmptyList, A]
+
   implicit def IMapEncodeJson[A](implicit A: EncodeJson[A]): EncodeJson[String ==>> A] =
     EncodeJson(x => jObjectAssocList(
       x.foldrWithKey(Nil: List[(String, Json)])(

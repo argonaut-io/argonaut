@@ -68,6 +68,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     Set[String] encode/decode ${encodedecode[Set[String]]}
     ISet[Int] encode/decode ${encodedecode[ISet[Int]]}
     IList[Int] encode/decode ${encodedecode[IList[Int]]}
+    NonEmptyList[Int] encode/decode ${encodedecode[NonEmptyList[Int]]}
     DList[Int] encode/decode ${encodedecode[DList[Int]]}
     EphemeralStream[Int] encode/decode ${encodedecode[EphemeralStream[Int]]}
     IMap[String, Int] encode/decode ${encodedecode[IMap[String, Int]]}
