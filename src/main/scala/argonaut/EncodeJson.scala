@@ -55,9 +55,8 @@ object EncodeJson extends EncodeJsons {
       macro GenericMacros.deriveLabelledInstance[EncodeJson, A]
   }
 
-  implicit def EncodeJsonTypeClass: LabelledTypeClass[EncodeJson] = new LabelledTypeClass[EncodeJson] {
-    def emptyCoproduct =
-      EncodeJson(_ => jEmptyObject)
+  implicit val EncodeJsonTypeClass: LabelledTypeClass[EncodeJson] = new LabelledTypeClass[EncodeJson] {
+    def emptyCoproduct = EncodeJson(_ => jEmptyObject)
 
     def coproduct[L, R <: Coproduct](name: String, CL: => EncodeJson[L], CR: => EncodeJson[R]): EncodeJson[L :+: R] =
       EncodeJson(a => a match {
@@ -65,19 +64,16 @@ object EncodeJson extends EncodeJsons {
         case Inr(t) => CR.encode(t)
       })
 
-    def emptyProduct =
-      EncodeJson(_ => jEmptyObject)
+    def emptyProduct = EncodeJson(_ => jEmptyObject)
 
-    def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]) =
+    def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]): EncodeJson[A :: T] = {
       EncodeJson(a => (name -> A.encode(a.head)) ->: T.encode(a.tail))
+    }
 
-    def project[F, G](instance: => EncodeJson[G], to : F => G, from : G => F) =
-      instance.contramap(to)
+    def project[F, G](instance: => EncodeJson[G], to : F => G, from : G => F) = instance.contramap(to)
   }
 
-  def of[A: EncodeJson] =
-    implicitly[EncodeJson[A]]
-
+  def of[A: EncodeJson] = implicitly[EncodeJson[A]]
 }
 
 trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
