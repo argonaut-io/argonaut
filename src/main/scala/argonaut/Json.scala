@@ -496,7 +496,7 @@ trait Jsons {
   type JsonString = String
   type JsonField = String
   type JsonAssoc = (JsonField, Json)
-  type JsonObjectMap = scalaz.InsertionMap[JsonField, Json]
+  type JsonAssocList = List[JsonAssoc]
   type JsonNumber = Double
 
   import PLens._, StoreT._
@@ -724,15 +724,9 @@ trait Jsons {
     JObject(JsonObject.single(k, v))
 
   /**
-   * Construct a JSON value that is an object from an index.
-   */
-  def jObjectMap(x: JsonObjectMap): Json =
-    JObject(JsonObject(x))
-
-  /**
    * Construct a JSON value that is an object from an association list.
    */
-  def jObjectAssocList(x: List[(JsonField, Json)]): Json =
+  def jObjectAssocList(x: JsonAssocList): Json =
     JObject(JsonObject.from(x))
 
   /**
