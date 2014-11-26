@@ -4,6 +4,7 @@ import scalaz._, Scalaz._
 import shapeless._
 import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
+import Argonaut._
 
 object EncodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
 
@@ -44,25 +45,15 @@ EncodeJson Auto Derivation
   object auto {
     import shapeless._
     import EncodeJson.auto._
-    import StringWrap._
-    import JsonIdentity._
+    import TestTypes._
 
-    case class Person(name: String, age: Int)
-
-    implicit def PersonArbitrary: Arbitrary[Person] = Arbitrary(for {
-      n <- arbitrary[String]
-      a <- arbitrary[Int]
-    } yield Person(n, a))
-
+    EncodeJson.of[Product]
+    EncodeJson.of[OrderLine]
+    EncodeJson.of[Order]
     EncodeJson.of[Person]
 
     def products = prop((p: Person) =>
       p.asJson must_== Json("Person" := Json("name" := p.name, "age" := p.age)))
-
-    implicit def ShapeArbitrary: Arbitrary[Shape] = Arbitrary(Gen.oneOf(
-      arbitrary[Int].map(Circle.apply)
-    , arbitrary[Int].map(Square.apply)
-    ))
 
     EncodeJson.of[Shape]
 
@@ -74,12 +65,13 @@ EncodeJson Auto Derivation
   }
 
   object derived {
-    case class Person(name: String, age: Int)
+    import TestTypes._
 
-    implicit def PersonEncodeJson: EncodeJson[Person] =
-      EncodeJson.derive[Person]
+    implicit def ProductEncodeJson: EncodeJson[Product] = EncodeJson.derive[Product]
+    implicit def OrderLineEncodeJson: EncodeJson[OrderLine] = EncodeJson.derive[OrderLine]
+    implicit def OrderEncodeJson: EncodeJson[Order] = EncodeJson.derive[Order]
+    implicit def PersonEncodeJson: EncodeJson[Person] = EncodeJson.derive[Person]
 
     EncodeJson.of[Person]
   }
-
 }

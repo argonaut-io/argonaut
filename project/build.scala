@@ -24,7 +24,7 @@ object build extends Build {
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5.0"
   def shapeless(v: String)   =
     if (v.contains("2.10"))        "com.chuusai"                  %  s"shapeless_${v}"           % "2.0.0"
-    else                           "com.chuusai"                  %% s"shapeless"                % "2.0.0"
+    else                           "com.chuusai"                  %% s"shapeless"                % "2.1.0-SNAPSHOT"
 
   def reflect(v: String)         =
                                Seq("org.scala-lang"               %  "scala-compiler"            % v,

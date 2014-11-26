@@ -47,30 +47,34 @@ object EncodeJson extends EncodeJsons {
 
   import shapeless._
 
-  def derive[A](implicit ev: LabelledTypeClass[EncodeJson]): EncodeJson[A] =
-    macro GenericMacros.deriveLabelledInstance[EncodeJson, A]
+  def derive[A]: EncodeJson[A] =
+    macro GenericMacros.materialize[EncodeJson[A], A]
 
   object auto {
-    implicit def AutoEncodeJson[A](implicit ev: LabelledTypeClass[EncodeJson]): EncodeJson[A] =
-      macro GenericMacros.deriveLabelledInstance[EncodeJson, A]
+    implicit def AutoEncodeJson[A]: EncodeJson[A] =
+      macro GenericMacros.materialize[EncodeJson[A], A]
   }
 
-  implicit val EncodeJsonTypeClass: LabelledTypeClass[EncodeJson] = new LabelledTypeClass[EncodeJson] {
-    def emptyCoproduct = EncodeJson(_ => jEmptyObject)
+  implicit val EncodeJsonTypeClass: LabelledTypeClass = new LabelledTypeClass {
+    type C[T] = EncodeJson[T]
+    type Elem[T] = EncodeJson[T]
 
-    def coproduct[L, R <: Coproduct](name: String, CL: => EncodeJson[L], CR: => EncodeJson[R]): EncodeJson[L :+: R] =
+    override def emptyCoproduct: EncodeJson[CNil] = EncodeJson(_ => jEmptyObject)
+
+    override def coproduct[L, R <: Coproduct](name: String, ejl: => EncodeJson[L], ejr: => EncodeJson[R]): EncodeJson[L :+: R] = {
       EncodeJson(a => a match {
-        case Inl(x) => Json((name -> CL.encode(x)))
-        case Inr(t) => CR.encode(t)
+        case Inl(x) => Json((name -> ejl.encode(x)))
+        case Inr(t) => ejr.encode(t)
       })
+    }
 
-    def emptyProduct = EncodeJson(_ => jEmptyObject)
+    override def emptyProduct: EncodeJson[HNil] = EncodeJson(_ => jEmptyObject)
 
-    def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]): EncodeJson[A :: T] = {
+    override def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]): EncodeJson[A :: T] = {
       EncodeJson(a => (name -> A.encode(a.head)) ->: T.encode(a.tail))
     }
 
-    def project[F, G](instance: => EncodeJson[G], to : F => G, from : G => F) = instance.contramap(to)
+    override def project[F, G](instance: => EncodeJson[G], to: F => G, from: G => F): EncodeJson[F] = instance.contramap(to)
   }
 
   def of[A: EncodeJson] = implicitly[EncodeJson[A]]

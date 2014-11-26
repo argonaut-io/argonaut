@@ -4,12 +4,7 @@ import scalaz._, Scalaz._
 import shapeless._
 import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
-
-// Defining these below (close to ShapeArbitrary say) makes the DecodeJson derivation fail
-// Same thing for EncodeJson
-sealed trait Shape
-case class Circle(radius: Int) extends Shape
-case class Square(side: Int) extends Shape
+import Argonaut._
 
 object DecodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
 
@@ -52,25 +47,17 @@ DecodeJson Auto Derivation
   object auto {
     import shapeless._
     import DecodeJson.auto._
-    import StringWrap._
+    import TestTypes._
 
-    case class Person(name: String, age: Int)
-
-    implicit def PersonArbitrary: Arbitrary[Person] = Arbitrary(for {
-      n <- arbitrary[String]
-      a <- arbitrary[Int]
-    } yield Person(n, a))
-
+    DecodeJson.of[Product]
+    DecodeJson.of[OrderLine]
+    DecodeJson.of[Order]
     DecodeJson.of[Person]
 
     def products = prop((p: Person) =>
       Json("Person" := Json("name" := p.name, "age" := p.age)).as[Person].toOption must_== Some(p))
 
-
-    implicit def ShapeArbitrary: Arbitrary[Shape] = Arbitrary(Gen.oneOf(
-      arbitrary[Int].map(Circle.apply)
-    , arbitrary[Int].map(Square.apply)
-    ))
+    DecodeJson.of[Shape]
 
     def sums = prop((s: Shape) =>
       (s match {
@@ -80,12 +67,13 @@ DecodeJson Auto Derivation
   }
 
   object derived {
-    case class Person(name: String, age: Int)
+    import TestTypes._
 
-    implicit def PersonDecodeJson: DecodeJson[Person] =
-      DecodeJson.derive[Person]
+    implicit def ProductDecodeJson: DecodeJson[Product] = DecodeJson.derive[Product]
+    implicit def OrderLineDecodeJson: DecodeJson[OrderLine] = DecodeJson.derive[OrderLine]
+    implicit def OrderDecodeJson: DecodeJson[Order] = DecodeJson.derive[Order]
+    implicit def PersonDecodeJson: DecodeJson[Person] = DecodeJson.derive[Person]
 
     DecodeJson.of[Person]
   }
-
 }
