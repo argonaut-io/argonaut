@@ -172,12 +172,6 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
       }
     ))
 
-  // implicit def MapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[Map[String, V]] =
-  //   MapLikeEncodeJson[Map, V](e)
-
-  // implicit def SortedMapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[SortedMap[String, V]] =
-  //   MapLikeEncodeJson[SortedMap, V](e)
-
   implicit def IListEncodeJson[A: EncodeJson]: EncodeJson[IList[A]] =
     fromFoldable[IList, A]
 

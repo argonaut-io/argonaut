@@ -324,12 +324,6 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
       }
     )
 
-  // implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] =
-  //   MapLikeDecodeJson[Map, V]
-
-  // implicit def SortedMapDecodeJson[V](implicit o: ScalaOrdering[String], e: DecodeJson[V]): DecodeJson[SortedMap[String, V]] =
-  //   MapLikeDecodeJson[SortedMap, V]
-
   implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
     implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
 
