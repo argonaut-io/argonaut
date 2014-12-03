@@ -1,5 +1,6 @@
 package argonaut
 
+import scala.collection.immutable.{ SortedMap, MapLike }
 import scalaz.{ Coproduct => _, _}, Scalaz._
 import Json._
 
@@ -164,12 +165,18 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
       e => jSingleObject("Failure", ea(e)), a => jSingleObject("Success", eb(a))
     ))
 
-  implicit def MapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[Map[String, V]] =
+  implicit def MapLikeEncodeJson[M[K, +V] <: Map[K, V], V](implicit e: EncodeJson[V]): EncodeJson[M[String, V]] =
     EncodeJson(x => jObjectAssocList(
       x.toList map {
         case (k, v) => (k, e(v))
       }
     ))
+
+  // implicit def MapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[Map[String, V]] =
+  //   MapLikeEncodeJson[Map, V](e)
+
+  // implicit def SortedMapEncodeJson[V](implicit e: EncodeJson[V]): EncodeJson[SortedMap[String, V]] =
+  //   MapLikeEncodeJson[SortedMap, V](e)
 
   implicit def IListEncodeJson[A: EncodeJson]: EncodeJson[IList[A]] =
     fromFoldable[IList, A]

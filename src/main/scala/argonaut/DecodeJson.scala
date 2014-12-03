@@ -1,7 +1,8 @@
 package argonaut
 
 import scala.math.{ Ordering => ScalaOrdering }
-import scala.collection.immutable.SortedSet
+import scala.collection.generic.CanBuildFrom
+import scala.collection.immutable.{ SortedSet, SortedMap, MapLike }
 import scala.util.control.Exception.catching
 import scalaz._, Scalaz._
 import Json._
@@ -191,7 +192,7 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
   implicit def JsonDecodeJson: DecodeJson[Json] =
     decodeArr(j => j.focus)
 
-  implicit def CanBuildFronDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: collection.generic.CanBuildFrom[C[_], A, C[A]]): DecodeJson[C[A]] =
+  implicit def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] =
     DecodeJson(a =>
       a.downArray.hcursor match {
         case None =>
@@ -297,31 +298,43 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
       }
     })
 
-  implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] =
+  implicit def MapDecodeJson[M[K, +V] <: Map[K, V], V](implicit e: DecodeJson[V], cbf: CanBuildFrom[Nothing, (String, V), M[String, V]]): DecodeJson[M[String, V]] =
     DecodeJson(a =>
       a.fields match {
         case None => DecodeResult.fail("[V]Map[String, V]", a.history)
         case Some(s) => {
-          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] =
+          def spin(x: List[JsonField], acc: DecodeResult[Vector[(String, V)]]): DecodeResult[M[String, V]] =
             x match {
-              case Nil => m
+              case Nil =>
+                acc.map { fields =>
+                  (cbf() ++= fields).result()
+                }
               case h::t =>
-                spin(t, for {
-                    mm <- m
-                    v <- a.get(h)(e)
-                  } yield mm + ((h, v)))
+                val acc0 = for {
+                  m <- acc
+                  v <- a.get(h)(e)
+                } yield m :+ (h -> v)
+
+                if (acc0.isError) spin(Nil, acc0)
+                else spin(t, acc0)
             }
 
-          spin(s, DecodeResult.ok(Map.empty[String, V]))
+          spin(s, DecodeResult.ok(Vector.empty))
         }
       }
     )
+
+  // implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] =
+  //   MapLikeDecodeJson[Map, V]
+
+  // implicit def SortedMapDecodeJson[V](implicit o: ScalaOrdering[String], e: DecodeJson[V]): DecodeJson[SortedMap[String, V]] =
+  //   MapLikeDecodeJson[SortedMap, V]
 
   implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
     implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
 
   implicit def IMapDecodeJson[A: DecodeJson: Order]: DecodeJson[String ==>> A] =
-    MapDecodeJson[A].map(a => ==>>.fromList(a.toList)) setName "[A]==>>[String, A]"
+    MapDecodeJson[Map, A].map(a => ==>>.fromList(a.toList)) setName "[A]==>>[String, A]"
 
   implicit def IListDecodeJson[A: DecodeJson]: DecodeJson[IList[A]] =
     implicitly[DecodeJson[List[A]]] map (IList.fromList) setName "[A]IList[A]"
