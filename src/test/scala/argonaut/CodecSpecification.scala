@@ -2,7 +2,7 @@ package argonaut
 
 import Data._
 import JsonIdentity._
-import scala.collection.immutable.SortedSet
+import scala.collection.immutable.{ SortedSet, SortedMap }
 import scala.collection.mutable.ArrayBuffer
 import scalaz._, Scalaz._
 import scalaz.scalacheck.ScalaCheckBinding._
@@ -26,6 +26,9 @@ object CodecSpecification extends Specification with ScalaCheck {
 
   implicit def ArrayBufferEquality[A: Equal]: Equal[ArrayBuffer[A]] =
     Equal[List[A]].contramap(_.toList)
+
+  implicit def SortedMapEquality[A: Equal]: Equal[SortedMap[String, A]] =
+    Equal[Map[String, A]].contramap(m => m)
 
   def encodedecode[A: EncodeJson: DecodeJson: Arbitrary: Equal] =
     forAll(CodecJson.derived[A].codecLaw.encodedecode(_))
@@ -65,6 +68,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     Either[String, Int] encode/decode ${encodedecode[Either[String, Int]]}
     String \\/ Int encode/decode ${encodedecode[String \/ Int]}
     Map[String, Int] encode/decode ${encodedecode[Map[String, Int]]}
+    SortedMap[String, Int] encode/decode ${encodedecode[SortedMap[String, Int]]}
     Set[String] encode/decode ${encodedecode[Set[String]]}
     ISet[Int] encode/decode ${encodedecode[ISet[Int]]}
     IList[Int] encode/decode ${encodedecode[IList[Int]]}
