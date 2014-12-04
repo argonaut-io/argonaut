@@ -17,6 +17,7 @@ object JsonNumberSpecification extends Specification with ScalaCheck {
       Fail on trailing decimal point.           $failOnTrailingDecimal
       Fail on leading zero.                     $failOnLeadingZero
       Fail on trailing 'e'.                     $failOnTrailingE
+      Equivalent numbers are equal.             $equivalentNumbersAreEqual
   """
 
   def longValuesProduceLongs = prop { (value: Long) =>
@@ -28,6 +29,11 @@ object JsonNumberSpecification extends Specification with ScalaCheck {
       case JsonDecimal(value) => num.value must_== value
       case JsonLong(value) => num.value must_== value.toString
     }
+  }
+
+  def equivalentNumbersAreEqual = prop { (pair: EquivalentJsonNumberPair) =>
+    val EquivalentJsonNumberPair(lhs, rhs) = pair
+    lhs must_== rhs
   }
 
   def failOnEmptyString = JsonNumber.fromString("") must beNone

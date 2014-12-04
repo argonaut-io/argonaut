@@ -105,7 +105,7 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
    * undetermined, and infinity, resp.
    */
   def normalized: (BigInt, BigDecimal) = {
-    val JsonNumber.JsonNumberRegex(intStr, decStr, expStr) = value
+    val JsonNumber.JsonNumberRegex(negative, intStr, decStr, expStr) = value
 
     def decScale(i: Int): Option[Int] =
       if (i >= decStr.length) None
@@ -114,7 +114,8 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
 
     val rescale =
       if (intStr != "0") Some(intStr.length - 1)
-      else decScale(0)
+      else if (decStr != null) decScale(0)
+      else Some(0)
 
     val unscaledExponent = Option(expStr).map(BigInt(_)).getOrElse(BigInt(0))
     rescale match {
@@ -123,7 +124,7 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
           if (decStr == null) BigDecimal(intStr)
           else BigDecimal(s"$intStr.$decStr")
         val scaledValue = BigDecimal(unscaledValue.bigDecimal.movePointLeft(shift))
-        (unscaledExponent + shift, scaledValue)
+        (unscaledExponent + shift, if (negative != null) -scaledValue else scaledValue)
 
       case None =>
         val exp =
@@ -308,13 +309,14 @@ object JsonNumber {
    * A regular expression that can match a valid JSON number. This has 3 match
    * groups:
    *
-   *  1. The integer part with an optional leading '-'.
-   *  2. The fractional part without the leading period.
-   *  3. The exponent part without the leading 'e', but with an optional leading '+' or '-'.
+   *  1. The optional negative sign.
+   *  2. The integer part with an optional leading '-'.
+   *  3. The fractional part without the leading period.
+   *  4. The exponent part without the leading 'e', but with an optional leading '+' or '-'.
    *
-   * Both the fractional part and exponent part are optional matches and may be
-   * `null`.
+   * The negative sign, fractional part and exponent part are optional matches
+   * and may be `null`.
    */
   val JsonNumberRegex = 
-    """(-?(?:[1-9][0-9]*|0))(?:\.([0-9]+))?(?:[eE]([-+]?[0-9]+))?""".r
+    """(-)?((?:[1-9][0-9]*|0))(?:\.([0-9]+))?(?:[eE]([-+]?[0-9]+))?""".r
 }
