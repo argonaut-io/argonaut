@@ -66,6 +66,12 @@ sealed abstract class JsonNumber {
     case JsonLong(n) => JsonDecimal(n.toString)
     case JsonDouble(n) => JsonDecimal(n.toString)
   }
+
+  override def hashCode: Int = toJsonDecimal.normalized.hashCode
+  override def equals(that: Any): Boolean = that match {
+    case (that: JsonNumber) => this === that
+    case _ => false
+  }
 }
 
 /**
