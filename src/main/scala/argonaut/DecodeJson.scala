@@ -130,41 +130,37 @@ object DecodeJson extends DecodeJsons {
   def derive[A]: DecodeJson[A] =
     macro GenericMacros.materialize[DecodeJson[A], A]
 
-  object auto {
-    implicit def AutoDecodeJson[A]: DecodeJson[A] =
-      macro GenericMacros.materialize[DecodeJson[A], A]
-  }
+  object auto extends SimpleTypeClassCompanion[DecodeJson] {
+    implicit def AutoDecodeJson[A]: DecodeJson[A] = macro GenericMacros.materialize[DecodeJson[A], A]
 
-  implicit def DecodeJsonTypeClass: LabelledTypeClass = new LabelledTypeClass {
-    type C[T] = DecodeJson[T]
-    type Elem[T] = DecodeJson[T]
+    object typeClass extends SimpleTypeClass with LabelledTypeClass {
+      override def emptyCoproduct: DecodeJson[CNil] = DecodeJson(c => DecodeResult.fail("CNil", c.history))
 
-    override def emptyCoproduct: DecodeJson[CNil] = DecodeJson(c => DecodeResult.fail("CNil", c.history))
-
-    override def coproduct[L, R <: Coproduct](name: String, djl: => DecodeJson[L], djr: => DecodeJson[R]): DecodeJson[L :+: R] = {
-      DecodeJson { c =>
-        (c --\ name).focus.fold[DecodeResult[L :+: R]](
-          djr.decode(c).map(Inr(_))
-        )(aJson => aJson.as(djl).map(Inl(_)))
+      override def coproduct[L, R <: Coproduct](name: String, djl: => DecodeJson[L], djr: => DecodeJson[R]): DecodeJson[L :+: R] = {
+        DecodeJson { c =>
+          (c --\ name).focus.fold[DecodeResult[L :+: R]](
+            djr.decode(c).map(Inr(_))
+          )(aJson => aJson.as(djl).map(Inl(_)))
+        }
       }
-    }
 
-    override def emptyProduct: DecodeJson[HNil] = { 
-      DecodeJson(c =>
-        c.focus.obj.filter(_.isEmpty).fold[DecodeResult[HNil]](
-          DecodeResult.fail("HNil", c.history)
-        )(_ => (HNil: HNil).point[DecodeResult])
-      )
-    }
-
-    override def product[A, T <: HList](name: String, A: DecodeJson[A], T: DecodeJson[T]): DecodeJson[A :: T] = {
-      DecodeJson { c =>
-        val aJson = c --\ name
-        (aJson.as(A) |@| aJson.delete.as(T))(_ :: _)
+      override def emptyProduct: DecodeJson[HNil] = { 
+        DecodeJson(c =>
+          c.focus.obj.filter(_.isEmpty).fold[DecodeResult[HNil]](
+            DecodeResult.fail("HNil", c.history)
+          )(_ => (HNil: HNil).point[DecodeResult])
+        )
       }
-    }
 
-    override def project[F, G](instance: => DecodeJson[G], to: F => G, from: G => F): DecodeJson[F] = instance.map(from)
+      override def product[A, T <: HList](name: String, A: DecodeJson[A], T: DecodeJson[T]): DecodeJson[A :: T] = {
+        DecodeJson { c =>
+          val aJson = c --\ name
+          (aJson.as(A) |@| aJson.delete.as(T))(_ :: _)
+        }
+      }
+
+      override def project[F, G](instance: => DecodeJson[G], to: F => G, from: G => F): DecodeJson[F] = instance.map(from)
+    }
   }
 
   def of[A: DecodeJson] =
