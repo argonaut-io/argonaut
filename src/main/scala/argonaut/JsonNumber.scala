@@ -12,10 +12,11 @@ import monocle.std._
 sealed abstract class JsonNumber {
   import Json._
 
+  def toBigDecimal: BigDecimal
   def toDouble: Double
   def toFloat: Float
-  def toInt: Int
   def toLong: Long
+  def toInt: Int
   def toShort: Short
 
   /** Safely coerce to an `Int` if this number fits in an `Int`, otherwise `None` */
@@ -60,14 +61,49 @@ sealed abstract class JsonNumber {
     asJson.getOrElse(jString(toString))
 }
 
+case class JsonLazyDecimal private[argonaut] (value: String) extends JsonNumber {
+  lazy val toBigDecimal: BigDecimal = BigDecimal(value)
+  lazy val toDouble: Double = value.toDouble
+
+  def toFloat = toDouble.toFloat
+  def toLong = toBigDecimal.toLong
+  def toInt = toDouble.toInt
+  def toShort = toDouble.toShort
+}
+
+case class JsonDecimal(value: BigDecimal) extends JsonNumber {
+  def toBigDecimal = value
+  def toDouble = value.toDouble
+  def toFloat = value.toFloat
+  def toInt = value.toInt
+  def toLong = value.toLong
+  def toShort = value.toShort
+
+  override def safeInt: Option[Int] =
+    if (value.isValidInt) Some(toInt) else None
+
+  override def safeLong: Option[Long] =
+    if (value.isValidLong) Some(toLong) else None
+}
+
 case class JsonLong(value: Long) extends JsonNumber {
+  def toBigDecimal = BigDecimal(value)
   def toDouble = value.toDouble
   def toFloat = value.toFloat
   def toInt = value.toInt
   def toLong = value
   def toShort = value.toShort
+
+  override def safeInt: Option[Int] = {
+    if (value >= Int.MinValue && value <= Int.MaxValue) Some(value.toInt)
+    else None
+  }
+
+  override def safeLong: Option[Long] = Some(value)
 }
+
 case class JsonDouble(value: Double) extends JsonNumber {
+  def toBigDecimal = BigDecimal(value)
   def toDouble = value
   def toFloat = value.toFloat
   def toInt = value.toInt
@@ -79,9 +115,119 @@ case class JsonDouble(value: Double) extends JsonNumber {
 
 object JsonNumber {
   implicit val JsonNumberEqual: Equal[JsonNumber] = new Equal[JsonNumber] {
-    def equal(a: JsonNumber, b: JsonNumber) = a match {
-      case JsonLong(n) => n == b.toLong
-      case JsonDouble(n) => n == b.toDouble
+    def equal(a: JsonNumber, b: JsonNumber) = (a, b) match {
+      case (JsonLong(x), JsonLong(y)) => x == y
+      case (JsonDouble(x), JsonLong(y)) => x == y
+      case (JsonLong(x), JsonDouble(y)) => y == x
+      case (JsonDouble(x), JsonDouble(y)) => x == y
+      case _ => a.toBigDecimal == b.toBigDecimal
     }
   }
+
+  /**
+   * Constructs a lazy `JsonNumber` whose value is ***not** verified. It is
+   * assumed that `value` is a valid JSON number, according to the JSON
+   * specification If the value is invalid then the results are undefined.
+   */
+  def unsafeLazyDecimal(value: String): JsonNumber = JsonLazyDecimal(value)
+
+  /**
+   * Parses a JSON number from a string. A String is valid if it conforms to
+   * the grammar in the JSON specification (RFC 4627 -
+   * http://www.ietf.org/rfc/rfc4627.txt), section 2.4. If it is valid, then
+   * the number is returned in a `Some`. Otherwise the number is invalid and
+   * `None` is returned.
+   *
+   * @param value a JSON number encoded as a string
+   * @return a JSON number if the string is valid
+   */
+  def fromString(value: String): Option[JsonNumber] = {
+
+    // Span over [0-9]*
+    def digits(index: Int): Int = {
+      if (index >= value.length) value.length
+      else {
+        val char = value(index)
+        if (char >= '0' && char <= '9') digits(index + 1)
+        else index
+      }
+    }
+
+    // Verify [0-9]+
+    def digits1(index: Int): Int = {
+      val end = digits(index)
+      if (end == index) -1
+      else end
+    }
+
+    // Verify 0 | [1-9][0-9]*
+    def natural(index: Int): Int = {
+      if (index >= value.length) -1
+      else {
+        val char = value(index)
+        if (char == '0') index + 1
+        else if (char >= '1' && char <= '9') digits(index + 1)
+        else index
+      }
+    }
+
+    // Verify -?(0 | [1-9][0-9]*)
+    def integer(index: Int): Int = {
+      if (index >= value.length) -1
+      else if (value(index) == '-') natural(index + 1)
+      else natural(index)
+    }
+
+    // Span .[0-9]+
+    def decimal(index: Int): Int = {
+      if (index < 0 || index >= value.length) value.length
+      else if (value(index) == '.') digits1(index + 1)
+      else index
+    }
+
+    // Span e[-+]?[0-9]+
+    def exponent(index: Int): Int = {
+      if (index < 0 || index >= value.length) value.length
+      else {
+        val e = value(index)
+        val index0 =
+          if (e == 'e' || e == 'E') index + 1
+          else index
+        if (index0 >= value.length) -1
+        else {
+          val sign = value(index0)
+          if (sign == '+' || sign == '-') digits1(index0 + 1)
+          else digits1(index0)
+        }
+      }
+    }
+
+    val intIndex = integer(0)
+    val decIndex = decimal(intIndex)
+    val expIndex = exponent(decIndex)
+
+    val invalid =
+      (expIndex != value.length) ||
+      (intIndex == -1) ||
+      (decIndex == -1)
+
+    // Assuming the number is an integer, does it fit in a Long?
+    def isLong: Boolean = {
+      val upperBound = if (value(0) == '-') MinLongString else MaxLongString
+      (value.length < upperBound.length) ||
+        ((value.length == upperBound.length) &&
+          value.compareTo(upperBound) <= 0)
+    }
+
+    if (invalid) {
+      None
+    } else if (intIndex == expIndex && isLong) {
+      Some(JsonLong(value.toLong))
+    } else {
+      Some(JsonLazyDecimal(value))
+    }
+  }
+
+  private val MaxLongString = Long.MaxValue.toString
+  private val MinLongString = Long.MinValue.toString
 }

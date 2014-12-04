@@ -169,6 +169,8 @@ sealed trait PrettyParams {
         , n => n match {
           case JsonLong(x) => builder append x.toString
           case JsonDouble(x) => builder append x.toString
+          case JsonLazyDecimal(x) => builder append x
+          case JsonDecimal(x) => builder append x.toString
         }
         , s => encloseJsonString(builder, s)
         , e => {

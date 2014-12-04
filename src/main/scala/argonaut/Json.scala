@@ -713,6 +713,58 @@ trait Jsons {
   def jNumberOrString(n: Double): Json = JsonDouble(n).asJsonOrString
 
   /**
+   * Construct a JSON value that is a number.
+   *
+   * Note: NaN, +Infinity and -Infinity are not valid json.
+   */
+  def jNumber(n: BigDecimal): Option[Json] = JsonDecimal(n).asJson
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to jNull. This matches
+   * the behaviour of most browsers, but is a lossy operation
+   * as you can no longer distinguish between NaN and Infinity.
+   */
+  def jNumberOrNull(n: BigDecimal): Json = JsonDecimal(n).asJsonOrNull
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to their string implementations.
+   *
+   * This is an argonaut specific transformation that allows all
+   * doubles to be encoded without losing information, but aware
+   * interoperability is unlikely without custom handling of
+   * these values. See also `jNumber` and `jNumberOrNull`.
+   */
+  def jNumberOrString(n: BigDecimal): Json = JsonDecimal(n).asJsonOrString
+
+  /**
+   * Construct a JSON value that is a number.
+   *
+   * Note: NaN, +Infinity and -Infinity are not valid json.
+   */
+  def jNumber(n: String): Option[Json] = JsonNumber.fromString(n).flatMap(_.asJson)
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to jNull. This matches
+   * the behaviour of most browsers, but is a lossy operation
+   * as you can no longer distinguish between NaN and Infinity.
+   */
+  def jNumberOrNull(n: String): Json = JsonNumber.fromString(n).flatMap(_.asJson).getOrElse(jNull)
+
+  /**
+   * Construct a JSON value that is a number. Transforming
+   * NaN, +Infinity and -Infinity to their string implementations.
+   *
+   * This is an argonaut specific transformation that allows all
+   * doubles to be encoded without losing information, but aware
+   * interoperability is unlikely without custom handling of
+   * these values. See also `jNumber` and `jNumberOrNull`.
+   */
+  def jNumberOrString(n: String): Json = JsonNumber.fromString(n).flatMap(_.asJson).getOrElse(jString(n))
+
+  /**
    * Construct a JSON value that is a string.
    */
   val jString: JsonString => Json =
