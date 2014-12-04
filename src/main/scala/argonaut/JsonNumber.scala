@@ -61,6 +61,13 @@ sealed abstract class JsonNumber {
     asJson.getOrElse(jString(toString))
 }
 
+/**
+ * A JsonDecimal represents and valid JSON number as a String. Unfortunately,
+ * there is no type in the Scala standard library which can represent all valid
+ * JSON decimal numbers, since the exponent may be larger than an `Int`. Such
+ * a number can still be round tripped (parser to printer). We lazily parse the
+ * string to a `BigDecimal` or a `Double` on demand.
+ */
 case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
   lazy val toBigDecimal: BigDecimal = BigDecimal(value)
   lazy val toDouble: Double = value.toDouble
@@ -125,9 +132,12 @@ object JsonNumber {
   }
 
   /**
-   * Constructs a lazy `JsonNumber` whose value is ***not** verified. It is
-   * assumed that `value` is a valid JSON number, according to the JSON
-   * specification If the value is invalid then the results are undefined.
+   * Returns a `JsonNumber` whose value is the valid JSON number in `value`.
+   * This value is **not** verified to be a valid JSON string. It is assumed
+   * that `value` is a valid JSON number, according to the JSON specification.
+   * If the value is invalid then the results are undefined. This is provided
+   * for use in places like a Jawn parser facade, which provides its own
+   * verification of JSON numbers.
    */
   def unsafeDecimal(value: String): JsonNumber = JsonDecimal(value)
 
