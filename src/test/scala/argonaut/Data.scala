@@ -18,6 +18,46 @@ object Data {
   val jsonNumberGenerator: Gen[JNumber] =
     jsonNumberRepGenerator.map(number => JNumber(number))
 
+  case class ValidJsonNumber(value: String)
+
+  /** Generates a random, valid JSON number. */
+  val validJsonNumber: Gen[ValidJsonNumber] = {
+    val digits: Gen[String] = Gen.listOf(Gen.numChar).map(_.mkString)
+
+    val digits1: Gen[String] = for {
+      head <- Gen.numChar.map(_.toString)
+      tail <- digits
+    } yield s"$head$tail"
+
+    val integer: Gen[String] = Gen.oneOf(
+      Gen.const("0"),
+      for {
+        head <- Gen.choose('1', '9').map(_.toString)
+        tail <- digits
+      } yield s"$head$tail"
+    )
+
+    val decimal: Gen[String] = Gen.oneOf(
+      Gen.const(""),
+      digits1.map("." + _)
+    )
+
+    val exponent: Gen[String] = Gen.oneOf(
+      Gen.const(""),
+      for {
+        exp <- Gen.oneOf("e", "E")
+        sgn <- Gen.oneOf("+", "-", "")
+        num <- digits1
+      } yield s"$exp$sgn$num"
+    )
+
+    for {
+      int <- integer
+      dec <- decimal
+      exp <- exponent
+    } yield ValidJsonNumber(s"$int$dec$exp")
+  }
+
   def isValidJSONCharacter(char: Char): Boolean = !char.isControl && char != '\\' && char != '\"'
 
   val stringGenerator: Gen[String] = arbitrary[String]
@@ -84,6 +124,9 @@ object Data {
 
   implicit def ArbitraryJsonNumber: Arbitrary[JsonNumber] =
     Arbitrary(jsonNumberRepGenerator)
+
+  implicit def ArbitraryValidJsonNumber: Arbitrary[ValidJsonNumber] =
+    Arbitrary(validJsonNumber)
 
   implicit def ArbitraryJArray: Arbitrary[JArray] = Arbitrary(jsonArrayGenerator())
 

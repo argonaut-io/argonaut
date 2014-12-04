@@ -717,7 +717,7 @@ trait Jsons {
    *
    * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  def jNumber(n: BigDecimal): Option[Json] = JsonDecimal(n).asJson
+  def jNumber(n: BigDecimal): Option[Json] = JsonBigDecimal(n).asJson
 
   /**
    * Construct a JSON value that is a number. Transforming
@@ -725,7 +725,7 @@ trait Jsons {
    * the behaviour of most browsers, but is a lossy operation
    * as you can no longer distinguish between NaN and Infinity.
    */
-  def jNumberOrNull(n: BigDecimal): Json = JsonDecimal(n).asJsonOrNull
+  def jNumberOrNull(n: BigDecimal): Json = JsonBigDecimal(n).asJsonOrNull
 
   /**
    * Construct a JSON value that is a number. Transforming
@@ -736,7 +736,7 @@ trait Jsons {
    * interoperability is unlikely without custom handling of
    * these values. See also `jNumber` and `jNumberOrNull`.
    */
-  def jNumberOrString(n: BigDecimal): Json = JsonDecimal(n).asJsonOrString
+  def jNumberOrString(n: BigDecimal): Json = JsonBigDecimal(n).asJsonOrString
 
   /**
    * Construct a JSON value that is a number.

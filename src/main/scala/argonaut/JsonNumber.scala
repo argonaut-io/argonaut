@@ -61,7 +61,7 @@ sealed abstract class JsonNumber {
     asJson.getOrElse(jString(toString))
 }
 
-case class JsonLazyDecimal private[argonaut] (value: String) extends JsonNumber {
+case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
   lazy val toBigDecimal: BigDecimal = BigDecimal(value)
   lazy val toDouble: Double = value.toDouble
 
@@ -71,7 +71,7 @@ case class JsonLazyDecimal private[argonaut] (value: String) extends JsonNumber 
   def toShort = toDouble.toShort
 }
 
-case class JsonDecimal(value: BigDecimal) extends JsonNumber {
+case class JsonBigDecimal(value: BigDecimal) extends JsonNumber {
   def toBigDecimal = value
   def toDouble = value.toDouble
   def toFloat = value.toFloat
@@ -129,7 +129,7 @@ object JsonNumber {
    * assumed that `value` is a valid JSON number, according to the JSON
    * specification If the value is invalid then the results are undefined.
    */
-  def unsafeLazyDecimal(value: String): JsonNumber = JsonLazyDecimal(value)
+  def unsafeDecimal(value: String): JsonNumber = JsonDecimal(value)
 
   /**
    * Parses a JSON number from a string. A String is valid if it conforms to
@@ -180,24 +180,27 @@ object JsonNumber {
 
     // Span .[0-9]+
     def decimal(index: Int): Int = {
-      if (index < 0 || index >= value.length) value.length
+      if (index < 0 || index >= value.length) index
       else if (value(index) == '.') digits1(index + 1)
       else index
     }
 
     // Span e[-+]?[0-9]+
     def exponent(index: Int): Int = {
-      if (index < 0 || index >= value.length) value.length
+      if (index < 0 || index >= value.length) index
       else {
         val e = value(index)
-        val index0 =
-          if (e == 'e' || e == 'E') index + 1
-          else index
-        if (index0 >= value.length) -1
-        else {
-          val sign = value(index0)
-          if (sign == '+' || sign == '-') digits1(index0 + 1)
-          else digits1(index0)
+        if (e == 'e' || e == 'E') {
+          val index0 = index + 1
+          if (index0 < value.length) {
+            val sign = value(index0)
+            if (sign == '+' || sign == '-') digits1(index0 + 1)
+            else digits1(index0)
+          } else {
+            -1
+          }
+        } else {
+          -1
         }
       }
     }
@@ -208,6 +211,7 @@ object JsonNumber {
 
     val invalid =
       (expIndex != value.length) ||
+      (intIndex == 0) ||
       (intIndex == -1) ||
       (decIndex == -1)
 
@@ -224,7 +228,7 @@ object JsonNumber {
     } else if (intIndex == expIndex && isLong) {
       Some(JsonLong(value.toLong))
     } else {
-      Some(JsonLazyDecimal(value))
+      Some(JsonDecimal(value))
     }
   }
 
