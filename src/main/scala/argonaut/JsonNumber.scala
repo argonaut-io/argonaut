@@ -59,6 +59,13 @@ sealed abstract class JsonNumber {
    */
   def asJsonOrString: Json =
     asJson.getOrElse(jString(toString))
+
+  def toJsonDecimal: JsonDecimal = this match {
+    case n @ JsonDecimal(_) => n
+    case JsonBigDecimal(n) => JsonDecimal(n.toString)
+    case JsonLong(n) => JsonDecimal(n.toString)
+    case JsonDouble(n) => JsonDecimal(n.toString)
+  }
 }
 
 /**
@@ -76,6 +83,50 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
   def toLong = toBigDecimal.toLong
   def toInt = toDouble.toInt
   def toShort = toDouble.toShort
+
+  /**
+   * Returns a *normalized* version of this Decimal number. Since BigDecimal
+   * cannot represent all valid JSON value exactly, due to the exponent being
+   * limited to an `Int`, this method let's us get a normalized number that
+   * can be used to compare for equality.
+   *
+   * The 1st value (BigInt) is the exponent used to scale the 2nd value
+   * (BigDecimal) back to the original value represented by this number.  The
+   * 2nd BigDecimal will always either be 0 or a number with exactly 1 decimal
+   * digit to the right of the decimal point.  If the 2nd value is 0, then the
+   * exponent (1st value) will be 1 of 3 values: 1, 0, or -1 (the sign of the
+   * parsed exponent). This is so that we have 1 canonical value for 0,
+   * undetermined, and infinity, resp.
+   */
+  def normalized: (BigInt, BigDecimal) = {
+    val JsonNumber.JsonNumberRegex(intStr, decStr, expStr) = value
+
+    def decScale(i: Int): Option[Int] =
+      if (i >= decStr.length) None
+      else if (decStr(i) == '0') decScale(i + 1)
+      else Some(- i - 1)
+
+    val rescale =
+      if (intStr != "0") Some(intStr.length - 1)
+      else decScale(0)
+
+    val unscaledExponent = Option(expStr).map(BigInt(_)).getOrElse(BigInt(0))
+    rescale match {
+      case Some(shift) =>
+        val unscaledValue =
+          if (decStr == null) BigDecimal(intStr)
+          else BigDecimal(s"$intStr.$decStr")
+        val scaledValue = BigDecimal(unscaledValue.bigDecimal.movePointLeft(shift))
+        (unscaledExponent + shift, scaledValue)
+
+      case None =>
+        val exp =
+          if (unscaledExponent < 0) -1
+          else if (unscaledExponent > 0) 1
+          else 0
+        (BigInt(exp), BigDecimal(0))
+    }
+  }
 }
 
 case class JsonBigDecimal(value: BigDecimal) extends JsonNumber {
@@ -123,6 +174,8 @@ case class JsonDouble(value: Double) extends JsonNumber {
 object JsonNumber {
   implicit val JsonNumberEqual: Equal[JsonNumber] = new Equal[JsonNumber] {
     def equal(a: JsonNumber, b: JsonNumber) = (a, b) match {
+      case (a @ JsonDecimal(_), _) => a.normalized == b.toJsonDecimal.normalized
+      case (_, b @ JsonDecimal(_)) => a.toJsonDecimal.normalized == b.normalized
       case (JsonLong(x), JsonLong(y)) => x == y
       case (JsonDouble(x), JsonLong(y)) => x == y
       case (JsonLong(x), JsonDouble(y)) => y == x
@@ -244,4 +297,18 @@ object JsonNumber {
 
   private val MaxLongString = Long.MaxValue.toString
   private val MinLongString = Long.MinValue.toString
+
+  /**
+   * A regular expression that can match a valid JSON number. This has 3 match
+   * groups:
+   *
+   *  1. The integer part with an optional leading '-'.
+   *  2. The fractional part without the leading period.
+   *  3. The exponent part without the leading 'e', but with an optional leading '+' or '-'.
+   *
+   * Both the fractional part and exponent part are optional matches and may be
+   * `null`.
+   */
+  val JsonNumberRegex = 
+    """(-?(?:[1-9][0-9]*|0))(?:\.([0-9]+))?(?:[eE]([-+]?[0-9]+))?""".r
 }
