@@ -306,11 +306,11 @@ object JsonNumber {
   private val MinLongString = Long.MinValue.toString
 
   /**
-   * A regular expression that can match a valid JSON number. This has 3 match
+   * A regular expression that can match a valid JSON number. This has 4 match
    * groups:
    *
    *  1. The optional negative sign.
-   *  2. The integer part with an optional leading '-'.
+   *  2. The integer part.
    *  3. The fractional part without the leading period.
    *  4. The exponent part without the leading 'e', but with an optional leading '+' or '-'.
    *
