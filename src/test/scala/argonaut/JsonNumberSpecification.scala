@@ -17,6 +17,8 @@ object JsonNumberSpecification extends Specification with ScalaCheck {
       Fail on trailing decimal point.           $failOnTrailingDecimal
       Fail on leading zero.                     $failOnLeadingZero
       Fail on trailing 'e'.                     $failOnTrailingE
+
+    equals should
       Equivalent numbers are equal.             $equivalentNumbersAreEqual
   """
 
