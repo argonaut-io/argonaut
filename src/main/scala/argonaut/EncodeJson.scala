@@ -115,6 +115,12 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
   implicit val ShortEncodeJson: EncodeJson[Short] =
     EncodeJson(a => JsonLong(a.toLong).asJsonOrNull)
 
+  implicit val BigDecimalEncodeJson: EncodeJson[BigDecimal] =
+    EncodeJson(a => JsonBigDecimal(a).asJsonOrNull)
+
+  implicit val BigIntEncodeJson: EncodeJson[BigInt] =
+    EncodeJson(a => JsonBigDecimal(BigDecimal(a)).asJsonOrNull)
+
   implicit val BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool)
 
