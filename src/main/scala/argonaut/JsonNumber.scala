@@ -154,9 +154,7 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
    * (BigDecimal) back to the original value represented by this number.  The
    * 2nd BigDecimal will always either be 0 or a number with exactly 1 decimal
    * digit to the right of the decimal point.  If the 2nd value is 0, then the
-   * exponent (1st value) will be 1 of 3 values: 1, 0, or -1 (the sign of the
-   * parsed exponent). This is so that we have 1 canonical value for 0,
-   * undetermined, and infinity, resp.
+   * exponent will always be 0 as well.
    */
   def normalized: (BigInt, BigDecimal) = {
     val JsonNumber.JsonNumberRegex(negative, intStr, decStr, expStr) = value
@@ -169,7 +167,7 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
     val rescale =
       if (intStr != "0") Some(intStr.length - 1)
       else if (decStr != null) decScale(0)
-      else Some(0)
+      else None
 
     val unscaledExponent = Option(expStr).map(BigInt(_)).getOrElse(BigInt(0))
     rescale match {
@@ -181,11 +179,7 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
         (unscaledExponent + shift, if (negative != null) -scaledValue else scaledValue)
 
       case None =>
-        val exp =
-          if (unscaledExponent < 0) -1
-          else if (unscaledExponent > 0) 1
-          else 0
-        (BigInt(exp), BigDecimal(0))
+        (BigInt(0), BigDecimal(0))
     }
   }
 }
