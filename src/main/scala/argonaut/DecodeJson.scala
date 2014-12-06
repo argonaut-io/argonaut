@@ -236,7 +236,7 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
 
   implicit def BigIntDecodeJson: DecodeJson[BigInt] =
     optionDecoder(x =>
-      (x.number map (_.toBigDecimal.toBigInt)).orElse(
+      (x.number map (_.truncateToBigInt)).orElse(
       (x.string flatMap (s => tryTo(BigInt(s))))), "BigInt")
 
   implicit def BigDecimalDecodeJson: DecodeJson[BigDecimal] =

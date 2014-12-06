@@ -512,6 +512,18 @@ trait Jsons {
 
   /**
    * A Prism for JSON number values.
+   */
+  def jBigDecimalPrism: SimplePrism[Json, BigDecimal] =
+    SimplePrism[Json, BigDecimal](
+      d => JNumber(JsonBigDecimal(d)),
+      _.fold(None,
+             _ => None,
+             n => Some(n.toBigDecimal),
+             _ => None,
+             _ => None,
+             _ => None))
+  /**
+   * A Prism for JSON number values.
    * Note: It is an invalid Prism for NaN, +Infinity and -Infinity as they are not valid json.
    */
   def jDoublePrism: SimplePrism[Json, Double] =
@@ -525,14 +537,66 @@ trait Jsons {
              _ => None))
 
   /**
-   * A Prism for JSON integer values.
+   * A Prism for JSON BigInt values.
+   */
+  def jBigIntPrism: SimplePrism[Json, BigInt] =
+    SimplePrism[Json, BigInt](
+      i => JNumber(JsonBigDecimal(BigDecimal(i))),
+      _.fold(None,
+             _ => None,
+             n => n.toBigInt,
+             _ => None,
+             _ => None,
+             _ => None))
+
+  /**
+   * A Prism for JSON Long values.
+   */
+  def jLongPrism: SimplePrism[Json, Long] =
+    SimplePrism[Json, Long](
+      i => JNumber(JsonLong(i)),
+      _.fold(None,
+             _ => None,
+             n => n.toLong,
+             _ => None,
+             _ => None,
+             _ => None))
+
+  /**
+   * A Prism for JSON Int values.
    */
   def jIntPrism: SimplePrism[Json, Int] =
     SimplePrism[Json, Int](
       i => JNumber(JsonLong(i.toLong)),
       _.fold(None,
              _ => None,
-             n => n.safeInt,
+             n => n.toInt,
+             _ => None,
+             _ => None,
+             _ => None))
+
+  /**
+   * A Prism for JSON Short values.
+   */
+  def jShortPrism: SimplePrism[Json, Short] =
+    SimplePrism[Json, Short](
+      i => JNumber(JsonLong(i.toLong)),
+      _.fold(None,
+             _ => None,
+             n => n.toShort,
+             _ => None,
+             _ => None,
+             _ => None))
+
+  /**
+   * A Prism for JSON Byte values.
+   */
+  def jBytePrism: SimplePrism[Json, Byte] =
+    SimplePrism[Json, Byte](
+      i => JNumber(JsonLong(i.toLong)),
+      _.fold(None,
+             _ => None,
+             n => n.toByte,
              _ => None,
              _ => None,
              _ => None))

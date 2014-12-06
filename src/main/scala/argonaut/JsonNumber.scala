@@ -34,6 +34,50 @@ sealed abstract class JsonNumber {
   def toFloat: Float = toDouble.toFloat
 
   /**
+   * Returns this number as a `BigInt`, only if this number is an integer.
+   */
+  def toBigInt: Option[BigInt] = {
+    val n = toBigDecimal
+    if (n.isWhole) Some(n.toBigInt)
+    else None
+  }
+
+  /**
+   * Returns this number as a `Long`, only if this number is a valid `Long`.
+   */
+  def toLong: Option[Long]
+
+  /**
+   * Returns this number as a `Int`, only if this number is a valid `Int`.
+   */
+  def toInt: Option[Int] = toLong flatMap { n =>
+    val m = n.toInt
+    if (n == m) Some(m) else None
+  }
+
+  /**
+   * Returns this number as a `Short`, only if this number is a valid `Short`.
+   */
+  def toShort: Option[Short] = toLong flatMap { n =>
+    val m = n.toShort
+    if (n == m) Some(m) else None
+  }
+
+  /**
+   * Returns this number as a `Byte`, only if this number is a valid `Byte`.
+   */
+  def toByte: Option[Byte] = toLong flatMap { n =>
+    val m = n.toByte
+    if (n == m) Some(m) else None
+  }
+
+  /**
+   * Truncates the number to a BigInt. Truncation means that we round the real
+   * number towards 0 to the closest BigInt.
+   */
+  def truncateToBigInt: BigInt =  toBigDecimal.toBigInt
+
+  /**
    * Truncates the number to a Long. Truncation means that we round the real
    * number towards 0 to the closest, valid Long. So, if the number is 1e99,
    * then this will return `Long.MaxValue`.
@@ -71,17 +115,21 @@ sealed abstract class JsonNumber {
     else n.toByte
   }
 
-  /** Safely coerce to an `Int` if this number fits in an `Int`, otherwise `None` */
-  def safeInt: Option[Int] = safeCast[Double, Int].getOption(toDouble)
-
-  /** Safely coerce to a `Long` if this number fits in a `Long`, otherwise `None` */
-  def safeLong: Option[Long] = {
-    val n = toDouble
-    (n.floor == n) option truncateToLong
-  }
-
+  /**
+   * Returns `true` iff this number wraps a `Double` and it is `NaN`.
+   */
   def isNaN: Boolean = false
+
+  /**
+   * Returns `true` iff this number wraps a `Double` and it is
+   * `PositiveInfinity` or `NegativeInfinitey`.
+   */
   def isInfinity: Boolean = false
+
+  /**
+   * Returns true if this is a valid real number (ie. `!(isNaN || isInfinity)`).
+   */
+  def isReal: Boolean = !(isNaN || isInfinity)
 
   /**
    * Construct a JSON value that is a number.
@@ -112,17 +160,37 @@ sealed abstract class JsonNumber {
   def asJsonOrString: Json =
     asJson.getOrElse(jString(toString))
 
-  def toJsonDecimal: JsonDecimal = this match {
+  // Force this `JsonNumber` into a `JsonDecimal` by using the underlying
+  // numbers toString. Isn't safe is `isReal` is `false.
+  private def toJsonDecimal: JsonDecimal = this match {
     case n @ JsonDecimal(_) => n
     case JsonBigDecimal(n) => JsonDecimal(n.toString)
     case JsonLong(n) => JsonDecimal(n.toString)
     case JsonDouble(n) => JsonDecimal(n.toString)
   }
 
-  override def hashCode: Int = toJsonDecimal.normalized.hashCode
+  override def hashCode: Int =
+    if (isReal) toJsonDecimal.normalized.hashCode
+    else toDouble.hashCode
+
   override def equals(that: Any): Boolean = that match {
-    case (that: JsonNumber) => this === that
-    case _ => false
+    case (that: JsonNumber) =>
+      if (this.isReal && that.isReal) {
+        (this, that) match {
+          case (a @ JsonDecimal(_), b) => a.normalized == b.toJsonDecimal.normalized
+          case (a, b @ JsonDecimal(_)) => a.toJsonDecimal.normalized == b.normalized
+          case (JsonLong(x), JsonLong(y)) => x == y
+          case (JsonDouble(x), JsonLong(y)) => x == y
+          case (JsonLong(x), JsonDouble(y)) => y == x
+          case (JsonDouble(x), JsonDouble(y)) => x == y
+          case (a, b) => a.toBigDecimal == b.toBigDecimal
+        }
+      } else {
+        this.toDouble == that.toDouble
+      }
+
+    case _ =>
+      false
   }
 }
 
@@ -136,6 +204,12 @@ sealed abstract class JsonNumber {
 case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
   lazy val toBigDecimal: BigDecimal = BigDecimal(value)
   lazy val toDouble: Double = value.toDouble
+
+  def toLong: Option[Long] = {
+    val n = toBigDecimal
+    if (n.isValidLong) Some(n.toLong)
+    else None
+  }
 
   def truncateToLong: Long = {
     val n = toBigDecimal
@@ -189,34 +263,32 @@ case class JsonBigDecimal(value: BigDecimal) extends JsonNumber {
 
   def toDouble = value.toDouble
 
+  def toLong: Option[Long] = {
+    if (value.isValidLong) Some(value.toLong)
+    else None
+  }
+
   def truncateToLong: Long =
     if (value > Long.MaxValue) Long.MaxValue
     else if (value < Long.MinValue) Long.MinValue
     else value.toLong
-
-  override def safeInt: Option[Int] =
-    if (value.isValidInt) Some(truncateToInt) else None
-
-  override def safeLong: Option[Long] =
-    if (value.isValidLong) Some(truncateToLong) else None
 }
 
 case class JsonLong(value: Long) extends JsonNumber {
   def toBigDecimal = BigDecimal(value)
   def toDouble = value.toDouble
+  def toLong: Option[Long] = Some(value)
   def truncateToLong: Long = value
-
-  override def safeInt: Option[Int] = {
-    if (value >= Int.MinValue && value <= Int.MaxValue) Some(value.toInt)
-    else None
-  }
-
-  override def safeLong: Option[Long] = Some(value)
 }
 
 case class JsonDouble(value: Double) extends JsonNumber {
   def toBigDecimal = BigDecimal(value)
   def toDouble = value
+  def toLong: Option[Long] = {
+    val n = value.toLong
+    if (n.toDouble == value) Some(n)
+    else None
+  }
   def truncateToLong: Long = value.toLong
   override def isNaN = value.isNaN
   override def isInfinity = value.isInfinity
@@ -224,15 +296,7 @@ case class JsonDouble(value: Double) extends JsonNumber {
 
 object JsonNumber {
   implicit val JsonNumberEqual: Equal[JsonNumber] = new Equal[JsonNumber] {
-    def equal(a: JsonNumber, b: JsonNumber) = (a, b) match {
-      case (a @ JsonDecimal(_), _) => a.normalized == b.toJsonDecimal.normalized
-      case (_, b @ JsonDecimal(_)) => a.toJsonDecimal.normalized == b.normalized
-      case (JsonLong(x), JsonLong(y)) => x == y
-      case (JsonDouble(x), JsonLong(y)) => x == y
-      case (JsonLong(x), JsonDouble(y)) => y == x
-      case (JsonDouble(x), JsonDouble(y)) => x == y
-      case _ => a.toBigDecimal == b.toBigDecimal
-    }
+    def equal(a: JsonNumber, b: JsonNumber) = a == b
   }
 
   /**

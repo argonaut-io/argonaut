@@ -42,7 +42,7 @@ object JsonSpecification extends Specification with ScalaCheck {
   def modString = prop((j: JString) => j.withString(_ + "test") /== j)
 
   def modNumber = prop((j: JNumber) => j.withNumber { number =>
-    JsonLong(number.safeInt.map(n =>
+    JsonLong(number.toInt.map(n =>
       if (n === 0) (n + 1) else (n * 2)
     ).getOrElse(0).toLong)
   } /== j)
