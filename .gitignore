@@ -14,3 +14,4 @@ target
 repl-port
 *~
 tags
+*.sublime-*

@@ -55,9 +55,8 @@ object EncodeJson extends EncodeJsons {
       macro GenericMacros.deriveLabelledInstance[EncodeJson, A]
   }
 
-  implicit def EncodeJsonTypeClass: LabelledTypeClass[EncodeJson] = new LabelledTypeClass[EncodeJson] {
-    def emptyCoproduct =
-      EncodeJson(_ => jEmptyObject)
+  implicit val EncodeJsonTypeClass: LabelledTypeClass[EncodeJson] = new LabelledTypeClass[EncodeJson] {
+    def emptyCoproduct = EncodeJson(_ => jEmptyObject)
 
     def coproduct[L, R <: Coproduct](name: String, CL: => EncodeJson[L], CR: => EncodeJson[R]): EncodeJson[L :+: R] =
       EncodeJson(a => a match {
@@ -65,24 +64,24 @@ object EncodeJson extends EncodeJsons {
         case Inr(t) => CR.encode(t)
       })
 
-    def emptyProduct =
-      EncodeJson(_ => jEmptyObject)
+    def emptyProduct = EncodeJson(_ => jEmptyObject)
 
-    def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]) =
+    def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]): EncodeJson[A :: T] = {
       EncodeJson(a => (name -> A.encode(a.head)) ->: T.encode(a.tail))
+    }
 
-    def project[F, G](instance: => EncodeJson[G], to : F => G, from : G => F) =
-      instance.contramap(to)
+    def project[F, G](instance: => EncodeJson[G], to : F => G, from : G => F) = instance.contramap(to)
   }
 
-  def of[A: EncodeJson] =
-    implicitly[EncodeJson[A]]
-
+  def of[A: EncodeJson] = implicitly[EncodeJson[A]]
 }
 
 trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
+
+  def fromFoldable[F[_], A](implicit A: EncodeJson[A], F: Foldable[F]): EncodeJson[F[A]] =
+    EncodeJson(fa => jArray(F.foldLeft(fa, Nil: List[Json])((list, a) => A.encode(a) :: list).reverse))
 
   implicit val JsonEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q)
@@ -176,6 +175,28 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
       x.toList map {
         case (k, v) => (k, e(v))
       }
+    ))
+
+  implicit def IListEncodeJson[A: EncodeJson]: EncodeJson[IList[A]] =
+    fromFoldable[IList, A]
+
+  implicit def DListEncodeJson[A: EncodeJson]: EncodeJson[DList[A]] =
+    fromFoldable[DList, A]
+
+  implicit def EphemeralStreamEncodeJson[A: EncodeJson]: EncodeJson[EphemeralStream[A]] =
+    fromFoldable[EphemeralStream, A]
+
+  implicit def ISetEncodeJson[A: EncodeJson]: EncodeJson[ISet[A]] =
+    fromFoldable[ISet, A]
+
+  implicit def NonEmptyListEncodeJson[A: EncodeJson]: EncodeJson[NonEmptyList[A]] =
+    fromFoldable[NonEmptyList, A]
+
+  implicit def IMapEncodeJson[A](implicit A: EncodeJson[A]): EncodeJson[String ==>> A] =
+    EncodeJson(x => jObjectAssocList(
+      x.foldrWithKey(Nil: List[(String, Json)])(
+        (k, v, list) => (k, A(v)) :: list
+      )
     ))
 
   implicit val EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {

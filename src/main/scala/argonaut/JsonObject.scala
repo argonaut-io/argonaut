@@ -15,12 +15,6 @@ sealed trait JsonObject {
   def toMap: Map[JsonField, Json]
 
   /**
-   * Convert to an insertion map.
-   */
-  @deprecated("InsertionMap is deprecated in scalaz 7.1, use toList instead", "6.1")
-  def toInsertionMap: InsertionMap[JsonField, Json]
-
-  /**
    * Insert the given association.
    */
   def +(f: JsonField, j: Json): JsonObject
@@ -108,11 +102,6 @@ private[argonaut] case class JsonObjectInstance(
 
   def toMap: Map[JsonField, Json] = fieldsMap
 
-  @deprecated("InsertionMap is deprecated in scalaz 7.1, use toList instead", "6.1")
-  def toInsertionMap: InsertionMap[JsonField, Json] =
-    orderedFields.foldLeft(InsertionMap.empty[JsonField, Json]){(acc, field) =>
-      acc ^+^ (field, fieldsMap(field))}
-
   def +(f: JsonField, j: Json): JsonObject =
     if (fieldsMap.contains(f)) {
       copy(fieldsMap = fieldsMap.updated(f, j))
@@ -177,10 +166,6 @@ private[argonaut] case class JsonObjectInstance(
 object JsonObject extends JsonObjects {
   def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject =
     f.foldLeft(empty){ case (acc, (k, v)) => acc + (k, v) }
-
-  @deprecated("InsertionMap is deprecated in scalaz 7.1. Use `from[[F[_]: Foldable]] instead", "6.1")
-  def apply(insertionMap: InsertionMap[JsonField, Json]): JsonObject =
-    from(insertionMap.toList)
 
   /**
    * Construct an empty association.
