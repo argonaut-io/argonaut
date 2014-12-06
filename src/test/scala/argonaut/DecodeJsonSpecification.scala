@@ -6,6 +6,10 @@ import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
 import Argonaut._
 
+sealed trait Shape
+case class Circle(radius: Int) extends Shape
+case class Square(side: Int) extends Shape
+
 object DecodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
 
 DecodeJson Witness Compilation
@@ -45,8 +49,6 @@ DecodeJson Auto Derivation
 
 
   object auto {
-    import shapeless._
-    import DecodeJson.auto._
     import TestTypes._
 
     DecodeJson.of[Product]
@@ -55,7 +57,12 @@ DecodeJson Auto Derivation
     DecodeJson.of[Person]
 
     def products = prop((p: Person) =>
-      Json("Person" := Json("name" := p.name, "age" := p.age)).as[Person].toOption must_== Some(p))
+      Json(
+        "name" := p.name,
+        "age" := p.age,
+        "orders" := p.orders,
+        "addressFields" := p.addressFields
+      ).as[Person].toOption must_== Some(p))
 
     DecodeJson.of[Shape]
 
@@ -64,16 +71,5 @@ DecodeJson Auto Derivation
         case Circle(radius) => Json("Circle" := Json("radius" := radius))
         case Square(side) => Json("Square" := Json("side" := side))
       }).as[Shape].toOption must_== Some(s))
-  }
-
-  object derived {
-    import TestTypes._
-
-    implicit def ProductDecodeJson: DecodeJson[Product] = DecodeJson.derive[Product]
-    implicit def OrderLineDecodeJson: DecodeJson[OrderLine] = DecodeJson.derive[OrderLine]
-    implicit def OrderDecodeJson: DecodeJson[Order] = DecodeJson.derive[Order]
-    implicit def PersonDecodeJson: DecodeJson[Person] = DecodeJson.derive[Person]
-
-    DecodeJson.of[Person]
   }
 }

@@ -157,29 +157,9 @@ object CodecSpecification extends Specification with ScalaCheck {
     implicit val testClassEncode: CodecJson[TestClass] = CodecJson.casecodec22(TestClass.apply, TestClass.unapply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
   }
 
-  object derived {
-    case class Person(name: String, age: Int)
-
-    implicit def PersonEncodeJson: EncodeJson[Person] =
-      EncodeJson.derive[Person]
-
-    implicit def PersonDecodeJson: DecodeJson[Person] =
-      DecodeJson.derive[Person]
-
-    EncodeJson.of[Person]
-    DecodeJson.of[Person]
-
-    CodecJson.derived[Person]
-  }
-
   object auto {
-    import shapeless._
-    import EncodeJson.auto._
-    import DecodeJson.auto._
     import StringWrap._
     import JsonIdentity._
-
-    case class Person(name: String, age: Int)
 
     EncodeJson.of[Person]
     DecodeJson.of[Person]

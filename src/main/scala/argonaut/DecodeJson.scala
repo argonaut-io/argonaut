@@ -123,51 +123,11 @@ object DecodeJson extends DecodeJsons {
         r(c)
     }
 
-  /* ==== shapeless for profit ==== */
-
-  import shapeless._
-
-  def derive[A]: DecodeJson[A] =
-    macro GenericMacros.materialize[DecodeJson[A], A]
-
-  object auto extends SimpleTypeClassCompanion[DecodeJson] {
-    implicit def AutoDecodeJson[A]: DecodeJson[A] = macro GenericMacros.materialize[DecodeJson[A], A]
-
-    object typeClass extends SimpleTypeClass with LabelledTypeClass {
-      override def emptyCoproduct: DecodeJson[CNil] = DecodeJson(c => DecodeResult.fail("CNil", c.history))
-
-      override def coproduct[L, R <: Coproduct](name: String, djl: => DecodeJson[L], djr: => DecodeJson[R]): DecodeJson[L :+: R] = {
-        DecodeJson { c =>
-          (c --\ name).focus.fold[DecodeResult[L :+: R]](
-            djr.decode(c).map(Inr(_))
-          )(aJson => aJson.as(djl).map(Inl(_)))
-        }
-      }
-
-      override def emptyProduct: DecodeJson[HNil] = { 
-        DecodeJson(c =>
-          c.focus.obj.filter(_.isEmpty).fold[DecodeResult[HNil]](
-            DecodeResult.fail("HNil", c.history)
-          )(_ => (HNil: HNil).point[DecodeResult])
-        )
-      }
-
-      override def product[A, T <: HList](name: String, A: DecodeJson[A], T: DecodeJson[T]): DecodeJson[A :: T] = {
-        DecodeJson { c =>
-          val aJson = c --\ name
-          (aJson.as(A) |@| aJson.delete.as(T))(_ :: _)
-        }
-      }
-
-      override def project[F, G](instance: => DecodeJson[G], to: F => G, from: G => F): DecodeJson[F] = instance.map(from)
-    }
-  }
-
   def of[A: DecodeJson] =
     implicitly[DecodeJson[A]]
 }
 
-trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
+trait DecodeJsons extends GeneratedDecodeJsons with AutoDecodeJsons with internal.MacrosCompat {
 
   def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] =
     DecodeJson(a => k(a.focus) match {
@@ -347,4 +307,47 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
         case Some(n) => DecodeResult.ok(n)
       })
     ) setName "[A]NonEmptyList[A]"
+}
+
+trait AutoDecodeJsons {
+  import shapeless._, labelled.{ FieldType, field }
+  
+  implicit val hnilDecodeJson: DecodeJson[HNil] =
+    DecodeJson { c =>
+      if (c.focus.obj.exists(_.isEmpty))
+        (HNil: HNil).point[DecodeResult]
+      else
+        DecodeResult.fail("HNil", c.history)
+    }
+
+  implicit def hconsDecodeJson[K <: Symbol, H, T <: HList](implicit
+    key: Witness.Aux[K],
+    headDecode: Lazy[DecodeJson[H]],
+    tailDecode: Lazy[DecodeJson[T]]
+  ): DecodeJson[FieldType[K, H] :: T] =
+    DecodeJson { c =>
+      val headJson = c --\ key.value.name
+      (headJson.as(headDecode.value).map(field[K](_)) |@| headJson.delete.as(tailDecode.value))(_ :: _)
+    }
+
+  implicit val cnilDecodeJson: DecodeJson[CNil] = 
+    DecodeJson(c => DecodeResult.fail("CNil", c.history))
+
+  implicit def cconsDecodeJson[K <: Symbol, H, T <: Coproduct](implicit
+    key: Witness.Aux[K],
+    headDecode: Lazy[DecodeJson[H]],
+    tailDecode: Lazy[DecodeJson[T]]
+  ): DecodeJson[FieldType[K, H] :+: T] =
+    DecodeJson { c =>
+      (c --\ key.value.name).focus match {
+        case Some(headJson) => headJson.as(headDecode.value).map(h => Inl(field(h)))
+        case None           => tailDecode.value.decode(c).map(Inr(_))
+      }
+    }
+
+  implicit def projectDecodeJson[F, G](implicit
+    gen: LabelledGeneric.Aux[F, G],
+    decode: Lazy[DecodeJson[G]]
+  ): DecodeJson[F] =
+    decode.value.map(gen.from)
 }
