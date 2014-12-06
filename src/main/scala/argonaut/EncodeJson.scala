@@ -93,9 +93,11 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
   implicit val UnitEncodeJson: EncodeJson[Unit] =
     EncodeJson(_ => jEmptyObject)
 
-  implicit def TraversableOnceEncodeJson[A, C[_]](implicit e: EncodeJson[A], is: collection.generic.IsTraversableOnce[C[A]]): EncodeJson[C[A]] =
-    // cast is necessary as a: is.A, not A
-    EncodeJson(a => jArray(is.conversion(a).toList.map(a => e(a.asInstanceOf[A]))))
+  implicit def TraversableOnceEncodeJson[A0, C[_]](implicit
+    e: EncodeJson[A0],
+    is: collection.generic.IsTraversableOnce[C[A0]] { type A = A0 }
+  ): EncodeJson[C[A0]] =
+    EncodeJson(a => jArray(is.conversion(a).toList.map(e(_))))
 
   implicit val StringEncodeJson: EncodeJson[String] =
     EncodeJson(jString)
