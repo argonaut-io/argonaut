@@ -221,17 +221,17 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
 
   implicit def IntDecodeJson: DecodeJson[Int] =
     optionDecoder(x =>
-      (x.number map (_.toInt)).orElse(
+      (x.number map (_.truncateToInt)).orElse(
       (x.string flatMap (s => tryTo(s.toInt)))), "Int")
 
   implicit def LongDecodeJson: DecodeJson[Long] =
     optionDecoder(x =>
-      (x.number map (_.toLong)).orElse(
+      (x.number map (_.truncateToLong)).orElse(
       (x.string flatMap (s => tryTo(s.toLong)))), "Long")
 
   implicit def ShortDecodeJson: DecodeJson[Short] =
     optionDecoder(x =>
-      (x.number map (_.toShort)).orElse(
+      (x.number map (_.truncateToShort)).orElse(
       (x.string flatMap (s => tryTo(s.toShort)))), "Short")
 
   implicit def BigIntDecodeJson: DecodeJson[BigInt] =
@@ -257,13 +257,13 @@ trait DecodeJsons extends GeneratedDecodeJsons with internal.MacrosCompat {
     optionDecoder(_.number map (_.toFloat), "java.lang.Float")
 
   implicit def JIntegerDecodeJson: DecodeJson[java.lang.Integer] =
-    optionDecoder(_.number flatMap (s => tryTo(s.toInt)), "java.lang.Integer")
+    optionDecoder(_.number flatMap (s => tryTo(s.truncateToInt)), "java.lang.Integer")
 
   implicit def JLongDecodeJson: DecodeJson[java.lang.Long] =
-    optionDecoder(_.number flatMap (s => tryTo(s.toLong)), "java.lang.Long")
+    optionDecoder(_.number flatMap (s => tryTo(s.truncateToLong)), "java.lang.Long")
 
   implicit def JShortDecodeJson: DecodeJson[java.lang.Short] =
-    optionDecoder(_.number flatMap (s => tryTo(s.toShort)), "java.lang.Short")
+    optionDecoder(_.number flatMap (s => tryTo(s.truncateToShort)), "java.lang.Short")
 
   implicit def JBooleanDecodeJson: DecodeJson[java.lang.Boolean] =
     optionDecoder(_.bool map (q => q), "java.lang.Boolean")

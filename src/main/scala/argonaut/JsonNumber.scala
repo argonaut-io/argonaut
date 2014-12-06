@@ -12,12 +12,64 @@ import monocle.std._
 sealed abstract class JsonNumber {
   import Json._
 
+  /**
+   * Returns this number as a `BigDecimal`.
+   */
   def toBigDecimal: BigDecimal
+
+  /**
+   * Converts this number to the best `Double` approximation to this number.
+   * Anything over `Double.MaxValue` gets rounded to `Double.PositiveInfinity`
+   * and anything below `Double.MinValue` gets rounded to
+   * `Double.NegativeInfinitey`.
+   */
   def toDouble: Double
-  def toFloat: Float
-  def toLong: Long
-  def toInt: Int
-  def toShort: Short
+
+  /**
+   * Converts this number to the best `Float` approximation to this number.
+   * Anything over `Float.MaxValue` gets rounded to `Float.PositiveInfinity`
+   * and anything below `Float.MinValue` gets rounded to
+   * `Float.NegativeInfinitey`.
+   */
+  def toFloat: Float = toDouble.toFloat
+
+  /**
+   * Truncates the number to a Long. Truncation means that we round the real
+   * number towards 0 to the closest, valid Long. So, if the number is 1e99,
+   * then this will return `Long.MaxValue`.
+   */
+  def truncateToLong: Long
+
+  /**
+   * Truncates the number to a Int. Truncation means that we round the real
+   * number towards 0 to the closest, valid Int. So, if the number is 1e99,
+   * then this will return `Int.MaxValue`.
+   */
+  def truncateToInt: Int = toDouble.toInt
+
+  /**
+   * Truncates the number to a Short. Truncation means that we round the real
+   * number towards 0 to the closest, valid Short. So, if the number is 1e99,
+   * then this will return `Short.MaxValue`.
+   */
+  def truncateToShort: Short = {
+    val n = truncateToInt
+    if (n > Short.MaxValue) Short.MaxValue
+    else if (n < Short.MinValue) Short.MinValue
+    else n.toShort
+  }
+
+  /**
+   * Truncates the number to a Byte. Truncation means that we round the real
+   * number towards 0 to the closest, valid Byte. So, if the number is 1e99,
+   * then this will return `Byte.MaxValue`.
+   */
+  def truncateToByte: Byte = {
+    val n = truncateToInt
+    if (n > Byte.MaxValue) Byte.MaxValue
+    else if (n < Byte.MinValue) Byte.MinValue
+    else n.toByte
+  }
 
   /** Safely coerce to an `Int` if this number fits in an `Int`, otherwise `None` */
   def safeInt: Option[Int] = safeCast[Double, Int].getOption(toDouble)
@@ -25,7 +77,7 @@ sealed abstract class JsonNumber {
   /** Safely coerce to a `Long` if this number fits in a `Long`, otherwise `None` */
   def safeLong: Option[Long] = {
     val n = toDouble
-    (n.floor == n) option toLong
+    (n.floor == n) option truncateToLong
   }
 
   def isNaN: Boolean = false
@@ -85,10 +137,12 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
   lazy val toBigDecimal: BigDecimal = BigDecimal(value)
   lazy val toDouble: Double = value.toDouble
 
-  def toFloat = toDouble.toFloat
-  def toLong = toBigDecimal.toLong
-  def toInt = toDouble.toInt
-  def toShort = toDouble.toShort
+  def truncateToLong: Long = {
+    val n = toBigDecimal
+    if (n >= Long.MaxValue) Long.MaxValue
+    else if (n <= Long.MinValue) Long.MinValue
+    else n.toLong
+  }
 
   /**
    * Returns a *normalized* version of this Decimal number. Since BigDecimal
@@ -138,26 +192,25 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
 
 case class JsonBigDecimal(value: BigDecimal) extends JsonNumber {
   def toBigDecimal = value
+
   def toDouble = value.toDouble
-  def toFloat = value.toFloat
-  def toInt = value.toInt
-  def toLong = value.toLong
-  def toShort = value.toShort
+
+  def truncateToLong: Long =
+    if (value > Long.MaxValue) Long.MaxValue
+    else if (value < Long.MinValue) Long.MinValue
+    else value.toLong
 
   override def safeInt: Option[Int] =
-    if (value.isValidInt) Some(toInt) else None
+    if (value.isValidInt) Some(truncateToInt) else None
 
   override def safeLong: Option[Long] =
-    if (value.isValidLong) Some(toLong) else None
+    if (value.isValidLong) Some(truncateToLong) else None
 }
 
 case class JsonLong(value: Long) extends JsonNumber {
   def toBigDecimal = BigDecimal(value)
   def toDouble = value.toDouble
-  def toFloat = value.toFloat
-  def toInt = value.toInt
-  def toLong = value
-  def toShort = value.toShort
+  def truncateToLong: Long = value
 
   override def safeInt: Option[Int] = {
     if (value >= Int.MinValue && value <= Int.MaxValue) Some(value.toInt)
@@ -170,10 +223,7 @@ case class JsonLong(value: Long) extends JsonNumber {
 case class JsonDouble(value: Double) extends JsonNumber {
   def toBigDecimal = BigDecimal(value)
   def toDouble = value
-  def toFloat = value.toFloat
-  def toInt = value.toInt
-  def toLong = value.toLong
-  def toShort = value.toShort
+  def truncateToLong: Long = value.toLong
   override def isNaN = value.isNaN
   override def isInfinity = value.isInfinity
 }
