@@ -13,3 +13,5 @@ target
 *.swp
 repl-port
 *.sublime-*
+*~
+tags

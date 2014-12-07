@@ -103,19 +103,25 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
     EncodeJson(jString)
 
   implicit val DoubleEncodeJson: EncodeJson[Double] =
-    EncodeJson(jNumberOrNull)
+    EncodeJson(a => JsonDouble(a).asJsonOrNull)
 
   implicit val FloatEncodeJson: EncodeJson[Float] =
-    EncodeJson(a => jNumberOrNull(a))
+    EncodeJson(a => JsonDouble(a.toDouble).asJsonOrNull)
 
   implicit val IntEncodeJson: EncodeJson[Int] =
-    EncodeJson(a => jNumberOrNull(a.toDouble))
+    EncodeJson(a => JsonLong(a.toLong).asJsonOrNull)
 
   implicit val LongEncodeJson: EncodeJson[Long] =
-    EncodeJson(a => jString(a.toString))
+    EncodeJson(a => JsonLong(a).asJsonOrNull)
 
   implicit val ShortEncodeJson: EncodeJson[Short] =
-    EncodeJson(a => jString(a.toString))
+    EncodeJson(a => JsonLong(a.toLong).asJsonOrNull)
+
+  implicit val BigDecimalEncodeJson: EncodeJson[BigDecimal] =
+    EncodeJson(a => JsonBigDecimal(a).asJsonOrNull)
+
+  implicit val BigIntEncodeJson: EncodeJson[BigInt] =
+    EncodeJson(a => JsonBigDecimal(BigDecimal(a)).asJsonOrNull)
 
   implicit val BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool)
@@ -124,19 +130,19 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
     EncodeJson(a => jString(a.toString))
 
   implicit val JDoubleEncodeJson: EncodeJson[java.lang.Double] =
-    EncodeJson(a => jNumberOrNull(a.doubleValue))
+    EncodeJson(a => JsonDouble(a.doubleValue).asJsonOrNull)
 
   implicit val JFloatEncodeJson: EncodeJson[java.lang.Float] =
-    EncodeJson(a => jNumberOrNull(a.floatValue.toDouble))
+    EncodeJson(a => JsonDouble(a.floatValue.toDouble).asJsonOrNull)
 
   implicit val JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
-    EncodeJson(a => jString(a.toString))
+    EncodeJson(a => JsonLong(a.intValue.toLong).asJsonOrNull)
 
   implicit val JLongEncodeJson: EncodeJson[java.lang.Long] =
-    EncodeJson(a => jString(a.toString))
+    EncodeJson(a => JsonLong(a.longValue).asJsonOrNull)
 
   implicit val JShortEncodeJson: EncodeJson[java.lang.Short] =
-    EncodeJson(a => jString(a.toString))
+    EncodeJson(a => JsonLong(a.shortValue.toLong).asJsonOrNull)
 
   implicit val JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =
     EncodeJson(a => jBool(a.booleanValue))

@@ -126,6 +126,7 @@ object JsonParser {
 
   @tailrec
   private[this] final def expectValue(stream: TokenSource, position: Int): String \/ (Int, Json) = {
+
     @tailrec
     def safeNumberIndex(index: Int): Int = {
       if (index >= stream.length) stream.length
@@ -150,10 +151,10 @@ object JsonParser {
         if (numberEndIndex == position) unexpectedContent(stream, position)
         else {
           val numberAsString = stream.substring(position, numberEndIndex)
-          numberAsString
-            .parseDouble
-            .fold(nfe => "Value [%s] cannot be parsed into a number.".format(numberAsString).left,
-                  doubleValue => \/-((numberEndIndex, jNumberOrNull(doubleValue))))
+          JsonNumber.fromString(numberAsString) match {
+            case Some(jn) => \/-((numberEndIndex, jn.asJsonOrNull))
+            case None => "Value [%s] cannot be parsed into a number.".format(numberAsString).left
+          }
         }
       }
     }

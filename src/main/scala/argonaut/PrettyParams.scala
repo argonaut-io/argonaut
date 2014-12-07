@@ -89,7 +89,7 @@ sealed trait PrettyParams {
 
   private[this] def vectorMemo() = {
     var vector: Vector[String] = Vector.empty
-  
+
     val memoFunction: (Int => String) => Int => String = f => k => {
       val localVector = vector
       val adjustedK = if (k < 0) 0 else k
@@ -166,7 +166,12 @@ sealed trait PrettyParams {
       k.fold[StringBuilder](
         builder.append(nullText)
         , bool => builder.append(if (bool) trueText else falseText)
-        , n => builder.append(if (n == n.floor) BigDecimal(n).toBigInt.toString else n.toString)
+        , n => n match {
+          case JsonLong(x) => builder append x.toString
+          case JsonDouble(x) => builder append x.toString
+          case JsonDecimal(x) => builder append x
+          case JsonBigDecimal(x) => builder append x.toString
+        }
         , s => encloseJsonString(builder, s)
         , e => {
           rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
