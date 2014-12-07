@@ -24,7 +24,7 @@ object StringWrapSpecification extends Specification with ScalaCheck {
     parse
       Optional encode ${
     (("optional" :?= (None: Option[String])) ->?: jEmptyObject) must_== jEmptyObject
-  } 
+  }
       Optional encode alias ${
     prop { (o: Option[Int]) =>
       (("optional" :?= o) ->?: jEmptyObject) must_== (("optional" :?= o) ->?: jEmptyObject)
@@ -85,7 +85,7 @@ object StringWrapSpecification extends Specification with ScalaCheck {
       json.decodeWith[Option[Person], Person](_ => None, _ => None, (_, _) => Person("Test", 5).some) === Person("Test", 5).some
     }
   }
-    
+
     decodeOr[A, X: DecodeJson](X => A, => A): A
       returns the decoded and transformed Json for valid JSON ${
     forAllNoShrink(alphaStr, arbitrary[Int]) { (name: String, age: Int) =>

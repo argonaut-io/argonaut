@@ -40,8 +40,12 @@ object JsonSpecification extends Specification with ScalaCheck {
   def sameValue = prop((j: Json) => j === j)
 
   def modString = prop((j: JString) => j.withString(_ + "test") /== j)
-  
-  def modNumber = prop((j: JNumber) => j.withNumber(number => if (number === 0.0d) number + 1 else number * 2) /== j)
+
+  def modNumber = prop((j: JNumber) => j.withNumber { number =>
+    JsonLong(number.toInt.map(n =>
+      if (n === 0) (n + 1) else (n * 2)
+    ).getOrElse(0).toLong)
+  } /== j)
 
   def modArray = prop((j: JArray) => j.withArray(jEmptyArray :: _) /== j)
 
@@ -52,7 +56,7 @@ object JsonSpecification extends Specification with ScalaCheck {
   def notComposeNot = prop((j: Json) => j.not.not === j)
 
   def noEffect = prop((j: Json) => (j.not === j) !== j.isBool)
-  
+
   def effectNotIsBool = prop((j: Json) => (j.not /== j) === j.isBool)
 
   def effectWithNumber = prop((j: Json, k: JsonNumber => JsonNumber) => ((j withNumber k) === j) || j.isNumber)
@@ -61,13 +65,13 @@ object JsonSpecification extends Specification with ScalaCheck {
 
   def effectWithArray = prop((j: Json, k: List[Json] => List[Json]) => ((j withArray k) === j) || j.isArray)
 
-  def effectWithObject = prop((j: Json, k: JsonObject => JsonObject) => ((j withObject k) === j) || j.isObject) 
+  def effectWithObject = prop((j: Json, k: JsonObject => JsonObject) => ((j withObject k) === j) || j.isObject)
 
   def arrayPrepend = prop((j: Json, e: Json) => !j.isArray || (e -->>: j).array.map(_.head) === e.some)
 
   def isBool = prop((b: Boolean) => jBool(b).isBool)
 
-  def isNumber = prop((n: JsonNumber) => !n.isNaN && !n.isInfinity ==> jNumberOrNull(n).isNumber)
+  def isNumber = prop((n: JsonNumber) => !n.isNaN && !n.isInfinity ==> n.asJsonOrNull.isNumber)
 
   def isString = prop((s: String) => jString(s).isString)
 

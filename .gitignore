@@ -12,4 +12,6 @@ target
 /project/boot
 *.swp
 repl-port
+*~
+tags
 *.sublime-*

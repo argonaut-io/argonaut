@@ -34,10 +34,10 @@ object KnownResults extends DataTables {
     "1"                                                           ! jNumberOrNull(1)                                                                                                      |
     "-1"                                                          ! jNumberOrNull(-1)                                                                                                     |
     "0"                                                           ! jNumberOrNull(0)                                                                                                      |
-    "1E999"                                                       ! jNumberOrNull("1E999".toDouble)                                                                                       |
-    "1E+999"                                                      ! jNumberOrNull("1E+999".toDouble)                                                                                      |
-    "1E-999"                                                      ! jNumberOrNull("1E-999".toDouble)                                                                                      |
-    "158699798998941697"                                          ! jNumberOrNull(158699798998941697D)
+    "1E999"                                                       ! jNumberOrNull(BigDecimal("1E999"))                                                                                    |
+    "1E+999"                                                      ! jNumberOrNull(BigDecimal("1E+999"))                                                                                   |
+    "1E-999"                                                      ! jNumberOrNull(BigDecimal("1E-999"))                                                                                   |
+    "158699798998941697"                                          ! jNumberOrNull(158699798998941697L)
 
   def parseFailures =
     "JSON"                                            | "parse result"                                                                                |
