@@ -43,8 +43,6 @@ EncodeJson Auto Derivation
   }
 
   object auto {
-    import shapeless._
-    import EncodeJson.auto._
     import TestTypes._
 
     EncodeJson.of[Product]
@@ -53,7 +51,12 @@ EncodeJson Auto Derivation
     EncodeJson.of[Person]
 
     def products = prop((p: Person) =>
-      p.asJson must_== Json("Person" := Json("name" := p.name, "age" := p.age)))
+      p.asJson must_== Json(
+        "name" := p.name,
+        "age" := p.age, 
+        "orders" := p.orders, 
+        "addressFields" := p.addressFields
+      ))
 
     EncodeJson.of[Shape]
 
@@ -62,16 +65,5 @@ EncodeJson Auto Derivation
         case Circle(radius) => Json("Circle" := Json("radius" := radius))
         case Square(side) => Json("Square" := Json("side" := side))
       }))
-  }
-
-  object derived {
-    import TestTypes._
-
-    implicit def ProductEncodeJson: EncodeJson[Product] = EncodeJson.derive[Product]
-    implicit def OrderLineEncodeJson: EncodeJson[OrderLine] = EncodeJson.derive[OrderLine]
-    implicit def OrderEncodeJson: EncodeJson[Order] = EncodeJson.derive[Order]
-    implicit def PersonEncodeJson: EncodeJson[Person] = EncodeJson.derive[Person]
-
-    EncodeJson.of[Person]
   }
 }

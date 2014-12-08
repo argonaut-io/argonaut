@@ -44,40 +44,10 @@ object EncodeJson extends EncodeJsons {
       def encode(a: A) = f(a)
     }
 
-  /* ==== shapeless for profit ==== */
-
-  import shapeless._
-
-  def derive[A]: EncodeJson[A] =
-    macro GenericMacros.materialize[EncodeJson[A], A]
-
-  object auto extends SimpleTypeClassCompanion[EncodeJson] {
-    implicit def AutoEncodeJson[A]: EncodeJson[A] = macro GenericMacros.materialize[EncodeJson[A], A]
-
-    object typeClass extends SimpleTypeClass with LabelledTypeClass {
-      override def emptyCoproduct: EncodeJson[CNil] = EncodeJson(_ => jEmptyObject)
-
-      override def coproduct[L, R <: Coproduct](name: String, ejl: => EncodeJson[L], ejr: => EncodeJson[R]): EncodeJson[L :+: R] = {
-        EncodeJson(a => a match {
-          case Inl(x) => Json((name -> ejl.encode(x)))
-          case Inr(t) => ejr.encode(t)
-        })
-      }
-
-      override def emptyProduct: EncodeJson[HNil] = EncodeJson(_ => jEmptyObject)
-
-      override def product[A, T <: HList](name: String, A: EncodeJson[A], T: EncodeJson[T]): EncodeJson[A :: T] = {
-        EncodeJson(a => (name -> A.encode(a.head)) ->: T.encode(a.tail))
-      }
-
-      override def project[F, G](instance: => EncodeJson[G], to: F => G, from: G => F): EncodeJson[F] = instance.contramap(to)
-    }
-  }
-
   def of[A: EncodeJson] = implicitly[EncodeJson[A]]
 }
 
-trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
+trait EncodeJsons extends GeneratedEncodeJsons with AutoEncodeJsons with internal.MacrosCompat {
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
 
@@ -205,4 +175,39 @@ trait EncodeJsons extends GeneratedEncodeJsons with internal.MacrosCompat {
   implicit val EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
     def contramap[A, B](r: EncodeJson[A])(f: B => A) = r contramap f
   }
+}
+
+trait AutoEncodeJsons {
+  import shapeless._, labelled.FieldType
+  
+  implicit def hnilEncodeJson[L <: HNil]: EncodeJson[L] =
+    EncodeJson(_ => jEmptyObject)
+
+  implicit def hconsEncodeJson[K <: Symbol, H, T <: HList](implicit
+    key: Witness.Aux[K],
+    headEncode: Lazy[EncodeJson[H]],
+    tailEncode: Lazy[EncodeJson[T]]
+  ): EncodeJson[FieldType[K, H] :: T] =
+    EncodeJson { case (h :: t) =>
+      (key.value.name -> headEncode.value.encode(h)) ->: tailEncode.value.encode(t) 
+    }
+  
+  implicit val cnilEncodeJson: EncodeJson[CNil] =
+    EncodeJson(_ => jEmptyObject)
+
+  implicit def cconsEncodeJson[K <: Symbol, H, T <: Coproduct](implicit
+    key: Witness.Aux[K],
+    headEncode: Lazy[EncodeJson[H]],
+    tailEncode: Lazy[EncodeJson[T]]
+  ): EncodeJson[FieldType[K, H] :+: T] =
+    EncodeJson {
+      case Inl(h) => Json(key.value.name -> headEncode.value.encode(h))
+      case Inr(t) => tailEncode.value.encode(t)
+    }
+
+  implicit def projectEncodeJson[F, G](implicit
+    gen: LabelledGeneric.Aux[F, G],
+    encode: Lazy[EncodeJson[G]]
+  ): EncodeJson[F] =
+    encode.value.contramap(gen.to)
 }

@@ -9,10 +9,6 @@ case class OrderLine(product: Product, quantity: Int)
 case class Order(orderLines: Vector[OrderLine])
 case class Person(name: String, age: Int, orders: Vector[Order], addressFields: Map[String, String])
 
-sealed trait Shape
-case class Circle(radius: Int) extends Shape
-case class Square(side: Int) extends Shape
-
 object TestTypes {
   implicit def ProductArbitrary: Arbitrary[Product] = Arbitrary(for {
     n <- arbitrary[String]
