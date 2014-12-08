@@ -700,6 +700,11 @@ trait Jsons {
 
   /**
    * Construct a JSON value that is a number.
+   */
+  def jNumber(n: JsonNumber): Json = JNumber(n)
+
+  /**
+   * Construct a JSON value that is a number.
    *
    * Note: NaN, +Infinity and -Infinity are not valid json.
    */
