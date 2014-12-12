@@ -1,7 +1,6 @@
 package argonaut
 
 import scalaz._, Scalaz._
-import shapeless._
 import org.scalacheck._, Arbitrary._, Prop._
 import org.specs2._, org.specs2.specification._
 import Argonaut._
@@ -15,12 +14,6 @@ DecodeJson Witness Compilation
   Witness tuples                        ${ok}
   Witness auto                          ${ok}
   Witness derived                       ${ok}
-
-DecodeJson Auto Derivation
---------------------------
-
-  Product-types correspond              ${auto.products}
-  Sum-types correspond                  ${auto.sums}
 
 """
 
@@ -40,30 +33,6 @@ DecodeJson Auto Derivation
     DecodeJson.of[(String, Int, Boolean)]
     DecodeJson.of[(String, Int, Boolean, Long)]
     DecodeJson.of[(String, Int, Boolean, Long, Double)]
-  }
-
-
-
-  object auto {
-    import shapeless._
-    import DecodeJson.auto._
-    import TestTypes._
-
-    DecodeJson.of[Product]
-    DecodeJson.of[OrderLine]
-    DecodeJson.of[Order]
-    DecodeJson.of[Person]
-
-    def products = prop((p: Person) =>
-      Json("Person" := Json("name" := p.name, "age" := p.age)).as[Person].toOption must_== Some(p))
-
-    DecodeJson.of[Shape]
-
-    def sums = prop((s: Shape) =>
-      (s match {
-        case Circle(radius) => Json("Circle" := Json("radius" := radius))
-        case Square(side) => Json("Square" := Json("side" := side))
-      }).as[Shape].toOption must_== Some(s))
   }
 
   object derived {

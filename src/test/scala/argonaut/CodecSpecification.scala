@@ -83,8 +83,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
     22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}}
     22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
-    Witness Encode/Decode derived together ${ok}
-    Witness Encode/Decode auto together ${ok}
+    CodecJson derived ${derived.test}
 
 
   """
@@ -156,36 +155,17 @@ object CodecSpecification extends Specification with ScalaCheck {
   }
 
   object CodecInstances {
-    implicit val testClassEncode: CodecJson[TestClass] = CodecJson.casecodec22(TestClass.apply, TestClass.unapply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
+    implicit val testClassCodec: CodecJson[TestClass] = CodecJson.casecodec22(TestClass.apply, TestClass.unapply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
   }
 
   object derived {
-    case class Person(name: String, age: Int)
+    import TestTypes._
 
-    implicit def PersonEncodeJson: EncodeJson[Person] =
-      EncodeJson.derive[Person]
+    implicit def ProductCodecJson: CodecJson[Product] = CodecJson.derive[Product]
+    implicit def OrderLineCodecJson: CodecJson[OrderLine] = CodecJson.derive[OrderLine]
+    implicit def OrderCodecJson: CodecJson[Order] = CodecJson.derive[Order]
+    implicit def PersonCodecJson: CodecJson[Person] = CodecJson.derive[Person]
 
-    implicit def PersonDecodeJson: DecodeJson[Person] =
-      DecodeJson.derive[Person]
-
-    EncodeJson.of[Person]
-    DecodeJson.of[Person]
-
-    CodecJson.derived[Person]
-  }
-
-  object auto {
-    import shapeless._
-    import EncodeJson.auto._
-    import DecodeJson.auto._
-    import StringWrap._
-    import JsonIdentity._
-
-    case class Person(name: String, age: Int)
-
-    EncodeJson.of[Person]
-    DecodeJson.of[Person]
-
-    CodecJson.derived[Person]
+    def test = encodedecode[Person]
   }
 }

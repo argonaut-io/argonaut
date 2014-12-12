@@ -28,6 +28,8 @@ object CodecJson extends CodecJsons {
   def withReattempt[A](encoder: A => Json, decoder: ACursor => DecodeResult[A]): CodecJson[A] =
     derived(EncodeJson(encoder), DecodeJson.withReattempt(decoder))
 
+  def derive[A]: CodecJson[A] = macro internal.Macros.materializeCodecImpl[A]
+
   def derived[A](implicit E: EncodeJson[A], D: DecodeJson[A]): CodecJson[A] =
     new CodecJson[A] {
       val Encoder = E

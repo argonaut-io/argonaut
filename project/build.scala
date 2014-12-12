@@ -22,9 +22,6 @@ object build extends Build {
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5.0"
-  def shapeless(v: String)   =
-    if (v.contains("2.10"))        "com.chuusai"                  %  s"shapeless_${v}"           % "2.0.0"
-    else                           "com.chuusai"                  %% s"shapeless"                % "2.1.0-SNAPSHOT" from "file:///home/sean/.ivy2/local/com.chuusai/shapeless_2.11/2.1.0-SNAPSHOT/bundles/shapeless_2.11.jar"
 
   def reflect(v: String)         =
                                Seq("org.scala-lang"               %  "scala-compiler"            % v,
@@ -52,7 +49,6 @@ object build extends Build {
       , monocle
       , scalacheck
       , specs2Scalacheck
-      , shapeless(scalaVersion.value)
       ) ++ reflect(scalaVersion.value)
      /* no mima until 6.1.0 release */
     , previousArtifact := None

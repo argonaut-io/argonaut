@@ -14,6 +14,9 @@ case class Circle(radius: Int) extends Shape
 case class Square(side: Int) extends Shape
 
 object TestTypes {
+  implicit def PersonEqual: Equal[Person] = Equal.equalA
+  implicit def PersonShow: Show[Person] = Show.showFromToString
+
   implicit def ProductArbitrary: Arbitrary[Product] = Arbitrary(for {
     n <- arbitrary[String]
     p <- arbitrary[Double]
