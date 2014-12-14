@@ -104,8 +104,10 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
       LensLaws            $preserveOrderLensLaws
       Indent              $preserveOrderIndent
     nospaces/spaces2/spaces4
-      SpacesComparison      $spacesComparison
-    $numbers
+      SpacesComparison    $spacesComparison
+    numbers
+      WholeNumber         $wholeNumber
+      FractionalNumber    $fractionalNumber
       """
 
   val lbraceLeftLensLaws = lens.laws(PrettyParams.lbraceLeftL)
@@ -194,11 +196,10 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     }
     printedJson === jsonSpacesMap(secondIndex)
   } ^ end
-  val numbers: Fragments = "number printing" ^
-    "whole number pretty print" ! prop{(n: Long) =>
-      jNumberOrNull(n).nospaces === n.toString
-    } ^
-    "fractional number pretty print" ! prop{(d: Double) =>
-      jNumberOrNull(d).nospaces === d.toString
-    } ^ end
+  val wholeNumber = prop{(n: Long) =>
+    jNumberOrNull(n).nospaces === n.toString
+  }
+  val fractionalNumber = prop{(d: Double) =>
+    jNumberOrNull(d).nospaces === d.toString
+  }
 }

@@ -14,6 +14,7 @@ object build extends Build {
   )
 
   val scalazVersion              = "7.1.0"
+  val paradiseVersion            = "2.0.1"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.5"                 % "test"
@@ -24,10 +25,9 @@ object build extends Build {
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % "0.5.0"
 
   def reflect(v: String)         =
-                               Seq("org.scala-lang"               %  "scala-compiler"            % v,
-                                   "org.scala-lang"               %  "scala-reflect"             % v) ++
-    (if (v.contains("2.10"))   Seq("org.scalamacros"              %% "quasiquotes"               % "2.0.0") else Seq())
-
+                                    Seq("org.scala-lang" % "scala-compiler" % v,
+                                        "org.scala-lang" % "scala-reflect"  % v) ++
+           (if (v.contains("2.10")) Seq("org.scalamacros" %% "quasiquotes" % paradiseVersion) else Seq())
 
   val argonaut = Project(
     id = "argonaut"
@@ -37,6 +37,7 @@ object build extends Build {
     releaseSettings ++
     PublishSettings.all ++
     InfoSettings.all ++
+    Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
     net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq[Sett](
       name := "argonaut"
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
@@ -72,6 +73,7 @@ object build extends Build {
     , fork in run := true
     , libraryDependencies ++= Seq(caliper, liftjson, jackson)
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }
+    , scalacOptions += "-language:_"
     )
   )
 

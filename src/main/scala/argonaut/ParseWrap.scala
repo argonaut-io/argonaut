@@ -56,7 +56,7 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param parsefailure Run this function if the parse produces a failure.
    * @param decodefailure Run this function if the decode produces a failure.
    */
-  def decodeWith[A, X: DecodeJson](success: X => A, parsefailure: String => A, decodefailure: (String, CursorHistory) => A): A =
+  def decodeWith[Y, X: DecodeJson](success: X => Y, parsefailure: String => Y, decodefailure: (String, CursorHistory) => Y): Y =
     parser.decodeWith(value, success, parsefailure, decodefailure)
 
   /**
@@ -65,7 +65,7 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithEither[A, X: DecodeJson](success: X => A, failure: String \/ (String, CursorHistory) => A): A =
+  def decodeWithEither[Y, X: DecodeJson](success: X => Y, failure: String \/ (String, CursorHistory) => Y): Y =
     parser.decodeWithEither(value, success, failure)
 
   /**
@@ -74,7 +74,7 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithMessage[A, X: DecodeJson](success: X => A, failure: String => A): A =
+  def decodeWithMessage[Y, X: DecodeJson](success: X => Y, failure: String => Y): Y =
     parser.decodeWithMessage(value, success, failure)
 
   /**
@@ -83,7 +83,7 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param success Run this function if the parse produces a success.
    * @param default Return this value of the parse or decode fails.
    */
-  def decodeOr[A, X: DecodeJson](success: X => A, default: => A): A =
+  def decodeOr[Y, X: DecodeJson](success: X => Y, default: => Y): Y =
     parser.decodeOr(value, success, default)
 
   /**
