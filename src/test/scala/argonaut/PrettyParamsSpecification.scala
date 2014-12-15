@@ -73,6 +73,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     colonRight        $colonRightLens
     preserveOrder     $preserveOrderLens
     dropNullKeys      $dropNullKeysLens
+    preserveOrder     $preserveOrderLens
 
   Indentation
     lbraceLeft        $lbraceLeftIndent
@@ -90,9 +91,10 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     objectCommaRight  $objectCommaRightIndent
     colonLeft         $colonLeftIndent
     colonRight        $colonRightIndent
+    colonRight        $colonRightIndent
 
   Order Preservation
-    preserve field order    $orderPreservation
+    preserve field order    $preserveOrder
 
   Spaces Comparison
     nospaces/spaces2/spaces4  $spacesComparison
@@ -190,7 +192,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     val prettyParams = PrettyParams.nospace.copy(colonRight = indent)
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{"test":%s"value"}""".format(indent)
   }
-  def orderPreservation = prop {(preserve: Boolean, pairs: List[(JsonField, Json)]) =>
+  def preserveOrder = prop{(preserve: Boolean, pairs: JsonAssocList) =>
     val prettyParams = preserveOrderL.set(PrettyParams.nospace, preserve)
     val json = prettyParams.pretty(jObjectAssocList(pairs)).parseOption.get
     if (preserve) {
