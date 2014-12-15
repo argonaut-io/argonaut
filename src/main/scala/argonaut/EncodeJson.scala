@@ -93,7 +93,7 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(a => JsonBigDecimal(a).asJsonOrNull)
 
   implicit val BigIntEncodeJson: EncodeJson[BigInt] =
-    EncodeJson(a => JsonBigDecimal(BigDecimal(a)).asJsonOrNull)
+    EncodeJson(a => JsonBigDecimal(BigDecimal(a, java.math.MathContext.UNLIMITED)).asJsonOrNull)
 
   implicit val BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool)
