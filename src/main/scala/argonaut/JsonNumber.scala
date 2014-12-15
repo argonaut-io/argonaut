@@ -244,7 +244,11 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
       else if (decStr != null) decScale(0)
       else None
 
-    val unscaledExponent = Option(expStr).map(BigInt(_)).getOrElse(BigInt(0))
+    val unscaledExponent = Option(expStr) match {
+      case Some(exp) if exp.startsWith("+") => BigInt(exp.substring(1))
+      case Some(exp) => BigInt(exp)
+      case None => BigInt(0)
+    }
     rescale match {
       case Some(shift) =>
         val unscaledValue =
