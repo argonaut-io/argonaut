@@ -1,5 +1,6 @@
 package argonaut
 
+import java.math.MathContext
 import scalaz.Equal
 import scalaz.Scalaz._
 import monocle.function._
@@ -202,7 +203,7 @@ sealed abstract class JsonNumber {
  * string to a `BigDecimal` or a `Double` on demand.
  */
 case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
-  lazy val toBigDecimal: BigDecimal = BigDecimal(value)
+  lazy val toBigDecimal: BigDecimal = BigDecimal(value, MathContext.UNLIMITED)
   lazy val toDouble: Double = value.toDouble
 
   def toLong: Option[Long] = {
@@ -247,8 +248,8 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
     rescale match {
       case Some(shift) =>
         val unscaledValue =
-          if (decStr == null) BigDecimal(intStr)
-          else BigDecimal(s"$intStr.$decStr")
+          if (decStr == null) BigDecimal(intStr, MathContext.UNLIMITED)
+          else BigDecimal(s"$intStr.$decStr", MathContext.UNLIMITED)
         val scaledValue = BigDecimal(unscaledValue.bigDecimal.movePointLeft(shift))
         (unscaledExponent + shift, if (negative != null) -scaledValue else scaledValue)
 
