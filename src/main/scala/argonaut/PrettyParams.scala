@@ -2,7 +2,7 @@ package argonaut
 
 import scalaz._, Scalaz._
 import scala.annotation._
-import monocle.Macro._
+import monocle.Lenser
 
 /**
  * Parameters for pretty-printing a JSON value.
@@ -306,22 +306,24 @@ trait PrettyParamss {
   final val spaces4: PrettyParams =
     pretty("    ")
 
-  val indentL = mkLens[PrettyParams, String]("indent")
-  val lbraceLeftL = mkLens[PrettyParams, String]("lbraceLeft")
-  val lbraceRightL = mkLens[PrettyParams, String]("lbraceRight")
-  val rbraceLeftL = mkLens[PrettyParams, String]("rbraceLeft")
-  val rbraceRightL = mkLens[PrettyParams, String]("rbraceRight")
-  val lbracketLeftL = mkLens[PrettyParams, String]("lbracketLeft")
-  val lbracketRightL = mkLens[PrettyParams, String]("lbracketRight")
-  val rbracketLeftL = mkLens[PrettyParams, String]("rbracketLeft")
-  val rbracketRightL = mkLens[PrettyParams, String]("rbracketRight")
-  val lrbracketsEmptyL = mkLens[PrettyParams, String]("lrbracketsEmpty")
-  val arrayCommaLeftL = mkLens[PrettyParams, String]("arrayCommaLeft")
-  val arrayCommaRightL = mkLens[PrettyParams, String]("arrayCommaRight")
-  val objectCommaLeftL = mkLens[PrettyParams, String]("objectCommaLeft")
-  val objectCommaRightL = mkLens[PrettyParams, String]("objectCommaRight")
-  val colonLeftL = mkLens[PrettyParams, String]("colonLeft")
-  val colonRightL = mkLens[PrettyParams, String]("colonRight")
-  val preserveOrderL = mkLens[PrettyParams, Boolean]("preserveOrder")
-  val dropNullKeysL = mkLens[PrettyParams, Boolean]("dropNullKeys")
+  val lenser = Lenser[PrettyParams]
+
+  val indentL = lenser(_.indent)
+  val lbraceLeftL = lenser(_.lbraceLeft)
+  val lbraceRightL = lenser(_.lbraceRight)
+  val rbraceLeftL = lenser(_.rbraceLeft)
+  val rbraceRightL = lenser(_.rbraceRight)
+  val lbracketLeftL = lenser(_.lbracketLeft)
+  val lbracketRightL = lenser(_.lbracketRight)
+  val rbracketLeftL = lenser(_.rbracketLeft)
+  val rbracketRightL = lenser(_.rbracketRight)
+  val lrbracketsEmptyL = lenser(_.lrbracketsEmpty)
+  val arrayCommaLeftL = lenser(_.arrayCommaLeft)
+  val arrayCommaRightL = lenser(_.arrayCommaRight)
+  val objectCommaLeftL = lenser(_.objectCommaLeft)
+  val objectCommaRightL = lenser(_.objectCommaRight)
+  val colonLeftL = lenser(_.colonLeft)
+  val colonRightL = lenser(_.colonRight)
+  val preserveOrderL = lenser(_.preserveOrder)
+  val dropNullKeysL = lenser(_.dropNullKeys)
 }
