@@ -22,7 +22,7 @@ sealed abstract class JsonNumber {
    * Converts this number to the best `Double` approximation to this number.
    * Anything over `Double.MaxValue` gets rounded to `Double.PositiveInfinity`
    * and anything below `Double.MinValue` gets rounded to
-   * `Double.NegativeInfinitey`.
+   * `Double.NegativeInfinity`.
    */
   def toDouble: Double
 
@@ -30,7 +30,7 @@ sealed abstract class JsonNumber {
    * Converts this number to the best `Float` approximation to this number.
    * Anything over `Float.MaxValue` gets rounded to `Float.PositiveInfinity`
    * and anything below `Float.MinValue` gets rounded to
-   * `Float.NegativeInfinitey`.
+   * `Float.NegativeInfinity`.
    */
   def toFloat: Float = toDouble.toFloat
 
@@ -123,7 +123,7 @@ sealed abstract class JsonNumber {
 
   /**
    * Returns `true` iff this number wraps a `Double` and it is
-   * `PositiveInfinity` or `NegativeInfinitey`.
+   * `PositiveInfinity` or `NegativeInfinity`.
    */
   def isInfinity: Boolean = false
 
