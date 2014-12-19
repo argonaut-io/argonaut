@@ -3,7 +3,7 @@ package argonaut
 import scalaz._, Scalaz._
 
 /**
- * Utiltity for building the argonaut API over
+ * Utility for building the argonaut API over
  * various types. This is used to implement
  * StringWrap, and it is expected that it would
  * be used by integrations with other toolkits
