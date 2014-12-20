@@ -28,8 +28,7 @@ object build extends Build {
   val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
 
   def reflect(v: String)         =
-                                    Seq("org.scala-lang" % "scala-compiler" % v,
-                                        "org.scala-lang" % "scala-reflect"  % v) ++
+                                    Seq("org.scala-lang" % "scala-reflect"  % v) ++
            (if (v.contains("2.10")) Seq("org.scalamacros" %% "quasiquotes" % paradiseVersion) else Seq())
 
   val argonaut = Project(
