@@ -14,7 +14,7 @@ import scalaz._
 import Scalaz._
 import scalaz.scalacheck.ScalazProperties._
 import scalaz.scalacheck.ScalazArbitrary._
-import monocle.LensLaws
+import monocle.law.LensLaws
 
 object PrettyParamsSpecification extends Specification with ScalaCheck {
   // Synthetic Equal implementations used for testing.
@@ -193,7 +193,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{"test":%s"value"}""".format(indent)
   }
   def preserveOrder = prop{(preserve: Boolean, pairs: JsonAssocList) =>
-    val prettyParams = preserveOrderL.set(PrettyParams.nospace, preserve)
+    val prettyParams = preserveOrderL.set(preserve)(PrettyParams.nospace)
     val json = prettyParams.pretty(jObjectAssocList(pairs)).parseOption.get
     if (preserve) {
       val pairsDeduplicated = pairs.foldLeft[JsonAssocList](List.empty){case (working, (key, value)) =>
