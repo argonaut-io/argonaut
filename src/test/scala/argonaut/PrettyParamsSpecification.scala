@@ -218,7 +218,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     printedJson === jsonSpacesMap(secondIndex)
   }
   def numberPrintingWholeNumber = prop{(n: Long) =>
-    jNumberOrNull(n).nospaces === n.toString
+    jNumber(n).nospaces === n.toString
   }
   def numberPrintingFractionalNumber = forAll(arbitrary[(Double, Double)].filter{case (first, second) => second != 0}.map(pair => pair._1 / pair._2).filter(d => d != d.floor)){d =>
     jNumberOrNull(d).nospaces === d.toString

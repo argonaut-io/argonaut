@@ -705,55 +705,13 @@ trait Jsons {
 
   /**
    * Construct a JSON value that is a number.
-   *
-   * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  def jNumber(n: Int): Option[Json] = JsonLong(n).asJson
-
-  /**
-   * Construct a JSON value that is a number. Transforming
-   * NaN, +Infinity and -Infinity to jNull. This matches
-   * the behaviour of most browsers, but is a lossy operation
-   * as you can no longer distinguish between NaN and Infinity.
-   */
-  def jNumberOrNull(n: Int): Json = JsonLong(n).asJsonOrNull
-
-  /**
-   * Construct a JSON value that is a number. Transforming
-   * NaN, +Infinity and -Infinity to their string implementations.
-   *
-   * This is an argonaut specific transformation that allows all
-   * doubles to be encoded without losing information, but aware
-   * interoperability is unlikely without custom handling of
-   * these values. See also `jNumber` and `jNumberOrNull`.
-   */
-  def jNumberOrString(n: Int): Json = JsonLong(n).asJsonOrString
+  def jNumber(n: Int): Json = JNumber(JsonLong(n))
 
   /**
    * Construct a JSON value that is a number.
-   *
-   * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  def jNumber(n: Long): Option[Json] = JsonLong(n).asJson
-
-  /**
-   * Construct a JSON value that is a number. Transforming
-   * NaN, +Infinity and -Infinity to jNull. This matches
-   * the behaviour of most browsers, but is a lossy operation
-   * as you can no longer distinguish between NaN and Infinity.
-   */
-  def jNumberOrNull(n: Long): Json = JsonLong(n).asJsonOrNull
-
-  /**
-   * Construct a JSON value that is a number. Transforming
-   * NaN, +Infinity and -Infinity to their string implementations.
-   *
-   * This is an argonaut specific transformation that allows all
-   * doubles to be encoded without losing information, but aware
-   * interoperability is unlikely without custom handling of
-   * these values. See also `jNumber` and `jNumberOrNull`.
-   */
-  def jNumberOrString(n: Long): Json = JsonLong(n).asJsonOrString
+  def jNumber(n: Long): Json = JNumber(JsonLong(n))
 
   /**
    * Construct a JSON value that is a number.
@@ -784,12 +742,7 @@ trait Jsons {
   /**
    * Construct a JSON value that is a number.
    */
-  def jNumber(n: BigDecimal): Option[Json] = JsonBigDecimal(n).asJson
-
-  /**
-   * Construct a JSON value that is a number.
-   */
-  def jNumberOrNull(n: BigDecimal): Json = JsonBigDecimal(n).asJsonOrNull
+  def jNumber(n: BigDecimal): Json = JNumber(JsonBigDecimal(n))
 
   /**
    * Construct a JSON value that is a number.
