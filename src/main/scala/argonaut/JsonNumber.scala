@@ -324,7 +324,7 @@ object JsonNumber {
     }(f => JsonDouble(f))
 
   val jNumberToBigInt: Prism[JsonNumber, BigInt] =
-    Prism[JsonNumber, BigInt](_.toBigInt.toMaybe)(JsonBigDecimal.apply _ compose BigDecimal.apply)
+    Prism[JsonNumber, BigInt](_.toBigInt.toMaybe)(bi => JsonBigDecimal(BigDecimal(bi, MathContext.UNLIMITED)))
 
   val jNumberToLong: Prism[JsonNumber, Long] =
     Prism[JsonNumber, Long](_.toLong.toMaybe)(JsonBigDecimal.apply _ compose BigDecimal.apply)
