@@ -10,6 +10,9 @@ import scala.util.Random.shuffle
 object Data {
   val maxJsonStructureDepth = 3
 
+  implicit val bigDecimalEq: Equal[BigDecimal] = Equal.equalA[BigDecimal]
+  implicit val bigIntEq: Equal[BigInt] = Equal.equalA[BigInt]
+
   val jsonNumberRepGenerator: Gen[JsonNumber] = Gen.oneOf(
     arbitrary[Double].map(JsonDouble(_)),
     arbitrary[Long].map(JsonLong(_))

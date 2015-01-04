@@ -1,7 +1,9 @@
 package argonaut
 
 import java.math.MathContext
-import scalaz.Equal
+import monocle.{Iso, Prism}
+
+import scalaz.{Maybe, Equal}
 import scalaz.Scalaz._
 import monocle.function._
 import monocle.std._
@@ -303,6 +305,38 @@ object JsonNumber {
   implicit val JsonNumberEqual: Equal[JsonNumber] = new Equal[JsonNumber] {
     def equal(a: JsonNumber, b: JsonNumber) = a == b
   }
+
+  val jNumberToBigDecimal: Iso[JsonNumber, BigDecimal] =
+    Iso[JsonNumber, BigDecimal](_.toBigDecimal)(JsonBigDecimal.apply)
+
+  val jNumberToDouble: Prism[JsonNumber, Double] =
+    Prism[JsonNumber, Double]{n =>
+      val d = n.toDouble
+      if(JsonDouble(d) == n) Maybe.just(d)
+      else Maybe.empty
+    }(JsonDouble.apply)
+
+  val jNumberToFloat: Prism[JsonNumber, Float] =
+    Prism[JsonNumber, Float]{n =>
+      val f = n.toFloat
+      if(JsonDouble(f) == n) Maybe.just(f)
+      else Maybe.empty
+    }(f => JsonDouble(f))
+
+  val jNumberToBigInt: Prism[JsonNumber, BigInt] =
+    Prism[JsonNumber, BigInt](_.toBigInt.toMaybe)(bi => JsonBigDecimal(BigDecimal(bi, MathContext.UNLIMITED)))
+
+  val jNumberToLong: Prism[JsonNumber, Long] =
+    Prism[JsonNumber, Long](_.toLong.toMaybe)(JsonBigDecimal.apply _ compose BigDecimal.apply)
+
+  val jNumberToInt: Prism[JsonNumber, Int] =
+    Prism[JsonNumber, Int](_.toInt.toMaybe)(JsonBigDecimal.apply _ compose BigDecimal.apply)
+
+  val jNumberToShort: Prism[JsonNumber, Short] =
+    Prism[JsonNumber, Short](_.toShort.toMaybe)(s => JsonBigDecimal(BigDecimal(s)))
+
+  val jNumberToByte: Prism[JsonNumber, Byte] =
+    Prism[JsonNumber, Byte](_.toByte.toMaybe)(b => JsonBigDecimal(BigDecimal(b)))
 
   /**
    * Returns a `JsonNumber` whose value is the valid JSON number in `value`.

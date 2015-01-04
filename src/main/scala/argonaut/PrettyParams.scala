@@ -1,8 +1,10 @@
 package argonaut
 
+import monocle.macros.Lenser
+
 import scalaz._, Scalaz._
 import scala.annotation._
-import monocle.Lenser
+import monocle.macros.Lenser
 
 /**
  * Parameters for pretty-printing a JSON value.

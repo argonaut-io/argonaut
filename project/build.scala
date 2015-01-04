@@ -15,7 +15,7 @@ object build extends Build {
 
   val scalazVersion              = "7.1.0"
   val paradiseVersion            = "2.0.1"
-  val monocleVersion             = "0.5.1"
+  val monocleVersion             = "1.0.1"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.5"                 % "test"
@@ -25,7 +25,7 @@ object build extends Build {
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
-  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
+  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" excludeAll ExclusionRule(organization = "org.specs2")
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++

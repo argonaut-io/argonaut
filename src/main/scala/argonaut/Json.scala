@@ -1,6 +1,7 @@
 package argonaut
 
 import scalaz.{Each => _, Index => _, _}, Scalaz._
+import scalaz.syntax.std.option._
 
 /**
  * A data type representing possible <a href="http://www.json.org/">JSON</a> values.
@@ -500,156 +501,6 @@ trait Jsons {
 
   import PLens._, StoreT._
 
-  import monocle._
-  import monocle.function._
-  import monocle.std._
-
-  /**
-   * A Prism for JSON boolean values.
-   */
-  def jBoolPrism: SimplePrism[Json, Boolean] =
-    SimplePrism[Json, Boolean](jBool, _.fold(None, b => Some(b), _ => None, _ => None, _ => None, _ => None))
-
-  /**
-   * A Prism for JSON number values.
-   */
-  def jBigDecimalPrism: SimplePrism[Json, BigDecimal] =
-    SimplePrism[Json, BigDecimal](
-      d => JNumber(JsonBigDecimal(d)),
-      _.fold(None,
-             _ => None,
-             n => Some(n.toBigDecimal),
-             _ => None,
-             _ => None,
-             _ => None))
-  /**
-   * A Prism for JSON number values.
-   * Note: It is an invalid Prism for NaN, +Infinity and -Infinity as they are not valid json.
-   */
-  def jDoublePrism: SimplePrism[Json, Double] =
-    SimplePrism[Json, Double](
-      d => JNumber(JsonDouble(d)),
-      _.fold(None,
-             _ => None,
-             n => Some(n.toDouble),
-             _ => None,
-             _ => None,
-             _ => None))
-
-  /**
-   * A Prism for JSON BigInt values.
-   */
-  def jBigIntPrism: SimplePrism[Json, BigInt] =
-    SimplePrism[Json, BigInt](
-      i => JNumber(JsonBigDecimal(BigDecimal(i))),
-      _.fold(None,
-             _ => None,
-             n => n.toBigInt,
-             _ => None,
-             _ => None,
-             _ => None))
-
-  /**
-   * A Prism for JSON Long values.
-   */
-  def jLongPrism: SimplePrism[Json, Long] =
-    SimplePrism[Json, Long](
-      i => JNumber(JsonLong(i)),
-      _.fold(None,
-             _ => None,
-             n => n.toLong,
-             _ => None,
-             _ => None,
-             _ => None))
-
-  /**
-   * A Prism for JSON Int values.
-   */
-  def jIntPrism: SimplePrism[Json, Int] =
-    SimplePrism[Json, Int](
-      i => JNumber(JsonLong(i.toLong)),
-      _.fold(None,
-             _ => None,
-             n => n.toInt,
-             _ => None,
-             _ => None,
-             _ => None))
-
-  /**
-   * A Prism for JSON Short values.
-   */
-  def jShortPrism: SimplePrism[Json, Short] =
-    SimplePrism[Json, Short](
-      i => JNumber(JsonLong(i.toLong)),
-      _.fold(None,
-             _ => None,
-             n => n.toShort,
-             _ => None,
-             _ => None,
-             _ => None))
-
-  /**
-   * A Prism for JSON Byte values.
-   */
-  def jBytePrism: SimplePrism[Json, Byte] =
-    SimplePrism[Json, Byte](
-      i => JNumber(JsonLong(i.toLong)),
-      _.fold(None,
-             _ => None,
-             n => n.toByte,
-             _ => None,
-             _ => None,
-             _ => None))
-
-  /**
-   * A Prism for JSON string values.
-   */
-  def jStringPrism: SimplePrism[Json, JsonString] =
-    SimplePrism[Json, JsonString](jString, _.fold(None, _ => None, _ => None, s => Some(s), _ => None, _ => None))
-
-  /**
-   * A Prism for JSON array values.
-   */
-  def jArrayPrism: SimplePrism[Json, JsonArray] =
-    SimplePrism[Json, JsonArray](jArray ,_.fold(None, _ => None, _ => None, _ => None, a => Some(a), _ => None))
-
-  /**
-   * A Prism for JSON object values.
-   */
-  def jObjectPrism: SimplePrism[Json, JsonObject] =
-    SimplePrism[Json, JsonObject](jObject ,_.fold(None, _ => None, _ => None, _ => None, _ => None, o => Some(o)))
-
-  implicit val jObjectEach = new Each[JsonObject, Json]{
-    def each = new Traversal[JsonObject, JsonObject, Json, Json]{
-      def multiLift[F[_]: Applicative](from: JsonObject, f: Json => F[Json]): F[JsonObject] =
-        from.traverse(f)
-    }
-  }
-
-  implicit val jObjectAt = new At[JsonObject, JsonField, Json]{
-    def at(field: JsonField): SimpleLens[JsonObject, Option[Json]] =
-      SimpleLens[JsonObject, Option[Json]](_.apply(field), (jObj, optValue) => optValue match {
-        case Some(value) => jObj + (field, value)
-        case None        => jObj - field
-      })
-  }
-
-  implicit val jObjectFilterIndex = new FilterIndex[JsonObject, JsonField, Json]{
-    import scalaz.syntax.traverse._
-    def filterIndex(predicate: JsonField => Boolean) = new SimpleTraversal[JsonObject, Json]{
-      def multiLift[F[_]: Applicative](from: JsonObject, f: Json => F[Json]): F[JsonObject] =
-        Applicative[F].map(
-          from.toList.traverse[F, (JsonField, Json)]{ case (field, json) =>
-            Applicative[F].map(if(predicate(field)) f(json) else json.point[F])(field -> _)
-          }
-        )(JsonObject.from(_))
-    }
-  }
-
-  implicit val jObjectIndex: Index[JsonObject, JsonField, Json] = Index.atIndex
-
-
-
   /**
    * A partial lens for JSON boolean values.
    */
@@ -857,6 +708,127 @@ trait Jsons {
    */
   def jObjectFields(x: (JsonField, Json)*): Json =
     jObjectAssocList(x.toList)
+
+  import monocle.{Prism, Traversal, Lens}
+  import monocle.function._
+  import monocle.std._
+
+  /** A Prism for JSON boolean values. */
+  val jBoolPrism: Prism[Json, JsonBoolean] =
+    Prism[Json, JsonBoolean](
+      _.fold(Maybe.empty,
+        b => Maybe.just(b),
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty)
+    )(jBool)
+
+  /** A Prism for JSON number values. */
+  val jNumberPrism: Prism[Json, JsonNumber] =
+    Prism[Json, JsonNumber](
+      _.fold(Maybe.empty,
+        _ => Maybe.empty,
+        n => Maybe.just(n),
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty)
+    )(jNumber)
+
+  /** A Prism for JSON number values. */
+  val jBigDecimalPrism: Prism[Json, BigDecimal] =
+    jNumberPrism composeIso JsonNumber.jNumberToBigDecimal
+
+  /**
+   * A Prism for JSON number values.
+   * Note: It is an invalid Prism for NaN, +Infinity and -Infinity as they are not valid json.
+   */
+  val jDoublePrism: Prism[Json, Double] =
+    jNumberPrism composePrism JsonNumber.jNumberToDouble
+
+  val jFloatPrism: Prism[Json, Float] =
+    jNumberPrism composePrism JsonNumber.jNumberToFloat
+
+  /** A Prism for JSON BigInt values. */
+  val jBigIntPrism: Prism[Json, BigInt] =
+    jNumberPrism composePrism JsonNumber.jNumberToBigInt
+
+  /** A Prism for JSON Long values. */
+  val jLongPrism: Prism[Json, Long] =
+    jNumberPrism composePrism JsonNumber.jNumberToLong
+
+  /**  A Prism for JSON Int values. */
+  val jIntPrism: Prism[Json, Int] =
+    jNumberPrism composePrism JsonNumber.jNumberToInt
+
+  /** A Prism for JSON Short values. */
+  val jShortPrism: Prism[Json, Short] =
+    jNumberPrism composePrism JsonNumber.jNumberToShort
+
+  /** A Prism for JSON Byte values. */
+  def jBytePrism: Prism[Json, Byte] =
+    jNumberPrism composePrism JsonNumber.jNumberToByte
+
+  /** A Prism for JSON string values. */
+  val jStringPrism: Prism[Json, JsonString] =
+    Prism[Json, JsonString](
+      _.fold(Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        s => Maybe.just(s),
+        _ => Maybe.empty,
+        _ => Maybe.empty)
+    )(jString)
+
+  /** A Prism for JSON array values. */
+  val jArrayPrism: Prism[Json, JsonArray] =
+    Prism[Json, JsonArray](
+      _.fold(Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        a => Maybe.just(a),
+        _ => Maybe.empty)
+    )(jArray)
+
+  /** A Prism for JSON object values. */
+  val jObjectPrism: Prism[Json, JsonObject] =
+    Prism[Json, JsonObject](
+      _.fold(Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        _ => Maybe.empty,
+        o => Maybe.just(o))
+    )(jObject)
+
+  implicit val jObjectEach = new Each[JsonObject, Json]{
+    def each = new Traversal[JsonObject, Json]{
+      def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =
+        from.traverse(f)
+    }
+  }
+
+  implicit val jObjectAt = new At[JsonObject, JsonField, Json]{
+    def at(field: JsonField): Lens[JsonObject, Maybe[Json]] =
+      monocle.Lens[JsonObject, Maybe[Json]](_.apply(field).toMaybe)( maybeVal => jObj =>
+        maybeVal.cata(value => jObj + (field, value), jObj - field)
+      )
+  }
+
+  implicit val jObjectFilterIndex = new FilterIndex[JsonObject, JsonField, Json]{
+    import scalaz.syntax.traverse._
+    def filterIndex(predicate: JsonField => Boolean) = new Traversal[JsonObject, Json]{
+      def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =
+        Applicative[F].map(
+          from.toList.traverse[F, (JsonField, Json)]{ case (field, json) =>
+            Applicative[F].map(if(predicate(field)) f(json) else json.point[F])(field -> _)
+          }
+        )(JsonObject.from(_))
+    }
+  }
+
+  implicit val jObjectIndex: Index[JsonObject, JsonField, Json] = Index.atIndex
 
   import JsonIdentity._
 
