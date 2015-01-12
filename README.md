@@ -31,8 +31,7 @@ Latest:
 
 Milestone:
 
-    "io.argonaut" %% "argonaut" % "6.1-M4"
-
+    "io.argonaut" %% "argonaut" % "6.1-M5" exclude("org.scala-lang", "scala-compiler")
 
 Note that the 6.0.x release supports scala 2.9.2, 2.9.3, 2.10.* and 2.11.* with scalaz 7.0.*.
 
