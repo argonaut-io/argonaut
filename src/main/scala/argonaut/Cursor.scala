@@ -130,7 +130,7 @@ sealed trait Cursor {
   def first: Option[Cursor] =
     this match {
       case CArray(p, u, l, j, r) => {
-        val h::t = l.reverse ::: j :: r
+        val h::t = l reverse_::: j :: r
         Some(CArray(p, u, Nil, h, t))
       }
       case _ => None
@@ -140,7 +140,7 @@ sealed trait Cursor {
   def last: Option[Cursor] =
     this match {
       case CArray(p, u, l, x, r) => {
-        val h::t = r.reverse ::: x :: l
+        val h::t = r reverse_::: x :: l
         Some(CArray(p, u, t, h, Nil))
       }
       case _ => None
@@ -279,7 +279,7 @@ sealed trait Cursor {
       case CJson(_) =>
         None
       case CArray(p, _, l, _, r) => {
-        val q = jArray(l.reverse ::: r)
+        val q = jArray(l reverse_::: r)
         Some(p match {
           case CJson(_) =>
             CJson(q)
@@ -326,7 +326,7 @@ sealed trait Cursor {
   def deleteGoFirst: Option[Cursor] =
     this match {
       case CArray(p, _, l, _, r) => {
-        val h::t = l.reverse ::: r
+        val h::t = l reverse_::: r
         Some(CArray(p, true, Nil, h, t))
       }
       case _ => None
@@ -336,7 +336,7 @@ sealed trait Cursor {
   def deleteGoLast: Option[Cursor] =
     this match {
       case CArray(p, _, l, _, r) => {
-        val h::t = r.reverse ::: l
+        val h::t = r reverse_::: l
         Some(CArray(p, true, t, h, Nil))
       }
       case _ => None
@@ -392,7 +392,7 @@ sealed trait Cursor {
       case CJson(_) =>
         None
       case CArray(p, u, l, j, r) => {
-        val q = jArray(l.reverse ::: j :: r)
+        val q = jArray(l reverse_::: j :: r)
         Some(p match {
           case CJson(_) =>
             CJson(q)
@@ -427,7 +427,7 @@ sealed trait Cursor {
         case CJson(j) =>
           j
         case CArray(p, u, l, j, r) => {
-          val q = jArray(l.reverse ::: j :: r)
+          val q = jArray(l reverse_::: j :: r)
           goup(p match {
               case CJson(_) =>
                 CJson(q)
