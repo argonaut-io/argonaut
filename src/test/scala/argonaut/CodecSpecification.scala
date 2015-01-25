@@ -67,6 +67,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     java.lang.Boolean encode/decode ${encodedecode[java.lang.Boolean]}
     java.lang.Character encode/decode ${encodedecode[java.lang.Character]}
     Option[String] encode/decode ${encodedecode[Option[String]]}
+    Maybe[String] encode/decode ${encodedecode[Maybe[String]]}
     Either[String, Int] encode/decode ${encodedecode[Either[String, Int]]}
     String \\/ Int encode/decode ${encodedecode[String \/ Int]}
     Map[String, Int] encode/decode ${encodedecode[Map[String, Int]]}
