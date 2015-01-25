@@ -128,6 +128,8 @@ trait EncodeJsons extends GeneratedEncodeJsons {
       case Some(a) => e(a)
     })
 
+  implicit def MaybeEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Maybe[A]] = EncodeJson(_.cata(e(_), jNull))
+
   implicit def DisjunctionEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[A \/ B] =
     EncodeJson(_.fold(
       a => jSingleObject("Left", ea(a)),

@@ -282,6 +282,10 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     })
   }
 
+  implicit def MaybeDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Maybe[A]] = {
+    implicitly[DecodeJson[Option[A]]].map(Maybe.fromOption)
+  }
+
   implicit def ScalazEitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[A \/ B] = {
     implicitly[DecodeJson[Either[A, B]]].map(\/.fromEither(_))
   }
