@@ -13,7 +13,7 @@ object build extends Build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.1.0"
+  val scalazVersion              = "7.1.1"
   val paradiseVersion            = "2.0.1"
   val monocleVersion             = "1.0.1"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
