@@ -2,12 +2,17 @@ package argonaut
 
 import scalaz._, Scalaz._
 
-sealed trait CodecJson[A] extends EncodeJson[A] with DecodeJson[A] {
+sealed trait CodecJson[A] extends EncodeJson[A] with DecodeJson[A] { outer =>
   val Encoder: EncodeJson[A]
   val Decoder: DecodeJson[A]
 
   override def encode(a: A) = Encoder.encode(a)
   override def decode(c: HCursor) = Decoder.decode(c)
+  override def setName(n: String): CodecJson[A] =
+    new CodecJson[A] {
+      val Encoder = outer.Encoder
+      val Decoder = outer.Decoder.setName(n)
+    }
   override def tryDecode(c: ACursor) = Decoder.tryDecode(c)
 
   trait CodecLaw {
