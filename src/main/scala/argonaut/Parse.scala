@@ -121,6 +121,6 @@ object Parse extends Parse[String] {
    * Cannot be a Prism because Json has many String representation
    */
   val parseOptional: Optional[String, Json] =
-    Optional[String, Json](parse(_).toMaybe)(json => _ => json.nospaces)
+    Optional[String, Json](parse(_).toOption)(json => _ => json.nospaces)
 
 }

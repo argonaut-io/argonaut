@@ -1,12 +1,11 @@
 package argonaut
 
 import java.math.MathContext
+
 import monocle.{Iso, Prism}
 
-import scalaz.{Maybe, Equal}
+import scalaz.Equal
 import scalaz.Scalaz._
-import monocle.function._
-import monocle.std._
 
 /**
  * JSON numbers with optimization by cases.
@@ -312,31 +311,31 @@ object JsonNumber {
   val jNumberToDouble: Prism[JsonNumber, Double] =
     Prism[JsonNumber, Double]{n =>
       val d = n.toDouble
-      if(JsonDouble(d) == n) Maybe.just(d)
-      else Maybe.empty
+      if(JsonDouble(d) == n) Some(d)
+      else None
     }(JsonDouble.apply)
 
   val jNumberToFloat: Prism[JsonNumber, Float] =
     Prism[JsonNumber, Float]{n =>
       val f = n.toFloat
-      if(JsonDouble(f) == n) Maybe.just(f)
-      else Maybe.empty
+      if(JsonDouble(f) == n) Some(f)
+      else None
     }(f => JsonDouble(f))
 
   val jNumberToBigInt: Prism[JsonNumber, BigInt] =
-    Prism[JsonNumber, BigInt](_.toBigInt.toMaybe)(bi => JsonBigDecimal(BigDecimal(bi, MathContext.UNLIMITED)))
+    Prism[JsonNumber, BigInt](_.toBigInt)(bi => JsonBigDecimal(BigDecimal(bi, MathContext.UNLIMITED)))
 
   val jNumberToLong: Prism[JsonNumber, Long] =
-    Prism[JsonNumber, Long](_.toLong.toMaybe)(JsonBigDecimal.apply _ compose BigDecimal.apply)
+    Prism[JsonNumber, Long](_.toLong)(JsonBigDecimal.apply _ compose BigDecimal.apply)
 
   val jNumberToInt: Prism[JsonNumber, Int] =
-    Prism[JsonNumber, Int](_.toInt.toMaybe)(JsonBigDecimal.apply _ compose BigDecimal.apply)
+    Prism[JsonNumber, Int](_.toInt)(JsonBigDecimal.apply _ compose BigDecimal.apply)
 
   val jNumberToShort: Prism[JsonNumber, Short] =
-    Prism[JsonNumber, Short](_.toShort.toMaybe)(s => JsonBigDecimal(BigDecimal(s)))
+    Prism[JsonNumber, Short](_.toShort)(s => JsonBigDecimal(BigDecimal(s)))
 
   val jNumberToByte: Prism[JsonNumber, Byte] =
-    Prism[JsonNumber, Byte](_.toByte.toMaybe)(b => JsonBigDecimal(BigDecimal(b)))
+    Prism[JsonNumber, Byte](_.toByte)(b => JsonBigDecimal(BigDecimal(b)))
 
   /**
    * Returns a `JsonNumber` whose value is the valid JSON number in `value`.

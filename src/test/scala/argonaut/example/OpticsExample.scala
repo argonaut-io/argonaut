@@ -6,8 +6,6 @@ import argonaut.{Json, JsonObject, Parse}
 import monocle.Monocle._
 import org.specs2.mutable.Specification
 
-import scalaz.{IList, Maybe}
-
 
 object OpticsExample extends Specification {
 
@@ -28,50 +26,50 @@ object OpticsExample extends Specification {
   "Optics"  should {
 
     "parse string to Json" in {
-      Parse.parseOptional.getMaybe(jsonStr) must_== Maybe.just(json)
+      Parse.parseOptional.getOption(jsonStr) must_== Some(json)
     }
 
     "safe cast json to Boolean" in {
-      jBoolPrism.getMaybe(jBool(true)) must_== Maybe.just(true)
-      jBoolPrism.getMaybe(jBool(false)) must_== Maybe.just(false)
-      jBoolPrism.getMaybe(jNumberOrString(3.5)) must_== Maybe.empty
+      jBoolPrism.getOption(jBool(true)) must_== Some(true)
+      jBoolPrism.getOption(jBool(false)) must_== Some(false)
+      jBoolPrism.getOption(jNumberOrString(3.5)) must_== None
 
       jBoolPrism.modify(!_)(jBool(true)) mustEqual jBool(false)
     }
 
     "safe cast json to String" in {
-      jStringPrism.getMaybe(jString("test")) must_== Maybe.just("test")
-      jStringPrism.getMaybe(jBool(true)) must_== Maybe.empty
+      jStringPrism.getOption(jString("test")) must_== Some("test")
+      jStringPrism.getOption(jBool(true)) must_== None
     }
 
     "safe cast json to Double" in {
-      jDoublePrism.getMaybe(jNumberOrString(3.5)) must_== Maybe.just(3.5)
-      jDoublePrism.getMaybe(jBool(true)) must_== Maybe.empty
+      jDoublePrism.getOption(jNumberOrString(3.5)) must_== Some(3.5)
+      jDoublePrism.getOption(jBool(true)) must_== None
     }
 
     "safe cast json to Int" ! {
-      jIntPrism.getMaybe(jNumberOrString(2)) must_== Maybe.just(2)
-      jIntPrism.getMaybe(jNumberOrString(3.5)) must_== Maybe.empty
-      jIntPrism.getMaybe(jBool(true)) must_== Maybe.empty
+      jIntPrism.getOption(jNumberOrString(2)) must_== Some(2)
+      jIntPrism.getOption(jNumberOrString(3.5)) must_== None
+      jIntPrism.getOption(jBool(true)) must_== None
     }
 
     "safe cast json to JArray" in {
       val array = List(jBool(true), jString("test"))
-      jArrayPrism.getMaybe(jArray(array)) must_== Maybe.just(array)
-      jArrayPrism.getMaybe(jBool(true))   must_== Maybe.empty
+      jArrayPrism.getOption(jArray(array)) must_== Some(array)
+      jArrayPrism.getOption(jBool(true))   must_== None
     }
 
     "safe cast json to JObject" in {
       val obj = JsonObject.empty.+:("name" -> jString("Jon")).+:("age" -> jNumberOrString(23))
-      jObjectPrism.getMaybe(jObject(obj)) must_== Maybe.just(obj)
-      jObjectPrism.getMaybe(jBool(true)) must_== Maybe.empty
+      jObjectPrism.getOption(jObject(obj)) must_== Some(obj)
+      jObjectPrism.getOption(jBool(true)) must_== None
     }
 
     "at / index" in {
-      (jObjectPrism composeLens at("first_name")).getMaybe(json)        must_== Maybe.just(Maybe.just(jString("fred")))
-      (jObjectPrism composeOptional index("first_name")).getMaybe(json) must_== Maybe.just(jString("fred"))
+      (jObjectPrism composeLens at("first_name")).getOption(json)        must_== Some(Some(jString("fred")))
+      (jObjectPrism composeOptional index("first_name")).getOption(json) must_== Some(jString("fred"))
 
-      (jObjectPrism composeLens at("first_name")).set(Maybe.empty)(json) mustEqual Json(
+      (jObjectPrism composeLens at("first_name")).set(None)(json) mustEqual Json(
         "last_name" := "munch",
         "age" := 23
       )
@@ -89,12 +87,13 @@ object OpticsExample extends Specification {
     }
 
     "each" in {
-      (jObjectPrism composeTraversal each composePrism jStringPrism).getAll(json) must_== IList("fred", "munch")
+      (jObjectPrism composeTraversal each composePrism jStringPrism).getAll(json) must_==
+        List("fred", "munch")
 
       (jArrayPrism composeTraversal each composePrism jIntPrism)
-        .getAll(jArray(List(jNumberOrString(1), jNumberOrString(2)))) must_== IList(1, 2)
+        .getAll(jArray(List(jNumberOrString(1), jNumberOrString(2)))) must_== List(1, 2)
 
-      (jObjectPrism composeTraversal each composePrism jStringPrism composeOptional headMaybe)
+      (jObjectPrism composeTraversal each composePrism jStringPrism composeOptional headOption)
         .modify(_.toUpper)(json) must_== Json(
          "first_name" := "Fred",
          "last_name" := "Munch",

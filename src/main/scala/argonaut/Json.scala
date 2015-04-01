@@ -716,23 +716,23 @@ trait Jsons {
   /** A Prism for JSON boolean values. */
   val jBoolPrism: Prism[Json, JsonBoolean] =
     Prism[Json, JsonBoolean](
-      _.fold(Maybe.empty,
-        b => Maybe.just(b),
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty)
+      _.fold(None,
+        b => Some(b),
+        _ => None,
+        _ => None,
+        _ => None,
+        _ => None)
     )(jBool)
 
   /** A Prism for JSON number values. */
   val jNumberPrism: Prism[Json, JsonNumber] =
     Prism[Json, JsonNumber](
-      _.fold(Maybe.empty,
-        _ => Maybe.empty,
-        n => Maybe.just(n),
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty)
+      _.fold(None,
+        _ => None,
+        n => Some(n),
+        _ => None,
+        _ => None,
+        _ => None)
     )(jNumber)
 
   /** A Prism for JSON number values. */
@@ -772,34 +772,34 @@ trait Jsons {
   /** A Prism for JSON string values. */
   val jStringPrism: Prism[Json, JsonString] =
     Prism[Json, JsonString](
-      _.fold(Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        s => Maybe.just(s),
-        _ => Maybe.empty,
-        _ => Maybe.empty)
+      _.fold(None,
+        _ => None,
+        _ => None,
+        s => Some(s),
+        _ => None,
+        _ => None)
     )(jString)
 
   /** A Prism for JSON array values. */
   val jArrayPrism: Prism[Json, JsonArray] =
     Prism[Json, JsonArray](
-      _.fold(Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        a => Maybe.just(a),
-        _ => Maybe.empty)
+      _.fold(None,
+        _ => None,
+        _ => None,
+        _ => None,
+        a => Some(a),
+        _ => None)
     )(jArray)
 
   /** A Prism for JSON object values. */
   val jObjectPrism: Prism[Json, JsonObject] =
     Prism[Json, JsonObject](
-      _.fold(Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        _ => Maybe.empty,
-        o => Maybe.just(o))
+      _.fold(None,
+        _ => None,
+        _ => None,
+        _ => None,
+        _ => None,
+        o => Some(o))
     )(jObject)
 
   implicit val jObjectEach = new Each[JsonObject, Json]{
@@ -810,9 +810,9 @@ trait Jsons {
   }
 
   implicit val jObjectAt = new At[JsonObject, JsonField, Json]{
-    def at(field: JsonField): Lens[JsonObject, Maybe[Json]] =
-      monocle.Lens[JsonObject, Maybe[Json]](_.apply(field).toMaybe)( maybeVal => jObj =>
-        maybeVal.cata(value => jObj + (field, value), jObj - field)
+    def at(field: JsonField): Lens[JsonObject, Option[Json]] =
+      monocle.Lens[JsonObject, Option[Json]](_.apply(field))( optVal => jObj =>
+        optVal.fold(jObj - field)(value => jObj + (field, value))
       )
   }
 
