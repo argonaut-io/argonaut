@@ -2,20 +2,12 @@ package argonaut.example
 
 import argonaut.Json._
 import argonaut.StringWrap._
-import argonaut.{Json, JsonObject, Parse}
+import argonaut.{Json, JsonObject}
 import monocle.Monocle._
 import org.specs2.mutable.Specification
 
 
 object OpticsExample extends Specification {
-
-  val jsonStr = """
-                  |{
-                  |  "first_name" : "fred",
-                  |  "last_name"  : "munch",
-                  |  "age"        : 23
-                  |}
-                """.stripMargin
 
   val json = Json(
     "first_name" := "fred",
@@ -24,10 +16,6 @@ object OpticsExample extends Specification {
   )
 
   "Optics"  should {
-
-    "parse string to Json" in {
-      Parse.parseOptional.getOption(jsonStr) must_== Some(json)
-    }
 
     "safe cast json to Boolean" in {
       jBoolPrism.getOption(jBool(true)) must_== Some(true)
