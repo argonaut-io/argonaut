@@ -1,10 +1,9 @@
 package argonaut
 
-import monocle.macros.Lenser
+import monocle.macros.GenLens
 
 import scalaz._, Scalaz._
 import scala.annotation._
-import monocle.macros.Lenser
 
 /**
  * Parameters for pretty-printing a JSON value.
@@ -308,7 +307,7 @@ trait PrettyParamss {
   final val spaces4: PrettyParams =
     pretty("    ")
 
-  val lenser = Lenser[PrettyParams]
+  val lenser = GenLens[PrettyParams]
 
   val indentL = lenser(_.indent)
   val lbraceLeftL = lenser(_.lbraceLeft)

@@ -108,7 +108,6 @@ trait Parse[A] {
  * Library functions for parsing json.
  */
 object Parse extends Parse[String] {
-  import monocle.Optional
 
   /**
    * Parses the string value and either returns a list of the failures from parsing the string
@@ -116,11 +115,5 @@ object Parse extends Parse[String] {
    */
   def parse(value: String): String \/ Json =
     JsonParser.parse(value)
-
-  /**
-   * Cannot be a Prism because Json has many String representation
-   */
-  val parseOptional: Optional[String, Json] =
-    Optional[String, Json](parse(_).toMaybe)(json => _ => json.nospaces)
 
 }
