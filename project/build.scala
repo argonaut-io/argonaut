@@ -18,14 +18,14 @@ object build extends Build {
   val monocleVersion             = "1.1.0"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck")
-  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.5"                 % "test"
-  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "2.4"                    % "test" excludeAll ExclusionRule(organization = "org.scalamacros")
+  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.12.2"                 % "test"
+  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "3.3.1"                  % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
-  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" excludeAll ExclusionRule(organization = "org.specs2")
+  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
