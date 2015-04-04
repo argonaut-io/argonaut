@@ -17,15 +17,15 @@ object build extends Build {
   val paradiseVersion            = "2.0.1"
   val monocleVersion             = "1.1.0"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
-  val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck")
-  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.12.2"                 % "test"
-  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "3.3.1"                  % "test"
+  val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
+  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.4"                 % "test"
+  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "2.4.1"                  % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
-  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
+  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
@@ -45,15 +45,16 @@ object build extends Build {
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
+    , resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
     , autoScalaLibrary := false
     , libraryDependencies ++= Seq(
         scalaz
+      , scalacheck
+      , specs2Scalacheck
       , scalazScalaCheckBinding
       , monocle
       , monocleMacro
       , monocleLaw
-      , scalacheck
-      , specs2Scalacheck
       ) ++ reflect(scalaVersion.value)
      /* no mima until 6.1.0 release */
     , previousArtifact := None

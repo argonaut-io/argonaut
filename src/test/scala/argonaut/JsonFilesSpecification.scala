@@ -17,12 +17,12 @@ object JsonFilesSpecification extends Specification with ScalaCheck {
 
   def is = s2""" Predefined files can print and get same result" ! $test """
 
-  val test = forAllNoShrink { jsonfile: JsonFile =>
-      val string = scala.io.Source.fromFile(jsonfile.file).mkString
-      val parsed = string.parseOption
-      val json = parsed.getOrElse(sys.error("could not parse json file [" + jsonfile + "]"))
-      json.nospaces.parseOption must beSome(json)
-      json.spaces2.parseOption must beSome(json)
-      json.spaces4.parseOption must beSome(json)
-    }
+  def test = propNoShrink{(jsonfile: JsonFile) =>
+    val string = scala.io.Source.fromFile(jsonfile.file).mkString
+    val parsed = string.parseOption
+    val json = parsed.getOrElse(sys.error("could not parse json file [" + jsonfile + "]"))
+    json.nospaces.parseOption must beSome(json)
+    json.spaces2.parseOption must beSome(json)
+    json.spaces4.parseOption must beSome(json)
+  }
 }
