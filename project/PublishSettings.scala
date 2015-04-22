@@ -13,6 +13,8 @@ object PublishSettings {
   , pomIncludeRepository := { _ => false }
   , licenses := Seq("BSD-3-Clause" -> url("http://www.opensource.org/licenses/BSD-3-Clause"))
   , homepage := Some(url("http://argonaut.io"))
+  , autoAPIMappings := true
+  , apiURL := Some(url("http://argonaut.io/scaladocs/"))
   , useGpg := true
   )
 
