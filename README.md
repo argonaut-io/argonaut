@@ -40,7 +40,7 @@ Note that the 6.1 development stream supports scala 2.10.* and 2.11.* with scala
 
 ### Release
 
-Add to `~/.sbt/0.13.1/sonatype.sbt`
+Add to `~/.sbt/0.13/sonatype.sbt`
 
 
     credentials += Credentials("Sonatype Nexus Repository Manager",
