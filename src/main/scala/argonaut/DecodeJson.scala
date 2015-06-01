@@ -198,7 +198,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   implicit def DoubleDecodeJson: DecodeJson[Double] = {
     optionDecoder(x =>
       if(x.isNull) Some(Double.NaN) else (x.number map (_.toDouble)).orElse(
-        (x.string flatMap (s => tryTo(s.toDouble)))), "Double")
+      (x.string flatMap (s => tryTo(s.toDouble)))), "Double")
   }
 
   implicit def FloatDecodeJson: DecodeJson[Float] = {
@@ -236,7 +236,8 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def BooleanDecodeJson: DecodeJson[Boolean] = {
-    optionDecoder(_.bool, "Boolean")
+    optionDecoder(x => x.bool.orElse(
+      x.string flatMap (s => tryTo(s.toBoolean))), "Boolean")
   }
 
   implicit def CharDecodeJson: DecodeJson[Char] = {
