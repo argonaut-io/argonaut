@@ -13,9 +13,13 @@ sealed trait Shape
 case class Circle(radius: Int) extends Shape
 case class Square(side: Int) extends Shape
 
+case class BackTicks(`a.b.c`: String)
+
 object TestTypes {
   implicit def PersonEqual: Equal[Person] = Equal.equalA
   implicit def PersonShow: Show[Person] = Show.showFromToString
+  implicit def BackTicksEqual: Equal[BackTicks] = Equal.equalA
+  implicit def BackTicksShow: Show[BackTicks] = Show.showFromToString
 
   implicit def ProductArbitrary: Arbitrary[Product] = Arbitrary(for {
     n <- arbitrary[String]
@@ -42,4 +46,6 @@ object TestTypes {
     arbitrary[Int].map(Circle.apply)
   , arbitrary[Int].map(Square.apply)
   ))
+
+  implicit def BackticksArbitrary: Arbitrary[BackTicks] = Arbitrary(arbitrary[String].map(BackTicks.apply))
 }

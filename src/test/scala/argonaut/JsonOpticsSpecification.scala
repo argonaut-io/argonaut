@@ -17,7 +17,6 @@ object JsonOpticsSpecification extends Specification with ScalaCheck {
     JsonNumber      ${PrismLaws(Json.jNumberPrism)}
     JsonArray       ${PrismLaws(Json.jArrayPrism)}
     JsonObject      ${PrismLaws(Json.jObjectPrism)}
-
     JsonBigDecimal  ${PrismLaws(Json.jBigDecimalPrism)}
     JsonDouble      ${PrismLaws(Json.jDoublePrism)}
     JsonFloat       ${PrismLaws(Json.jDoublePrism)}

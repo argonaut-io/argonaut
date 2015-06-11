@@ -9,8 +9,8 @@ import scalaz._
 import Scalaz._
 
 object ACursorSpecification extends Specification with ScalaCheck {
-
-  def is = s2"""ACursor
+  def is = s2"""
+  ACursor
     History must reflect success after single step.     $singleStepSuccess
     History must reflect success after multiple steps.  $multiStepSuccess
     Nothing accept reattempt may occur after failure.   $reattemptAfterFailure

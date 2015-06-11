@@ -6,15 +6,13 @@ import org.specs2._, org.specs2.specification._
 import Argonaut._
 
 object EncodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
-
-EncodeJson Witness Compilation
-------------------------------
-
-  Witness basics                        ${ok}
-  Witness tuples                        ${ok}
-  Witness auto                          ${ok}
-  Witness derived                       ${ok}
-
+  EncodeJson Witness Compilation
+    Witness basics                        ${ok}
+    Witness tuples                        ${ok}
+    Witness auto                          ${ok}
+    Witness derived                       ${ok}
+  EncodeJson derive
+    BackTicks                             ${derived.testBackTicksEncodeJson}
 """
 
   object primitives {
@@ -44,5 +42,8 @@ EncodeJson Witness Compilation
     implicit def PersonEncodeJson: EncodeJson[Person] = EncodeJson.derive[Person]
 
     EncodeJson.of[Person]
+
+    implicit def BackTicksEncodeJson: EncodeJson[BackTicks] = EncodeJson.derive[BackTicks]
+    def testBackTicksEncodeJson = BackTicks("test").jencode === ("a.b.c" := "test") ->: jEmptyObject
   }
 }

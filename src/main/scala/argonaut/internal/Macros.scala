@@ -32,14 +32,16 @@ object Macros extends MacrosCompat {
           getDeclaration(c)(tpe, field.name).typeSignature
         }
         val fieldCount = fieldNames.size
-        val invocations = decodedNames.map{fieldName => 
-          val termName = createTermName(c)(fieldName)
+        val invocations = fieldNames.map{fieldName => 
+          val termName = createTermName(c)(fieldName.toString)
           q"toEncode.$termName"
         }
         val methodName = createTermName(c)("jencode" + (fieldCount.toString) + "L")
-        c.Expr[EncodeJson[T]]{q"""
+        val expr = c.Expr[EncodeJson[T]]{q"""
           EncodeJson.$methodName[$tpe, ..$fieldTypes](toEncode => (..$invocations))(..$decodedNames)
         """}
+        //println(expr)
+        expr
       }
       case None => c.abort(c.enclosingPosition, "Could not identify primary constructor for " + tpe)
     }
@@ -62,18 +64,20 @@ object Macros extends MacrosCompat {
           getDeclaration(c)(tpe, field.name).typeSignature
         }
         val fieldCount = fieldNames.size
-        val functionParameters = decodedNames.zip(fieldTypes).map{case (fieldName, fieldType) =>
-          val termName = createTermName(c)(fieldName)
+        val functionParameters = fieldNames.zip(fieldTypes).map{case (fieldName, fieldType) =>
+          val termName = createTermName(c)(fieldName.toString)
           q"$termName: $fieldType"
         }
-        val parameters = decodedNames.map{fieldName =>
-          val termName = createTermName(c)(fieldName)
+        val parameters = fieldNames.map{fieldName =>
+          val termName = createTermName(c)(fieldName.toString)
           q"$termName"
         }
         val methodName = createTermName(c)("jdecode" + (fieldCount.toString) + "L")
-        c.Expr[DecodeJson[T]]{q"""
+        val expr = c.Expr[DecodeJson[T]]{q"""
           DecodeJson.$methodName[..$fieldTypes, $tpe]((..$functionParameters) => new $tpe(..$parameters))(..$decodedNames)
         """}
+        //println(expr)
+        expr
       }
       case None => c.abort(c.enclosingPosition, "Could not identify primary constructor for " + tpe)
     }

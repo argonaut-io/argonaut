@@ -6,15 +6,13 @@ import org.specs2._, org.specs2.specification._
 import Argonaut._
 
 object DecodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
-
-DecodeJson Witness Compilation
-------------------------------
-
-  Witness basics                        ${ok}
-  Witness tuples                        ${ok}
-  Witness auto                          ${ok}
-  Witness derived                       ${ok}
-
+  DecodeJson Witness Compilation
+    Witness basics                        ${ok}
+    Witness tuples                        ${ok}
+    Witness auto                          ${ok}
+    Witness derived                       ${ok}
+  DecodeJson derive
+    BackTicks                             ${derived.testBackTicksDecodeJson}
 """
 
   object primitives {
@@ -44,5 +42,8 @@ DecodeJson Witness Compilation
     implicit def PersonDecodeJson: DecodeJson[Person] = DecodeJson.derive[Person]
 
     DecodeJson.of[Person]
+
+    implicit def BackTicksDecodeJson: DecodeJson[BackTicks] = DecodeJson.derive[BackTicks]
+    def testBackTicksDecodeJson = Parse.decodeEither[BackTicks]("""{"a.b.c": "test"}""") === BackTicks("test").right
   }
 }

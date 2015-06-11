@@ -84,9 +84,8 @@ object CodecSpecification extends Specification with ScalaCheck {
     Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
     22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}}
     22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
-    CodecJson derived ${derived.test}
-
-
+    CodecJson[Person] derived ${derived.testDerivedPerson}
+    CodecJson[BackTicks] derived ${derived.testDerivedBackTicks}
   """
 
   implicit val jDoubleArbitrary: Arbitrary[java.lang.Double] =
@@ -166,7 +165,9 @@ object CodecSpecification extends Specification with ScalaCheck {
     implicit def OrderLineCodecJson: CodecJson[OrderLine] = CodecJson.derive[OrderLine]
     implicit def OrderCodecJson: CodecJson[Order] = CodecJson.derive[Order]
     implicit def PersonCodecJson: CodecJson[Person] = CodecJson.derive[Person]
+    implicit def BackTicksCodecJson: CodecJson[BackTicks] = CodecJson.derive[BackTicks]
 
-    def test = encodedecode[Person]
+    def testDerivedPerson = encodedecode[Person]
+    def testDerivedBackTicks = encodedecode[BackTicks]
   }
 }
