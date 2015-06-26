@@ -22,6 +22,7 @@ object EncodeJsonSpecification extends Specification with ScalaCheck { def is = 
     EncodeJson.of[Long]
     EncodeJson.of[Double]
     EncodeJson.of[Short]
+    EncodeJson.of[Byte]
     EncodeJson.of[Option[Int]]
     EncodeJson.of[Option[String]]
   }
