@@ -221,6 +221,12 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       (x.string flatMap (s => tryTo(s.toShort)))), "Short")
   }
 
+  implicit def ByteDecodeJson: DecodeJson[Byte] = {
+    optionDecoder(x =>
+      (x.number map (_.truncateToByte)).orElse(
+      (x.string flatMap (s => tryTo(s.toByte)))), "Byte")
+  }
+
   implicit def BigIntDecodeJson: DecodeJson[BigInt] = {
     optionDecoder(x =>
       (x.number map (_.truncateToBigInt)).orElse(
@@ -259,6 +265,10 @@ trait DecodeJsons extends GeneratedDecodeJsons {
 
   implicit def JShortDecodeJson: DecodeJson[java.lang.Short] = {
     optionDecoder(_.number flatMap (s => tryTo(s.truncateToShort)), "java.lang.Short")
+  }
+
+  implicit def JByteDecodeJson: DecodeJson[java.lang.Byte] = {
+    optionDecoder(_.number flatMap (s => tryTo(s.truncateToByte)), "java.lang.Byte")
   }
 
   implicit def JBooleanDecodeJson: DecodeJson[java.lang.Boolean] = {
