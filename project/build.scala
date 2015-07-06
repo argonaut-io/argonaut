@@ -57,7 +57,7 @@ object build extends Build {
       , monocleMacro
       , monocleLaw
       ) ++ reflect(scalaVersion.value)
-    , previousArtifact := Some(organization.value %% name.value % "6.1")
+    , previousArtifact := Some(organization.value % s"${name.value}_${scalaBinaryVersion.value}" % "6.1")
     , binaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
