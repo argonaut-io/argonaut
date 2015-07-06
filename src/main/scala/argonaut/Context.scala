@@ -3,7 +3,7 @@ package argonaut
 import Json._
 import scalaz._, Scalaz._
 
-sealed trait Context {
+sealed abstract class Context {
   val toList: List[ContextElement]
 
   def +:(e: ContextElement): Context =
@@ -32,7 +32,7 @@ trait Contexts {
     }
 }
 
-sealed trait ContextElement {
+sealed abstract class ContextElement extends Product with Serializable {
   def json: Json =
     this match {
       case ArrayContext(_, j) => j
@@ -56,7 +56,7 @@ private case class ObjectContext(f: JsonField, j: Json) extends ContextElement
 
 object ContextElement extends ContextElements
 
-trait ContextElements {
+sealed abstract class ContextElements {
   def arrayContext(n: Int, j: Json): ContextElement =
     ArrayContext(n, j)
 

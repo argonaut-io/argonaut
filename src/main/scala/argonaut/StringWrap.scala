@@ -7,7 +7,7 @@ import scalaz._, Scalaz._
  *
  * @author Tony Morris
  */
-sealed trait StringWrap {
+sealed abstract class StringWrap {
   /**
    * Underlying string value.
    */

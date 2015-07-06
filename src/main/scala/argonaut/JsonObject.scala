@@ -8,7 +8,7 @@ import scalaz._, Scalaz._
  *
  * @author Tony Morris
  */
-sealed trait JsonObject {
+sealed abstract class JsonObject {
   /**
    * Convert to a map.
    */
