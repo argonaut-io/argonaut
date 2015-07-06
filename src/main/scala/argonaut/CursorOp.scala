@@ -2,7 +2,7 @@ package argonaut
 
 import scalaz._, Scalaz._
 
-sealed trait CursorOp {
+sealed abstract class CursorOp extends Product with Serializable {
   def isReattempt: Boolean =
     this == Reattempt
 

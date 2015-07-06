@@ -3,7 +3,7 @@ package argonaut
 import Json._
 import scalaz._, Scalaz._
 
-sealed trait CursorOpElement {
+sealed abstract class CursorOpElement extends Product with Serializable {
   def isLeft: Boolean =
     this == CursorOpLeft
 

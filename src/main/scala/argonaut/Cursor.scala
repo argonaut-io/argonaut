@@ -9,7 +9,7 @@ import ContextElement._
  *
  * @author Tony Morris
  */
-sealed trait Cursor {
+sealed abstract class Cursor extends Product with Serializable {
   /** Return the current context of the focus. */
   def context: Context =
     this match {

@@ -10,7 +10,7 @@ import scalaz.syntax.std.option._
  * @author Dylan Just
  * @author Mark Hibberd
  */
-sealed trait Json {
+sealed abstract class Json extends Product with Serializable {
   import Json._
   import JsonIdentity._
 

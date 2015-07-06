@@ -2,7 +2,7 @@ package argonaut
 
 import scalaz._, Scalaz._
 
-sealed trait CodecJson[A] extends EncodeJson[A] with DecodeJson[A] { outer =>
+sealed abstract class CodecJson[A] extends EncodeJson[A] with DecodeJson[A] { outer =>
   val Encoder: EncodeJson[A]
   val Decoder: DecodeJson[A]
 
