@@ -11,7 +11,7 @@ object Macros extends MacrosCompat {
     val encode = materializeEncodeImpl[T](c)
     val decode = materializeDecodeImpl[T](c)
     c.Expr[CodecJson[T]](q"""
-    CodecJson.derived[$tpe]($encode, $decode)
+    _root_.argonaut.CodecJson.derived[$tpe]($encode, $decode)
     """)
   }
 
@@ -38,7 +38,7 @@ object Macros extends MacrosCompat {
         }
         val methodName = createTermName(c)("jencode" + (fieldCount.toString) + "L")
         val expr = c.Expr[EncodeJson[T]]{q"""
-          EncodeJson.$methodName[$tpe, ..$fieldTypes](toEncode => (..$invocations))(..$decodedNames)
+          _root_.argonaut.EncodeJson.$methodName[$tpe, ..$fieldTypes](toEncode => (..$invocations))(..$decodedNames)
         """}
         //println(expr)
         expr
@@ -74,7 +74,7 @@ object Macros extends MacrosCompat {
         }
         val methodName = createTermName(c)("jdecode" + (fieldCount.toString) + "L")
         val expr = c.Expr[DecodeJson[T]]{q"""
-          DecodeJson.$methodName[..$fieldTypes, $tpe]((..$functionParameters) => new $tpe(..$parameters))(..$decodedNames)
+          _root_.argonaut.DecodeJson.$methodName[..$fieldTypes, $tpe]((..$functionParameters) => new $tpe(..$parameters))(..$decodedNames)
         """}
         //println(expr)
         expr
