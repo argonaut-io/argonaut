@@ -39,6 +39,7 @@ object build extends Build {
     releaseSettings ++
     PublishSettings.all ++
     InfoSettings.all ++
+    mimaDefaultSettings ++
     Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
     net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq[Sett](
       name := "argonaut"
@@ -56,14 +57,13 @@ object build extends Build {
       , monocleMacro
       , monocleLaw
       ) ++ reflect(scalaVersion.value)
-     /* no mima until 6.1.0 release */
-    , previousArtifact := None
-/*    , binaryIssueFilters ++= {
+    , previousArtifact := Some(organization.value %% name.value % "6.1")
+    , binaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
       /* adding functions to sealed traits is binary incompatible from java, but ok for scala, so ignoring */
       Seq(
-      ) map exclude[MissingMethodProblem] } */
+      ) map exclude[MissingMethodProblem] }
     )
   )
 
