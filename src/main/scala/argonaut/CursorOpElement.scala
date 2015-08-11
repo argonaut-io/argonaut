@@ -64,6 +64,8 @@ case object CursorOpDeleteGoLast extends CursorOpElement
 case class CursorOpDeleteGoField(f: JsonField) extends CursorOpElement
 case object CursorOpDeleteLefts extends CursorOpElement
 case object CursorOpDeleteRights extends CursorOpElement
+case class CursorOpSetLefts(x: List[Json]) extends CursorOpElement
+case class CursorOpSetRights(x: List[Json]) extends CursorOpElement
 
 object CursorOpElement extends CursorOpElements
 
@@ -95,6 +97,8 @@ trait CursorOpElements {
           case CursorOpDeleteGoField(f) => "!--(" + f + ")"
           case CursorOpDeleteLefts => "!<"
           case CursorOpDeleteRights => ">!"
+          case CursorOpSetLefts(_) => "!...<"
+          case CursorOpSetRights(_) => ">...!"
         }
 
       def equal(e1: CursorOpElement, e2: CursorOpElement) =

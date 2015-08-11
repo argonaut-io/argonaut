@@ -92,11 +92,11 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor to the first in a JSON array. */
   def first: ACursor =
-    history.acursorElement(Store(_.left, cursor), CursorOpFirst)
+    history.acursorElement(Store(_.first, cursor), CursorOpFirst)
 
   /** Move the cursor to the last in a JSON array. */
   def last: ACursor =
-    history.acursorElement(Store(_.left, cursor), CursorOpLast)
+    history.acursorElement(Store(_.last, cursor), CursorOpLast)
 
   /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `leftN`). */
   def -<-:(n: Int): ACursor =
@@ -132,7 +132,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Find the first element at or to the right of focus in a JSON array where the given predicate matches the focus. */
   def find(p: Json => Boolean): ACursor =
-    history.acursorElement(Store(_.find(p), cursor), CursorOpRightAt(p))
+    history.acursorElement(Store(_.find(p), cursor), CursorOpFind(p))
 
   /** Move the cursor to the given sibling field in a JSON object (alias for `field`). */
   def --(q: JsonField): ACursor =
@@ -216,11 +216,11 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Set the values to the left of focus in a JSON array. */
   def setLefts(x: List[Json]): ACursor =
-    history.acursorElement(Store(_.setLefts(x), cursor), CursorOpDeleteRights)
+    history.acursorElement(Store(_.setLefts(x), cursor), CursorOpSetLefts(x))
 
   /** Set the values to the right of focus in a JSON array. */
   def setRights(x: List[Json]): ACursor =
-    history.acursorElement(Store(_.setRights(x), cursor), CursorOpDeleteRights)
+    history.acursorElement(Store(_.setRights(x), cursor), CursorOpSetRights(x))
 
   /** Move the cursor up one step to the parent context. */
   def up: ACursor =
