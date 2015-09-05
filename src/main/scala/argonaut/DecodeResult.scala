@@ -1,6 +1,7 @@
 package argonaut
 
-import scalaz._, Scalaz._, Isomorphism._
+import scalaz._, Isomorphism._
+import syntax.either._, std.string._, std.tuple._
 
 case class DecodeResult[A](result:  (String, CursorHistory) \/ A) {
   def fold[X](

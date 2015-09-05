@@ -2,7 +2,6 @@ package argonaut.internal
 
 import argonaut._
 import scala.collection.immutable.{ SortedMap, MapLike }
-import scalaz._, Scalaz._
 
 object Macros extends MacrosCompat {
   def materializeCodecImpl[T: c.WeakTypeTag](c: Context): c.Expr[CodecJson[T]] = {

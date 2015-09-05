@@ -4,8 +4,7 @@ import org.scalacheck.Prop._
 import org.scalacheck.Properties
 import Data._
 import Argonaut._
-import org.specs2._, org.specs2.specification._
-import org.specs2.matcher._
+import org.specs2._
 import scalaz._
 import Scalaz._
 

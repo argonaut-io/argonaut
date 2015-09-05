@@ -1,9 +1,7 @@
 package argonaut.example
 
 import argonaut._, Argonaut._
-import scalaz._, Scalaz._
 import org.specs2._
-import org.specs2.specification._
 
 object JsonExample extends Specification {
   val json =

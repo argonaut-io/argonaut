@@ -1,10 +1,8 @@
 package argonaut
 
-import org.scalacheck._, Prop._, Arbitrary._, Gen._
-import org.specs2._, org.specs2.specification._
-import org.specs2.matcher._
+import org.scalacheck._, Arbitrary._
+import org.specs2._
 
-import Argonaut._
 import Data._
 
 object JsonNumberSpecification extends Specification with ScalaCheck {

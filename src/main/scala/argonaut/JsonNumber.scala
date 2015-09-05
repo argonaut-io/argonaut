@@ -5,7 +5,7 @@ import java.math.MathContext
 import monocle.{Iso, Prism}
 
 import scalaz.Equal
-import scalaz.Scalaz._
+import scalaz.syntax.std.boolean._
 
 /**
  * JSON numbers with optimization by cases.

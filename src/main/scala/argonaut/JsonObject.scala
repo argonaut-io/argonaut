@@ -1,7 +1,8 @@
 package argonaut
 
 import Json._
-import scalaz._, Scalaz._
+import scalaz._, syntax.traverse._, syntax.show._
+import std.tuple._, std.string._
 
 /**
  * A mapping from field to JSON value that maintains insertion order.

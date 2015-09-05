@@ -8,11 +8,10 @@ import org.scalacheck.Properties
 import org.scalacheck.Gen
 import Data._
 import Argonaut._
-import org.specs2._, org.specs2.specification._
-import org.specs2.matcher._
+import org.specs2._
 import scalaz._
-import Scalaz._
-import scalaz.scalacheck.ScalazProperties._
+import scalaz.std.string._
+import scalaz.std.anyVal._
 import scalaz.scalacheck.ScalazArbitrary._
 import monocle.law.LensLaws
 

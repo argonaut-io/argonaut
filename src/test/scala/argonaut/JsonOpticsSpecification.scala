@@ -4,7 +4,6 @@ import argonaut.Data._
 import monocle.law.PrismLaws
 import org.specs2.{ScalaCheck, Specification}
 
-import scalaz.std.string._
 import scalaz.std.anyVal._
 import scalaz.std.list._
 

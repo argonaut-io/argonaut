@@ -1,9 +1,7 @@
 package argonaut
 
-import scalaz._
-import Scalaz._
+import scalaz.syntax.either._
 import Json._
-import JsonObject._
 import org.specs2.matcher.DataTables
 
 object KnownResults extends DataTables {
