@@ -2,7 +2,6 @@ package argonaut.example
 
 import argonaut._, Argonaut._
 import org.specs2._
-import org.specs2.specification._
 
 object PrettyParamsExample extends Specification {
 

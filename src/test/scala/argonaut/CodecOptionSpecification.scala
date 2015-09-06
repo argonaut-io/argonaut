@@ -1,9 +1,6 @@
 package argonaut
 
-import Data._
-import org.specs2._, org.specs2.specification._
-import org.specs2.matcher._
-import scalaz._, Scalaz._
+import org.specs2._
 import Argonaut._
 
 object CodecOptionSpecification extends Specification with ScalaCheck {

@@ -1,7 +1,6 @@
 package argonaut
 
-import scala.collection.immutable.{ SortedMap, MapLike }
-import scalaz.{ Coproduct => _, _}, Scalaz._
+import scalaz._, syntax.either._
 import Json._
 
 /**

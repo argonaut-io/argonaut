@@ -1,8 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
-import org.scalacheck._, Arbitrary._, Prop._
-import org.specs2._, org.specs2.specification._
+import org.specs2._
 import Argonaut._
 
 object EncodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
@@ -45,8 +43,6 @@ object EncodeJsonSpecification extends Specification with ScalaCheck { def is = 
   }
 
   object derived {
-    import TestTypes._
-
     implicit def ProductEncodeJson: EncodeJson[Product] = EncodeJson.derive[Product]
     implicit def OrderLineEncodeJson: EncodeJson[OrderLine] = EncodeJson.derive[OrderLine]
     implicit def OrderEncodeJson: EncodeJson[Order] = EncodeJson.derive[Order]

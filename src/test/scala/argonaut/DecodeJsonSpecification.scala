@@ -1,8 +1,8 @@
 package argonaut
 
-import scalaz._, Scalaz._
-import org.scalacheck._, Arbitrary._, Prop._
-import org.specs2._, org.specs2.specification._
+import scalaz.syntax.either._
+import scalaz.std.string._
+import org.specs2._
 import Argonaut._
 
 object DecodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""

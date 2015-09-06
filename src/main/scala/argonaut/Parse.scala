@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
+import scalaz._, syntax.either._, syntax.show._
 
 
 /**

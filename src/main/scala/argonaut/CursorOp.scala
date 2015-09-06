@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
+import scalaz._, syntax.show._
 
 sealed abstract class CursorOp extends Product with Serializable {
   def isReattempt: Boolean =

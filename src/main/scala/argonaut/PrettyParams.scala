@@ -1,8 +1,7 @@
 package argonaut
 
 import monocle.macros.GenLens
-
-import scalaz._, Scalaz._
+import scalaz._
 import scala.annotation._
 
 /**

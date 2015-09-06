@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
+import scalaz._, syntax.applicative._, syntax.either._
 
 case class HCursor(cursor: Cursor, history: CursorHistory) {
   import Json._
