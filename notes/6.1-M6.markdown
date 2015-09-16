@@ -1,0 +1,4 @@
+6.1-M6.
+
+ * Update of monocle library to 1.0.1.
+ * Support for Maybe from the Scalaz library.

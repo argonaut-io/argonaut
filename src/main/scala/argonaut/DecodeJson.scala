@@ -187,20 +187,29 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def UnitDecodeJson: DecodeJson[Unit] = {
-    DecodeJson(a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray)
+    DecodeJson{a =>
+      if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray) {
         ().point[DecodeResult]
-      else
-        DecodeResult.fail("Unit", a.history))
+      } else {
+        DecodeResult.fail("Unit", a.history)
+      }
+    }
   }
 
   implicit def StringDecodeJson: DecodeJson[String] = optionDecoder(_.string, "String")
 
   implicit def DoubleDecodeJson: DecodeJson[Double] = {
-    optionDecoder(x => if(x.isNull) Some(Double.NaN) else x.number map (_.toDouble), "Double")
+    optionDecoder(x => {
+      if (x.isNull) {
+        Some(Double.NaN)
+      } else {
+        x.number.map(_.toDouble).orElse(x.string.flatMap(s => tryTo(s.toDouble)))
+      }
+    }, "Double")
   }
 
   implicit def FloatDecodeJson: DecodeJson[Float] = {
-    optionDecoder(x => if(x.isNull) Some(Float.NaN) else x.number map (_.toFloat), "Float")
+    optionDecoder(x => if(x.isNull) Some(Float.NaN) else x.number.map(_.toFloat), "Float")
   }
 
   implicit def IntDecodeJson: DecodeJson[Int] = {

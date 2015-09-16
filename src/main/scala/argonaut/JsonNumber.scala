@@ -463,6 +463,28 @@ object JsonNumber {
    * The negative sign, fractional part and exponent part are optional matches
    * and may be `null`.
    */
-  val JsonNumberRegex = 
+  val JsonNumberRegex =
     """(-)?((?:[1-9][0-9]*|0))(?:\.([0-9]+))?(?:[eE]([-+]?[0-9]+))?""".r
+}
+
+trait EncodeJsonNumber[T] {
+  def encodeJsonNumber(value: T): JsonNumber
+}
+
+object EncodeJsonNumber {
+  implicit val encodeJsonNumberShort: EncodeJsonNumber[Short] = new EncodeJsonNumber[Short] {
+    def encodeJsonNumber(value: Short): JsonNumber = new JsonLong(value.toLong)
+  }
+  implicit val encodeJsonNumberInt: EncodeJsonNumber[Int] = new EncodeJsonNumber[Int] {
+    def encodeJsonNumber(value: Int): JsonNumber = new JsonLong(value.toLong)
+  }
+  implicit val encodeJsonNumberLong: EncodeJsonNumber[Long] = new EncodeJsonNumber[Long] {
+    def encodeJsonNumber(value: Long): JsonNumber = new JsonLong(value)
+  }
+  implicit val encodeJsonNumberDouble: EncodeJsonNumber[Double] = new EncodeJsonNumber[Double] {
+    def encodeJsonNumber(value: Double): JsonNumber = new JsonDouble(value)
+  }
+  implicit val encodeJsonNumberBigDecimal: EncodeJsonNumber[BigDecimal] = new EncodeJsonNumber[BigDecimal] {
+    def encodeJsonNumber(value: BigDecimal): JsonNumber = new JsonBigDecimal(value)
+  }
 }
