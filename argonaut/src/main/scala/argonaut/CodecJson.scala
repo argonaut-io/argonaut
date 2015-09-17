@@ -1,29 +1,23 @@
 package argonaut
 
-import scalaz._, syntax.equal._
-
 sealed abstract class CodecJson[A] extends EncodeJson[A] with DecodeJson[A] { outer =>
   val Encoder: EncodeJson[A]
   val Decoder: DecodeJson[A]
 
   override def encode(a: A) = Encoder.encode(a)
   override def decode(c: HCursor) = Decoder.decode(c)
-  override def setName(n: String): CodecJson[A] =
+  override def setName(n: String): CodecJson[A] = {
     new CodecJson[A] {
       val Encoder = outer.Encoder
       val Decoder = outer.Decoder.setName(n)
     }
-  override def tryDecode(c: ACursor) = Decoder.tryDecode(c)
-
-  trait CodecLaw {
-    def encodedecode(a: A)(implicit A: Equal[A]) =
-      decodeJson(encode(a)).value.exists (_ === a)
   }
 
-  def codecLaw = new CodecLaw {}
+  override def tryDecode(c: ACursor) = Decoder.tryDecode(c)
 
-  def xmap[B](f: A => B)(g: B => A): CodecJson[B] =
-    CodecJson.derived(Encoder contramap g, Decoder map f)
+  def xmap[B](f: A => B)(g: B => A): CodecJson[B] = {
+    CodecJson.derived(Encoder.contramap(g), Decoder.map(f))
+  }
 }
 
 object CodecJson extends CodecJsons {
@@ -35,11 +29,12 @@ object CodecJson extends CodecJsons {
 
   def derive[A]: CodecJson[A] = macro internal.Macros.materializeCodecImpl[A]
 
-  def derived[A](implicit E: EncodeJson[A], D: DecodeJson[A]): CodecJson[A] =
+  def derived[A](implicit E: EncodeJson[A], D: DecodeJson[A]): CodecJson[A] = {
     new CodecJson[A] {
       val Encoder = E
       val Decoder = D
     }
+  }
 }
 
 trait CodecJsons extends GeneratedCodecJsons

@@ -1,8 +1,6 @@
 package argonaut
 
 import Json._
-import scalaz._, syntax.traverse._, syntax.show._
-import std.tuple._, std.string._
 
 /**
  * A mapping from field to JSON value that maintains insertion order.
@@ -66,11 +64,6 @@ sealed abstract class JsonObject {
   def values: List[Json]
 
   /**
-   * Returns a kleisli function that gets the JSON value associated with the given field.
-   */
-  def kleisli: Kleisli[Option, JsonField, Json]
-
-  /**
    * Returns all association keys in insertion order.
    */
   def fields: List[JsonField]
@@ -84,11 +77,6 @@ sealed abstract class JsonObject {
    * Map Json values.
    */
   def map(f: Json => Json): JsonObject
-
-  /**
-   * Traverse Json values.
-   */
-  def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject]
 
   /**
    * Returns the number of associations.
@@ -135,39 +123,29 @@ private[argonaut] case class JsonObjectInstance(
 
   def values: List[Json] = orderedFields.map(field => fieldsMap(field)).toList
 
-  def kleisli: Kleisli[Option, JsonField, Json] = Kleisli(fieldsMap get _)
-
   def fields: List[JsonField] = orderedFields.toList
 
   def fieldSet: Set[JsonField] = orderedFields.toSet
 
   def map(f: Json => Json): JsonObject = copy(fieldsMap = fieldsMap.foldLeft(Map.empty[JsonField, Json]){case (acc, (key, value)) => acc.updated(key, f(value))})
-  
-  def traverse[F[_]](f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
-    orderedFields.foldLeft(FF.point(Map.empty[JsonField, Json])){case (acc, k) =>
-      FF.apply2(acc, f(fieldsMap(k)))(_.updated(k, _))
-    }.map(mappedFields => copy(fieldsMap = mappedFields))
-  }
 
   def size: Int = fields.size
-  
-  override def toString: String =
-    "object[%s]".format(fieldsMap.map(_.shows).mkString(","))
 
-  override def equals(o: Any) =
+  override def toString: String = {
+    "object[%s]".format(fieldsMap.map(_.toString).mkString(","))
+  }
+
+  override def equals(o: Any) = {
     o match {
       case JsonObjectInstance(otherMap, _) => fieldsMap == otherMap
       case _ => false
     }
+  }
 
-  override def hashCode =
-    fieldsMap.hashCode
+  override def hashCode = fieldsMap.hashCode
 }
 
 object JsonObject extends JsonObjects {
-  def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject =
-    f.foldLeft(empty){ case (acc, (k, v)) => acc + (k, v) }
-
   /**
    * Construct an empty association.
    */
@@ -175,31 +153,9 @@ object JsonObject extends JsonObjects {
 }
 
 trait JsonObjects {
-
   /**
    * Construct with a single association.
    */
   def single(f: JsonField, j: Json): JsonObject =
     JsonObject.empty + (f, j)
-
-  /**
-   * The lens to the JSON value.
-   */
-  def jsonObjectL(f: JsonField): JsonObject @> Option[Json] =
-    Lens(jsonObject => Store(_ match {
-      case None => jsonObject - f
-      case Some(v) => jsonObject + (f, v)
-    }, jsonObject(f)))
-
-  /**
-   * The partial lens to the JSON value.
-   */
-  def jsonObjectPL(f: JsonField): JsonObject @?> Json =
-    PLens.somePLens compose ~jsonObjectL(f)
-
-  implicit val JsonObjectShow =
-    Show.showFromToString[JsonObject]
-
-  implicit val JsonObjectEqual =
-    Equal.equalA[JsonObject]
 }

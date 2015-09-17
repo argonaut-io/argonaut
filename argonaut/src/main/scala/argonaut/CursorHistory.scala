@@ -1,7 +1,5 @@
 package argonaut
 
-import scalaz._, syntax.show._, std.list._, syntax.equal._
-
 /**
  * A list of elements denoting the history of a cursor.
  *
@@ -31,30 +29,13 @@ case class CursorHistory(toList: List[CursorOp]) {
   def acursor(c: Cursor): ACursor =
     ACursor.ok(HCursor(c, this))
 
-  def acursorElement(c: Store[Cursor, Option[Cursor]], e: CursorOpElement): ACursor = {
-    val x = c.pos
-    c.copoint match {
-      case None => +:(CursorOp.failedOp(e)).failedACursor(x)
-      case Some(q) => +:(CursorOp(e)).acursor(q)
-    }
-  }
-
-  override def toString(): String = "CursorHistory(%s)".format(this.shows)
+  override def toString(): String = "CursorHistory(%s)".format(toList.toString)
 }
 
 object CursorHistory extends CursorHistorys
 
 trait CursorHistorys {
-  def start(e: CursorOp) =
-    CursorHistory(List(e))
+  def empty = CursorHistory(List())
 
-  implicit val CursorHistoryInstances: Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] =
-    new Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] {
-      override def show(h: CursorHistory) = Show[List[CursorOp]].show(h.toList)
-      def equal(h1: CursorHistory, h2: CursorHistory) =
-        h1.toList === h2.toList
-      def zero = CursorHistory(List())
-      def append(h1: CursorHistory, h2: => CursorHistory) =
-        CursorHistory(h1.toList ::: h2.toList)
-    }
+  def start(e: CursorOp) = CursorHistory(List(e))
 }

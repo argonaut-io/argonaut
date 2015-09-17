@@ -4,7 +4,6 @@ import scala.math.{ Ordering => ScalaOrdering }
 import scala.collection.generic.CanBuildFrom
 import scala.collection.immutable.{ SortedSet, SortedMap, MapLike }
 import scala.util.control.Exception.catching
-import scalaz._, std.string._, syntax.either._, syntax.applicative._
 import Json._
 
 trait DecodeJson[A] {
@@ -22,8 +21,8 @@ trait DecodeJson[A] {
    * Decode the given acursor.
    */
   def tryDecode(c: ACursor): DecodeResult[A] = c.either match {
-    case -\/(invalid) => DecodeResult.fail("Attempt to decode value on failed cursor.", invalid.history)
-    case \/-(valid) => decode(valid)
+    case Left(invalid) => DecodeResult.fail("Attempt to decode value on failed cursor.", invalid.history)
+    case Right(valid) => decode(valid)
   }
 
   /**
@@ -90,11 +89,6 @@ trait DecodeJson[A] {
   }
 
   /**
-   * Isomorphism to kleisli.
-   */
-  def kleisli: Kleisli[DecodeResult, HCursor, A] = Kleisli(apply(_))
-
-  /**
    * Combine two decoders.
    */
   def &&&[B](x: DecodeJson[B]): DecodeJson[(A, B)] = {
@@ -117,8 +111,8 @@ trait DecodeJson[A] {
   /**
    * Run one or another decoder.
    */
-  def split[B](x: DecodeJson[B]): HCursor \/ HCursor => DecodeResult[A \/ B] = {
-    c => c.fold(a => this(a) map (_.left), a => x(a) map (_.right))
+  def split[B](x: DecodeJson[B]): Either[HCursor, HCursor] => DecodeResult[Either[A, B]] = {
+    c => c.fold(a => this(a).map(Left.apply), a => x(a).map(Right.apply))
   }
 
   /**
@@ -176,13 +170,23 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     DecodeJson(a =>
       a.downArray.hcursor match {
         case None =>
-          if (a.focus.isArray)
+          if (a.focus.isArray) {
             DecodeResult.ok(c.apply.result)
-          else
+          } else {
             DecodeResult.fail("[A]List[A]", a.history)
-        case Some(hcursor) =>
-          hcursor.traverseDecode(c.apply)(_.right, (acc, c) =>
-            c.jdecode[A] map (acc += _)).map(_.result)
+          }
+        case Some(hcursor) => {
+          hcursor.rights match {
+            case Some(elements) => {
+              elements.foldLeft(DecodeResult.ok(c.apply)){(working, elem) =>
+                elem.jdecode[A].map(working += _)
+              }.map(_.result)
+            }
+            case None => {
+              DecodeResult.fail("[A]List[A]", a.history)
+            }
+          }
+        }
       })
   }
 
@@ -292,14 +296,6 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     })
   }
 
-  implicit def MaybeDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Maybe[A]] = {
-    implicitly[DecodeJson[Option[A]]].map(Maybe.fromOption)
-  }
-
-  implicit def ScalazEitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[A \/ B] = {
-    implicitly[DecodeJson[Either[A, B]]].map(\/.fromEither(_))
-  }
-
   implicit def EitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Either[A, B]] = {
     DecodeJson(a => {
       val l = (a --\ "Left").success
@@ -308,18 +304,6 @@ trait DecodeJsons extends GeneratedDecodeJsons {
         case (Some(c), None) => ea(c) map (Left(_))
         case (None, Some(c)) => eb(c) map (Right(_))
         case _ => DecodeResult.fail("[A, B]Either[A, B]", a.history)
-      }
-    })
-  }
-
-  implicit def ValidationDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Validation[A, B]] = {
-    DecodeJson(a => {
-      val l = (a --\ "Failure").success
-      val r = (a --\ "Success").success
-      (l, r) match {
-        case (Some(c), None) => ea(c) map (Failure(_))
-        case (None, Some(c)) => eb(c) map (Success(_))
-        case _ => DecodeResult.fail("[A, B]Validation[A, B]", a.history)
       }
     })
   }
@@ -353,34 +337,5 @@ trait DecodeJsons extends GeneratedDecodeJsons {
 
   implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] = {
     implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
-  }
-
-  implicit def IMapDecodeJson[A: DecodeJson: Order]: DecodeJson[String ==>> A] = {
-    MapDecodeJson[Map, A].map(a => ==>>.fromList(a.toList)) setName "[A]==>>[String, A]"
-  }
-
-  implicit def IListDecodeJson[A: DecodeJson]: DecodeJson[IList[A]] = {
-    implicitly[DecodeJson[List[A]]] map (IList.fromList) setName "[A]IList[A]"
-  }
-
-  implicit def DListDecodeJson[A: DecodeJson]: DecodeJson[DList[A]] = {
-    implicitly[DecodeJson[List[A]]] map (DList.fromList(_)) setName "[A]DList[A]"
-  }
-
-  implicit def EphemeralStreamDecodeJson[A: DecodeJson]: DecodeJson[EphemeralStream[A]] = {
-    implicitly[DecodeJson[List[A]]] map (list => EphemeralStream.apply(list: _*)) setName "[A]EphemeralStream[A]"
-  }
-
-  implicit def ISetDecodeJson[A: DecodeJson: Order]: DecodeJson[ISet[A]] = {
-    implicitly[DecodeJson[List[A]]] map (ISet.fromList(_)) setName "[A]ISet[A]"
-  }
-
-  implicit def NonEmptyListDecodeJson[A: DecodeJson]: DecodeJson[NonEmptyList[A]] = {
-    implicitly[DecodeJson[List[A]]] flatMap (l =>
-      DecodeJson[NonEmptyList[A]](c => std.list.toNel(l) match {
-        case None => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
-        case Some(n) => DecodeResult.ok(n)
-      })
-    ) setName "[A]NonEmptyList[A]"
   }
 }

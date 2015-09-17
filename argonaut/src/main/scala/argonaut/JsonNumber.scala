@@ -2,11 +2,6 @@ package argonaut
 
 import java.math.MathContext
 
-import monocle.{Iso, Prism}
-
-import scalaz.Equal
-import scalaz.syntax.std.boolean._
-
 /**
  * JSON numbers with optimization by cases.
  * Note: Javascript numbers are 64-bit decimals.
@@ -301,42 +296,6 @@ case class JsonDouble(value: Double) extends JsonNumber {
 }
 
 object JsonNumber {
-  implicit val JsonNumberEqual: Equal[JsonNumber] = new Equal[JsonNumber] {
-    def equal(a: JsonNumber, b: JsonNumber) = a == b
-  }
-
-  val jNumberToBigDecimal: Iso[JsonNumber, BigDecimal] =
-    Iso[JsonNumber, BigDecimal](_.toBigDecimal)(JsonBigDecimal.apply)
-
-  val jNumberToDouble: Prism[JsonNumber, Double] =
-    Prism[JsonNumber, Double]{n =>
-      val d = n.toDouble
-      if(JsonDouble(d) == n) Some(d)
-      else None
-    }(JsonDouble.apply)
-
-  val jNumberToFloat: Prism[JsonNumber, Float] =
-    Prism[JsonNumber, Float]{n =>
-      val f = n.toFloat
-      if(JsonDouble(f) == n) Some(f)
-      else None
-    }(f => JsonDouble(f))
-
-  val jNumberToBigInt: Prism[JsonNumber, BigInt] =
-    Prism[JsonNumber, BigInt](_.toBigInt)(bi => JsonBigDecimal(BigDecimal(bi, MathContext.UNLIMITED)))
-
-  val jNumberToLong: Prism[JsonNumber, Long] =
-    Prism[JsonNumber, Long](_.toLong)(JsonBigDecimal.apply _ compose BigDecimal.apply)
-
-  val jNumberToInt: Prism[JsonNumber, Int] =
-    Prism[JsonNumber, Int](_.toInt)(JsonBigDecimal.apply _ compose BigDecimal.apply)
-
-  val jNumberToShort: Prism[JsonNumber, Short] =
-    Prism[JsonNumber, Short](_.toShort)(s => JsonBigDecimal(BigDecimal(s)))
-
-  val jNumberToByte: Prism[JsonNumber, Byte] =
-    Prism[JsonNumber, Byte](_.toByte)(b => JsonBigDecimal(BigDecimal(b)))
-
   /**
    * Returns a `JsonNumber` whose value is the valid JSON number in `value`.
    * This value is **not** verified to be a valid JSON string. It is assumed
@@ -463,6 +422,6 @@ object JsonNumber {
    * The negative sign, fractional part and exponent part are optional matches
    * and may be `null`.
    */
-  val JsonNumberRegex = 
+  val JsonNumberRegex =
     """(-)?((?:[1-9][0-9]*|0))(?:\.([0-9]+))?(?:[eE]([-+]?[0-9]+))?""".r
 }

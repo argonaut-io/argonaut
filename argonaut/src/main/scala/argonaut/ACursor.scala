@@ -1,15 +1,13 @@
 package argonaut
 
-import scalaz._, syntax.applicative._
-
-case class ACursor(either: HCursor \/ HCursor) {
+case class ACursor(either: Either[HCursor, HCursor]) {
   import HCursor._
   import CursorOp._
   import Json._
 
   /** Get the current hcursor if we are in an succeeded state. Alias for `success`. */
   def hcursor: Option[HCursor] =
-    either.toOption
+    either.right.toOption
 
   /** Get the current hcursor if we are in an succeeded state. Alias for `hcursor`. */
   def success: Option[HCursor] =
@@ -17,7 +15,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Get the failed hcursor if we are in an failed state. Alias for `hcursor`. */
   def failure: Option[HCursor] =
-    either.swap.toOption
+    either.left.toOption
 
   /**
    * Attempts to decode this cursor focus value to another data type.
@@ -53,14 +51,16 @@ case class ACursor(either: HCursor \/ HCursor) {
   def history: CursorHistory =
     any.history
 
+  /** TODO: Revisit
   def reattempt: ACursor =
     either match {
-      case -\/(invalid) => ACursor.ok(hcursorHistoryL.mod(reattemptOp +: _, invalid))
-      case \/-(_) => this
+      case Left(invalid) => ACursor.ok(hcursorHistoryL.mod(reattemptOp +: _, invalid))
+      case Right(_) => this
     }
 
   def unary_~ : ACursor =
     reattempt
+  */
 
   /** Return the current focus, iff we are succeeded */
   def focus: Option[Json] =
@@ -76,20 +76,7 @@ case class ACursor(either: HCursor \/ HCursor) {
 
   /** Update the focus with the given function (alias for `>->`). */
   def withFocus(k: Json => Json): ACursor =
-    ACursor(either.map(_.withFocus(k)))
-
-  /** Update the focus with the given function in a applicative (alias for `withFocusM`). */
-  def >-->[F[+_]: Applicative](k: Json => F[Json]): F[ACursor] =
-    withFocusM(k)
-
-
-
-  /** Update the focus with the given function in a applicative (alias for `>-->`). */
-  def withFocusM[F[+_]: Applicative](k: Json => F[Json]): F[ACursor] =
-    either match {
-      case -\/(invalid) => this.point[F]
-      case \/-(valid) => Functor[F].map(valid withFocusM k)(ACursor.ok(_))
-    }
+    ACursor(either.right.map(_.withFocus(k)))
 
   /** Set the focus to the given value (alias for `:=`). */
   def set(j: Json): ACursor =
@@ -108,11 +95,10 @@ case class ACursor(either: HCursor \/ HCursor) {
   /**
    * Return the values right of focus in a JSON array.
    */
-  def rights: Option[JsonArray] =
-    hcursor.flatMap(_.rights)
+  def rights: Option[JsonArray] = hcursor.flatMap(_.rights)
 
   def withHCursor(f: HCursor => ACursor): ACursor =
-    ACursor(either.flatMap(c => f(c).either))
+    ACursor(either.right.flatMap(c => f(c).either))
 
   /** Move the cursor left in a JSON array. */
   def left: ACursor =
@@ -258,14 +244,9 @@ case class ACursor(either: HCursor \/ HCursor) {
   def up: ACursor =
     withHCursor(_.up)
 
-  def |||(c: => ACursor): ACursor =
-    if(succeeded)
-      this
-    else
-      c
-
-  def validation: Validation[HCursor, HCursor] =
-    either.validation
+  def |||(c: => ACursor): ACursor = {
+    if(succeeded) this else c
+  }
 
   /** Unapplies the cursor to the top-level parent (alias for `undo`). */
   def unary_- : Option[Json] =
@@ -278,10 +259,10 @@ case class ACursor(either: HCursor \/ HCursor) {
 
 object ACursor extends ACursors {
   def ok(cursor: HCursor) =
-    ACursor(\/-(cursor))
+    ACursor(Right(cursor))
 
   def fail(cursor: HCursor) =
-    ACursor(-\/(cursor))
+    ACursor(Left(cursor))
 }
 
 trait ACursors {

@@ -1,7 +1,6 @@
 package argonaut
 
 import scala.annotation.tailrec
-import scalaz._, syntax.either._
 import Json._
 import java.lang.StringBuilder
 import scala.collection.mutable.Builder
@@ -39,7 +38,7 @@ object JsonParser {
     }
   }
 
-  final def parse(json: String): String \/ Json = {
+  final def parse(json: String): Either[String, Json] = {
     val jsonLength = json.length
 
     @tailrec
@@ -51,11 +50,11 @@ object JsonParser {
       }
     }
 
-    def parseResult(result: (Int, Json)): String \/ Json = {
+    def parseResult(result: (Int, Json)): Either[String, Json] = {
       result match {
-        case (`jsonLength`, jsonInstance) => \/-(jsonInstance)
-        case (remainder, jsonInstance) if (validSuffixContent(remainder)) => \/-(jsonInstance)
-        case (remainder, _) => "JSON contains invalid suffix content: %s".format(excerpt(json, remainder)).left
+        case (`jsonLength`, jsonInstance) => Right(jsonInstance)
+        case (remainder, jsonInstance) if (validSuffixContent(remainder)) => Right(jsonInstance)
+        case (remainder, _) => Left("JSON contains invalid suffix content: %s".format(excerpt(json, remainder)))
       }
     }
 
@@ -64,12 +63,12 @@ object JsonParser {
 
   @tailrec
   @inline
-  private[this] final def expectedSpacerToken(stream: TokenSource, position: Int, token: Char, failMessage: String): String \/ Int = {
+  private[this] final def expectedSpacerToken(stream: TokenSource, position: Int, token: Char, failMessage: String): Either[String, Int] = {
     if (position >= stream.length) unexpectedTermination
     else stream(position) match {
-      case `token` => \/-(position + 1)
+      case `token` => Right(position + 1)
       case ' ' | '\r' | '\n' | '\t' => expectedSpacerToken(stream, position + 1, token, failMessage)
-      case _ => -\/("%s but found: %s".format(failMessage, excerpt(stream, position)))
+      case _ => Left("%s but found: %s".format(failMessage, excerpt(stream, position)))
     }
   }
 
@@ -83,21 +82,21 @@ object JsonParser {
   private[this] final def expectFieldSeparator(stream: TokenSource, position: Int) = expectedSpacerToken(stream, position, ':', "Expected field separator token")
 
   @tailrec
-  private[this] final def expectObject(stream: TokenSource, position: Int, first: Boolean = true, fields: JsonObjectBuilder = new JsonObjectBuilder()): String \/ (Int, Json) = {
+  private[this] final def expectObject(stream: TokenSource, position: Int, first: Boolean = true, fields: JsonObjectBuilder = new JsonObjectBuilder()): Either[String, (Int, Json)] = {
     if (position >= stream.length) unexpectedTermination
     else stream(position) match {
-      case '}' => \/-((position + 1, fields.build()))
+      case '}' => Right((position + 1, fields.build()))
       case ' ' | '\r' | '\n' | '\t' => expectObject(stream, position + 1, first, fields)
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) \/-(position) else expectEntrySeparator(stream, position)
+          afterEntrySeparator <- if (first) Right(position) else expectEntrySeparator(stream, position)
           streamAndKey <- expectString(stream, afterEntrySeparator)
           afterFieldSeparator <- expectFieldSeparator(stream, streamAndKey._1)
           streamAndValue <- expectValue(stream, afterFieldSeparator)
         } yield (streamAndValue._1, fields.add(streamAndKey._2, streamAndValue._2))
         next match {
-          case \/-((newPosition, newFields)) => expectObject(stream, newPosition, false, newFields)
-          case -\/(failure) => failure.left
+          case Right((newPosition, newFields)) => expectObject(stream, newPosition, false, newFields)
+          case Left(failure) => failure.left
         }
       }
     }
@@ -105,26 +104,26 @@ object JsonParser {
 
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def expectArray(stream: TokenSource, position: Int, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): String \/ (Int, Json) = {
+  private[this] final def expectArray(stream: TokenSource, position: Int, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): Either[String, (Int, Json)] = {
     if (position >= stream.length) unexpectedTermination
     else stream(position) match {
-      case ']' => \/-((position + 1, jArray(fields.result)))
+      case ']' => Right((position + 1, jArray(fields.result)))
       case ' ' | '\r' | '\n' | '\t' => expectArray(stream, position + 1, first, fields)
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) \/-(position) else expectEntrySeparator(stream, position)
+          afterEntrySeparator <- if (first) Right(position) else expectEntrySeparator(stream, position)
           streamAndValue <- expectValue(stream, afterEntrySeparator)
         } yield (streamAndValue._1, fields += streamAndValue._2)
         next match {
-          case \/-((newPosition, newFields)) => expectArray(stream, newPosition, false, newFields)
-          case -\/(failure) => failure.left
+          case Right((newPosition, newFields)) => expectArray(stream, newPosition, false, newFields)
+          case Left(failure) => Left(failure)
         }
       }
     }
   }
 
   @tailrec
-  private[this] final def expectValue(stream: TokenSource, position: Int): String \/ (Int, Json) = {
+  private[this] final def expectValue(stream: TokenSource, position: Int): Either[String, (Int, Json)] = {
 
     @tailrec
     def safeNumberIndex(index: Int): Int = {
@@ -141,9 +140,9 @@ object JsonParser {
       case '[' => expectArray(stream, position + 1)
       case '{' => expectObject(stream, position + 1)
       case '"' => expectStringNoStartBounds(stream, position + 1).map(pair => (pair._1, jString(pair._2)))
-      case 't' if stream.startsWith("true", position) => \/-((position + 4, jTrue))
-      case 'f' if stream.startsWith("false", position) => \/-((position + 5, jFalse))
-      case 'n' if stream.startsWith("null", position) => \/-((position + 4, jNull))
+      case 't' if stream.startsWith("true", position) => Right((position + 4, jTrue))
+      case 'f' if stream.startsWith("false", position) => Right((position + 5, jFalse))
+      case 'n' if stream.startsWith("null", position) => Right((position + 4, jNull))
       case ' ' | '\r' | '\n' | '\t' => expectValue(stream, position + 1)
       case _ => {
         val numberEndIndex = safeNumberIndex(position)
@@ -151,8 +150,8 @@ object JsonParser {
         else {
           val numberAsString = stream.substring(position, numberEndIndex)
           JsonNumber.fromString(numberAsString) match {
-            case Some(jn) => \/-((numberEndIndex, jn.asJsonOrNull))
-            case None => "Value [%s] cannot be parsed into a number.".format(numberAsString).left
+            case Some(jn) => Right((numberEndIndex, jn.asJsonOrNull))
+            case None => Left("Value [%s] cannot be parsed into a number.".format(numberAsString))
           }
         }
       }
@@ -160,7 +159,7 @@ object JsonParser {
   }
 
   @inline
-  private[this] final def expectString(stream: TokenSource, position: Int): String \/ (Int, String) = {
+  private[this] final def expectString(stream: TokenSource, position: Int): Either[String, (Int, String)] = {
     for {
       afterOpen <- expectStringBounds(stream, position)
       afterString <- expectStringNoStartBounds(stream, afterOpen)
@@ -168,13 +167,13 @@ object JsonParser {
   }
 
   @inline
-  private[this] final def unexpectedContent[T](stream: TokenSource, position: Int): String \/ T = {
-    "Unexpected content found: %s".format(excerpt(stream, position)).left[T]
+  private[this] final def unexpectedContent[T](stream: TokenSource, position: Int): Either[String, T] = {
+    Left("Unexpected content found: %s".format(excerpt(stream, position)))
   }
 
   // Note the mutable collection type in the parameters.
   @tailrec
-  private[this] final def collectStringParts(stream: TokenSource, position: Int, workingString: StringBuilder = new StringBuilder()): String \/ (Int, StringBuilder) = {
+  private[this] final def collectStringParts(stream: TokenSource, position: Int, workingString: StringBuilder = new StringBuilder()): Either[String, (Int, StringBuilder)] = {
     val streamLength = stream.length
 
     @tailrec
@@ -201,7 +200,7 @@ object JsonParser {
 
     if (position >= streamLength) unexpectedTermination
     else stream(position) match {
-      case '"' => \/-((position + 1, workingString))
+      case '"' => Right((position + 1, workingString))
       case '\\' => {
         if (position + 2 < streamLength) {
           stream(position + 1) match {
@@ -229,7 +228,7 @@ object JsonParser {
   }
 
   @inline
-  private[this] final def expectStringNoStartBounds(stream: TokenSource, position: Int): String \/ (Int, String) = {
+  private[this] final def expectStringNoStartBounds(stream: TokenSource, position: Int): Either[String, (Int, String)] = {
     for {
       elements <- collectStringParts(stream, position)
     } yield (elements._1, elements._2.toString())
