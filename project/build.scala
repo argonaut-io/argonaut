@@ -31,62 +31,79 @@ object build extends Build {
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
            (if (v.contains("2.10")) Seq("org.scalamacros" %% "quasiquotes" % paradiseVersion) else Seq())
 
-  val argonaut = Project(
-    id = "argonaut"
-  , base = file(".")
-  , settings = base ++
+  val commonSettings = base ++
     ReplSettings.all ++
     releaseSettings ++
     PublishSettings.all ++
     InfoSettings.all ++
     Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
     net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq[Sett](
-      name := "argonaut"
+      scalacOptions += "-language:_"
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
     , autoScalaLibrary := false
     , libraryDependencies ++= Seq(
-        scalaz
-      , scalacheck
-      , specs2Scalacheck
-      , scalazScalaCheckBinding
-      , monocle
-      , monocleMacro
-      , monocleLaw
-      ) ++ reflect(scalaVersion.value)
-     /* no mima until 6.1.0 release */
+      scalacheck
+    , specs2Scalacheck
+    ) ++ reflect(scalaVersion.value)
+    // no mima until 6.1.0 release.
     , previousArtifact := None
-/*    , binaryIssueFilters ++= {
+    /*
+    , binaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
       /* adding functions to sealed traits is binary incompatible from java, but ok for scala, so ignoring */
       Seq(
-      ) map exclude[MissingMethodProblem] } */
+      ) map exclude[MissingMethodProblem]
+    }
+    */
+  )
+
+  val argonaut = Project(
+    id = "argonaut"
+  , base = file("argonaut")
+  , settings = commonSettings ++ Seq[Sett](
+      name := "argonaut"
     )
   )
 
+  val argonautScalaz = Project(
+    id = "argonaut-scalaz"
+  , base = file("argonaut-scalaz")
+  , settings = commonSettings ++ Seq(
+      name := "argonaut-scalaz"
+    , libraryDependencies ++= Seq(
+          scalaz
+        , scalacheck
+        , specs2Scalacheck
+        , scalazScalaCheckBinding
+      )
+    )
+  ).dependsOn(argonaut)
+
+  val argonautMonocle = Project(
+    id = "argonaut-monocle"
+  , base = file("argonaut-monocle")
+  , settings = commonSettings ++ Seq[Sett](
+      name := "argonaut-monocle"
+    , libraryDependencies ++= Seq(
+          monocle
+        , monocleMacro
+        , monocleLaw
+      )
+    )
+  ).dependsOn(argonaut, argonautScalaz)
+
   val benchmark = Project(
-    id = "benchmark"
-  , base = file("benchmark")
+    id = "argonaut-benchmark"
+  , base = file("argonaut-benchmark")
   , settings = base ++ Seq[Sett](
       name := "argonaut-benchmark"
-    , resolvers += Resolver.sonatypeRepo("releases")
-    , resolvers += Resolver.sonatypeRepo("snapshots")
     , fork in run := true
     , libraryDependencies ++= Seq(caliper, liftjson, jackson)
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }
-    , scalacOptions += "-language:_"
     )
-  ) dependsOn (argonaut)
-
-  val doc = Project(
-    id = "doc"
-  , base = file("doc")
-  , dependencies = Seq(argonaut)
-  , settings = base ++ Seq[Sett](
-      name := "argonaut-doc"
-    )
-  )
+  ).dependsOn(argonaut)
 }
