@@ -28,10 +28,10 @@ trait EncodeJson[A] {
   /**
    * Split on this encoder and the given encoder.
    */
-  def <&>[B](x: => EncodeJson[B]): EncodeJson[A \/ B] =
+  def <&>[B](x: => EncodeJson[B]): EncodeJson[Either[A, B]] =
     EncodeJson {
-      case -\/(a) => apply(a)
-      case \/-(b) => x(b)
+      case Left(a) => apply(a)
+      case Right(b) => x(b)
     }
 
 }

@@ -80,32 +80,27 @@ sealed abstract class Json extends Product with Serializable {
   /**
    *  Returns the possible boolean of this JSON value.
    */
-  def bool: Option[Boolean] =
-    jBoolPL.get(this)
+  def bool: Option[Boolean] = fold(None, Some(_), _ => None, _ => None, _ => None, _ => None)
 
   /**
    *  Returns the possible number of this JSON value.
    */
-  def number: Option[JsonNumber] =
-    jNumberPL.get(this)
+  def number: Option[JsonNumber] = fold(None, _ => None, Some(_), _ => None, _ => None, _ => None)
 
   /**
    * Returns the possible string of this JSON value.
    */
-  def string: Option[JsonString] =
-    jStringPL.get(this)
+  def string: Option[JsonString] = fold(None, _ => None, _ => None, Some(_), _ => None, _ => None)
 
   /**
    * Returns the possible array of this JSON value.
    */
-  def array: Option[JsonArray] =
-    jArrayPL.get(this)
+  def array: Option[JsonArray] = arrayOrObject(None, Some(_), _ => None)
 
   /**
    * Returns the possible object of this JSON value.
    */
-  def obj: Option[JsonObject] =
-    jObjectPL.get(this)
+  def obj: Option[JsonObject] = arrayOrObject(None, _ => None, Some(_))
 
   /**
    * Returns the possible object of this JSON value as an association list.
@@ -116,32 +111,42 @@ sealed abstract class Json extends Product with Serializable {
   /**
    * If this is a JSON boolean value, invert the `true` and `false` values, otherwise, leave unchanged.
    */
-  def not: Json =
-    jBoolPL mod (!_, this)
+  def not: Json = this match {
+    case JBool(b)   => JBool(!b)
+    case _          => this
+  }
 
   /**
    * If this is a JSON number value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withNumber(k: JsonNumber => JsonNumber): Json =
-    jNumberPL mod (k, this)
+  def withNumber(k: JsonNumber => JsonNumber): Json = this match {
+    case JNumber(n) => JNumber(k(n))
+    case _          => this
+  }
 
   /**
    * If this is a JSON string value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withString(k: JsonString => JsonString): Json =
-    jStringPL mod (k, this)
+  def withString(k: JsonString => JsonString): Json = this match {
+    case JString(s) => JString(k(s))
+    case _          => this
+  }
 
   /**
    * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withArray(k: JsonArray => JsonArray): Json =
-    jArrayPL mod (k, this)
+  def withArray(k: JsonArray => JsonArray): Json = this match {
+    case JArray(a)  => JArray(k(a))
+    case _          => this
+  }
 
   /**
    * If this is a JSON object value, run the given function on the value, otherwise, leave unchanged.
    */
-  def withObject(k: JsonObject => JsonObject): Json =
-    jObjectPL mod (k, this)
+  def withObject(k: JsonObject => JsonObject): Json = this match {
+    case JObject(o) => JObject(k(o))
+    case _          => this
+  }
 
   /**
    * If this is a JSON object, then prepend the given value, otherwise, return a JSON object with only the given value.
@@ -659,11 +664,11 @@ trait Jsons {
    * Construct a JSON value that is an object from an association list.
    */
   def jObjectAssocList(x: JsonAssocList): Json =
-    JObject(JsonObject.from(x))
+    JObject(JsonObject.fromTraversableOnce(x))
 
   /**
    * Construct a JSON value that is an object from an association list (var args).
    */
   def jObjectFields(x: (JsonField, Json)*): Json =
-    jObjectAssocList(x.toList)
+    JObject(JsonObject.fromTraversableOnce(x))
 }

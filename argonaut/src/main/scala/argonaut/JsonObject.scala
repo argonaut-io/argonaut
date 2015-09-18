@@ -19,6 +19,11 @@ sealed abstract class JsonObject {
   def +(f: JsonField, j: Json): JsonObject
 
   /**
+   * Append the given association.
+   */
+  def :+(fj: (JsonField, Json)): JsonObject
+
+  /**
    * Prepend the given association.
    */
   def +:(fj: (JsonField, Json)): JsonObject
@@ -91,12 +96,17 @@ private[argonaut] case class JsonObjectInstance(
 
   def toMap: Map[JsonField, Json] = fieldsMap
 
-  def +(f: JsonField, j: Json): JsonObject =
+  def +(f: JsonField, j: Json): JsonObject = {
     if (fieldsMap.contains(f)) {
       copy(fieldsMap = fieldsMap.updated(f, j))
     } else {
       copy(fieldsMap = fieldsMap.updated(f, j), orderedFields = orderedFields :+ f)
     }
+  }
+
+  def :+(fj: (JsonField, Json)): JsonObject = {
+    this.+(fj._1, fj._2)
+  }
 
   def +:(fj: (JsonField, Json)): JsonObject = {
     val (f, j) = fj
@@ -150,12 +160,19 @@ object JsonObject extends JsonObjects {
    * Construct an empty association.
    */
   def empty: JsonObject = JsonObjectInstance()
-}
-
-trait JsonObjects {
   /**
    * Construct with a single association.
    */
-  def single(f: JsonField, j: Json): JsonObject =
+  def single(f: JsonField, j: Json): JsonObject = {
     JsonObject.empty + (f, j)
+  }
+  /**
+    * Construct an object from a TraversableOnce instance.
+    */
+  def fromTraversableOnce(t: TraversableOnce[(JsonField, Json)]): JsonObject = {
+    t.foldLeft(empty)(_ :+ _)
+  }
+}
+
+trait JsonObjects {
 }

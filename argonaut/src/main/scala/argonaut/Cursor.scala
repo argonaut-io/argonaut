@@ -441,6 +441,9 @@ private case class CJson(j: Json) extends Cursor
 private case class CArray(p: Cursor, u: Boolean, ls: List[Json], x: Json, rs: List[Json]) extends Cursor
 private case class CObject(p: Cursor, u: Boolean, o: JsonObject, x: (JsonField, Json)) extends Cursor
 
-object Cursor {
+object Cursor extends Cursors {
   def apply(j: Json): Cursor = CJson(j)
+}
+
+trait Cursors {
 }

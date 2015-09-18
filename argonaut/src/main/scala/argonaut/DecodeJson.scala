@@ -179,7 +179,10 @@ trait DecodeJsons extends GeneratedDecodeJsons {
           hcursor.rights match {
             case Some(elements) => {
               elements.foldLeft(DecodeResult.ok(c.apply)){(working, elem) =>
-                elem.jdecode[A].map(working += _)
+                for {
+                  w <- working
+                  e <- elem.jdecode[A]
+                } yield w += e
               }.map(_.result)
             }
             case None => {
@@ -191,10 +194,11 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def UnitDecodeJson: DecodeJson[Unit] = {
-    DecodeJson(a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray)
-        ().point[DecodeResult]
-      else
-        DecodeResult.fail("Unit", a.history))
+    DecodeJson(a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray) {
+      DecodeResult.ok(())
+    } else {
+      DecodeResult.fail("Unit", a.history)
+    })
   }
 
   implicit def StringDecodeJson: DecodeJson[String] = optionDecoder(_.string, "String")

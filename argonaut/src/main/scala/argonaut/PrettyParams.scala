@@ -86,8 +86,6 @@ case class PrettyParams(
     }
   }
 
-  import Memo._
-
   private[this] def vectorMemo() = {
     var vector: Vector[String] = Vector.empty
 

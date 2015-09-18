@@ -8,7 +8,7 @@ import scala.collection.mutable.Builder
 object JsonParser {
   private[this] final type TokenSource = String
 
-  private[this] val unexpectedTermination = "JSON terminates unexpectedly.".left
+  private[this] val unexpectedTermination = Left("JSON terminates unexpectedly.")
 
   private[this] case class JsonObjectBuilder(
     var fieldsMapBuilder: Builder[(JsonField, Json), Map[JsonField, Json]] = Map.newBuilder,
@@ -58,7 +58,7 @@ object JsonParser {
       }
     }
 
-    expectValue(json, 0).flatMap(parseResult)
+    expectValue(json, 0).right.flatMap(parseResult)
   }
 
   @tailrec
@@ -89,14 +89,14 @@ object JsonParser {
       case ' ' | '\r' | '\n' | '\t' => expectObject(stream, position + 1, first, fields)
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) Right(position) else expectEntrySeparator(stream, position)
-          streamAndKey <- expectString(stream, afterEntrySeparator)
-          afterFieldSeparator <- expectFieldSeparator(stream, streamAndKey._1)
-          streamAndValue <- expectValue(stream, afterFieldSeparator)
+          afterEntrySeparator <- (if (first) Right(position) else expectEntrySeparator(stream, position)).right
+          streamAndKey <- expectString(stream, afterEntrySeparator).right
+          afterFieldSeparator <- expectFieldSeparator(stream, streamAndKey._1).right
+          streamAndValue <- expectValue(stream, afterFieldSeparator).right
         } yield (streamAndValue._1, fields.add(streamAndKey._2, streamAndValue._2))
         next match {
           case Right((newPosition, newFields)) => expectObject(stream, newPosition, false, newFields)
-          case Left(failure) => failure.left
+          case Left(failure) => Left(failure)
         }
       }
     }
@@ -111,8 +111,8 @@ object JsonParser {
       case ' ' | '\r' | '\n' | '\t' => expectArray(stream, position + 1, first, fields)
       case _ => {
         val next = for {
-          afterEntrySeparator <- if (first) Right(position) else expectEntrySeparator(stream, position)
-          streamAndValue <- expectValue(stream, afterEntrySeparator)
+          afterEntrySeparator <- (if (first) Right(position) else expectEntrySeparator(stream, position)).right
+          streamAndValue <- expectValue(stream, afterEntrySeparator).right
         } yield (streamAndValue._1, fields += streamAndValue._2)
         next match {
           case Right((newPosition, newFields)) => expectArray(stream, newPosition, false, newFields)
@@ -139,7 +139,7 @@ object JsonParser {
     else stream(position) match {
       case '[' => expectArray(stream, position + 1)
       case '{' => expectObject(stream, position + 1)
-      case '"' => expectStringNoStartBounds(stream, position + 1).map(pair => (pair._1, jString(pair._2)))
+      case '"' => expectStringNoStartBounds(stream, position + 1).right.map(pair => (pair._1, jString(pair._2)))
       case 't' if stream.startsWith("true", position) => Right((position + 4, jTrue))
       case 'f' if stream.startsWith("false", position) => Right((position + 5, jFalse))
       case 'n' if stream.startsWith("null", position) => Right((position + 4, jNull))
@@ -161,8 +161,8 @@ object JsonParser {
   @inline
   private[this] final def expectString(stream: TokenSource, position: Int): Either[String, (Int, String)] = {
     for {
-      afterOpen <- expectStringBounds(stream, position)
-      afterString <- expectStringNoStartBounds(stream, afterOpen)
+      afterOpen <- expectStringBounds(stream, position).right
+      afterString <- expectStringNoStartBounds(stream, afterOpen).right
     } yield afterString
   }
 
@@ -230,7 +230,7 @@ object JsonParser {
   @inline
   private[this] final def expectStringNoStartBounds(stream: TokenSource, position: Int): Either[String, (Int, String)] = {
     for {
-      elements <- collectStringParts(stream, position)
+      elements <- collectStringParts(stream, position).right
     } yield (elements._1, elements._2.toString())
   }
 }

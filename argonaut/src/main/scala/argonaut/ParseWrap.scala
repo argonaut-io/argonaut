@@ -1,7 +1,5 @@
 package argonaut
 
-import scalaz._
-
 /**
  * Utility for building the argonaut API over
  * various types. This is used to implement
@@ -14,8 +12,9 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * Parses the string value and either returns a list of the failures from parsing the string
    * or an instance of the Json type if parsing succeeds.
    */
-  def parse: String \/ Json =
+  def parse: Either[String, Json] = {
     parser.parse(value)
+  }
 
   /**
    * Parses the string value and executes one of the given functions, depending on the parse outcome.
@@ -23,8 +22,9 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param success Run this function if the parse succeeds.
    * @param failure Run this function if the parse produces a failure.
    */
-  def parseWith[X](success: Json => X, failure: String => X): X =
+  def parseWith[X](success: Json => X, failure: String => X): X = {
     parser.parseWith(value, success, failure)
+  }
 
   /**
    * Parses the string value and executes one of the given functions, depending on the parse outcome.
@@ -46,7 +46,7 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * Parses the string value and decodes it returning a list of all the failures stemming from
    * either the JSON parsing or the decoding.
    */
-  def decode[X: DecodeJson]: \/[String \/ (String, CursorHistory), X] =
+  def decode[X: DecodeJson]: Either[Either[String, (String, CursorHistory)], X] =
     parser.decode(value)
 
   /**
@@ -65,7 +65,7 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithEither[Y, X: DecodeJson](success: X => Y, failure: String \/ (String, CursorHistory) => Y): Y =
+  def decodeWithEither[Y, X: DecodeJson](success: X => Y, failure: Either[String, (String, CursorHistory)] => Y): Y =
     parser.decodeWithEither(value, success, failure)
 
   /**
@@ -96,12 +96,6 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
   /**
    * Parses and decodes the string value to a possible JSON value.
    */
-  def decodeEither[X: DecodeJson]: String \/ X =
+  def decodeEither[X: DecodeJson]: Either[String, X] =
     parser.decodeEither(value)
-
-  /**
-   * Parses and decodes the string value to a possible JSON value.
-   */
-  def decodeValidation[X: DecodeJson]: Validation[String, X] =
-    parser.decodeValidation(value)
 }

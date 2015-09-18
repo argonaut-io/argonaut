@@ -74,19 +74,19 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor left in a JSON array. */
   def left: ACursor =
-    history.acursorElement(Store(_.left, cursor), CursorOpLeft)
+    history.acursorElement(_.left, cursor, CursorOpLeft)
 
   /** Move the cursor right in a JSON array. */
   def right: ACursor =
-    history.acursorElement(Store(_.right, cursor), CursorOpRight)
+    history.acursorElement(_.right, cursor, CursorOpRight)
 
   /** Move the cursor to the first in a JSON array. */
   def first: ACursor =
-    history.acursorElement(Store(_.first, cursor), CursorOpFirst)
+    history.acursorElement(_.first, cursor, CursorOpFirst)
 
   /** Move the cursor to the last in a JSON array. */
   def last: ACursor =
-    history.acursorElement(Store(_.last, cursor), CursorOpLast)
+    history.acursorElement(_.last, cursor, CursorOpLast)
 
   /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `leftN`). */
   def -<-:(n: Int): ACursor =
@@ -94,7 +94,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `-<-:`). */
   def leftN(n: Int): ACursor =
-    history.acursorElement(Store(_.leftN(n), cursor), CursorOpLeftN(n))
+    history.acursorElement(_.leftN(n), cursor, CursorOpLeftN(n))
 
   /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `rightN`). */
   def :->-(n: Int): ACursor =
@@ -102,7 +102,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `:->-`). */
   def rightN(n: Int): ACursor =
-    history.acursorElement(Store(_.rightN(n), cursor), CursorOpRightN(n))
+    history.acursorElement(_.rightN(n), cursor, CursorOpRightN(n))
 
   /** Move the cursor left in a JSON array until the given predicate matches the focus (alias for `leftAt`). */
   def ?<-:(p: Json => Boolean): ACursor =
@@ -110,7 +110,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor left in a JSON array until the given predicate matches the focus (alias for `?<-:`). */
   def leftAt(p: Json => Boolean): ACursor =
-    history.acursorElement(Store(_.leftAt(p), cursor), CursorOpLeftAt(p))
+    history.acursorElement(_.leftAt(p), cursor, CursorOpLeftAt(p))
 
   /** Move the cursor right in a JSON array until the given predicate matches the focus (alias for `rightAt`). */
   def :->?(p: Json => Boolean): ACursor =
@@ -118,11 +118,11 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor right in a JSON array until the given predicate matches the focus (alias for `:->?`). */
   def rightAt(p: Json => Boolean): ACursor =
-    history.acursorElement(Store(_.rightAt(p), cursor), CursorOpRightAt(p))
+    history.acursorElement(_.rightAt(p), cursor, CursorOpRightAt(p))
 
   /** Find the first element at or to the right of focus in a JSON array where the given predicate matches the focus. */
   def find(p: Json => Boolean): ACursor =
-    history.acursorElement(Store(_.find(p), cursor), CursorOpFind(p))
+    history.acursorElement(_.find(p), cursor, CursorOpFind(p))
 
   /** Move the cursor to the given sibling field in a JSON object (alias for `field`). */
   def --(q: JsonField): ACursor =
@@ -130,7 +130,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor to the given sibling field in a JSON object (alias for `--`). */
   def field(q: JsonField): ACursor =
-    history.acursorElement(Store(_.field(q), cursor), CursorOpField(q))
+    history.acursorElement(_.field(q), cursor, CursorOpField(q))
 
   /** Move the cursor down to a JSON object at the given field (alias for `downField`). */
   def --\(q: JsonField): ACursor =
@@ -138,11 +138,11 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor down to a JSON object at the given field (alias for `--\`). */
   def downField(q: JsonField): ACursor =
-    history.acursorElement(Store(_.downField(q), cursor), CursorOpDownField(q))
+    history.acursorElement(_.downField(q), cursor, CursorOpDownField(q))
 
   /** Move the cursor down to a JSON array at the first element (alias for `\\`). */
   def downArray: ACursor =
-    history.acursorElement(Store(_.downArray, cursor), CursorOpDownArray)
+    history.acursorElement(_.downArray, cursor, CursorOpDownArray)
 
   /** Move the cursor down to a JSON array at the first element (alias for `downArray`). */
   def \\ : ACursor =
@@ -154,7 +154,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor down to a JSON array at the first element satisfying the given predicate (alias for `-\`). */
   def downAt(p: Json => Boolean): ACursor =
-    history.acursorElement(Store(_.downAt(p), cursor), CursorOpDownAt(p))
+    history.acursorElement(_.downAt(p), cursor, CursorOpDownAt(p))
 
   /** Move the cursor down to a JSON array at the given index (alias for `downN`). */
   def =\(n: Int): ACursor =
@@ -162,7 +162,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Move the cursor down to a JSON array at the given index (alias for `=\`). */
   def downN(n: Int): ACursor =
-    history.acursorElement(Store(_.downN(n), cursor), CursorOpDownN(n))
+    history.acursorElement(_.downN(n), cursor, CursorOpDownN(n))
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `deleteGoParent`). */
   def delete : ACursor =
@@ -174,47 +174,47 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `unary_!`). */
   def deleteGoParent: ACursor =
-    history.acursorElement(Store(_.deleteGoParent, cursor), CursorOpDeleteGoParent)
+    history.acursorElement(_.deleteGoParent, cursor, CursorOpDeleteGoParent)
 
   /** Deletes the JSON value at focus and moves to the left in a JSON array. */
   def deleteGoLeft: ACursor =
-    history.acursorElement(Store(_.deleteGoLeft, cursor), CursorOpDeleteGoLeft)
+    history.acursorElement(_.deleteGoLeft, cursor, CursorOpDeleteGoLeft)
 
   /** Deletes the JSON value at focus and moves to the right in a JSON array. */
   def deleteGoRight: ACursor =
-    history.acursorElement(Store(_.deleteGoRight, cursor), CursorOpDeleteGoRight)
+    history.acursorElement(_.deleteGoRight, cursor, CursorOpDeleteGoRight)
 
   /** Deletes the JSON value at focus and moves to the first in a JSON array. */
   def deleteGoFirst: ACursor =
-    history.acursorElement(Store(_.deleteGoFirst, cursor), CursorOpDeleteGoFirst)
+    history.acursorElement(_.deleteGoFirst, cursor, CursorOpDeleteGoFirst)
 
   /** Deletes the JSON value at focus and moves to the last in a JSON array. */
   def deleteGoLast: ACursor =
-    history.acursorElement(Store(_.deleteGoLast, cursor), CursorOpDeleteGoLast)
+    history.acursorElement(_.deleteGoLast, cursor, CursorOpDeleteGoLast)
 
   /** Deletes the JSON value at focus and moves to the given sibling field in a JSON object. */
   def deleteGoField(q: JsonField): ACursor =
-    history.acursorElement(Store(_.deleteGoField(q), cursor), CursorOpDeleteGoField(q))
+    history.acursorElement(_.deleteGoField(q), cursor, CursorOpDeleteGoField(q))
 
   /** Deletes all JSON values to left of focus in a JSON array. */
   def deleteLefts: ACursor =
-    history.acursorElement(Store(_.deleteLefts, cursor), CursorOpDeleteLefts)
+    history.acursorElement(_.deleteLefts, cursor, CursorOpDeleteLefts)
 
   /** Deletes all JSON values to right of focus in a JSON array. */
   def deleteRights: ACursor =
-    history.acursorElement(Store(_.deleteRights, cursor), CursorOpDeleteRights)
+    history.acursorElement(_.deleteRights, cursor, CursorOpDeleteRights)
 
   /** Set the values to the left of focus in a JSON array. */
   def setLefts(x: List[Json]): ACursor =
-    history.acursorElement(Store(_.setLefts(x), cursor), CursorOpSetLefts(x))
+    history.acursorElement(_.setLefts(x), cursor, CursorOpSetLefts(x))
 
   /** Set the values to the right of focus in a JSON array. */
   def setRights(x: List[Json]): ACursor =
-    history.acursorElement(Store(_.setRights(x), cursor), CursorOpSetRights(x))
+    history.acursorElement(_.setRights(x), cursor, CursorOpSetRights(x))
 
   /** Move the cursor up one step to the parent context. */
   def up: ACursor =
-    history.acursorElement(Store(_.up, cursor), CursorOpUp)
+    history.acursorElement(_.up, cursor, CursorOpUp)
 
   /** Unapplies the cursor to the top-level parent (alias for `undo`). */
   def unary_- : Json =

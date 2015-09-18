@@ -13,22 +13,22 @@ case class DecodeResult[A](result: Either[(String, CursorHistory), A]) {
     result.isLeft
 
   def map[B](f: A => B): DecodeResult[B] =
-    DecodeResult(result map f)
+    DecodeResult(result.right.map(f))
 
   def flatMap[B](f: A => DecodeResult[B]): DecodeResult[B] =
-    DecodeResult(result flatMap (f(_).result))
+    DecodeResult(result.right.flatMap(f(_).result))
 
   def message: Option[String] =
-    failure map (_._1)
+    failure.map(_._1)
 
   def history: Option[CursorHistory] =
-    failure map (_._2)
+    failure.map(_._2)
 
   def toOption: Option[A] =
-    result.toOption
+    result.right.toOption
 
   def toEither: Either[(String, CursorHistory), A] =
-    result.toEither
+    result
 
   def getOr[AA >: A](els: => AA): AA =
     toOption.getOrElse(els)
@@ -57,10 +57,10 @@ case class DecodeResult[A](result: Either[(String, CursorHistory), A]) {
 
 object DecodeResult extends DecodeResults {
   def ok[A](value: A): DecodeResult[A] =
-    DecodeResult(value.right)
+    DecodeResult(Right(value))
 
   def fail[A](s: String, h: CursorHistory): DecodeResult[A] =
-    DecodeResult((s, h).left)
+    DecodeResult(Left((s, h)))
 }
 
 trait DecodeResults {

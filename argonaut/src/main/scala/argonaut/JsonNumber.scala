@@ -133,8 +133,13 @@ sealed abstract class JsonNumber {
    *
    * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  def asJson: Option[Json] =
-    (!isNaN && !isInfinity).option(JNumber(this))
+  def asJson: Option[Json] = {
+    if (!isNaN && !isInfinity) {
+      Some(JNumber(this))
+    } else {
+      None
+    }
+  }
 
   /**
    * Construct a JSON value that is a number. Transforming
