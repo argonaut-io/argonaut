@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
+import scalaz._
 
 /**
  * Utility for building the argonaut API over

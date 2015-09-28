@@ -1,7 +1,6 @@
 package argonaut
 
-import scala.collection.immutable.{ SortedMap, MapLike }
-import scalaz.{ Coproduct => _, _}, Scalaz._
+import scalaz._, syntax.either._
 import Json._
 
 /**
@@ -153,10 +152,10 @@ trait EncodeJsons extends GeneratedEncodeJsons {
       e => jSingleObject("Failure", ea(e)), a => jSingleObject("Success", eb(a))
     ))
 
-  implicit def MapLikeEncodeJson[M[K, +V] <: Map[K, V], V](implicit e: EncodeJson[V]): EncodeJson[M[String, V]] =
+  implicit def MapLikeEncodeJson[M[K, +V] <: Map[K, V], K, V](implicit K: EncodeJsonKey[K], e: EncodeJson[V]): EncodeJson[M[K, V]] =
     EncodeJson(x => jObjectAssocList(
       x.toList map {
-        case (k, v) => (k, e(v))
+        case (k, v) => (K.toJsonKey(k), e(v))
       }
     ))
 
@@ -175,10 +174,10 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   implicit def NonEmptyListEncodeJson[A: EncodeJson]: EncodeJson[NonEmptyList[A]] =
     fromFoldable[NonEmptyList, A]
 
-  implicit def IMapEncodeJson[A](implicit A: EncodeJson[A]): EncodeJson[String ==>> A] =
+  implicit def IMapEncodeJson[A, B](implicit A: EncodeJsonKey[A], B: EncodeJson[B]): EncodeJson[A ==>> B] =
     EncodeJson(x => jObjectAssocList(
       x.foldrWithKey(Nil: List[(String, Json)])(
-        (k, v, list) => (k, A(v)) :: list
+        (k, v, list) => (A.toJsonKey(k), B(v)) :: list
       )
     ))
 

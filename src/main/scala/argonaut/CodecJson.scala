@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
+import scalaz._, syntax.equal._
 
 sealed abstract class CodecJson[A] extends EncodeJson[A] with DecodeJson[A] { outer =>
   val Encoder: EncodeJson[A]

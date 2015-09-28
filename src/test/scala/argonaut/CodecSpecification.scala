@@ -1,14 +1,15 @@
 package argonaut
 
 import Data._
-import JsonIdentity._
 import scala.collection.immutable.{ SortedSet, SortedMap }
 import scala.collection.mutable.ArrayBuffer
-import scalaz._, Scalaz._
+import scalaz._
+import scalaz.std.AllInstances._
+import scalaz.syntax.functor._
 import scalaz.scalacheck.ScalaCheckBinding._
 import scalaz.scalacheck.ScalazArbitrary.{UnitArbitrary => _, _}
 import org.scalacheck._, Arbitrary._, Prop._
-import org.specs2._, org.specs2.specification._
+import org.specs2._
 
 object CodecSpecification extends Specification with ScalaCheck {
   implicit val shortEquality: Equal[Short] = new Equal[Short] {

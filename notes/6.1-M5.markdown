@@ -1,0 +1,4 @@
+6.1-M5.
+
+ * Massive reworking of number handling courtesy of @tixxit.
+ * Improved pretty printing thanks to @guymers.

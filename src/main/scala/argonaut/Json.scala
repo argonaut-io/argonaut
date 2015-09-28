@@ -1,7 +1,7 @@
 package argonaut
 
-import scalaz.{Each => _, Index => _, _}, Scalaz._
-import scalaz.syntax.std.option._
+import scalaz.{Each => _, Index => _, _}
+import Scalaz._
 
 /**
  * A data type representing possible <a href="http://www.json.org/">JSON</a> values.
@@ -12,7 +12,6 @@ import scalaz.syntax.std.option._
  */
 sealed abstract class Json extends Product with Serializable {
   import Json._
-  import JsonIdentity._
 
   /**
    * The catamorphism for the JSON value data type.
@@ -499,8 +498,6 @@ trait Jsons {
   type JsonAssoc = (JsonField, Json)
   type JsonAssocList = List[JsonAssoc]
 
-  import PLens._, StoreT._
-
   /**
    * A partial lens for JSON boolean values.
    */
@@ -711,7 +708,6 @@ trait Jsons {
 
   import monocle.{Prism, Traversal, Lens}
   import monocle.function._
-  import monocle.std._
 
   /** A Prism for JSON boolean values. */
   val jBoolPrism: Prism[Json, JsonBoolean] =
@@ -829,8 +825,6 @@ trait Jsons {
   }
 
   implicit val jObjectIndex: Index[JsonObject, JsonField, Json] = Index.atIndex
-
-  import JsonIdentity._
 
   implicit val JsonInstances: Equal[Json] with Show[Json] =
     new Equal[Json] with Show[Json] {

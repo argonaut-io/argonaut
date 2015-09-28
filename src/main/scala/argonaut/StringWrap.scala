@@ -1,6 +1,5 @@
 package argonaut
 
-import scalaz._, Scalaz._
 
 /**
  * Wraps a `String` value and provides methods, particularly for parsing.

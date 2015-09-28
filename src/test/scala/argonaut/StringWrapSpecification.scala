@@ -1,8 +1,12 @@
 package argonaut
 
-import argonaut._, Argonaut._
-import scalaz._, Scalaz._
-import org.specs2._, org.specs2.specification._
+import argonaut.Argonaut._
+import scalaz._
+import scalaz.std.string._
+import scalaz.std.tuple._
+import scalaz.syntax.std.option._
+import scalaz.syntax.either._
+import org.specs2._
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Gen._
 import org.scalacheck.Prop._

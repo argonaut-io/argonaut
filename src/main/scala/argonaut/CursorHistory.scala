@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, Scalaz._
+import scalaz._, syntax.show._, std.list._, syntax.equal._
 
 /**
  * A list of elements denoting the history of a cursor.

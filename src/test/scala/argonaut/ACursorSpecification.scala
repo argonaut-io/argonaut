@@ -3,10 +3,7 @@ package argonaut
 import org.scalacheck._, Prop._, Arbitrary._, Gen._
 import Data._
 import Argonaut._
-import org.specs2._, org.specs2.specification._
-import org.specs2.matcher._
-import scalaz._
-import Scalaz._
+import org.specs2._
 
 object ACursorSpecification extends Specification with ScalaCheck {
   def is = s2"""

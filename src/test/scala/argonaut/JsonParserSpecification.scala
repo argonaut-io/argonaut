@@ -8,9 +8,9 @@ import org.scalacheck.Prop._
 import scalaz.Success
 import org.scalacheck._
 import org.scalacheck.Shrink._
-import scalaz._
-import Scalaz._
-import org.specs2._, org.specs2.specification._
+import scalaz.syntax.either._
+import scalaz.std.string._
+import org.specs2._
 import org.specs2.matcher._
 import Data._
 import Argonaut._
