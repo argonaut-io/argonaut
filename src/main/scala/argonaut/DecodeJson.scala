@@ -150,6 +150,9 @@ object DecodeJson extends DecodeJsons {
   def derive[A]: DecodeJson[A] = macro internal.Macros.materializeDecodeImpl[A]
 
   def of[A: DecodeJson] = implicitly[DecodeJson[A]]
+
+  def fromParser[A : DecodeJson, B](parser: A => String \/ B): DecodeJson[B] =
+    implicitly[DecodeJson[A]].flatMap(s => DecodeJson(h => DecodeResult.fromDisjunction(parser(s), h.history)))
 }
 
 trait DecodeJsons extends GeneratedDecodeJsons {

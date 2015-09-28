@@ -67,6 +67,9 @@ object DecodeResult extends DecodeResults {
 
   def fail[A](s: String, h: CursorHistory): DecodeResult[A] =
     DecodeResult((s, h).left)
+
+  def fromDisjunction[A](d: String \/ A, h: CursorHistory): DecodeResult[A] =
+    d.fold(e => fail(e, h), ok)
 }
 
 trait DecodeResults {

@@ -1,12 +1,27 @@
 package argonaut
 
-import scalaz._
+import scalaz._, Scalaz._
 import org.scalacheck._, Arbitrary._
 
 case class Product(name: String, price: Double)
 case class OrderLine(product: Product, quantity: Int)
 case class Order(orderLines: Vector[OrderLine])
 case class Person(name: String, age: Int, orders: Vector[Order], addressFields: Map[String, String])
+
+case class Date(value: Long) {
+  def render: String = value.toString
+}
+object Date {
+  def parse(s: String): String \/ Date =
+    try Date(s.toLong).right
+    catch { case t: Throwable => t.getMessage.left }
+
+  implicit def DateEncodeJson: EncodeJson[Date] =
+    EncodeJson.StringEncodeJson.contramap[Date](_.render)
+
+  implicit def DateDecodeJson: DecodeJson[Date] =
+    DecodeJson.StringDecodeJson.flatMap(s => DecodeJson.fromParser(parse))
+}
 
 sealed trait Shape
 case class Circle(radius: Int) extends Shape
@@ -19,6 +34,9 @@ object TestTypes {
   implicit def PersonShow: Show[Person] = Show.showFromToString
   implicit def BackTicksEqual: Equal[BackTicks] = Equal.equalA
   implicit def BackTicksShow: Show[BackTicks] = Show.showFromToString
+
+  implicit def DateEqual: Equal[Date] = Equal.equalA
+  implicit def DateShow: Show[Date] = Show.showFromToString
 
   implicit def ProductArbitrary: Arbitrary[Product] = Arbitrary(for {
     n <- arbitrary[String]
@@ -47,4 +65,6 @@ object TestTypes {
   ))
 
   implicit def BackticksArbitrary: Arbitrary[BackTicks] = Arbitrary(arbitrary[String].map(BackTicks.apply))
+
+  implicit def DateArbitrary: Arbitrary[Date] = Arbitrary(arbitrary[Long].map(l => Date.apply(math.abs(l))))
 }

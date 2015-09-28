@@ -87,6 +87,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
     CodecJson[Person] derived ${derived.testDerivedPerson}
     CodecJson[BackTicks] derived ${derived.testDerivedBackTicks}
+    CodecJson derived from string parser/renderer ${derived.testParserRenderer}
   """
 
   implicit val jDoubleArbitrary: Arbitrary[java.lang.Double] =
@@ -170,5 +171,6 @@ object CodecSpecification extends Specification with ScalaCheck {
 
     def testDerivedPerson = encodedecode[Person]
     def testDerivedBackTicks = encodedecode[BackTicks]
+    def testParserRenderer = encodedecode[Date]
   }
 }

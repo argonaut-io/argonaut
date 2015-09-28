@@ -2,8 +2,10 @@ package argonaut
 
 import scalaz.syntax.either._
 import scalaz.std.string._
+import scalaz.\/
 import org.specs2._
 import Argonaut._
+import DecodeResultMatchers._
 
 object DecodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
   DecodeJson Witness Compilation
@@ -11,8 +13,13 @@ object DecodeJsonSpecification extends Specification with ScalaCheck { def is = 
     Witness tuples                        ${ok}
     Witness auto                          ${ok}
     Witness derived                       ${ok}
+
   DecodeJson derive
     BackTicks                             ${derived.testBackTicksDecodeJson}
+
+  From String parser
+    successful parse                      ${successfulParse}
+    failed parse                          ${failedParse}
 """
 
   object primitives {
@@ -47,4 +54,18 @@ object DecodeJsonSpecification extends Specification with ScalaCheck { def is = 
     implicit def BackTicksDecodeJson: DecodeJson[BackTicks] = DecodeJson.derive[BackTicks]
     def testBackTicksDecodeJson = Parse.decodeEither[BackTicks]("""{"a.b.c": "test"}""") === BackTicks("test").right
   }
+
+  def successfulParse = prop((i: Int) =>
+    decodeFromParser.decodeJson(Parse.parse(s""""$i"""").toOption.get) must beOk)
+
+  def failedParse = prop((s: String) =>
+    decodeFromParser.decodeJson(Json.jString(s+"x")) must beErrorWithMessage("can't parse"))
+
+  val parseIntDecodeJson: String => String \/ Int = (s: String) =>
+    try s.toInt.right
+    catch { case t: Throwable => s"can't parse $s: ${t.getMessage}".left }
+
+  val decodeFromParser =
+    DecodeJson.fromParser(parseIntDecodeJson)
+
 }
