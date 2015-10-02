@@ -66,6 +66,11 @@ object build extends Build {
   , base = file("argonaut")
   , settings = commonSettings ++ Seq[Sett](
       name := "argonaut"
+    , libraryDependencies ++= Seq(
+          scalaz
+        , scalacheck
+        , specs2Scalacheck
+      )
     )
   )
 
