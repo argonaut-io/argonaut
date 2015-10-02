@@ -51,16 +51,14 @@ case class ACursor(either: Either[HCursor, HCursor]) {
   def history: CursorHistory =
     any.history
 
-  /** TODO: Revisit
   def reattempt: ACursor =
     either match {
-      case Left(invalid) => ACursor.ok(hcursorHistoryL.mod(reattemptOp +: _, invalid))
+      case Left(HCursor(cursor, CursorHistory(history))) => ACursor.ok(HCursor(cursor, CursorHistory(reattemptOp +: history)))
       case Right(_) => this
     }
 
   def unary_~ : ACursor =
     reattempt
-  */
 
   /** Return the current focus, iff we are succeeded */
   def focus: Option[Json] =
