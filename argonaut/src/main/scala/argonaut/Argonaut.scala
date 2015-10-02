@@ -6,6 +6,7 @@ trait Argonauts extends
 ACursors with
 CodecJsons with
 Contexts with
+ContextElements with
 Cursors with
 CursorHistorys with
 CursorOps with
