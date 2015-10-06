@@ -6,7 +6,7 @@ import Json._
 object EncodeJsonScalaz extends EncodeJsonScalazs {
 }
 
-trait EncodeJsons extends GeneratedEncodeJsons {
+trait EncodeJsonScalazs {
   def fromFoldable[F[_], A](implicit A: EncodeJson[A], F: Foldable[F]): EncodeJson[F[A]] =
     EncodeJson(fa => jArray(F.foldLeft(fa, Nil: List[Json])((list, a) => A.encode(a) :: list).reverse))
 

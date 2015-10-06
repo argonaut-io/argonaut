@@ -7,21 +7,26 @@ import org.scalacheck._
 import org.specs2._
 
 object JsonFilesSpecification extends Specification with ScalaCheck {
-  def find = new File(getClass.getResource("/data").toURI).listFiles.toList
+  def find = new File("./argonaut/src/test/resources/data").listFiles.toList
 
   case class JsonFile(file: File)
 
-  implicit def JsonFileArbitrary: Arbitrary[JsonFile] =
-    Arbitrary(Gen.oneOf(find.map(JsonFile)))
+  def is = s2"""
+  Predefined files can print and get same result  $test
+  """
 
-  def is = s2""" Predefined files can print and get same result" ! $test """
+  def test() = {
+    find.map(testFile).reduce(_.append(_))
+  }
 
-  def test = propNoShrink{(jsonfile: JsonFile) =>
-    val string = scala.io.Source.fromFile(jsonfile.file).mkString
+  def testFile(jsonFile: File) = {
+    val string = scala.io.Source.fromFile(jsonFile).mkString
     val parsed = string.parseOption
-    val json = parsed.getOrElse(sys.error("could not parse json file [" + jsonfile + "]"))
-    json.nospaces.parseOption must beSome(json)
-    json.spaces2.parseOption must beSome(json)
-    json.spaces4.parseOption must beSome(json)
+    val json = parsed.getOrElse(sys.error("could not parse json file [" + jsonFile + "]"))
+    s2"""
+    ${jsonFile.getName}
+      With no spaces          ${json.nospaces.parseOption must beSome(json)}
+      With 2 spaces           ${json.spaces2.parseOption must beSome(json)}
+      With 4 spaces           ${json.spaces4.parseOption must beSome(json)}"""
   }
 }

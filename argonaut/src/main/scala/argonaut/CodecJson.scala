@@ -35,6 +35,10 @@ object CodecJson extends CodecJsons {
       val Decoder = D
     }
   }
+
+  def codecLaw[A](codec: CodecJson[A])(a: A): Boolean = {
+    codec.decodeJson(codec.encode(a)).value.exists(_ == a)
+  }
 }
 
 trait CodecJsons extends GeneratedCodecJsons

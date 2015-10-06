@@ -36,37 +36,37 @@ object JsonSpecification extends Specification with ScalaCheck {
     jSingleObject is single object        $isSingleObject
   """
 
-  def sameValue = prop((j: Json) => j == j)
+  def sameValue = prop((j: Json) => j === j)
 
-  def modString = prop((j: JString) => j.withString(_ + "test") != j)
+  def modString = prop((j: JString) => j.withString(_ + "test") /== j)
 
   def modNumber = prop((j: JNumber) => j.withNumber { number =>
     JsonLong(number.toInt.map(n =>
-      if (n == 0) (n + 1) else (n * 2)
+      if (n === 0) (n + 1) else (n * 2)
     ).getOrElse(0).toLong)
-  } != j)
+  } /== j)
 
-  def modArray = prop((j: JArray) => j.withArray(jEmptyArray :: _) != j)
+  def modArray = prop((j: JArray) => j.withArray(jEmptyArray :: _) /== j)
 
-  def modObject = prop((j: JObject) => j.withObject(_ + ("veryunlikelytoberandomlygeneratedkey", jString("veryunlikelytoberandomlygeneratedvalue"))) != j)
+  def modObject = prop((j: JObject) => j.withObject(_ + ("veryunlikelytoberandomlygeneratedkey", jString("veryunlikelytoberandomlygeneratedvalue"))) /== j)
 
-  def modBoolean = prop((j: JBool) => j.not != j)
+  def modBoolean = prop((j: JBool) => j.not /== j)
 
-  def notComposeNot = prop((j: Json) => j.not.not == j)
+  def notComposeNot = prop((j: Json) => j.not.not === j)
 
-  def noEffect = prop((j: Json) => (j.not == j) != j.isBool)
+  def noEffect = prop((j: Json) => (j.not === j) !== j.isBool)
 
-  def effectNotIsBool = prop((j: Json) => (j.not != j) == j.isBool)
+  def effectNotIsBool = prop((j: Json) => (j.not /== j) === j.isBool)
 
-  def effectWithNumber = prop((j: Json, k: JsonNumber => JsonNumber) => ((j withNumber k) == j) || j.isNumber)
+  def effectWithNumber = prop((j: Json, k: JsonNumber => JsonNumber) => ((j withNumber k) === j) || j.isNumber)
 
-  def effectWithString = prop((j: Json, k: JsonString => JsonString) => ((j withString k) == j) || j.isString)
+  def effectWithString = prop((j: Json, k: JsonString => JsonString) => ((j withString k) === j) || j.isString)
 
-  def effectWithArray = prop((j: Json, k: List[Json] => List[Json]) => ((j withArray k) == j) || j.isArray)
+  def effectWithArray = prop((j: Json, k: List[Json] => List[Json]) => ((j withArray k) === j) || j.isArray)
 
-  def effectWithObject = prop((j: Json, k: JsonObject => JsonObject) => ((j withObject k) == j) || j.isObject)
+  def effectWithObject = prop((j: Json, k: JsonObject => JsonObject) => ((j withObject k) === j) || j.isObject)
 
-  def arrayPrepend = prop((j: Json, e: Json) => !j.isArray || (e -->>: j).array.map(_.head) == e.some)
+  def arrayPrepend = prop((j: Json, e: Json) => !j.isArray || (e -->>: j).array.map(_.head) === e.some)
 
   def isBool = prop((b: Boolean) => jBool(b).isBool)
 
@@ -76,9 +76,9 @@ object JsonSpecification extends Specification with ScalaCheck {
 
   def isArray = prop((a: List[Json]) => jArray(a).isArray)
 
-  def isSingleArray = prop((j: Json) => jSingleArray(j).array == List(j).some)
+  def isSingleArray = prop((j: Json) => jSingleArray(j).array === List(j).some)
 
   def isObject = prop((a: JsonObject) => jObject(a).isObject)
 
-  def isSingleObject = prop((f: JsonField, j: Json) => (jSingleObject(f, j).obj map (_.toList)) == List((f, j)).some)
+  def isSingleObject = prop((f: JsonField, j: Json) => (jSingleObject(f, j).obj map (_.toList)) === List((f, j)).some)
 }

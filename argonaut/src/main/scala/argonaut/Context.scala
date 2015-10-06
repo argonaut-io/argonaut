@@ -47,7 +47,7 @@ private case class ObjectContext(f: JsonField, j: Json) extends ContextElement
 
 object ContextElement extends ContextElements
 
-sealed abstract class ContextElements {
+trait ContextElements {
   def arrayContext(n: Int, j: Json): ContextElement =
     ArrayContext(n, j)
 

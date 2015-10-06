@@ -2,6 +2,9 @@ package argonaut
 
 import scalaz.{Each => _, Index => _, _}
 import Scalaz._
+import Json._
+import JsonNumberScalaz._
+import JsonObjectScalaz._
 
 object JsonScalaz extends JsonScalazs {
 }
@@ -42,13 +45,6 @@ trait JsonScalazs {
    */
   def jsonArrayPL(n: Int): JsonArray @?> Json =
     PLens(array => array lift n map (Store(array.updated(n, _), _)))
-
-  implicit val jObjectEach = new Each[JsonObject, Json]{
-    def each = new Traversal[JsonObject, Json]{
-      def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =
-        from.traverse(f)
-    }
-  }
 
   implicit val JsonInstances: Equal[Json] with Show[Json] = {
     new Equal[Json] with Show[Json] {

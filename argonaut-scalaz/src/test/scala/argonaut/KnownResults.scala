@@ -1,5 +1,6 @@
 package argonaut
 
+import scalaz.syntax.either._
 import Json._
 import org.specs2.matcher.DataTables
 
@@ -37,15 +38,15 @@ object KnownResults extends DataTables {
     "158699798998941697"                                          ! jNumberOrNull(158699798998941697L)
 
   def parseFailures =
-    "JSON"                                            | "parse result"                                                                           |
-    """[][]"""                                        ! Left("JSON contains invalid suffix content: []")                                         |
-    """{}{}"""                                        ! Left("JSON contains invalid suffix content: {}")                                         |
-    "\"\"\"\""                                        ! Left("JSON contains invalid suffix content: \"\"")                                       |
-    "\"test"                                          ! Left("JSON terminates unexpectedly.")                                                    |
-    "[7,,]"                                           ! Left("Unexpected content found: ,]")                                                     |
-    """{"firstKey":100,"secondKey":}"""               ! Left("Unexpected content found: }")                                                      |
-    """{"firstKey":}"""                               ! Left("Unexpected content found: }")                                                      |
-    """{"firstKey"}"""                                ! Left("Expected field separator token but found: }")                                      |
-    """[[}]"""                                        ! Left("Unexpected content found: }]")
+    "JSON"                                            | "parse result"                                                                                |
+    """[][]"""                                        ! "JSON contains invalid suffix content: []".left[Json]                                         |
+    """{}{}"""                                        ! "JSON contains invalid suffix content: {}".left[Json]                                         |
+    "\"\"\"\""                                        ! "JSON contains invalid suffix content: \"\"".left[Json]                                       |
+    "\"test"                                          ! "JSON terminates unexpectedly.".left[Json]                                                    |
+    "[7,,]"                                           ! "Unexpected content found: ,]".left[Json]                                                     |
+    """{"firstKey":100,"secondKey":}"""               ! "Unexpected content found: }".left[Json]                                                      |
+    """{"firstKey":}"""                               ! "Unexpected content found: }".left[Json]                                                      |
+    """{"firstKey"}"""                                ! "Expected field separator token but found: }".left[Json]                                      |
+    """[[}]"""                                        ! "Unexpected content found: }]".left[Json]
 
 }

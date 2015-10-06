@@ -1,6 +1,7 @@
 package argonaut
 
 import scalaz._, syntax.show._
+import CursorOpElementScalaz._
 
 object CursorOpScalaz extends CursorOpScalazs {
 }

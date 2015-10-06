@@ -5,8 +5,11 @@ import org.scalacheck.Gen
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop._
+import scalaz.Success
 import org.scalacheck._
 import org.scalacheck.Shrink._
+import scalaz.syntax.either._
+import scalaz.std.string._
 import org.specs2._
 import org.specs2.matcher._
 import Data._
@@ -36,7 +39,7 @@ object JsonParserSpecification extends Specification with DataTables with ScalaC
       val parseResult = JsonParser.parse(json)
       ("parseResult = " + parseResult) |:
         ("whitespaceObject = " + whitespaceObject) |:
-        parseResult == Right(whitespaceObject)
+        parseResult === whitespaceObject.right[String]
     }
 
   def whitespaceForArray =
@@ -44,18 +47,18 @@ object JsonParserSpecification extends Specification with DataTables with ScalaC
       val parseResult = JsonParser.parse(json)
       ("parseResult = " + parseResult) |:
         ("whitespaceArray = " + whitespaceArray) |:
-        parseResult == Right(whitespaceArray)
+        parseResult === whitespaceArray.right[String]
     }
   def validJson =
     KnownResults.validResultPairings |> { (json, expectedJSONValue) =>
       val actualParseResult = JsonParser.parse(json)
-      actualParseResult == Right(expectedJSONValue)
+      actualParseResult === expectedJSONValue.right[String]
     }
 
   def invalidJson =
     KnownResults.parseFailures |> { (json, parseResult) =>
       val actualParseResult = JsonParser.parse(json)
-      actualParseResult == parseResult
+      actualParseResult === parseResult
     }
 
   def printParse =
@@ -63,7 +66,7 @@ object JsonParserSpecification extends Specification with DataTables with ScalaC
       val printedJSON = json.nospaces
       ("printedJSON = " + printedJSON) |: {
         val parsed = printedJSON.parse
-        ("parsed = " + parsed) |: parsed == Right(json)
+        ("parsed = " + parsed) |: parsed === json.right
       }
     }
 }

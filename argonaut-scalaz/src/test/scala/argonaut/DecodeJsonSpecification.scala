@@ -1,5 +1,7 @@
 package argonaut
 
+import scalaz.syntax.either._
+import scalaz.std.string._
 import org.specs2._
 import Argonaut._
 
@@ -43,6 +45,6 @@ object DecodeJsonSpecification extends Specification with ScalaCheck { def is = 
     DecodeJson.of[Person]
 
     implicit def BackTicksDecodeJson: DecodeJson[BackTicks] = DecodeJson.derive[BackTicks]
-    def testBackTicksDecodeJson = Parse.decodeEither[BackTicks]("""{"a.b.c": "test"}""") == Right(BackTicks("test"))
+    def testBackTicksDecodeJson = Parse.decodeEither[BackTicks]("""{"a.b.c": "test"}""") === BackTicks("test").right
   }
 }

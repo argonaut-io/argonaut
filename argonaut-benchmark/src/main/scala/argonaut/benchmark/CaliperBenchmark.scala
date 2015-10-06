@@ -55,7 +55,7 @@ object CaliperScalaUtilJSONBenchmarkRunner {
 case class CaliperArgonautBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(json.parse)
   val jsonToPrint = Data.apachebuilds.parseOption.get
-  val smallJsonToPrint = jSingleObject("array", jArray(jNumber(5).toList ::: List(jTrue, jFalse)))
+  val smallJsonToPrint = jSingleObject("array", jArray(jNumber(5) :: List(jTrue, jFalse)))
   def timesmallnospaces(reps: Int) = repeat(reps){
     smallJsonToPrint.nospaces.length
   }

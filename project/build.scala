@@ -13,13 +13,13 @@ object build extends Build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.1.1"
+  val scalazVersion              = "7.1.4"
   val paradiseVersion            = "2.0.1"
   val monocleVersion             = "1.1.0"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.4"                 % "test"
-  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "2.4.1"                  % "test"
+  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "3.6.4"                  % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
@@ -67,8 +67,7 @@ object build extends Build {
   , settings = commonSettings ++ Seq[Sett](
       name := "argonaut"
     , libraryDependencies ++= Seq(
-          scalaz
-        , scalacheck
+          scalacheck
         , specs2Scalacheck
       )
     )

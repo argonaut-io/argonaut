@@ -438,8 +438,22 @@ sealed abstract class Cursor extends Product with Serializable {
 }
 
 private case class CJson(j: Json) extends Cursor
-private case class CArray(p: Cursor, u: Boolean, ls: List[Json], x: Json, rs: List[Json]) extends Cursor
-private case class CObject(p: Cursor, u: Boolean, o: JsonObject, x: (JsonField, Json)) extends Cursor
+private case class CArray(p: Cursor, u: Boolean, ls: List[Json], x: Json, rs: List[Json]) extends Cursor {
+  override def equals(other: Any): Boolean = {
+    other match {
+      case CArray(p2, _, ls2, x2, rs2) => p == p2 && ls == ls2 && x == x2 && rs == rs2
+      case _ => false
+    }
+  }
+}
+private case class CObject(p: Cursor, u: Boolean, o: JsonObject, x: (JsonField, Json)) extends Cursor {
+  override def equals(other: Any): Boolean = {
+    other match {
+      case CObject(p2, _, o2, x2) => p == p2 && o == o2 && x == x2
+      case _ => false
+    }
+  }
+}
 
 object Cursor extends Cursors {
   def apply(j: Json): Cursor = CJson(j)

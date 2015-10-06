@@ -3,6 +3,7 @@ package argonaut
 import Json._
 import scalaz._, syntax.traverse._, syntax.show._
 import std.tuple._, std.string._
+import JsonObject._
 
 object JsonObjectScalaz extends JsonObjectScalazs {
   def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject = {

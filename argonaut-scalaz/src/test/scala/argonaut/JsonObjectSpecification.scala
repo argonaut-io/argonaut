@@ -8,5 +8,6 @@ object JsonObjectSpecification extends Specification with ScalaCheck {
   def is = s2"""
   JsonObject
     fields ${ prop((o: JsonObject) => o.fields.length == o.fieldSet.size) }
+    shows  ${ prop((o: JsonObject) => o.shows == o.toString) }
    """
 }

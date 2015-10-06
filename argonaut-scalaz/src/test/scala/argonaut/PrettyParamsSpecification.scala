@@ -9,8 +9,24 @@ import org.scalacheck.Gen
 import Data._
 import Argonaut._
 import org.specs2._
+import scalaz._
+import scalaz.std.string._
+import scalaz.std.anyVal._
+import scalaz.scalacheck.ScalazArbitrary._
+import monocle.law.LensLaws
 
 object PrettyParamsSpecification extends Specification with ScalaCheck {
+  // Synthetic Equal implementations used for testing.
+  implicit val intToStringEqual: Equal[Int => String] = new Equal[Int => String] {
+    val indents: List[Int] = (0 to 5).toList :+ 100
+    def equal(a1: Int => String, a2: Int => String): Boolean = {
+      indents.map(a1) === indents.map(a2)
+    }
+  }
+  implicit val prettyParamsEqual: Equal[PrettyParams] = new Equal[PrettyParams] {
+    def equal(a1: PrettyParams, a2: PrettyParams): Boolean = a1 == a2
+  }
+
   val jsonSpacesMap: Map[Int, String] = Map(
     0 -> """{"key1":"value1","key2":[9,21,0],"key2a":[],"key3":null}""",
     2 -> """|{
@@ -38,6 +54,26 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   )
 
   def is = s2"""
+  Lenses
+    lbraceLeft        $lbraceLeftLens
+    lbraceRight       $lbraceRightLens
+    rbraceLeft        $rbraceLeftLens
+    rbraceRight       $rbraceRightLens
+    lbracketLeft      $lbracketLeftLens
+    lbracketRight     $lbracketRightLens
+    rbracketLeft      $rbracketLeftLens
+    rbracketRight     $rbracketRightLens
+    lrbracketsEmpty   $lrbracketsEmptyLens
+    arrayCommaLeft    $arrayCommaLeftLens
+    arrayCommaRight   $arrayCommaRightLens
+    objectCommaLeft   $objectCommaLeftLens
+    objectCommaRight  $objectCommaRightLens
+    colonLeft         $colonLeftLens
+    colonRight        $colonRightLens
+    preserveOrder     $preserveOrderLens
+    dropNullKeys      $dropNullKeysLens
+    preserveOrder     $preserveOrderLens
+
   Indentation
     lbraceLeft        $lbraceLeftIndent
     lbraceRight       $lbraceRightIndent
@@ -76,6 +112,24 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     null keys are not present when middle key is null  ${noNullKeys.middleKeyNull}
     null keys are not present when last key is null    ${noNullKeys.lastKeyNull}
   """
+
+  def lbraceLeftLens = LensLaws(PrettyParams.lbraceLeftL)
+  def lbraceRightLens = LensLaws(PrettyParams.lbraceRightL)
+  def rbraceLeftLens = LensLaws(PrettyParams.rbraceLeftL)
+  def rbraceRightLens = LensLaws(PrettyParams.rbraceRightL)
+  def lbracketLeftLens = LensLaws(PrettyParams.lbracketLeftL)
+  def lbracketRightLens = LensLaws(PrettyParams.lbracketRightL)
+  def rbracketLeftLens = LensLaws(PrettyParams.rbracketLeftL)
+  def rbracketRightLens = LensLaws(PrettyParams.rbracketRightL)
+  def lrbracketsEmptyLens = LensLaws(PrettyParams.lrbracketsEmptyL)
+  def arrayCommaLeftLens = LensLaws(PrettyParams.arrayCommaLeftL)
+  def arrayCommaRightLens = LensLaws(PrettyParams.arrayCommaRightL)
+  def objectCommaLeftLens = LensLaws(PrettyParams.objectCommaLeftL)
+  def objectCommaRightLens = LensLaws(PrettyParams.objectCommaRightL)
+  def colonLeftLens = LensLaws(PrettyParams.colonLeftL)
+  def colonRightLens = LensLaws(PrettyParams.colonRightL)
+  def preserveOrderLens = LensLaws(PrettyParams.preserveOrderL)
+  def dropNullKeysLens = LensLaws(PrettyParams.dropNullKeysL)
 
   def lbraceLeftIndent = prop{(indent: String) =>
     val prettyParams = PrettyParams.nospace.copy(lbraceLeft = indent)
@@ -138,7 +192,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     prettyParams.pretty(("test" := "value") ->: jEmptyObject) === """{"test":%s"value"}""".format(indent)
   }
   def preserveOrder = prop{(preserve: Boolean, pairs: JsonAssocList) =>
-    val prettyParams = PrettyParams.nospace.copy(preserveOrder = preserve)
+    val prettyParams = preserveOrderL.set(preserve)(PrettyParams.nospace)
     val json = prettyParams.pretty(jObjectAssocList(pairs)).parseOption.get
     if (preserve) {
       val pairsDeduplicated = pairs.foldLeft[JsonAssocList](List.empty){case (working, (key, value)) =>

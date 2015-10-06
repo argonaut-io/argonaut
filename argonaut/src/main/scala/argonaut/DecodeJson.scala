@@ -169,28 +169,30 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   implicit def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] = {
     DecodeJson(a =>
       a.downArray.hcursor match {
-        case None =>
+        case None => {
           if (a.focus.isArray) {
             DecodeResult.ok(c.apply.result)
           } else {
-            DecodeResult.fail("[A]List[A]", a.history)
+            DecodeResult.fail("[A]", a.history)
           }
+        }
         case Some(hcursor) => {
           hcursor.rights match {
             case Some(elements) => {
-              elements.foldLeft(DecodeResult.ok(c.apply)){(working, elem) =>
+              (hcursor.focus :: elements).foldLeft(DecodeResult.ok(c.apply)){(working, elem) =>
                 for {
                   w <- working
                   e <- elem.jdecode[A]
                 } yield w += e
               }.map(_.result)
             }
-            case None => {
-              DecodeResult.fail("[A]List[A]", a.history)
+            case _ => {
+              DecodeResult.fail("[A]", a.history)
             }
           }
         }
-      })
+      }
+    )
   }
 
   implicit def UnitDecodeJson: DecodeJson[Unit] = {
