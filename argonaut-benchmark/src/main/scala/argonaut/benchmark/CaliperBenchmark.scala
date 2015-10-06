@@ -4,8 +4,6 @@ import com.google.caliper._
 import argonaut._
 import Argonaut._
 import net.liftweb.json.{JsonParser => LiftJsonParser}
-import scalaz._
-import Scalaz._
 import com.fasterxml.jackson.core.{TreeNode, JsonFactory => JacksonJsonFactory}
 
 // Stolen conveniently from

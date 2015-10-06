@@ -85,7 +85,7 @@ object build extends Build {
         , scalazScalaCheckBinding
       )
     )
-  ).dependsOn(argonaut)
+  ).dependsOn(argonaut % "compile->compile;test->test")
 
   val argonautMonocle = Project(
     id = "argonaut-monocle"
@@ -98,7 +98,7 @@ object build extends Build {
         , monocleLaw
       )
     )
-  ).dependsOn(argonaut, argonautScalaz)
+  ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
   val benchmark = Project(
     id = "argonaut-benchmark"
