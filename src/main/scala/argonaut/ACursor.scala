@@ -15,7 +15,7 @@ case class ACursor(either: HCursor \/ HCursor) {
   def success: Option[HCursor] =
     hcursor
 
-  /** Get the failed hcursor if we are in an failed state. Alias for `hcursor`. */
+  /** Get the failed hcursor if we are in an failed state. */
   def failure: Option[HCursor] =
     either.swap.toOption
 
