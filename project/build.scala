@@ -15,7 +15,7 @@ object build extends Build {
 
   val scalazVersion              = "7.1.4"
   val paradiseVersion            = "2.0.1"
-  val monocleVersion             = "1.1.0"
+  val monocleVersion             = "1.2.0-M1"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.4"                 % "test"

@@ -1,30 +1,28 @@
 package argonaut
 
+import monocle.Lens
 import monocle.macros.GenLens
-import scalaz._
-import scala.annotation._
 
 object PrettyParamsMonocle extends PrettyParamsMonocles
 
 trait PrettyParamsMonocles {
-  val lenser = GenLens[PrettyParams]
 
-  val indentL = lenser(_.indent)
-  val lbraceLeftL = lenser(_.lbraceLeft)
-  val lbraceRightL = lenser(_.lbraceRight)
-  val rbraceLeftL = lenser(_.rbraceLeft)
-  val rbraceRightL = lenser(_.rbraceRight)
-  val lbracketLeftL = lenser(_.lbracketLeft)
-  val lbracketRightL = lenser(_.lbracketRight)
-  val rbracketLeftL = lenser(_.rbracketLeft)
-  val rbracketRightL = lenser(_.rbracketRight)
-  val lrbracketsEmptyL = lenser(_.lrbracketsEmpty)
-  val arrayCommaLeftL = lenser(_.arrayCommaLeft)
-  val arrayCommaRightL = lenser(_.arrayCommaRight)
-  val objectCommaLeftL = lenser(_.objectCommaLeft)
-  val objectCommaRightL = lenser(_.objectCommaRight)
-  val colonLeftL = lenser(_.colonLeft)
-  val colonRightL = lenser(_.colonRight)
-  val preserveOrderL = lenser(_.preserveOrder)
-  val dropNullKeysL = lenser(_.dropNullKeys)
+  val indent: Lens[PrettyParams, String] = GenLens[PrettyParams](_.indent)
+  val lbraceLeft: Lens[PrettyParams, String] = GenLens[PrettyParams](_.lbraceLeft)
+  val lbraceRight: Lens[PrettyParams, String] = GenLens[PrettyParams](_.lbraceRight)
+  val rbraceLeft: Lens[PrettyParams, String] = GenLens[PrettyParams](_.rbraceLeft)
+  val rbraceRight: Lens[PrettyParams, String] = GenLens[PrettyParams](_.rbraceRight)
+  val lbracketLeft: Lens[PrettyParams, String] = GenLens[PrettyParams](_.lbracketLeft)
+  val lbracketRight: Lens[PrettyParams, String] = GenLens[PrettyParams](_.lbracketRight)
+  val rbracketLeft: Lens[PrettyParams, String] = GenLens[PrettyParams](_.rbracketLeft)
+  val rbracketRight: Lens[PrettyParams, String] = GenLens[PrettyParams](_.rbracketRight)
+  val lrbracketsEmpty: Lens[PrettyParams, String] = GenLens[PrettyParams](_.lrbracketsEmpty)
+  val arrayCommaLeft: Lens[PrettyParams, String] = GenLens[PrettyParams](_.arrayCommaLeft)
+  val arrayCommaRight: Lens[PrettyParams, String] = GenLens[PrettyParams](_.arrayCommaRight)
+  val objectCommaLeft: Lens[PrettyParams, String] = GenLens[PrettyParams](_.objectCommaLeft)
+  val objectCommaRight: Lens[PrettyParams, String] = GenLens[PrettyParams](_.objectCommaRight)
+  val colonLeft: Lens[PrettyParams, String] = GenLens[PrettyParams](_.colonLeft)
+  val colonRight: Lens[PrettyParams, String] = GenLens[PrettyParams](_.colonRight)
+  val preserveOrder: Lens[PrettyParams, Boolean] = GenLens[PrettyParams](_.preserveOrder)
+  val dropNullKeys: Lens[PrettyParams, Boolean] = GenLens[PrettyParams](_.dropNullKeys)
 }

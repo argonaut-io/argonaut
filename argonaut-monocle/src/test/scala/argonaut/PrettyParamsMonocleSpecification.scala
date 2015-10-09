@@ -1,20 +1,13 @@
 package argonaut
 
-import org.scalacheck.Arbitrary
+import argonaut.Data._
+import argonaut.PrettyParamsScalaz._
+import monocle.law.discipline.LensTests
 import org.scalacheck.Arbitrary._
-import org.scalacheck.Prop
-import org.scalacheck.Prop._
-import org.scalacheck.Properties
-import org.scalacheck.Gen
-import Data._
-import Argonaut._
 import org.specs2._
-import scalaz._
-import scalaz.std.string._
+
 import scalaz.std.anyVal._
-import scalaz.scalacheck.ScalazArbitrary._
-import monocle.law.LensLaws
-import PrettyParamsScalaz._
+import scalaz.std.string._
 
 object PrettyParamsMonocleSpecification extends Specification with ScalaCheck {
   def is = s2"""
@@ -38,21 +31,21 @@ object PrettyParamsMonocleSpecification extends Specification with ScalaCheck {
     dropNullKeys      $dropNullKeysLens
   """
 
-  def lbraceLeftLens = LensLaws(PrettyParamsMonocle.lbraceLeftL)
-  def lbraceRightLens = LensLaws(PrettyParamsMonocle.lbraceRightL)
-  def rbraceLeftLens = LensLaws(PrettyParamsMonocle.rbraceLeftL)
-  def rbraceRightLens = LensLaws(PrettyParamsMonocle.rbraceRightL)
-  def lbracketLeftLens = LensLaws(PrettyParamsMonocle.lbracketLeftL)
-  def lbracketRightLens = LensLaws(PrettyParamsMonocle.lbracketRightL)
-  def rbracketLeftLens = LensLaws(PrettyParamsMonocle.rbracketLeftL)
-  def rbracketRightLens = LensLaws(PrettyParamsMonocle.rbracketRightL)
-  def lrbracketsEmptyLens = LensLaws(PrettyParamsMonocle.lrbracketsEmptyL)
-  def arrayCommaLeftLens = LensLaws(PrettyParamsMonocle.arrayCommaLeftL)
-  def arrayCommaRightLens = LensLaws(PrettyParamsMonocle.arrayCommaRightL)
-  def objectCommaLeftLens = LensLaws(PrettyParamsMonocle.objectCommaLeftL)
-  def objectCommaRightLens = LensLaws(PrettyParamsMonocle.objectCommaRightL)
-  def colonLeftLens = LensLaws(PrettyParamsMonocle.colonLeftL)
-  def colonRightLens = LensLaws(PrettyParamsMonocle.colonRightL)
-  def preserveOrderLens = LensLaws(PrettyParamsMonocle.preserveOrderL)
-  def dropNullKeysLens = LensLaws(PrettyParamsMonocle.dropNullKeysL)
+  def lbraceLeftLens = LensTests(PrettyParamsMonocle.lbraceLeft).all
+  def lbraceRightLens = LensTests(PrettyParamsMonocle.lbraceRight).all
+  def rbraceLeftLens = LensTests(PrettyParamsMonocle.rbraceLeft).all
+  def rbraceRightLens = LensTests(PrettyParamsMonocle.rbraceRight).all
+  def lbracketLeftLens = LensTests(PrettyParamsMonocle.lbracketLeft).all
+  def lbracketRightLens = LensTests(PrettyParamsMonocle.lbracketRight).all
+  def rbracketLeftLens = LensTests(PrettyParamsMonocle.rbracketLeft).all
+  def rbracketRightLens = LensTests(PrettyParamsMonocle.rbracketRight).all
+  def lrbracketsEmptyLens = LensTests(PrettyParamsMonocle.lrbracketsEmpty).all
+  def arrayCommaLeftLens = LensTests(PrettyParamsMonocle.arrayCommaLeft).all
+  def arrayCommaRightLens = LensTests(PrettyParamsMonocle.arrayCommaRight).all
+  def objectCommaLeftLens = LensTests(PrettyParamsMonocle.objectCommaLeft).all
+  def objectCommaRightLens = LensTests(PrettyParamsMonocle.objectCommaRight).all
+  def colonLeftLens = LensTests(PrettyParamsMonocle.colonLeft).all
+  def colonRightLens = LensTests(PrettyParamsMonocle.colonRight).all
+  def preserveOrderLens = LensTests(PrettyParamsMonocle.preserveOrder).all
+  def dropNullKeysLens = LensTests(PrettyParamsMonocle.dropNullKeys).all
 }
