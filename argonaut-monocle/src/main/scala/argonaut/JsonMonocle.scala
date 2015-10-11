@@ -5,8 +5,7 @@ import monocle.function._
 import Json._
 import scalaz.{Each => _, Index => _, _}, Scalaz._
 
-object JsonMonocle extends JsonMonocles {
-}
+object JsonMonocle extends JsonMonocles
 
 trait JsonMonocles {
   /** A Prism for JSON boolean values. */
@@ -98,32 +97,5 @@ trait JsonMonocles {
         o => Some(o))
     )(jObject)
 
-  implicit val jObjectEach = new Each[JsonObject, Json]{
-    def each = new Traversal[JsonObject, Json]{
-      def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] = {
-        JsonObjectScalaz.traverse(from, f)
-      }
-    }
-  }
 
-  implicit val jObjectAt = new At[JsonObject, JsonField, Json]{
-    def at(field: JsonField): Lens[JsonObject, Option[Json]] =
-      monocle.Lens[JsonObject, Option[Json]](_.apply(field))( optVal => jObj =>
-        optVal.fold(jObj - field)(value => jObj + (field, value))
-      )
-  }
-
-  implicit val jObjectFilterIndex = new FilterIndex[JsonObject, JsonField, Json]{
-    import scalaz.syntax.traverse._
-    def filterIndex(predicate: JsonField => Boolean) = new Traversal[JsonObject, Json]{
-      def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =
-        Applicative[F].map(
-          from.toList.traverse[F, (JsonField, Json)]{ case (field, json) =>
-            Applicative[F].map(if(predicate(field)) f(json) else json.point[F])(field -> _)
-          }
-        )(JsonObject.fromTraversableOnce(_))
-    }
-  }
-
-  implicit val jObjectIndex: Index[JsonObject, JsonField, Json] = Index.atIndex
 }
