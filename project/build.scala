@@ -14,7 +14,7 @@ object build extends Build {
   )
 
   val scalazVersion              = "7.1.4"
-  val paradiseVersion            = "2.0.1"
+  val paradiseVersion            = "2.1.0-M5"
   val monocleVersion             = "1.2.0-M1"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
@@ -100,7 +100,7 @@ object build extends Build {
     )
   ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
-  val benchmark = Project(
+  val argonautBenchmark = Project(
     id = "argonaut-benchmark"
   , base = file("argonaut-benchmark")
   , settings = base ++ Seq[Sett](
@@ -110,4 +110,14 @@ object build extends Build {
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }
     )
   ).dependsOn(argonaut)
+
+  val argonautParent = Project(
+    id = "argonaut-parent"
+  , base = file(".")
+  , settings = base ++ Seq[Sett](
+      name := "argonaut-parent"
+    , fork in run := true
+    , publishArtifact := false
+    )
+  ).aggregate(argonaut, argonautScalaz, argonautMonocle, argonautBenchmark)
 }
