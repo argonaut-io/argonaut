@@ -106,6 +106,7 @@ object build extends Build {
   , settings = base ++ Seq[Sett](
       name := "argonaut-benchmark"
     , fork in run := true
+    , publishArtifact := false
     , libraryDependencies ++= Seq(caliper, liftjson, jackson)
     , javaOptions in run <++= (fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }
     )
