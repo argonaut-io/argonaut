@@ -1,0 +1,4 @@
+package argonaut
+
+object JsonParserMonocle {
+}

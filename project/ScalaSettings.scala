@@ -6,8 +6,8 @@ object ScalaSettings {
   type Sett = Def.Setting[_]
 
   lazy val all: Seq[Sett] = Seq(
-    scalaVersion := "2.11.6"
-  , crossScalaVersions := Seq("2.10.4", "2.11.6")
+    scalaVersion := "2.11.7"
+  , crossScalaVersions := Seq("2.10.6", "2.11.7")
   , fork in test := true
   , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint")
   // https://gist.github.com/djspiewak/976cd8ac65e20e136f05
