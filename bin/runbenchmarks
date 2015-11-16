@@ -1,5 +1,0 @@
-#!/bin/sh
-
-base=`(readlink "$0" || printf "%s" "$0") | xargs dirname`/..
-
-cd $base && sbt ";clean ;compile ;project benchmark; clean; compile" && sbt ";project benchmark; run"

@@ -1,5 +1,0 @@
-#!/bin/sh
-
-base=`(readlink "$0" || printf "%s" "$0") | xargs dirname`/..
-
-(cd "$base" && ./sbt '; set crossScalaVersions := Seq("2.10.4", "2.11.6") ; +publish-signed')

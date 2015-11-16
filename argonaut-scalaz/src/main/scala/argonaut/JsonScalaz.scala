@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz.{Each => _, Index => _, _}
+import scalaz._
 import Scalaz._
 import Json._
 import JsonNumberScalaz._

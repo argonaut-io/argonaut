@@ -28,6 +28,8 @@ Stable:
 Latest:
 
     "io.argonaut" %% "argonaut" % "6.2-SNAPSHOT" changing()
+    "io.argonaut" %% "argonaut-scalaz" % "6.2-SNAPSHOT" changing()
+    "io.argonaut" %% "argonaut-monocle" % "6.2-SNAPSHOT" changing()
 
 
 Note that the 6.0.x release supports scala 2.9.2, 2.9.3, 2.10.* and 2.11.* with scalaz 7.0.*.
@@ -47,11 +49,11 @@ Add to `~/.sbt/0.13/sonatype.sbt`
 
 
 For a snapshot build run:
-    ./bin/publish
+    ./sbt +publish
 
 For a release build run:
 
-    ./bin/release
+    ./sbt "release cross"
 
 Note for a release build you will want to enter the details for the
 release build number and then the subsequent build number. At this

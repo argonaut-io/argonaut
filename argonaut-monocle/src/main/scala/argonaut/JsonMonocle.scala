@@ -3,7 +3,7 @@ package argonaut
 import monocle.{Prism, Traversal, Lens}
 import monocle.function._
 import Json._
-import scalaz.{Each => _, Index => _, _}, Scalaz._
+import scalaz._, Scalaz._
 
 object JsonMonocle extends JsonMonocles
 
