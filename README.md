@@ -32,9 +32,9 @@ Latest:
     "io.argonaut" %% "argonaut-monocle" % "6.2-SNAPSHOT" changing()
 
 
-Note that the 6.0.x release supports scala 2.9.2, 2.9.3, 2.10.* and 2.11.* with scalaz 7.0.*.
+Note that the 6.1.x release supports scala 2.10.* and 2.11.* with scalaz 7.1.*.
 
-Note that the 6.1 development stream supports scala 2.10.* and 2.11.* with scalaz 7.1.*.
+Note that the 6.2 development stream supports scala 2.10.* and 2.11.* with scalaz 7.1.*.
 
 
 ### Release
