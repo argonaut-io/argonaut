@@ -176,7 +176,7 @@ sealed abstract class Cursor extends Product with Serializable {
     def r(c: Option[Cursor]): Option[Cursor] =
       c match {
         case None => None
-        case Some(w) => r(if(p(w.focus)) Some(w) else w.left)
+        case Some(w) => if (p(w.focus)) Some(w) else r(w.left)
       }
 
     r(left)

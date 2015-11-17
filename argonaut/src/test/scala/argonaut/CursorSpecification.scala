@@ -31,6 +31,8 @@ object CursorSpecification extends Specification with ScalaCheck {
     downAt                                     $downAt
     first                                      $first
     last                                       $last
+    leftAt                                     $leftAt
+    left                                       $left
     rightAt                                    $rightAt
     right                                      $right
     right is same as rightN(1)                 $rightOne
@@ -58,6 +60,12 @@ object CursorSpecification extends Specification with ScalaCheck {
 
   def last = prop((ys: List[Json], x: Json, xs: List[Json], z: Json) =>
     jArray(ys ::: (x :: xs) ::: List(z)).cursor.downAt(_ == x).flatMap(_.last).map(_.focus) must_== Some(z))
+
+  def leftAt = prop((xx: Json, x: Json, xs: List[Json]) =>
+    jArray(xx :: x :: xs).cursor.downN(1).flatMap(_.leftAt(_ => true)).map(_.focus) must_== Some(xx))
+
+  def left = prop((xx: Json, x: Json, xs: List[Json]) =>
+    jArray(xx :: x :: xs).cursor.downN(1).flatMap(_.left).map(_.focus) must_== Some(xx))
 
   def rightAt = prop((xx: Json, x: Json, xs: List[Json]) =>
     jArray(xx :: x :: xs).cursor.downArray.flatMap(_.rightAt(_ => true)).map(_.focus) must_== Some(x))
