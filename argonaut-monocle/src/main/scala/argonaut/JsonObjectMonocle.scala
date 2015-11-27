@@ -19,7 +19,7 @@ trait JsonObjectMonocles {
     }
   }
 
-  implicit val jObjectAt = new At[JsonObject, JsonField, Json]{
+  implicit val jObjectAt = new At[JsonObject, JsonField, Option[Json]]{
     def at(field: JsonField): Lens[JsonObject, Option[Json]] =
       monocle.Lens[JsonObject, Option[Json]](_.apply(field))( optVal => jObj =>
         optVal.fold(jObj - field)(value => jObj + (field, value))

@@ -1,9 +1,10 @@
 package argonaut
 
-import monocle.{Prism, Traversal, Lens}
-import monocle.function._
-import Json._
-import scalaz._, Scalaz._
+import argonaut.Json._
+import monocle.{Prism, Traversal}
+import monocle.function.Plated
+
+import scalaz._, scalaz.Scalaz._
 
 object JsonMonocle extends JsonMonocles
 
@@ -97,5 +98,19 @@ trait JsonMonocles {
         o => Some(o))
     )(jObject)
 
+  implicit lazy val jsonPlated: Plated[Json] = new Plated[Json] {
+    val plate: Traversal[Json, Json] = new Traversal[Json, Json] {
+      def modifyF[F[_]](f: Json => F[Json])(a: Json)(implicit F: Applicative[F]): F[Json] = {
+        a.fold(
+          F.pure(a),
+          b => F.pure(jBool(b)),
+          n => F.pure(jNumber(n)),
+          s => F.pure(jString(s)),
+          _.traverse(f).map(jArray),
+          JsonObjectScalaz.traverse(_, f).map(jObject)
+        )
+      }
+    }
+  }
 
 }
