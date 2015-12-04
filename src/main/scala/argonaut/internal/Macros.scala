@@ -32,8 +32,8 @@ object Macros extends MacrosCompat {
           getDeclaration(c)(tpe, field.name).typeSignature
         }
         val fieldCount = fieldNames.size
-        val invocations = decodedNames.map{fieldName => 
-          val termName = createTermName(c)(fieldName)
+        val invocations = fieldNames.map{fieldName =>
+          val termName = createTermName(c)(fieldName.toString)
           q"toEncode.$termName"
         }
         val methodName = createTermName(c)("jencode" + (fieldCount.toString) + "L")
@@ -62,12 +62,12 @@ object Macros extends MacrosCompat {
           getDeclaration(c)(tpe, field.name).typeSignature
         }
         val fieldCount = fieldNames.size
-        val functionParameters = decodedNames.zip(fieldTypes).map{case (fieldName, fieldType) =>
-          val termName = createTermName(c)(fieldName)
+        val functionParameters = fieldNames.zip(fieldTypes).map{case (fieldName, fieldType) =>
+          val termName = createTermName(c)(fieldName.toString)
           q"$termName: $fieldType"
         }
-        val parameters = decodedNames.map{fieldName =>
-          val termName = createTermName(c)(fieldName)
+        val parameters = fieldNames.map{fieldName =>
+          val termName = createTermName(c)(fieldName.toString)
           q"$termName"
         }
         val methodName = createTermName(c)("jdecode" + (fieldCount.toString) + "L")

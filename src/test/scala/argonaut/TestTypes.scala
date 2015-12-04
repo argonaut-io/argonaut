@@ -7,7 +7,7 @@ import org.specs2._, org.specs2.specification._
 case class Product(name: String, price: Double)
 case class OrderLine(product: Product, quantity: Int)
 case class Order(orderLines: Vector[OrderLine])
-case class Person(name: String, age: Int, orders: Vector[Order], addressFields: Map[String, String])
+case class Person(`full.name`: String, age: Int, orders: Vector[Order], addressFields: Map[String, String])
 
 sealed trait Shape
 case class Circle(radius: Int) extends Shape
