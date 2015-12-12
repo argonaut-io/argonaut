@@ -24,9 +24,6 @@ object CodecSpecification extends Specification with ScalaCheck {
     List[Double] encode/decode ${encodedecode[List[Double]]}
     Vector[String] encode/decode ${encodedecode[Vector[String]]}
     Stream[String] encode/decode ${encodedecode[Stream[String]]}
-    SortedSet[String] encode/decode ${encodedecode[SortedSet[String]]}
-    SortedSet[Int] encode/decode ${encodedecode[SortedSet[Int]]}
-    ArrayBuffer[String] encode/decode ${encodedecode[ArrayBuffer[String]]}
     String encode/decode ${encodedecode[String]}
     Double encode/decode ${encodedecode[Double]}
     Float encode/decode ${encodedecode[Float]}
@@ -47,7 +44,6 @@ object CodecSpecification extends Specification with ScalaCheck {
     Option[String] encode/decode ${encodedecode[Option[String]]}
     Either[String, Int] encode/decode ${encodedecode[Either[String, Int]]}
     Map[String, Int] encode/decode ${encodedecode[Map[String, Int]]}
-    SortedMap[String, Int] encode/decode ${encodedecode[SortedMap[String, Int]]}
     Set[String] encode/decode ${encodedecode[Set[String]]}
     Tuple2[String, Int] encode/decode ${encodedecode[Tuple2[String, Int]]}
     Tuple3[String, Int, Boolean] encode/decode ${encodedecode[Tuple3[String, Int, Boolean]]}
@@ -56,6 +52,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
     CodecJson[Person] derived ${derived.testDerivedPerson}
     CodecJson[BackTicks] derived ${derived.testDerivedBackTicks}
+    CodecJson[Shape] derived ${derived.testDerivedShape}
   """
 
   def mapArbitrary[A, B](arbitrary: Arbitrary[A])(f: A => B): Arbitrary[B] = {
@@ -123,6 +120,17 @@ object CodecSpecification extends Specification with ScalaCheck {
   object derived {
     import TestTypes._
 
+    val shapeDecodeJson: DecodeJson[Shape] = DecodeJson.derive[Circle] ||| DecodeJson.derive[Square]
+    val circleEncodeJson: EncodeJson[Circle] = EncodeJson.derive[Circle]
+    val squareEncodeJson: EncodeJson[Square] = EncodeJson.derive[Square]
+    val shapeEncodeJson: EncodeJson[Shape] = EncodeJson{shape =>
+      shape match {
+        case c: Circle => circleEncodeJson(c)
+        case s: Square => squareEncodeJson(s)
+      }
+    }
+    implicit val shapeCodecJson: CodecJson[Shape] = CodecJson.derived(shapeEncodeJson, shapeDecodeJson)
+
     implicit def ProductCodecJson: CodecJson[Product] = CodecJson.derive[Product]
     implicit def OrderLineCodecJson: CodecJson[OrderLine] = CodecJson.derive[OrderLine]
     implicit def OrderCodecJson: CodecJson[Order] = CodecJson.derive[Order]
@@ -131,5 +139,6 @@ object CodecSpecification extends Specification with ScalaCheck {
 
     def testDerivedPerson = encodedecode[Person]
     def testDerivedBackTicks = encodedecode[BackTicks]
+    def testDerivedShape = encodedecode[Shape]
   }
 }

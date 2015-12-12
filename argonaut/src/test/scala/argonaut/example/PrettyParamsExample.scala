@@ -6,7 +6,7 @@ import org.specs2._
 object PrettyParamsExample extends Specification {
 
   case class Address(street: String, number: Int, unit: Option[Int])
-  case class Person(name: String, age: Int, address: Option[Address], favouriteNumbers: Option[Seq[Int]])
+  case class Person(name: String, age: Int, address: Option[Address], favouriteNumbers: Option[List[Int]])
 
   implicit val AddressCodecJson: CodecJson[Address] = casecodec3(Address.apply, Address.unapply)("street", "number", "unit")
   implicit val PersonCodecJson: CodecJson[Person] = casecodec4(Person.apply, Person.unapply)("name", "age", "address", "favouriteNumbers")

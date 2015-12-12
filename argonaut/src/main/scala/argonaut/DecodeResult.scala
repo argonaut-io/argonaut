@@ -1,12 +1,12 @@
 package argonaut
 
-case class DecodeResult[A](result: Either[(String, CursorHistory), A]) {
+case class DecodeResult[+A](result: Either[(String, CursorHistory), A]) {
   def fold[X](
     failure: (String, CursorHistory) => X,
     value: A => X
   ): X = result.fold({case (m, h) => failure(m, h)}, value)
 
-  final def loop[X](e: (String, CursorHistory) => X, f: A => Either[X, DecodeResult[A]]): X =
+  final def loop[X, B >: A](e: (String, CursorHistory) => X, f: B => Either[X, DecodeResult[B]]): X =
     DecodeResult.loop(this, e, f)
 
   def isError: Boolean =

@@ -28,7 +28,7 @@ object JsonMonocleSpecification extends Specification with ScalaCheck {
     JsonInt         ${PrismTests(JsonMonocle.jIntPrism).all}
     JsonShort       ${PrismTests(JsonMonocle.jShortPrism).all}
     JsonByte        ${PrismTests(JsonMonocle.jBytePrism).all}
-
+  Plated
     JsonPlated      ${TraversalTests(Plated.plate[Json]).all}
   """
   

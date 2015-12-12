@@ -6,7 +6,7 @@ import scala.collection.immutable.{ SortedSet, SortedMap, MapLike }
 import scala.util.control.Exception.catching
 import Json._
 
-trait DecodeJson[A] {
+trait DecodeJson[+A] {
   /**
    * Decode the given hcursor. Alias for `decode`.
    */
@@ -68,7 +68,7 @@ trait DecodeJson[A] {
    * Build a new DecodeJson codec with the specified name.
    */
   def setName(n: String): DecodeJson[A] = {
-    DecodeJson(c => apply(c).result.fold(
+    DecodeJson[A](c => apply(c).result.fold(
       { case (_, h) => DecodeResult.fail(n, h) },
       a => DecodeResult.ok(a)
     ))
@@ -149,7 +149,7 @@ object DecodeJson extends DecodeJsons {
 trait DecodeJsons extends GeneratedDecodeJsons {
 
   def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] = {
-    DecodeJson(a => k(a.focus) match {
+    DecodeJson[A](a => k(a.focus) match {
       case None => DecodeResult.fail(e, a.history)
       case Some(w) => DecodeResult.ok(w)
     })
@@ -166,7 +166,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
 
   implicit def JsonDecodeJson: DecodeJson[Json] = decodeArr(j => j.focus)
 
-  implicit def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] = {
+  def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] = {
     DecodeJson(a =>
       a.downArray.hcursor match {
         case None => {
@@ -195,8 +195,17 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     )
   }
 
+
+  implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] = CanBuildFromDecodeJson[A, List]
+
+  implicit def VectorDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Vector[A]] = CanBuildFromDecodeJson[A, Vector]
+
+  implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] = CanBuildFromDecodeJson[A, Stream]
+
+  implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] = CanBuildFromDecodeJson[A, Set]
+
   implicit def UnitDecodeJson: DecodeJson[Unit] = {
-    DecodeJson(a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray) {
+    DecodeJson.apply[Unit](a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray) {
       DecodeResult.ok(())
     } else {
       DecodeResult.fail("Unit", a.history)
@@ -296,7 +305,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] = {
-    DecodeJson.withReattempt(a => a.success match {
+    DecodeJson.withReattempt[Option[A]](a => a.success match {
       case None => DecodeResult.ok(None)
       case Some(valid) => {
         if (valid.focus.isNull) {
@@ -309,7 +318,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def EitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Either[A, B]] = {
-    DecodeJson(a => {
+    DecodeJson[Either[A, B]](a => {
       val l = (a --\ "Left").success
       val r = (a --\ "Right").success
       (l, r) match {
@@ -320,34 +329,24 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     })
   }
 
-  implicit def MapDecodeJson[M[K, +V] <: Map[K, V], V](implicit e: DecodeJson[V], cbf: CanBuildFrom[Nothing, (String, V), M[String, V]]): DecodeJson[M[String, V]] = {
+  implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] = {
     DecodeJson(a =>
       a.fields match {
         case None => DecodeResult.fail("[V]Map[String, V]", a.history)
         case Some(s) => {
-          def spin(x: List[JsonField], acc: DecodeResult[Vector[(String, V)]]): DecodeResult[M[String, V]] =
+          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] =
             x match {
-              case Nil =>
-                acc.map { fields =>
-                  (cbf() ++= fields).result()
-                }
+              case Nil => m
               case h::t =>
-                val acc0 = for {
-                  m <- acc
-                  v <- a.get(h)(e)
-                } yield m :+ (h -> v)
-
-                if (acc0.isError) spin(Nil, acc0)
-                else spin(t, acc0)
+                spin(t, for {
+                    mm <- m
+                    v <- a.get(h)(e)
+                  } yield mm + ((h, v)))
             }
 
-          spin(s, DecodeResult.ok(Vector.empty))
+          spin(s, DecodeResult.ok(Map.empty[String, V]))
         }
       }
     )
-  }
-
-  implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] = {
-    implicitly[DecodeJson[List[A]]] map (_.toSet) setName "[A]Set[A]"
   }
 }

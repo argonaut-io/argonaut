@@ -35,6 +35,9 @@ object DecodeJsonSpecification extends Specification with ScalaCheck { def is = 
   object derived {
     import TestTypes._
 
+    implicit def ShapeDecodeJson: DecodeJson[Shape] = DecodeJson.derive[Circle] ||| DecodeJson.derive[Square]
+    DecodeJson.of[Shape]
+
     implicit def ProductDecodeJson: DecodeJson[Product] = DecodeJson.derive[Product]
     implicit def OrderLineDecodeJson: DecodeJson[OrderLine] = DecodeJson.derive[OrderLine]
     implicit def OrderDecodeJson: DecodeJson[Order] = DecodeJson.derive[Order]

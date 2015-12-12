@@ -7,7 +7,7 @@ import Json._
  *
  * @author Tony Morris
  */
-trait EncodeJson[A] {
+trait EncodeJson[-A] {
   /**
    * Encode the given value. Alias for `encode`.
    */
@@ -62,11 +62,14 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   implicit val UnitEncodeJson: EncodeJson[Unit] =
     EncodeJson(_ => jEmptyObject)
 
-  implicit def TraversableOnceEncodeJson[A0, C[_]](implicit
-    e: EncodeJson[A0],
-    is: collection.generic.IsTraversableOnce[C[A0]] { type A = A0 }
-  ): EncodeJson[C[A0]] =
-    EncodeJson(a => jArray(is.conversion(a).toList.map(e(_))))
+  implicit def ListEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[List[A]] =
+    EncodeJson(a => jArray(a.map(e(_))))
+
+  implicit def VectorEncodeJson[A](implicit e: EncodeJson[List[A]]): EncodeJson[Vector[A]] =
+    EncodeJson(a => e(a.toList))
+
+  implicit def StreamEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Stream[A]] =
+    EncodeJson(a => jArray(a.toList.map(e(_))))
 
   implicit val StringEncodeJson: EncodeJson[String] =
     EncodeJson(jString)
@@ -125,22 +128,29 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   implicit val JCharacterEncodeJson: EncodeJson[java.lang.Character] =
     EncodeJson(a => jString(a.toString))
 
-  implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] =
+  implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] = {
     EncodeJson(_ match {
       case None    => jNull
       case Some(a) => e(a)
     })
+  }
 
-  implicit def EitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Either[A, B]] =
+  implicit def EitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Either[A, B]] = {
     EncodeJson(_ match {
       case Left(a)  => jSingleObject("Left", ea(a))
       case Right(b) => jSingleObject("Right", eb(b))
     })
+  }
 
-  implicit def MapLikeEncodeJson[M[K, +V] <: Map[K, V], K, V](implicit K: EncodeJsonKey[K], e: EncodeJson[V]): EncodeJson[M[K, V]] =
+  implicit def MapEncodeJson[K, V](implicit K: EncodeJsonKey[K], e: EncodeJson[V]): EncodeJson[Map[K, V]] = {
     EncodeJson(x => jObjectAssocList(
-      x.toList map {
+      x.toList.map{
         case (k, v) => (K.toJsonKey(k), e(v))
       }
     ))
+  }
+
+  implicit def SetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Set[A]] = {
+    EncodeJson(ListEncodeJson[A].contramap((_: Set[A]).toList).apply(_))
+  }
 }

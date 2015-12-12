@@ -32,7 +32,7 @@ trait DecodeJsonScalazs {
   }
 
   implicit def IMapDecodeJson[A: DecodeJson: Order]: DecodeJson[String ==>> A] = {
-    DecodeJson.MapDecodeJson[Map, A].map(a => ==>>.fromList(a.toList)).setName("[A]==>>[String, A]")
+    DecodeJson.MapDecodeJson[A].map(a => ==>>.fromList(a.toList)).setName("[A]==>>[String, A]")
   }
 
   implicit def IListDecodeJson[A: DecodeJson]: DecodeJson[IList[A]] = {
