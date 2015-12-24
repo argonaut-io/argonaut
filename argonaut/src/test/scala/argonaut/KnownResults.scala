@@ -34,7 +34,7 @@ object KnownResults extends DataTables {
     "1E999"                                                       ! jNumber(BigDecimal("1E999"))                                                                                          |
     "1E+999"                                                      ! jNumber(BigDecimal("1E+999"))                                                                                         |
     "1E-999"                                                      ! jNumber(BigDecimal("1E-999"))                                                                                         |
-    "158699798998941697"                                          ! jNumberOrNull(158699798998941697L)
+    "158699798998941697"                                          ! jNumber(158699798998941697L)
 
   def parseFailures =
     "JSON"                                            | "parse result"                                                                           |

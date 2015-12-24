@@ -1,6 +1,8 @@
 package argonaut
 
 import Json._
+import JsonIdentity._
+import EncodeJsonNumber._
 
 /**
  * Encode an arbitrary value as a JSON value.
@@ -75,28 +77,28 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(jString)
 
   implicit val DoubleEncodeJson: EncodeJson[Double] =
-    EncodeJson(a => JsonDouble(a).asJsonOrNull)
+    EncodeJson(a => a.asPossibleJsonNumber.fold(jNull)(_.asJson))
 
   implicit val FloatEncodeJson: EncodeJson[Float] =
-    EncodeJson(a => JsonDouble(a.toDouble).asJsonOrNull)
+    EncodeJson(a => a.asPossibleJsonNumber.fold(jNull)(_.asJson))
 
   implicit val IntEncodeJson: EncodeJson[Int] =
-    EncodeJson(a => JsonLong(a.toLong).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val LongEncodeJson: EncodeJson[Long] =
-    EncodeJson(a => JsonLong(a).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val ShortEncodeJson: EncodeJson[Short] =
-    EncodeJson(a => JsonLong(a.toLong).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val ByteEncodeJson: EncodeJson[Byte] =
-    EncodeJson(a => JsonLong(a.toLong).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val BigDecimalEncodeJson: EncodeJson[BigDecimal] =
-    EncodeJson(a => JsonBigDecimal(a).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val BigIntEncodeJson: EncodeJson[BigInt] =
-    EncodeJson(a => JsonBigDecimal(BigDecimal(a, java.math.MathContext.UNLIMITED)).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val BooleanEncodeJson: EncodeJson[Boolean] =
     EncodeJson(jBool)
@@ -105,22 +107,22 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(a => jString(a.toString))
 
   implicit val JDoubleEncodeJson: EncodeJson[java.lang.Double] =
-    EncodeJson(a => JsonDouble(a.doubleValue).asJsonOrNull)
+    EncodeJson(a => a.asPossibleJsonNumber.fold(jNull)(_.asJson))
 
   implicit val JFloatEncodeJson: EncodeJson[java.lang.Float] =
-    EncodeJson(a => JsonDouble(a.floatValue.toDouble).asJsonOrNull)
+    EncodeJson(a => a.asPossibleJsonNumber.fold(jNull)(_.asJson))
 
   implicit val JIntegerEncodeJson: EncodeJson[java.lang.Integer] =
-    EncodeJson(a => JsonLong(a.intValue.toLong).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val JLongEncodeJson: EncodeJson[java.lang.Long] =
-    EncodeJson(a => JsonLong(a.longValue).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val JShortEncodeJson: EncodeJson[java.lang.Short] =
-    EncodeJson(a => JsonLong(a.shortValue.toLong).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val JByteEncodeJson: EncodeJson[java.lang.Byte] =
-    EncodeJson(a => JsonLong(a.shortValue.toByte).asJsonOrNull)
+    EncodeJson(a => a.asJsonNumber.asJson)
 
   implicit val JBooleanEncodeJson: EncodeJson[java.lang.Boolean] =
     EncodeJson(a => jBool(a.booleanValue))

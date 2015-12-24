@@ -150,7 +150,7 @@ object JsonParser {
         else {
           val numberAsString = stream.substring(position, numberEndIndex)
           JsonNumber.fromString(numberAsString) match {
-            case Some(jn) => Right((numberEndIndex, jn.asJsonOrNull))
+            case Some(jn) => Right((numberEndIndex, jn.asJson))
             case None => Left("Value [%s] cannot be parsed into a number.".format(numberAsString))
           }
         }

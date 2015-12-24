@@ -1,5 +1,8 @@
 package argonaut
 
+import JsonIdentity._
+import EncodeJsonNumber._
+
 /**
  * A data type representing possible <a href="http://www.json.org/">JSON</a> values.
  *
@@ -520,19 +523,19 @@ trait Jsons {
   /**
    * Construct a JSON value that is a number.
    */
-  def jNumber(n: Int): Json = JNumber(JsonLong(n))
+  def jNumber(n: Int): Json = JNumber(n.asJsonNumber)
 
   /**
    * Construct a JSON value that is a number.
    */
-  def jNumber(n: Long): Json = JNumber(JsonLong(n))
+  def jNumber(n: Long): Json = JNumber(n.asJsonNumber)
 
   /**
    * Construct a JSON value that is a number.
    *
    * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  def jNumber(n: Double): Option[Json] = JsonDouble(n).asJson
+  def jNumber(n: Double): Option[Json] = n.asPossibleJsonNumber.map(JNumber.apply _)
 
   /**
    * Construct a JSON value that is a number. Transforming
@@ -540,7 +543,7 @@ trait Jsons {
    * the behaviour of most browsers, but is a lossy operation
    * as you can no longer distinguish between NaN and Infinity.
    */
-  def jNumberOrNull(n: Double): Json = JsonDouble(n).asJsonOrNull
+  def jNumberOrNull(n: Double): Json = jNumber(n).getOrElse(jNull)
 
   /**
    * Construct a JSON value that is a number. Transforming
@@ -551,7 +554,7 @@ trait Jsons {
    * interoperability is unlikely without custom handling of
    * these values. See also `jNumber` and `jNumberOrNull`.
    */
-  def jNumberOrString(n: Double): Json = JsonDouble(n).asJsonOrString
+  def jNumberOrString(n: Double): Json = n.asPossibleJsonNumber.fold(jString(n.toString))(_.asJson)
 
   /**
    * Construct a JSON value that is a number.
@@ -561,7 +564,7 @@ trait Jsons {
   /**
    * Construct a JSON value that is a number.
    */
-  def jNumber(n: String): Option[Json] = JsonNumber.fromString(n).flatMap(_.asJson)
+  def jNumber(n: String): Option[Json] = JsonNumber.fromString(n).map(_.asJson)
 
   /**
    * Construct a JSON value that is a number. Transforming the Strings "NaN",
@@ -571,7 +574,7 @@ trait Jsons {
    */
   def jNumberOrNull(n: String): Option[Json] = n match {
     case "NaN" | "Infinity" | "+Infinity" | "-Infinity" => Some(jNull)
-    case _ => JsonNumber.fromString(n).flatMap(_.asJson)
+    case _ => JsonNumber.fromString(n).map(_.asJson)
   }
 
   /**
@@ -585,7 +588,7 @@ trait Jsons {
    */
   def jNumberOrString(n: String): Option[Json] = n match {
     case str @ ("NaN" | "Infinity" | "+Infinity" | "-Infinity") => Some(jString(str))
-    case _ => JsonNumber.fromString(n).flatMap(_.asJson)
+    case _ => JsonNumber.fromString(n).map(_.asJson)
   }
 
   /**

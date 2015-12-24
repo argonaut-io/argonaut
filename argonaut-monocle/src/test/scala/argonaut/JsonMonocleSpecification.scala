@@ -6,7 +6,7 @@ import argonaut.JsonObjectScalaz._
 import argonaut.JsonScalaz._
 import argonaut.JsonMonocle._
 import monocle.function.Plated
-import monocle.law.discipline.{TraversalTests, PrismTests}
+import monocle.law.discipline.{TraversalTests, PrismTests, OptionalTests}
 import org.specs2.{ScalaCheck, Specification}
 
 import scalaz.std.anyVal._
@@ -21,8 +21,8 @@ object JsonMonocleSpecification extends Specification with ScalaCheck {
     JsonArray       ${PrismTests(JsonMonocle.jArrayPrism).all}
     JsonObject      ${PrismTests(JsonMonocle.jObjectPrism).all}
     JsonBigDecimal  ${PrismTests(JsonMonocle.jBigDecimalPrism).all}
-    JsonDouble      ${PrismTests(JsonMonocle.jDoublePrism).all}
-    JsonFloat       ${PrismTests(JsonMonocle.jDoublePrism).all}
+    JsonDouble      ${OptionalTests(JsonMonocle.jDoubleOptional).all}
+    JsonFloat       ${OptionalTests(JsonMonocle.jFloatOptional).all}
     JsonBigInt      ${PrismTests(JsonMonocle.jBigIntPrism).all}
     JsonLong        ${PrismTests(JsonMonocle.jLongPrism).all}
     JsonInt         ${PrismTests(JsonMonocle.jIntPrism).all}

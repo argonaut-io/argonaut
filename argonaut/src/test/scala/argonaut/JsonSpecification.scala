@@ -28,7 +28,6 @@ object JsonSpecification extends Specification with ScalaCheck {
     effect withObject implies isObject    $effectWithObject
     Array prepend puts element on head    $arrayPrepend
     jBool isBool                          $isBool
-    jNumber isNumber                      $isNumber
     jString isString                      $isString
     jArray isArray                        $isArray
     jSingleArray is single array          $isSingleArray
@@ -69,8 +68,6 @@ object JsonSpecification extends Specification with ScalaCheck {
   def arrayPrepend = prop((j: Json, e: Json) => !j.isArray || (e -->>: j).array.map(_.head) == e.some)
 
   def isBool = prop((b: Boolean) => jBool(b).isBool)
-
-  def isNumber = prop((n: JsonNumber) => !n.isNaN && !n.isInfinity ==> n.asJsonOrNull.isNumber)
 
   def isString = prop((s: String) => jString(s).isString)
 

@@ -14,9 +14,14 @@ trait JsonIdentity[J] {
   def asJson(implicit e: EncodeJson[J]): Json = jencode
 
   /**
-    * Encode to a JSONNumber if possible.
+    * Encode to a JSONNumber.
     */
   def asJsonNumber(implicit asn: EncodeJsonNumber[J]): JsonNumber = asn.encodeJsonNumber(j)
+
+  /**
+    * Encode to a JSONNumber, wrapped in a Some if it is valid, otherwise a None.
+    */
+  def asPossibleJsonNumber(implicit asn: EncodePossibleJsonNumber[J]): Option[JsonNumber] = asn.possiblyEncodeJsonNumber(j)
 }
 
 object JsonIdentity extends JsonIdentitys

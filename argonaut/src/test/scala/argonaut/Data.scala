@@ -14,8 +14,10 @@ object Data {
   implicit val bigDecimalEq: Equal[BigDecimal] = Equal.equalA[BigDecimal]
   implicit val bigIntEq: Equal[BigInt] = Equal.equalA[BigInt]
 
+  // TODO: Add in generator for numbers that have an exponent that BigDecimal can't handle.
   val jsonNumberRepGenerator: Gen[JsonNumber] = Gen.oneOf(
-    arbitrary[Double].map(JsonDouble(_)),
+    arbitrary[List[Long]].map(ln => JsonBigDecimal(BigDecimal("0" ++ ln.filter(_ >= 0).mkString))),
+    arbitrary[Double].map(d => JsonDecimal(d.toString)),
     arbitrary[Long].map(JsonLong(_))
   )
 
@@ -26,7 +28,6 @@ object Data {
 
   val equivalentJsonNumberPair: Gen[EquivalentJsonNumberPair] = {
     def wrapInt(n: Int): Gen[JsonNumber] = Gen.oneOf(
-      JsonDouble(n),
       JsonLong(n),
       JsonBigDecimal(n),
       JsonDecimal(n.toString)
@@ -39,7 +40,6 @@ object Data {
     )
 
     def wrapDouble(n: Double): Gen[JsonNumber] = Gen.oneOf(
-      JsonDouble(n),
       JsonBigDecimal(BigDecimal(n)),
       JsonDecimal(n.toString)
     )

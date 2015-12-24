@@ -1,10 +1,10 @@
 package argonaut
 
 import argonaut.Json._
-import monocle.{Prism, Traversal}
+import monocle.{Prism, Traversal, Optional}
 import monocle.function.Plated
 
-import scalaz._, scalaz.Scalaz._
+import scalaz.{Optional => _, _}, scalaz.Scalaz._
 
 object JsonMonocle extends JsonMonocles
 
@@ -36,14 +36,16 @@ trait JsonMonocles {
     jNumberPrism composeIso JsonNumberMonocle.jNumberToBigDecimal
 
   /**
-   * A Prism for JSON number values.
-   * Note: It is an invalid Prism for NaN, +Infinity and -Infinity as they are not valid json.
+   * An Optional for JSON number values based on Doubles.
    */
-  val jDoublePrism: Prism[Json, Double] =
-    jNumberPrism composePrism JsonNumberMonocle.jNumberToDouble
+  val jDoubleOptional: Optional[Json, Double] =
+    jNumberPrism composeOptional JsonNumberMonocle.jNumberToDouble
 
-  val jFloatPrism: Prism[Json, Float] =
-    jNumberPrism composePrism JsonNumberMonocle.jNumberToFloat
+  /**
+   * An Optional for JSON number values based on Floats.
+   */
+  val jFloatOptional: Optional[Json, Float] =
+    jNumberPrism composeOptional JsonNumberMonocle.jNumberToFloat
 
   /** A Prism for JSON BigInt values. */
   val jBigIntPrism: Prism[Json, BigInt] =

@@ -215,17 +215,17 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   implicit def StringDecodeJson: DecodeJson[String] = optionDecoder(_.string, "String")
 
   implicit def DoubleDecodeJson: DecodeJson[Double] = {
-    optionDecoder(x => {
+    optionDecoder[Double](x => {
       if (x.isNull) {
         Some(Double.NaN)
       } else {
-        x.number.map(_.toDouble).orElse(x.string.flatMap(s => tryTo(s.toDouble)))
+        x.number.flatMap(_.toDouble).orElse(x.string.flatMap(s => tryTo(s.toDouble)))
       }
     }, "Double")
   }
 
   implicit def FloatDecodeJson: DecodeJson[Float] = {
-    optionDecoder(x => if(x.isNull) Some(Float.NaN) else x.number.map(_.toFloat), "Float")
+    optionDecoder(x => if(x.isNull) Some(Float.NaN) else x.number.flatMap(_.toFloat), "Float")
   }
 
   implicit def IntDecodeJson: DecodeJson[Int] = {
@@ -269,39 +269,39 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def CharDecodeJson: DecodeJson[Char] = {
-    optionDecoder(_.string flatMap (s => if(s.length == 1) Some(s(0)) else None), "Char")
+    optionDecoder(_.string.flatMap(s => if(s.length == 1) Some(s(0)) else None), "Char")
   }
 
   implicit def JDoubleDecodeJson: DecodeJson[java.lang.Double] = {
-    optionDecoder(_.number map (_.toDouble), "java.lang.Double")
+    optionDecoder(_.number.flatMap[java.lang.Double](_.toDouble.map(n => n: java.lang.Double)), "java.lang.Double")
   }
 
   implicit def JFloatDecodeJson: DecodeJson[java.lang.Float] = {
-    optionDecoder(_.number map (_.toFloat), "java.lang.Float")
+    optionDecoder(_.number.flatMap[java.lang.Float](_.toFloat.map(n => n: java.lang.Float)), "java.lang.Float")
   }
 
   implicit def JIntegerDecodeJson: DecodeJson[java.lang.Integer] = {
-    optionDecoder(_.number flatMap (s => tryTo(s.truncateToInt)), "java.lang.Integer")
+    optionDecoder(_.number.flatMap(s => tryTo(s.truncateToInt)), "java.lang.Integer")
   }
 
   implicit def JLongDecodeJson: DecodeJson[java.lang.Long] = {
-    optionDecoder(_.number flatMap (s => tryTo(s.truncateToLong)), "java.lang.Long")
+    optionDecoder(_.number.flatMap(s => tryTo(s.truncateToLong)), "java.lang.Long")
   }
 
   implicit def JShortDecodeJson: DecodeJson[java.lang.Short] = {
-    optionDecoder(_.number flatMap (s => tryTo(s.truncateToShort)), "java.lang.Short")
+    optionDecoder(_.number.flatMap(s => tryTo(s.truncateToShort)), "java.lang.Short")
   }
 
   implicit def JByteDecodeJson: DecodeJson[java.lang.Byte] = {
-    optionDecoder(_.number flatMap (s => tryTo(s.truncateToByte)), "java.lang.Byte")
+    optionDecoder(_.number.flatMap(s => tryTo(s.truncateToByte)), "java.lang.Byte")
   }
 
   implicit def JBooleanDecodeJson: DecodeJson[java.lang.Boolean] = {
-    optionDecoder(_.bool map (q => q), "java.lang.Boolean")
+    optionDecoder(_.bool.map(q => q), "java.lang.Boolean")
   }
 
   implicit def JCharacterDecodeJson: DecodeJson[java.lang.Character] = {
-    optionDecoder(_.string flatMap (s => if(s.length == 1) Some(s(0)) else None), "java.lang.Character")
+    optionDecoder(_.string.flatMap(s => if(s.length == 1) Some(s(0)) else None), "java.lang.Character")
   }
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] = {
@@ -334,16 +334,17 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       a.fields match {
         case None => DecodeResult.fail("[V]Map[String, V]", a.history)
         case Some(s) => {
-          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] =
+          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] = {
             x match {
               case Nil => m
-              case h::t =>
+              case h::t => {
                 spin(t, for {
-                    mm <- m
-                    v <- a.get(h)(e)
-                  } yield mm + ((h, v)))
+                  mm <- m
+                  v <- a.get(h)(e)
+                } yield mm + ((h, v)))
+              }
             }
-
+          }
           spin(s, DecodeResult.ok(Map.empty[String, V]))
         }
       }
