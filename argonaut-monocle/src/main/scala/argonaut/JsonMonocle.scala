@@ -38,14 +38,14 @@ trait JsonMonocles {
   /**
    * An Optional for JSON number values based on Doubles.
    */
-  val jDoubleOptional: Optional[Json, Double] =
-    jNumberPrism composeOptional JsonNumberMonocle.jNumberToDouble
+  // val jDoubleOptional: Optional[Json, Double] =
+  //   jNumberPrism composeOptional JsonNumberMonocle.jNumberToDouble
 
   /**
    * An Optional for JSON number values based on Floats.
    */
-  val jFloatOptional: Optional[Json, Float] =
-    jNumberPrism composeOptional JsonNumberMonocle.jNumberToFloat
+  // val jFloatOptional: Optional[Json, Float] =
+  //   jNumberPrism composeOptional JsonNumberMonocle.jNumberToFloat
 
   /** A Prism for JSON BigInt values. */
   val jBigIntPrism: Prism[Json, BigInt] =

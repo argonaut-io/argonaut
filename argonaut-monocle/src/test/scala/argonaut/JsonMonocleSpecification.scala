@@ -14,6 +14,9 @@ import scalaz.std.list._
 
 object JsonMonocleSpecification extends Specification with ScalaCheck {
 
+  // Retired for the moment:
+  // JsonDouble      ${OptionalTests(JsonMonocle.jDoubleOptional).all}
+  // JsonFloat       ${OptionalTests(JsonMonocle.jFloatOptional).all}
   def is = s2"""
   Prism
     JsonBoolean     ${PrismTests(JsonMonocle.jBoolPrism).all}
@@ -21,8 +24,6 @@ object JsonMonocleSpecification extends Specification with ScalaCheck {
     JsonArray       ${PrismTests(JsonMonocle.jArrayPrism).all}
     JsonObject      ${PrismTests(JsonMonocle.jObjectPrism).all}
     JsonBigDecimal  ${PrismTests(JsonMonocle.jBigDecimalPrism).all}
-    JsonDouble      ${OptionalTests(JsonMonocle.jDoubleOptional).all}
-    JsonFloat       ${OptionalTests(JsonMonocle.jFloatOptional).all}
     JsonBigInt      ${PrismTests(JsonMonocle.jBigIntPrism).all}
     JsonLong        ${PrismTests(JsonMonocle.jLongPrism).all}
     JsonInt         ${PrismTests(JsonMonocle.jIntPrism).all}
