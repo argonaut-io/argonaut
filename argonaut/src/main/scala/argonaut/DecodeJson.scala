@@ -219,13 +219,19 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       if (x.isNull) {
         Some(Double.NaN)
       } else {
-        x.number.flatMap(_.toDouble).orElse(x.string.flatMap(s => tryTo(s.toDouble)))
+        x.number.flatMap(n => tryTo(n.truncateToDouble)).orElse(x.string.flatMap(s => tryTo(s.toDouble)))
       }
     }, "Double")
   }
 
   implicit def FloatDecodeJson: DecodeJson[Float] = {
-    optionDecoder(x => if(x.isNull) Some(Float.NaN) else x.number.flatMap(_.toFloat), "Float")
+    optionDecoder[Float](x => {
+      if (x.isNull) {
+        Some(Float.NaN)
+      } else {
+        x.number.flatMap(n => tryTo(n.truncateToFloat)).orElse(x.string.flatMap(s => tryTo(s.toFloat)))
+      }
+    }, "Float")
   }
 
   implicit def IntDecodeJson: DecodeJson[Int] = {
@@ -273,11 +279,11 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def JDoubleDecodeJson: DecodeJson[java.lang.Double] = {
-    optionDecoder(_.number.flatMap[java.lang.Double](_.toDouble.map(n => n: java.lang.Double)), "java.lang.Double")
+    DoubleDecodeJson.map(d => d: java.lang.Double)
   }
 
   implicit def JFloatDecodeJson: DecodeJson[java.lang.Float] = {
-    optionDecoder(_.number.flatMap[java.lang.Float](_.toFloat.map(n => n: java.lang.Float)), "java.lang.Float")
+    FloatDecodeJson.map(f => f: java.lang.Float)
   }
 
   implicit def JIntegerDecodeJson: DecodeJson[java.lang.Integer] = {

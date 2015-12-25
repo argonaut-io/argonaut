@@ -18,8 +18,9 @@ sealed abstract class JsonNumber {
    * Returns this number as a `Double`, only if this number can be represented as a `Double`.
    */
   lazy val toDouble: Option[Double] = {
-    if (toBigDecimal.isBinaryDouble || toBigDecimal.isDecimalDouble || toBigDecimal.isExactDouble) {
-      Some(toBigDecimal.toDouble)
+    val asDouble = toBigDecimal.toDouble
+    if (BigDecimal(asDouble) == toBigDecimal) {
+      Some(asDouble)
     } else {
       None
     }
@@ -29,8 +30,9 @@ sealed abstract class JsonNumber {
    * Returns this number as a `Float`, only if this number can be represented as a `Float`.
    */
   lazy val toFloat: Option[Float] = {
-    if (toBigDecimal.isBinaryFloat || toBigDecimal.isDecimalFloat || toBigDecimal.isExactFloat) {
-      Some(toBigDecimal.toFloat)
+    val asFloat = toBigDecimal.toFloat
+    if (BigDecimal(asFloat.toDouble) == toBigDecimal) {
+      Some(asFloat)
     } else {
       None
     }
