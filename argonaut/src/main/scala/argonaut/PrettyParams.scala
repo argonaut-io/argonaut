@@ -276,7 +276,7 @@ trait PrettyParamss {
     , lbracketRight = "\n"
     , rbracketLeft = "\n"
     , rbracketRight = ""
-    , lrbracketsEmpty = "\n"
+    , lrbracketsEmpty = ""
     , arrayCommaLeft = ""
     , arrayCommaRight = "\n"
     , objectCommaLeft = ""
