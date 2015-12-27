@@ -20,8 +20,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
             |    21,
             |    0
             |  ],
-            |  "key2a" : [
-            |  ],
+            |  "key2a" : [],
             |  "key3" : null
             |}""".stripMargin,
     4 -> """|{
@@ -31,8 +30,7 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
             |        21,
             |        0
             |    ],
-            |    "key2a" : [
-            |    ],
+            |    "key2a" : [],
             |    "key3" : null
             |}""".stripMargin
   )
