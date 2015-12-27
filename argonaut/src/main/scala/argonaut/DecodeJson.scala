@@ -271,7 +271,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def BooleanDecodeJson: DecodeJson[Boolean] = {
-    optionDecoder(_.bool, "Boolean")
+    optionDecoder(x => x.bool.orElse(x.string.flatMap(s => tryTo(s.toBoolean))), "Boolean")
   }
 
   implicit def CharDecodeJson: DecodeJson[Char] = {
