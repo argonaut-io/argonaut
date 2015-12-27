@@ -34,7 +34,7 @@ Latest:
 
 Note that the 6.1.x release supports scala 2.10.* and 2.11.* with scalaz 7.1.*.
 
-Note that the 6.2 development stream supports scala 2.10.* and 2.11.* with scalaz 7.1.*.
+Note that the 6.2 development stream supports scala 2.10.* and 2.11.* with scalaz 7.2.*.
 
 
 ### Release
