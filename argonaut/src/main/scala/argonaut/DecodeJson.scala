@@ -31,6 +31,19 @@ trait DecodeJson[+A] {
   def decodeJson(j: Json): DecodeResult[A] = decode(j.hcursor)
 
   /**
+    * Transform the incoming HCursor to produce another DecodeJson instance.
+    */
+  def flatMapCursor(f: HCursor => DecodeResult[HCursor]): DecodeJson[A] = {
+    val original = this
+    new DecodeJson[A]{
+      override def decode(c: HCursor): DecodeResult[A] = for {
+        fr <- f(c)
+        result <- original.decode(fr)
+      } yield result
+    }
+  }
+
+  /**
    * Covariant functor.
    */
   def map[B](f: A => B): DecodeJson[B] = {

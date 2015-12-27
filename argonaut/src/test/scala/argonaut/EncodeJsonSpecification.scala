@@ -4,6 +4,8 @@ import org.specs2._
 import Argonaut._
 
 object EncodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
+  EncodeJson mapJson
+    Normal invocation                     ${mapJson}
   EncodeJson Witness Compilation
     Witness basics                        ${ok}
     Witness tuples                        ${ok}
@@ -12,6 +14,14 @@ object EncodeJsonSpecification extends Specification with ScalaCheck { def is = 
   EncodeJson derive
     BackTicks                             ${derived.testBackTicksEncodeJson}
 """
+
+  def mapJson = {
+    prop{(key: String, n: Int) =>
+      val json = (key, n.jencode) ->: jEmptyObject
+      val encodeJson = EncodeJson.of[Int].mapJson(j => (key, j) ->: jEmptyObject)
+      encodeJson.encode(n) must beEqualTo(json)
+    }
+  }
 
   object primitives {
     EncodeJson.of[String]

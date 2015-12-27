@@ -13,8 +13,7 @@ trait EncodeJson[-A] {
   /**
    * Encode the given value. Alias for `encode`.
    */
-  def apply(a: A): Json =
-    encode(a)
+  def apply(a: A): Json = encode(a)
 
   /**
    * Encode the given value.
@@ -24,18 +23,29 @@ trait EncodeJson[-A] {
   /**
    * Contravariant functor.
    */
-  def contramap[B](f: B => A): EncodeJson[B] =
+  def contramap[B](f: B => A): EncodeJson[B] = {
     EncodeJson(b => apply(f(b)))
+  }
+
+  /**
+   * Transform the resulting Json instance.
+   */
+  def mapJson(f: Json => Json): EncodeJson[A] = {
+    val original = this
+    new EncodeJson[A] {
+      override def encode(a: A): Json = f(original(a))
+    }
+  }
 
   /**
    * Split on this encoder and the given encoder.
    */
-  def <&>[B](x: => EncodeJson[B]): EncodeJson[Either[A, B]] =
+  def <&>[B](x: => EncodeJson[B]): EncodeJson[Either[A, B]] = {
     EncodeJson {
       case Left(a) => apply(a)
       case Right(b) => x(b)
     }
-
+  }
 }
 
 object EncodeJson extends EncodeJsons {

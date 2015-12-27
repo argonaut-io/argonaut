@@ -4,6 +4,9 @@ import org.specs2._
 import Argonaut._
 
 object DecodeJsonSpecification extends Specification with ScalaCheck { def is = s2"""
+  DecodeJson flatMapCursor
+    Successful flatMap                    ${successfulFlatMapCursor}
+    Failing flatMap                       ${failingFlatMapCursor}
   DecodeJson Witness Compilation
     Witness basics                        ${ok}
     Witness tuples                        ${ok}
@@ -12,6 +15,23 @@ object DecodeJsonSpecification extends Specification with ScalaCheck { def is = 
   DecodeJson derive
     BackTicks                             ${derived.testBackTicksDecodeJson}
 """
+
+  def successfulFlatMapCursor = {
+    prop{(key: String, n: Int) =>
+      val json = (key, n.jencode) ->: jEmptyObject
+      val decodeJson = DecodeJson.of[Int].flatMapCursor(_.get[HCursor](key))
+      decodeJson.decodeJson(json) must beEqualTo(DecodeResult.ok(n))
+    }
+  }
+
+  def failingFlatMapCursor = {
+    prop{(key: String, n: Int) =>
+      val json = (key, n.jencode) ->: jEmptyObject
+      val decodeJson = DecodeJson.of[Int].flatMapCursor(_.get[HCursor]("TOTALLYNOTLIKELYTOBERANDOMLYGENERATEDTEXT"))
+      val failure = DecodeResult.fail("Attempt to decode value on failed cursor.", CursorOp.failedOp(CursorOpDownField("TOTALLYNOTLIKELYTOBERANDOMLYGENERATEDTEXT")) +: CursorHistory.empty)
+      decodeJson.decodeJson(json) must beEqualTo(failure)
+    }
+  }
 
   object primitives {
     DecodeJson.of[String]
