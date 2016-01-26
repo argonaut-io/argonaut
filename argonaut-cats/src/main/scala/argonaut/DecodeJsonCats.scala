@@ -6,11 +6,18 @@ object DecodeJsonCats extends DecodeJsonCatss {
 }
 
 trait DecodeJsonCatss {
-  implicit def XorDecodeJson[A: DecodeJson, B: DecodeJson](implicit DE: DecodeJson[Either[A, B]]): DecodeJson[Xor[A, B]] = {
-    DE.map(Xor.fromEither(_))
+  implicit def NonEmptyListDecodeJson[A: DecodeJson](implicit DL: DecodeJson[List[A]]): DecodeJson[NonEmptyList[A]] = {
+    DL.flatMap(l =>
+      DecodeJson[NonEmptyList[A]](c => NonEmptyList.fromList(l) match {
+        case None => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
+        case Some(n) => DecodeResult.ok(n)
+      })) setName "[A]NonEmptyList[A]"
   }
 
-  implicit def ValidationDecodeJson[A, B](implicit DA: DecodeJson[A], DB: DecodeJson[B]): DecodeJson[Validated[A, B]] = {
+  implicit def StreamingEncodeJson[A: DecodeJson](implicit DL: DecodeJson[List[A]]): DecodeJson[Streaming[A]] =
+    DL.map(Streaming.fromList(_))
+
+  implicit def ValidatedDecodeJson[A, B](implicit DA: DecodeJson[A], DB: DecodeJson[B]): DecodeJson[Validated[A, B]] = {
     DecodeJson(a => {
       val l = (a --\ "Invalid").success
       val r = (a --\ "Valid").success
@@ -22,11 +29,7 @@ trait DecodeJsonCatss {
     })
   }
 
-  implicit def NonEmptyListDecodeJson[A: DecodeJson](implicit DL: DecodeJson[List[A]]): DecodeJson[NonEmptyList[A]] = {
-    DL.flatMap(l =>
-      DecodeJson[NonEmptyList[A]](c => NonEmptyList.fromList(l) match {
-        case None => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
-        case Some(n) => DecodeResult.ok(n)
-      })) setName "[A]NonEmptyList[A]"
+  implicit def XorDecodeJson[A: DecodeJson, B: DecodeJson](implicit DE: DecodeJson[Either[A, B]]): DecodeJson[Xor[A, B]] = {
+    DE.map(Xor.fromEither(_))
   }
 }
