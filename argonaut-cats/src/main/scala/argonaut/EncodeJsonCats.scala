@@ -21,14 +21,14 @@ trait EncodeJsonCatss {
   implicit def StreamingEncodeJson[A: EncodeJson]: EncodeJson[Streaming[A]] =
     fromFoldable[Streaming, A]
 
-  implicit def ValidatedEncodeJson[E, A](implicit ea: EncodeJson[E], eb: EncodeJson[A]): EncodeJson[Validated[E, A]] =
+  implicit def ValidatedEncodeJson[E, A](implicit EA: EncodeJson[E], EB: EncodeJson[A]): EncodeJson[Validated[E, A]] =
     EncodeJson(_ fold (
-      e => jSingleObject("Invalid", ea(e)), a => jSingleObject("Valid", eb(a))
+      e => jSingleObject("Invalid", EA(e)), a => jSingleObject("Valid", EB(a))
     ))
 
-  implicit def XorEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Xor[A, B]] =
+  implicit def XorEncodeJson[A, B](implicit EA: EncodeJson[A], EB: EncodeJson[B]): EncodeJson[Xor[A, B]] =
     EncodeJson(_.fold(
-      a => jSingleObject("Left", ea(a)),
-      b => jSingleObject("Right", eb(b))
+      a => jSingleObject("Left", EA(a)),
+      b => jSingleObject("Right", EB(b))
     ))
 }
