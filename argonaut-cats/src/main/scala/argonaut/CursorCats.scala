@@ -3,7 +3,9 @@ package argonaut
 import ContextCats._
 import JsonCats._
 import JsonObjectCats._
-import cats._, std.list._, syntax.eq._, syntax.show._
+import cats._
+import std.list._, std.string._
+import syntax.eq._, syntax.show._
 
 object CursorCats extends CursorCatss {
 }

@@ -1,6 +1,9 @@
 package argonaut
 
-import cats._, data._, syntax.contravariant._, syntax.eq._, syntax.show._
+import CursorHistoryCats._
+import cats._, data._
+import std.either._, std.string._
+import syntax.contravariant._, syntax.eq._, syntax.show._
 
 object DecodeResultCats extends DecodeResultCatss {
 }
@@ -22,8 +25,8 @@ trait DecodeResultCatss {
 
   type DecodeEither[A] = Either[(String, CursorHistory), A]
 
-  implicit def DecodeResultEq[A](implicit EE: Eq[DecodeEither[A]]): Eq[DecodeResult[A]] =
-    EE.on(_.toEither)
+  implicit def DecodeResultEq[A](implicit EA: Eq[A]): Eq[DecodeResult[A]] =
+    eitherEq[(String, CursorHistory), A].on(_.toEither)
 
   implicit def DecodeResultMonad: Monad[DecodeResult] = new Monad[DecodeResult] {
     def pure[A](a: A) = DecodeResult.ok(a)

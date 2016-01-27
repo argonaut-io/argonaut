@@ -28,6 +28,8 @@ object build extends Build {
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
   val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
   val cats                       = "org.spire-math"               %% "cats"                      % catsVersion
+  val catsLaw                    = "org.spire-math"               %% "cats-laws"                 % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
+  val catsTests                  = "org.spire-math"               %% "cats-tests"                % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
@@ -109,6 +111,7 @@ object build extends Build {
       name := "argonaut-cats"
       , libraryDependencies ++= Seq(
         cats
+        , catsLaw
         , scalacheck
         , specs2Scalacheck
       )
@@ -135,5 +138,5 @@ object build extends Build {
     , fork in run := true
     , publishArtifact := false
     )
-  ).aggregate(argonaut, argonautScalaz, argonautMonocle, argonautBenchmark)
+  ).aggregate(argonaut, argonautScalaz, argonautMonocle, argonautCats, argonautBenchmark)
 }
