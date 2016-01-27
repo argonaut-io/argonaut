@@ -5,7 +5,9 @@ import cats._, data._, syntax.contravariant._, syntax.eq._, syntax.show._
 object DecodeResultCats extends DecodeResultCatss {
 }
 
-trait DecodeResultCatss extends TupleInstances0 {
+trait DecodeResultCatss {
+  import TupleInstances._
+  
   @annotation.tailrec
   final def loop[A, X](d: DecodeResult[A], e: (String, CursorHistory) => X, f: A => Xor[X, DecodeResult[A]]): X = {
     if (d.isError) {
@@ -33,7 +35,9 @@ trait DecodeResultCatss extends TupleInstances0 {
     SE.contramap(_.toEither)
 }
 
-trait TupleInstances0 {
+private object TupleInstances extends TupleInstances0
+
+private trait TupleInstances0 {
 
   implicit def Tuple2Eq[A, B](implicit EA: Eq[A], EB: Eq[B]): Eq[(A, B)] = new Eq[(A, B)] {
     override def eqv(x: (A, B), y: (A, B)): Boolean = x._1 === y._1 && x._2 === y._2
