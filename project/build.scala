@@ -16,6 +16,7 @@ object build extends Build {
   val scalazVersion              = "7.2.0"
   val paradiseVersion            = "2.1.0-M5"
   val monocleVersion             = "1.3.0-SNAPSHOT"
+  val catsVersion                = "0.3.0"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
   val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.11.4"                 % "test"
@@ -26,6 +27,9 @@ object build extends Build {
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
   val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
+  val cats                       = "org.spire-math"               %% "cats"                      % catsVersion
+  val catsLaw                    = "org.spire-math"               %% "cats-laws"                 % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
+  val catsTests                  = "org.spire-math"               %% "cats-tests"                % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
@@ -100,6 +104,20 @@ object build extends Build {
     )
   ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
+  val argonautCats = Project(
+    id = "argonaut-cats"
+    , base = file("argonaut-cats")
+    , settings = commonSettings ++ Seq(
+      name := "argonaut-cats"
+      , libraryDependencies ++= Seq(
+        cats
+        , catsLaw
+        , scalacheck
+        , specs2Scalacheck
+      )
+    )
+  ).dependsOn(argonaut % "compile->compile;test->test")
+
   val argonautBenchmark = Project(
     id = "argonaut-benchmark"
   , base = file("argonaut-benchmark")
@@ -120,5 +138,5 @@ object build extends Build {
     , fork in run := true
     , publishArtifact := false
     )
-  ).aggregate(argonaut, argonautScalaz, argonautMonocle, argonautBenchmark)
+  ).aggregate(argonaut, argonautScalaz, argonautMonocle, argonautCats, argonautBenchmark)
 }
