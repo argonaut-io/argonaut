@@ -1,7 +1,7 @@
 package argonaut
 
 import Argonaut._
-import cats._, data._, std.all._
+import cats._, data._
 import cats.functor.Contravariant
 
 object EncodeJsonCats extends EncodeJsonCatss {

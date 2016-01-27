@@ -1,9 +1,8 @@
 package argonaut
 
-import argonaut.Json._
-import argonaut.JsonObject._
-import cats._
-import cats.syntax.foldable._
+import Json._
+import JsonObject._
+import cats._, syntax.foldable._
 
 object JsonObjectCats extends JsonObjectCatss {
   def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject = {
@@ -12,7 +11,7 @@ object JsonObjectCats extends JsonObjectCatss {
 }
 
 trait JsonObjectCatss {
-  implicit val JsonObjectShow = Show.fromToString[JsonObject]
+  implicit val JsonObjectEq = Eq.fromUniversalEquals[JsonObject]
 
-  implicit val JsonObjectEqual = Eq.fromUniversalEquals[JsonObject]
+  implicit val JsonObjectShow = Show.fromToString[JsonObject]
 }
