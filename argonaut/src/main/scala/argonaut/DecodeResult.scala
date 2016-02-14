@@ -41,13 +41,10 @@ case class DecodeResult[+A](result: Either[(String, CursorHistory), A]) {
     result.left.toOption
 
   def option: DecodeResult[Option[A]] =
-    result.fold(
-      { case (s, h) => h.head filter (_.succeeded) match {
-        case None => DecodeResult.ok(None)
-        case Some(_) => DecodeResult.fail(s, h)
-      }},
-      a => DecodeResult.ok(Some(a))
-    )
+    result match {
+      case Left((s, h)) => DecodeResult.fail(s, h)
+      case Right(a) => DecodeResult.ok(Some(a))
+    }
 
   def |||[AA >: A](r: => DecodeResult[AA]): DecodeResult[AA] =
     DecodeResult(result.fold(_ => r.result, _ => result))
