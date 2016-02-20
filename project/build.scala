@@ -121,7 +121,7 @@ object build extends Build {
   val argonautBenchmark = Project(
     id = "argonaut-benchmark"
   , base = file("argonaut-benchmark")
-  , settings = commonSettings ++ Seq[Sett](
+  , settings = base ++ releaseSettings ++ Seq[Sett](
       name := "argonaut-benchmark"
     , fork in run := true
     , publishArtifact := false
@@ -133,7 +133,7 @@ object build extends Build {
   val argonautParent = Project(
     id = "argonaut-parent"
   , base = file(".")
-  , settings = commonSettings ++ Seq[Sett](
+  , settings = base ++ releaseSettings ++ Seq[Sett](
       name := "argonaut-parent"
     , fork in run := true
     , publishArtifact := false
