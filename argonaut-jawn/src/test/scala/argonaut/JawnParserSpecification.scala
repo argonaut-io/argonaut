@@ -22,7 +22,7 @@ object JawnParserSpecification {
 }
 
 class JawnParserSpecification extends Specification with ScalaCheck {
-  import ParserSpec._
+  import JawnParserSpecification._
   import JawnParser.facade
 
   def is = s2"""
