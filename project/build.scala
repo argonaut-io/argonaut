@@ -24,6 +24,7 @@ object build extends Build {
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
+  val jawnParser                 = "org.spire-math"               %% "jawn-parser"               % "0.8.4"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
   val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
@@ -118,6 +119,17 @@ object build extends Build {
     )
   ).dependsOn(argonaut % "compile->compile;test->test")
 
+  val argonautJawn = Project(
+    id = "argonaut-jawn"
+  , base = file("argonaut-jawn")
+  , settings = commonSettings ++ Seq[Sett](
+      name := "argonaut-jawn"
+    , libraryDependencies ++= Seq(
+        jawnParser
+      )
+    )
+  ).dependsOn(argonaut % "compile->compile;test->test")
+
   val argonautBenchmark = Project(
     id = "argonaut-benchmark"
   , base = file("argonaut-benchmark")
@@ -138,5 +150,11 @@ object build extends Build {
     , fork in run := true
     , publishArtifact := false
     )
-  ).aggregate(argonaut, argonautScalaz, argonautMonocle, argonautCats, argonautBenchmark)
+  ).aggregate(
+    argonaut
+  , argonautScalaz
+  , argonautMonocle
+  , argonautCats
+  , argonautJawn
+  , argonautBenchmark)
 }
