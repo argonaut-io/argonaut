@@ -1,4 +1,4 @@
-6.1-M1.
+6.2-M1.
 
  * 7.2 release of scalaz.
  * Variance has been reintroduced back to types like EncodeJson and DecodeJson.
