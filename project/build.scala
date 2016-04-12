@@ -42,7 +42,7 @@ object build extends Build {
     PublishSettings.all ++
     InfoSettings.all ++
     Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
-    net.virtualvoid.sbt.graph.Plugin.graphSettings ++ Seq[Sett](
+    Seq[Sett](
       scalacOptions += "-language:_"
     , (sourceGenerators in Compile) <+= (sourceManaged in Compile) map Boilerplate.gen
     , resolvers += Resolver.sonatypeRepo("releases")
