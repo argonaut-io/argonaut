@@ -14,7 +14,7 @@ import scalaz._
 import Scalaz._
 import scalaz.scalacheck.ScalazProperties._
 import scalaz.scalacheck.ScalazArbitrary._
-import monocle.law.LensLaws
+import monocle.law.discipline.LensTests
 
 object PrettyParamsSpecification extends Specification with ScalaCheck {
   // Synthetic Equal implementations used for testing.
@@ -114,23 +114,23 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     null keys are not present when last key is null    ${noNullKeys.lastKeyNull}
   """
 
-  def lbraceLeftLens = LensLaws(PrettyParams.lbraceLeftL)
-  def lbraceRightLens = LensLaws(PrettyParams.lbraceRightL)
-  def rbraceLeftLens = LensLaws(PrettyParams.rbraceLeftL)
-  def rbraceRightLens = LensLaws(PrettyParams.rbraceRightL)
-  def lbracketLeftLens = LensLaws(PrettyParams.lbracketLeftL)
-  def lbracketRightLens = LensLaws(PrettyParams.lbracketRightL)
-  def rbracketLeftLens = LensLaws(PrettyParams.rbracketLeftL)
-  def rbracketRightLens = LensLaws(PrettyParams.rbracketRightL)
-  def lrbracketsEmptyLens = LensLaws(PrettyParams.lrbracketsEmptyL)
-  def arrayCommaLeftLens = LensLaws(PrettyParams.arrayCommaLeftL)
-  def arrayCommaRightLens = LensLaws(PrettyParams.arrayCommaRightL)
-  def objectCommaLeftLens = LensLaws(PrettyParams.objectCommaLeftL)
-  def objectCommaRightLens = LensLaws(PrettyParams.objectCommaRightL)
-  def colonLeftLens = LensLaws(PrettyParams.colonLeftL)
-  def colonRightLens = LensLaws(PrettyParams.colonRightL)
-  def preserveOrderLens = LensLaws(PrettyParams.preserveOrderL)
-  def dropNullKeysLens = LensLaws(PrettyParams.dropNullKeysL)
+  def lbraceLeftLens = LensTests(PrettyParams.lbraceLeftL).all
+  def lbraceRightLens = LensTests(PrettyParams.lbraceRightL).all
+  def rbraceLeftLens = LensTests(PrettyParams.rbraceLeftL).all
+  def rbraceRightLens = LensTests(PrettyParams.rbraceRightL).all
+  def lbracketLeftLens = LensTests(PrettyParams.lbracketLeftL).all
+  def lbracketRightLens = LensTests(PrettyParams.lbracketRightL).all
+  def rbracketLeftLens = LensTests(PrettyParams.rbracketLeftL).all
+  def rbracketRightLens = LensTests(PrettyParams.rbracketRightL).all
+  def lrbracketsEmptyLens = LensTests(PrettyParams.lrbracketsEmptyL).all
+  def arrayCommaLeftLens = LensTests(PrettyParams.arrayCommaLeftL).all
+  def arrayCommaRightLens = LensTests(PrettyParams.arrayCommaRightL).all
+  def objectCommaLeftLens = LensTests(PrettyParams.objectCommaLeftL).all
+  def objectCommaRightLens = LensTests(PrettyParams.objectCommaRightL).all
+  def colonLeftLens = LensTests(PrettyParams.colonLeftL).all
+  def colonRightLens = LensTests(PrettyParams.colonRightL).all
+  def preserveOrderLens = LensTests(PrettyParams.preserveOrderL).all
+  def dropNullKeysLens = LensTests(PrettyParams.dropNullKeysL).all
 
   def lbraceLeftIndent = prop{(indent: String) =>
     val prettyParams = PrettyParams.nospace.copy(lbraceLeft = indent)
