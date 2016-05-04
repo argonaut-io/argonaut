@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz.{Each => _, Index => _, _}, Scalaz._
+import scalaz._, Scalaz._
 import scalaz.syntax.std.option._
 
 /**
@@ -809,7 +809,7 @@ trait Jsons {
     }
   }
 
-  implicit val jObjectAt = new At[JsonObject, JsonField, Json]{
+  implicit val jObjectAt = new At[JsonObject, JsonField, Option[Json]]{
     def at(field: JsonField): Lens[JsonObject, Option[Json]] =
       monocle.Lens[JsonObject, Option[Json]](_.apply(field))( optVal => jObj =>
         optVal.fold(jObj - field)(value => jObj + (field, value))
