@@ -31,7 +31,7 @@ trait DecodeJsonScalazs {
     })
   }
 
-  implicit def IMapDecodeJson[A: DecodeJson: Order]: DecodeJson[String ==>> A] = {
+  implicit def IMapDecodeJson[A: DecodeJson]: DecodeJson[String ==>> A] = {
     DecodeJson.MapDecodeJson[A].map(a => ==>>.fromList(a.toList)).setName("[A]==>>[String, A]")
   }
 
