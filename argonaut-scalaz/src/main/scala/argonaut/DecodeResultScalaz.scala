@@ -28,10 +28,15 @@ trait DecodeResultScalazs {
   def failedResultHistoryL[A]: DecodeResult[A] @?> CursorHistory =
     ~Lens.secondLens compose failedResultL[A]
 
-  implicit def DecodeResultMonad: Monad[DecodeResult] = new Monad[DecodeResult] {
+  implicit def DecodeResultMonad: Monad[DecodeResult] with Traverse[DecodeResult] = new Monad[DecodeResult] with Traverse[DecodeResult] {
     def point[A](a: => A) = DecodeResult.ok(a)
     def bind[A, B](a: DecodeResult[A])(f: A => DecodeResult[B]) = a flatMap f
     override def map[A, B](a: DecodeResult[A])(f: A => B) = a map f
+    def traverseImpl[G[_]: Applicative, A, B](fa: DecodeResult[A])(f: A => G[B]): G[DecodeResult[B]] =
+      fa.fold(
+        (s, h) => DecodeResult.fail[B](s, h).pure[G],
+        a => f(a).map(DecodeResult.ok)
+      )
   }
 
   type DecodeEither[A] = Either[(String, CursorHistory), A]
