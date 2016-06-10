@@ -1,14 +1,28 @@
 package argonaut
 
 import argonaut.Json._
-import monocle.{Prism, Traversal, Optional}
-import monocle.function.Plated
+import argonaut.JsonObjectMonocle._
+import monocle.function.{Each, Plated}
+import monocle.std.list._
+import monocle.{Prism, Traversal}
 
-import scalaz.{Optional => _, _}, scalaz.Scalaz._
+import scalaz.Scalaz._
+import scalaz.{Optional => _, _}
 
 object JsonMonocle extends JsonMonocles
 
 trait JsonMonocles {
+  /** A Prism for JSON Null values. */
+  val jNullPrism: Prism[Json, Unit] =
+    Prism[Json, Unit](
+      _.fold(Some(()),
+        _ => None,
+        _ => None,
+        _ => None,
+        _ => None,
+        _ => None)
+    )(_ => jNull)
+
   /** A Prism for JSON boolean values. */
   val jBoolPrism: Prism[Json, JsonBoolean] =
     Prism[Json, JsonBoolean](
@@ -99,6 +113,15 @@ trait JsonMonocles {
         _ => None,
         o => Some(o))
     )(jObject)
+
+  /** a Traversal to all values of a JsonObject or JsonList */
+  val jDescendants: Traversal[Json, Json] = new Traversal[Json, Json]{
+    override def modifyF[F[_]](f: Json => F[Json])(s: Json)(implicit F: scalaz.Applicative[F]): F[Json] =
+      s.fold(F.pure(s), _ => F.pure(s), _ => F.pure(s), _ => F.pure(s),
+        arr => F.map(Each.each[List[Json], Json].modifyF(f)(arr))(Json.array(_: _*)),
+        obj => F.map(Each.each[JsonObject, Json].modifyF(f)(obj))(Json.jObject)
+      )
+  }
 
   implicit lazy val jsonPlated: Plated[Json] = new Plated[Json] {
     val plate: Traversal[Json, Json] = new Traversal[Json, Json] {

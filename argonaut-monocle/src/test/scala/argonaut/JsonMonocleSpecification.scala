@@ -19,6 +19,7 @@ object JsonMonocleSpecification extends Specification with ScalaCheck {
   // JsonFloat       ${OptionalTests(JsonMonocle.jFloatOptional).all}
   def is = s2"""
   Prism
+    JsonNull        ${PrismTests(JsonMonocle.jNullPrism).all}
     JsonBoolean     ${PrismTests(JsonMonocle.jBoolPrism).all}
     JsonNumber      ${PrismTests(JsonMonocle.jNumberPrism).all}
     JsonArray       ${PrismTests(JsonMonocle.jArrayPrism).all}
@@ -29,6 +30,7 @@ object JsonMonocleSpecification extends Specification with ScalaCheck {
     JsonInt         ${PrismTests(JsonMonocle.jIntPrism).all}
     JsonShort       ${PrismTests(JsonMonocle.jShortPrism).all}
     JsonByte        ${PrismTests(JsonMonocle.jBytePrism).all}
+    descendants     ${TraversalTests(JsonMonocle.jDescendants).all}
   Plated
     JsonPlated      ${TraversalTests(Plated.plate[Json]).all}
   """
