@@ -5,7 +5,7 @@ import org.specs2._
 
 object PolymorphicCursorExample extends Specification {
 
-  sealed trait Animal
+  sealed trait Animal extends scala.Product with Serializable
   case class Dog(name: String) extends Animal
   case class Cat(age: Int) extends Animal
 
@@ -26,7 +26,7 @@ object PolymorphicCursorExample extends Specification {
 
   def is = s2"""
     Serialize class hierarchy is possible ${
-      val dog = Dog("kutyus")
+      val dog : Animal = Dog("kutyus")
       val dogJson : String = dog.asJson.nospaces
       dogJson.decodeOption[Animal] must_== Some(dog)
     }
