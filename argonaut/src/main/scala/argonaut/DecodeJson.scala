@@ -6,7 +6,7 @@ import scala.collection.immutable.{ SortedSet, SortedMap, MapLike }
 import scala.util.control.Exception.catching
 import Json._
 
-trait DecodeJson[+A] {
+trait DecodeJson[A] {
   /**
    * Decode the given hcursor. Alias for `decode`.
    */
@@ -114,10 +114,10 @@ trait DecodeJson[+A] {
   /**
    * Choose the first succeeding decoder.
    */
-  def |||[AA >: A](x: => DecodeJson[AA]): DecodeJson[AA] = {
+  def |||[B, AA](x: => DecodeJson[B])(implicit evA: A <:< AA, evB: B <:< AA): DecodeJson[AA] = {
     DecodeJson[AA](c => {
-      val q = apply(c).map(a => a: AA)
-      q.result.fold(_ => x(c), _ => q)
+      val q = apply(c).map(evA)
+      q.result.fold(_ => x(c).map(evB), _ => q)
     })
   }
 
@@ -137,6 +137,12 @@ trait DecodeJson[+A] {
       b <- x(a2)
     } yield (a, b)
   }
+
+  /**
+   * Widen A into AA.
+   */
+  def widen[AA]()(implicit ev: A <:< AA) = map(ev)
+
 }
 
 object DecodeJson extends DecodeJsons {
