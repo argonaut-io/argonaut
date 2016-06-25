@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
+import sbtrelease.ReleasePlugin.autoImport._
 
 object PublishSettings {
   type Sett = Def.Setting[_]
@@ -11,6 +12,8 @@ object PublishSettings {
   , publishMavenStyle := true
   , publishArtifact in Test := false
   , pomIncludeRepository := { _ => false }
+  , releasePublishArtifactsAction := publishSigned.value
+  , releaseCrossBuild := true
   , licenses := Seq("BSD-3-Clause" -> url("http://www.opensource.org/licenses/BSD-3-Clause"))
   , homepage := Some(url("http://argonaut.io"))
   , autoAPIMappings := true

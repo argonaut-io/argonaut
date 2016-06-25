@@ -2,7 +2,7 @@ import sbt._
 import Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import Tools.onVersion
-import sbtrelease.ReleasePlugin._
+import sbtrelease.ReleasePlugin
 import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 
@@ -38,7 +38,7 @@ object build extends Build {
 
   val commonSettings = base ++
     ReplSettings.all ++
-    releaseSettings ++
+    ReleasePlugin.projectSettings ++
     PublishSettings.all ++
     InfoSettings.all ++
     Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
@@ -133,7 +133,7 @@ object build extends Build {
   val argonautBenchmark = Project(
     id = "argonaut-benchmark"
   , base = file("argonaut-benchmark")
-  , settings = base ++ releaseSettings ++ PublishSettings.all ++ Seq[Sett](
+  , settings = base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
       name := "argonaut-benchmark"
     , fork in run := true
     , publishArtifact := false
@@ -145,7 +145,7 @@ object build extends Build {
   val argonautParent = Project(
     id = "argonaut-parent"
   , base = file(".")
-  , settings = base ++ releaseSettings ++ PublishSettings.all ++ Seq[Sett](
+  , settings = base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
       name := "argonaut-parent"
     , fork in run := true
     , publishArtifact := false
