@@ -14,9 +14,6 @@ trait DecodeJsonCatss {
       })) setName "[A]NonEmptyList[A]"
   }
 
-  implicit def StreamingEncodeJson[A: DecodeJson](implicit DL: DecodeJson[List[A]]): DecodeJson[Streaming[A]] =
-    DL.map(Streaming.fromList(_))
-
   implicit def ValidatedDecodeJson[A, B](implicit DA: DecodeJson[A], DB: DecodeJson[B]): DecodeJson[Validated[A, B]] = {
     DecodeJson(a => {
       val l = (a --\ "Invalid").success

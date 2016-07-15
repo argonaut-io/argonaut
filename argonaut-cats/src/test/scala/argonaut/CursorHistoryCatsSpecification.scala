@@ -1,6 +1,6 @@
 package argonaut
 
-import algebra.laws.GroupLaws
+import cats.kernel.laws.GroupLaws
 import arbitrary._
 import CursorHistoryCats._
 import org.specs2.Specification

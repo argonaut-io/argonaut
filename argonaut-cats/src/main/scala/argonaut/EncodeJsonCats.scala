@@ -18,9 +18,6 @@ trait EncodeJsonCatss {
   implicit def NonEmptyListEncodeJson[A: EncodeJson]: EncodeJson[NonEmptyList[A]] =
     fromFoldable[NonEmptyList, A]
 
-  implicit def StreamingEncodeJson[A: EncodeJson]: EncodeJson[Streaming[A]] =
-    fromFoldable[Streaming, A]
-
   implicit def ValidatedEncodeJson[E, A](implicit EA: EncodeJson[E], EB: EncodeJson[A]): EncodeJson[Validated[E, A]] =
     EncodeJson(_ fold (
       e => jSingleObject("Invalid", EA(e)), a => jSingleObject("Valid", EB(a))
