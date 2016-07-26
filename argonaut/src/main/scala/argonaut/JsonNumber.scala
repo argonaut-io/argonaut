@@ -410,7 +410,7 @@ object EncodeJsonNumber {
   }
   implicit val encodeJsonNumberFloat: EncodePossibleJsonNumber[Float] = new EncodePossibleJsonNumber[Float] {
     override def possiblyEncodeJsonNumber(value: Float): Option[JsonNumber] = {
-      if (value.isInfinity || value.isNaN) {
+      if (value.isInfinity || java.lang.Float.isNaN(value)) {
         None
       } else {
         Some(new JsonDecimal(value.toString))
@@ -419,7 +419,7 @@ object EncodeJsonNumber {
   }
   implicit val encodeJsonNumberDouble: EncodePossibleJsonNumber[Double] = new EncodePossibleJsonNumber[Double] {
     override def possiblyEncodeJsonNumber(value: Double): Option[JsonNumber] = {
-      if (value.isInfinity || value.isNaN) {
+      if (value.isInfinity || java.lang.Double.isNaN(value)) {
         None
       } else {
         Some(new JsonDecimal(value.toString))
