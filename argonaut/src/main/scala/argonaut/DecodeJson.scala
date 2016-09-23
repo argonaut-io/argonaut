@@ -1,8 +1,6 @@
 package argonaut
 
-import scala.math.{ Ordering => ScalaOrdering }
 import scala.collection.generic.CanBuildFrom
-import scala.collection.immutable.{ SortedSet, SortedMap, MapLike }
 import scala.util.control.Exception.catching
 import Json._
 

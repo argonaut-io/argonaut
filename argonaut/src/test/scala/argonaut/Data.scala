@@ -1,9 +1,8 @@
 package argonaut
 
 import scalaz._
-import scalaz.std.list._
 import org.scalacheck.Arbitrary._
-import org.scalacheck.Gen.{frequency, choose, listOfN, const => value, oneOf}
+import org.scalacheck.Gen.{frequency, listOfN, const => value, oneOf}
 import Json._
 import org.scalacheck.{Gen, Arbitrary}
 import scala.util.Random.shuffle

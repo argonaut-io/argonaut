@@ -6,7 +6,7 @@ import argonaut.JsonObjectScalaz._
 import argonaut.JsonScalaz._
 import argonaut.JsonMonocle._
 import monocle.function.Plated
-import monocle.law.discipline.{TraversalTests, PrismTests, OptionalTests}
+import monocle.law.discipline.{TraversalTests, PrismTests}
 import org.specs2.{ScalaCheck, Specification}
 
 import scalaz.std.anyVal._

@@ -1,7 +1,6 @@
 package argonaut
 
 import org.scalacheck.Prop._
-import org.scalacheck.Properties
 import Data._
 import Argonaut._
 import org.specs2._

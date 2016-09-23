@@ -7,7 +7,6 @@ import java.math.MathContext
  * Note: Javascript numbers are 64-bit decimals.
  */
 sealed abstract class JsonNumber {
-  import Json._
 
   /**
    * Returns this number as a `BigDecimal`.

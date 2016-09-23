@@ -2,12 +2,7 @@ package argonaut
 
 import java.math.MathContext
 
-import monocle.{Iso, Prism, Optional}
-
-import scalaz.Equal
-import scalaz.syntax.std.boolean._
-import JsonIdentity._
-import EncodeJsonNumber._
+import monocle.{Iso, Prism}
 
 object JsonNumberMonocle {
   // val jNumberToDouble: Optional[JsonNumber, Double] =

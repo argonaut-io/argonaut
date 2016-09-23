@@ -1,9 +1,7 @@
 package argonaut
 
 import Data._
-import scala.collection.immutable.{ SortedSet, SortedMap }
-import scala.collection.mutable.ArrayBuffer
-import org.scalacheck._, Arbitrary._, Prop._
+import org.scalacheck._, Arbitrary._
 import org.specs2._
 
 object CodecSpecification extends Specification with ScalaCheck {

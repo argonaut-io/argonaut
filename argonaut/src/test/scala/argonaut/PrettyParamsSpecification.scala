@@ -1,10 +1,7 @@
 package argonaut
 
-import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary._
-import org.scalacheck.Prop
 import org.scalacheck.Prop._
-import org.scalacheck.Properties
 import org.scalacheck.Gen
 import Data._
 import Argonaut._

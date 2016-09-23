@@ -3,7 +3,6 @@ package argonaut
 import java.io.File
 
 import argonaut.Argonaut._
-import org.scalacheck._
 import org.specs2._
 
 object JsonFilesSpecification extends Specification with ScalaCheck {

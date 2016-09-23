@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, syntax.applicative._, syntax.either._
+import scalaz._
 
 object HCursorScalaz extends HCursorScalazs
 

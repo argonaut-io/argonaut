@@ -1,7 +1,6 @@
 package argonaut
 
 case class ACursor(either: Either[HCursor, HCursor]) {
-  import HCursor._
   import CursorOp._
   import Json._
 

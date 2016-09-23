@@ -1,8 +1,7 @@
 package argonaut
 
 import Json._
-import scalaz._, syntax.traverse._, syntax.show._
-import std.tuple._, std.string._
+import scalaz._, syntax.traverse._
 import JsonObject._, Json._
 
 object JsonObjectScalaz extends JsonObjectScalazs {

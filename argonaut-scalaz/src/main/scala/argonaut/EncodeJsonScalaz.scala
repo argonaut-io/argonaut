@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._, syntax.either._
+import scalaz._
 import Json._
 
 object EncodeJsonScalaz extends EncodeJsonScalazs {

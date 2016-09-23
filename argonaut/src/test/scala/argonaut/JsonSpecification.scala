@@ -1,12 +1,9 @@
 package argonaut
 
-import org.scalacheck.Prop._
-import org.scalacheck.Properties
 import Data._
 import Json._
 import org.specs2._
 import scalaz.syntax.std.option._
-import scalaz.syntax.equal._
 
 object JsonSpecification extends Specification with ScalaCheck {
   // NOTE: List[Json] should be JsonArray, but it is failing to resolve under 2.10.0 with type alias.

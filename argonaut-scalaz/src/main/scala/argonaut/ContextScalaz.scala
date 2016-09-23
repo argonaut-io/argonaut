@@ -1,6 +1,5 @@
 package argonaut
 
-import Json._
 import scalaz._
 import std.anyVal._, std.list._, std.string._
 import syntax.show._, syntax.equal._

@@ -1,7 +1,6 @@
 package argonaut
 package benchmark
 
-import scala.io.Source
 import Argonaut._
 
 object ParserBench {
