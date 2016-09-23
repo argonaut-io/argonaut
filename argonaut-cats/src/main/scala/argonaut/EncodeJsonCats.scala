@@ -2,7 +2,7 @@ package argonaut
 
 import Argonaut._
 import cats._, data._, functor._
-import std.list._
+import instances.list._
 
 object EncodeJsonCats extends EncodeJsonCatss {
 }

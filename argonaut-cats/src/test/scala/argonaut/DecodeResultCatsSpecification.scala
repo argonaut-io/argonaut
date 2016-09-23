@@ -2,9 +2,7 @@ package argonaut
 
 import arbitrary._
 import DecodeResultCats._
-import cats.ext.std.tuple
-import cats.std.all._
-import tuple._
+import cats.instances.all._
 import cats.laws.discipline.MonadTests
 import org.scalacheck._
 import org.scalacheck.Arbitrary._

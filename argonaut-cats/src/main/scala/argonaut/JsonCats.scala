@@ -3,7 +3,7 @@ package argonaut
 import JsonNumberCats._
 import JsonObjectCats._
 import cats._
-import std.list._
+import instances.list._
 import syntax.eq._
 
 object JsonCats extends JsonCatss {

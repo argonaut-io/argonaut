@@ -2,7 +2,7 @@ package argonaut
 
 import CursorOpCats._
 import cats._
-import std.list._
+import instances.list._
 import syntax.eq._
 
 object CursorHistoryCats extends CursorHistoryCatss
