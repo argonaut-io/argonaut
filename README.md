@@ -66,10 +66,6 @@ step it is fine to enter the original build number as the next number
 
 ### Provenance
 
-Argonaut was initially developed to support products at [Ephox](http://ephox.com).
+Argonaut was initially developed to support products at [Ephox](http://ephox.com), who have now kindly relinquished control to the community.
 
 The library was open-sourced under a [BSD License](https://github.com/argonaut-io/argonaut/blob/master/LICENSE), drawing users, support and improvements from a number of contributors.
-
-The initial developers have since left the employment of Ephox and now maintain this fork `argonaut-io/argonaut`.
-
-It is expected that major releases will now come from this repository.
