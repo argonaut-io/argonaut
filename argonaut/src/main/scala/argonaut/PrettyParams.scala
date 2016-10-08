@@ -94,7 +94,7 @@ case class PrettyParams(
         if (vector.size <= i) {
           vector = vector ++ Vector.tabulate(i + 1 - vector.size)(n => f(n + vector.size))
         }
-        vector(i)
+        vector.lift(i).getOrElse(f(i))
       } else {
         ""
       }
