@@ -28,7 +28,7 @@ object build extends Build {
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
   val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
-  val cats                       = "org.typelevel"                %% "cats"                      % catsVersion
+  val cats                       = "org.typelevel"                %% "cats-core"                 % catsVersion
   val catsLaw                    = "org.typelevel"                %% "cats-laws"                 % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
   val catsTests                  = "org.typelevel"                %% "cats-tests"                % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
 
