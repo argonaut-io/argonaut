@@ -24,7 +24,7 @@ object build extends Build {
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
-  val jawnParser                 = "org.spire-math"               %% "jawn-parser"               % "0.8.4"
+  val jawnParser                 = "org.spire-math"               %% "jawn-parser"               % "0.10.1"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
   val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
