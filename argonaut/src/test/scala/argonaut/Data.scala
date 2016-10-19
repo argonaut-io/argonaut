@@ -1,10 +1,15 @@
 package argonaut
 
+import java.math.BigInteger
+
 import scalaz._
 import org.scalacheck.Arbitrary._
-import org.scalacheck.Gen.{frequency, listOfN, const => value, oneOf}
+import org.scalacheck.Gen.{frequency, listOfN, oneOf, const => value}
 import Json._
-import org.scalacheck.{Gen, Arbitrary}
+import org.scalacheck.rng.Seed
+import org.scalacheck.{Arbitrary, Cogen, Gen}
+
+import scala.annotation.tailrec
 import scala.util.Random.shuffle
 
 object Data {
@@ -12,6 +17,55 @@ object Data {
 
   implicit val bigDecimalEq: Equal[BigDecimal] = Equal.equalA[BigDecimal]
   implicit val bigIntEq: Equal[BigInt] = Equal.equalA[BigInt]
+
+  // copied from scalacheck master, will probably be available in 1.13.3
+  implicit lazy val bigInt: Cogen[BigInt] =
+    Cogen[Array[Byte]].contramap(_.toByteArray)
+
+  // copied from scalacheck master, will probably be available in 1.13.3
+  implicit lazy val bigDecimal: Cogen[BigDecimal] = {
+
+    // Normalize unscaled values and scaling factors by moving powers of ten from value to scaling factor.
+    @tailrec
+    def normalize(unscaled: BigInteger, scale: Int): (BigInteger, Int) = {
+      val divideAndRemainder = unscaled.divideAndRemainder(BigInteger.TEN)
+      val quotient = divideAndRemainder(0)
+      val remainder = divideAndRemainder(1)
+      val canNormalize = (unscaled.abs.compareTo(BigInteger.TEN) >= 0) &&
+        (remainder == BigInteger.ZERO) &&
+        (scale != Int.MaxValue) &&
+        (scale != Int.MinValue)
+      if (canNormalize) normalize(quotient, scale - 1) else (unscaled, scale)
+    }
+
+    // If the unscaled value is zero then the scaling factor doesn't matter. Otherwise perturb based on both.
+    Cogen((seed: Seed, n: BigDecimal) =>
+      if (n.bigDecimal.unscaledValue == BigInteger.ZERO)
+        Cogen[Int].perturb(seed, 0)
+      else {
+        val (unscaled, scale) = normalize(n.bigDecimal.unscaledValue, n.scale)
+        Cogen[(Int, Array[Byte])].perturb(seed, (scale, unscaled.toByteArray))
+      })
+  }
+
+//  implicit val jsonNumberCogen: Cogen[JsonNumber] =
+//    Cogen[Double].contramap[JsonNumber](_.toDouble.getOrElse(0))
+
+  implicit val jsonNumberCogen: Cogen[JsonNumber] =
+    Cogen[BigDecimal].contramap[JsonNumber](_.toBigDecimal)
+
+  implicit val jsonObjectCogen: Cogen[JsonObject] =
+    Cogen[List[(String, Json)]].contramap[JsonObject](_.toMap.toList)
+
+  implicit def jsonCogen: Cogen[Json] =
+    Cogen((seed: Seed, json: Json) => json.fold(
+      seed,
+      Cogen[Boolean].perturb(seed, _),
+      Cogen[JsonNumber].perturb(seed, _),
+      Cogen[String].perturb(seed, _),
+      Cogen[List[Json]].perturb(seed, _),
+      Cogen[JsonObject].perturb(seed, _)
+    ))
 
   // TODO: Add in generator for numbers that have an exponent that BigDecimal can't handle.
   val jsonNumberRepGenerator: Gen[JsonNumber] = Gen.oneOf(
