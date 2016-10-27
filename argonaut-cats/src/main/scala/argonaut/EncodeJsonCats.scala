@@ -21,10 +21,4 @@ trait EncodeJsonCatss {
     EncodeJson(_ fold (
       e => jSingleObject("Invalid", EA(e)), a => jSingleObject("Valid", EB(a))
     ))
-
-  implicit def XorEncodeJson[A, B](implicit EA: EncodeJson[A], EB: EncodeJson[B]): EncodeJson[Xor[A, B]] =
-    EncodeJson(_.fold(
-      a => jSingleObject("Left", EA(a)),
-      b => jSingleObject("Right", EB(b))
-    ))
 }

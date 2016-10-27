@@ -2,7 +2,6 @@ sudo: false
 language: scala
 scala:
    - 2.10.6
-   - 2.11.8
 jdk:
   - oraclejdk7
   - oraclejdk8
@@ -15,3 +14,11 @@ notifications:
     skip_join: true
     template:
       - "\x0313argonaut\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
+matrix:
+  include:
+    - jdk: oraclejdk8
+      scala: 2.12.0-RC2
+      script: sbt ++${TRAVIS_SCALA_VERSION} argonaut/test argonaut-scalaz/test argonaut-jawn/test argonaut-monocle/test argonaut-cats/test # exclude benchmark
+    - jdk: oraclejdk8
+      scala: 2.11.8
+      script: sbt ++${TRAVIS_SCALA_VERSION} test # monocle_2.11 does not support java7 https://github.com/julien-truffaut/Monocle/blob/v1.3.1/build.sbt#L32

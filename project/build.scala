@@ -13,24 +13,24 @@ object build extends Build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.2"
+  val scalazVersion              = "7.2.7"
   val paradiseVersion            = "2.1.0"
-  val monocleVersion             = "1.2.2"
-  val catsVersion                = "0.7.2"
+  val monocleVersion             = "1.3.1"
+  val catsVersion                = "0.8.0"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
-  val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % scalazVersion            % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
-  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.12.5"                 % "test"
-  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "3.6.6-scalaz-7.2.0"     % "test"
+  val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.13" % "test"
+  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.13.3"                 % "test"
+  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "3.8.5.1"                % "test"
   val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
   val liftjson                   = "net.liftweb"                  %% "lift-json"                 % "2.6-RC1"
   val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
-  val jawnParser                 = "org.spire-math"               %% "jawn-parser"               % "0.10.1"
+  val jawnParser                 = "org.spire-math"               %% "jawn-parser"               % "0.10.2"
   val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
   val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
-  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
+  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
   val cats                       = "org.typelevel"                %% "cats-core"                 % catsVersion
-  val catsLaw                    = "org.typelevel"                %% "cats-laws"                 % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
-  val catsTests                  = "org.typelevel"                %% "cats-tests"                % catsVersion              % "test" exclude("org.scalacheck", "scalacheck_2.11") exclude("org.scalacheck", "scalacheck_2.10")
+  val catsLaw                    = "org.typelevel"                %% "cats-laws"                 % catsVersion              % "test"
+  val catsTests                  = "org.typelevel"                %% "cats-tests"                % catsVersion              % "test"
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
