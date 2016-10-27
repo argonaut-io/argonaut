@@ -25,8 +25,4 @@ trait DecodeJsonCatss {
       }
     })
   }
-
-  implicit def XorDecodeJson[A: DecodeJson, B: DecodeJson](implicit DE: DecodeJson[Either[A, B]]): DecodeJson[Xor[A, B]] = {
-    DE.map(Xor.fromEither(_))
-  }
 }

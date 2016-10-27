@@ -1,7 +1,7 @@
 package argonaut
 
 import CursorHistoryCats._
-import cats._, data._
+import cats._
 import instances.tuple._
 import instances.either._, instances.string._
 import syntax.contravariant._
@@ -10,18 +10,6 @@ object DecodeResultCats extends DecodeResultCatss {
 }
 
 trait DecodeResultCatss {
-
-  @annotation.tailrec
-  final def loop[A, X](d: DecodeResult[A], e: (String, CursorHistory) => X, f: A => Xor[X, DecodeResult[A]]): X = {
-    if (d.isError) {
-      e(d.message.get, d.history.get)
-    } else {
-      f(d.value.get) match {
-        case Xor.Left(x) => x
-        case Xor.Right(a) => loop(a, e, f)
-      }
-    }
-  }
 
   type DecodeEither[A] = Either[(String, CursorHistory), A]
 
