@@ -3,7 +3,6 @@ package argonaut.benchmark
 import com.google.caliper._
 import argonaut._
 import Argonaut._
-import net.liftweb.json.{JsonParser => LiftJsonParser}
 import com.fasterxml.jackson.core.{TreeNode, JsonFactory => JacksonJsonFactory}
 
 // Stolen conveniently from
@@ -31,21 +30,9 @@ object CaliperArgonautBenchmarkRunner {
   }
 }
 
-object CaliperLiftBenchmarkRunner {
-  def main(args: Array[String]) {
-    Runner.main(classOf[CaliperLiftBenchmark], args)
-  }
-}
-
 object CaliperJacksonBenchmarkRunner {
   def main(args: Array[String]) {
-    Runner.main(classOf[CaliperLiftBenchmark], args)
-  }
-}
-
-object CaliperScalaUtilJSONBenchmarkRunner {
-  def main(args: Array[String]) {
-    Runner.main(classOf[CaliperScalaUtilJSONBenchmark], args)
+    Runner.main(classOf[CaliperJacksonBenchmark], args)
   }
 }
 
@@ -68,11 +55,6 @@ case class CaliperArgonautBenchmark() extends CaliperBenchmark {
   }
 }
 
-case class CaliperLiftBenchmark() extends CaliperBenchmark {
-  override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(LiftJsonParser.parse(json))
-  override def timenumbers(reps: Int) = repeat(reps){Thread.sleep(1); LiftJsonParser.parse("""["lift-json sucks and breaks on this benchmark."]""")}
-}
-
 object CaliperJacksonBenchmark {
   val jsonFactory = new JacksonJsonFactory()
 }
@@ -81,12 +63,6 @@ case class CaliperJacksonBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps){
     val parser = CaliperJacksonBenchmark.jsonFactory.createParser(json)
     if (parser.readValueAsTree[TreeNode]().asToken() == null) 0 else 1
-  }
-}
-
-case class CaliperScalaUtilJSONBenchmark() extends CaliperBenchmark {
-  override def repeatParse(json: String, reps: Int): Unit = repeat(reps){
-    if (scala.util.parsing.json.JSON.parseFull(json).isEmpty) 0 else 1
   }
 }
 
