@@ -6,14 +6,14 @@ object InfoSettings {
 
   def all = Seq[Sett](versioninfo)
 
-  val versioninfo = sourceGenerators in Compile <+= (sourceManaged in Compile, version, name) map { (d, v, n) =>
-    val file = d / "info.scala"
-    IO.write(file, """package argonaut
+  val versioninfo = sourceGenerators in Compile += task{
+    val file = (sourceManaged in Compile).value / "info.scala"
+    IO.write(file, s"""package argonaut
                      |object Info {
-                     |  val version = "%s"
+                     |  val version = "${version.value}"
                      |  val name = "argonaut"
                      |}
-                     |""".stripMargin.format(v))
+                     |""".stripMargin)
     Seq(file)
   }
 
