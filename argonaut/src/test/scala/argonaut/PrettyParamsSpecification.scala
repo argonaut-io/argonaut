@@ -70,6 +70,9 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
     null keys are not present when first key is null   ${noNullKeys.firstKeyNull}
     null keys are not present when middle key is null  ${noNullKeys.middleKeyNull}
     null keys are not present when last key is null    ${noNullKeys.lastKeyNull}
+
+  Parallelisation Safety
+    vectorMemo        ${testMemo(PrettyParams.vectorMemo)}
   """
 
   def lbraceLeftIndent = prop{(indent: String) =>
@@ -162,6 +165,13 @@ object PrettyParamsSpecification extends Specification with ScalaCheck {
   }
   def numberPrintingFractionalNumber = forAll(arbitrary[(Double, Double)].filter{case (first, second) => second != 0}.map(pair => pair._1 / pair._2).filter(d => d != d.floor)){d =>
     jNumberOrNull(d).nospaces === d.toString
+  }
+  def testMemo(memoFunction: (Int => String) => (Int => String)) = forAllNoShrink(Gen.choose(0, 100)){count =>
+    val f: Int => String = _.toString
+    val memo = memoFunction(f)
+    val notParallel = (1 to count).map(f).toList
+    val isParallel = (1 to count).par.map(memo).toList
+    isParallel must beEqualTo(notParallel)
   }
 
   val nullKeys = NullKey(
