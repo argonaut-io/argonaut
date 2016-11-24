@@ -43,7 +43,6 @@ object build {
     Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
     Seq[Sett](
       scalacOptions += "-language:_"
-    , (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.gen).taskValue
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
@@ -52,7 +51,7 @@ object build {
       scalacheck
     , specs2Scalacheck
     ) ++ reflect(scalaVersion.value)
-    // no mima until 6.1.0 release.
+    // no mima until 6.2.0 release.
     , previousArtifact := None
     /*
     , binaryIssueFilters ++= {

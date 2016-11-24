@@ -7,6 +7,7 @@ val argonaut = Project(
 , base = file("argonaut")
 , settings = commonSettings ++ Seq[Sett](
     name := "argonaut"
+  , (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.gen).taskValue
   , libraryDependencies ++= Seq(
         scalacheck
       , specs2Scalacheck
