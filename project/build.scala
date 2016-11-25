@@ -45,7 +45,6 @@ object build {
       scalacOptions += "-language:_"
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
-    , resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
     , autoScalaLibrary := false
     , libraryDependencies ++= Seq(
       scalacheck
