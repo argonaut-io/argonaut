@@ -34,6 +34,19 @@ val argonautMonocle = Project(
 , base = file("argonaut-monocle")
 , settings = commonSettings ++ Seq[Sett](
     name := "argonaut-monocle"
+  , scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 11)) =>
+          // https://github.com/scala/make-release-notes/blob/9cfbdc8c92f94/experimental-backend.md#emitting-java-8-style-lambdas
+          Seq(
+            "-Ybackend:GenBCode",
+            "-Ydelambdafy:method",
+            "-target:jvm-1.8"
+          )
+        case _ =>
+          Nil
+      }
+    }
   , libraryDependencies ++= Seq(
         monocle
       , monocleMacro
