@@ -94,8 +94,17 @@ sealed abstract class JsonNumber {
   /**
    * Truncates the number to a BigInt. Truncation means that we round the real
    * number towards 0 to the closest BigInt.
+   *
+   * Truncation fails for numbers whose decimal representation contains more
+   * than 2 ^ 18 digits, since creating `BigInt` values for these numbers is
+   * computationally expensive.
    */
-  def truncateToBigInt: BigInt = toBigDecimal.toBigInt
+  def truncateToBigInt: Option[BigInt] = {
+    val asBigDecimal = toBigDecimal
+    val digits = asBigDecimal.underlying.unscaledValue.abs.toString.length.toLong - asBigDecimal.scale.toLong
+
+    if (digits <= (1 << 18)) Some(asBigDecimal.toBigInt) else None
+  }
 
   /**
    * Truncates the number to a Long. Truncation means that we round the real
