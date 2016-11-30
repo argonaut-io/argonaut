@@ -18,6 +18,9 @@ object JsonNumberSpecification extends Specification with ScalaCheck {
 
     equals should
       Equivalent numbers are equal.             $equivalentNumbersAreEqual
+
+    truncateToBigInt should
+      Fail on numbers with too many digits.     $failOnLargeDecimalRepresentation
   """
 
   def longValuesProduceLongs = prop { (value: Long) =>
@@ -61,5 +64,10 @@ object JsonNumberSpecification extends Specification with ScalaCheck {
     JsonNumber.fromString("1E") must beNone
     JsonNumber.fromString("1E+") must beNone
     JsonNumber.fromString("1E-") must beNone
+  }
+
+  def failOnLargeDecimalRepresentation = {
+    JsonNumber.fromString("1e262144").map(_.truncateToBigInt) must_== Some(None)
+    JsonNumber.fromString("-1e262144").map(_.truncateToBigInt) must_== Some(None)
   }
 }

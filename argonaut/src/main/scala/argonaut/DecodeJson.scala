@@ -277,7 +277,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
 
   implicit def BigIntDecodeJson: DecodeJson[BigInt] = {
     optionDecoder(x =>
-      (x.number map (_.truncateToBigInt)).orElse(
+      (x.number flatMap (_.truncateToBigInt)).orElse(
       (x.string flatMap (s => tryTo(BigInt(s))))), "BigInt")
   }
 
