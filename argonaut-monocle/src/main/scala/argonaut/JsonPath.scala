@@ -31,6 +31,8 @@ final case class JsonPath(json: Optional[Json, Json]) extends Dynamic {
 
   def applyDynamic(field: String)(i: Int): JsonPath = selectDynamic(field).index(i)
 
+  def apply(i: Int): JsonPath = index(i)
+
   def index(i: Int): JsonPath =
     JsonPath(json composePrism jArrayPrism composeOptional Index.index(i))
 
@@ -76,6 +78,8 @@ final case class JsonTraversalPath(json: Traversal[Json, Json]) extends Dynamic 
 
   def applyDynamic(field: String)(i: Int): JsonTraversalPath = selectDynamic(field).index(i)
 
+  def apply(i: Int): JsonTraversalPath = index(i)
+
   def index(i: Int): JsonTraversalPath =
     JsonTraversalPath(json composePrism jArrayPrism composeOptional Index.index(i))
 
@@ -116,6 +120,8 @@ final case class JsonFoldPath(json: Fold[Json, Json]) extends Dynamic {
     JsonFoldPath(json composePrism jObjectPrism composeOptional Index.index(field))
 
   final def applyDynamic(field: String)(i: Int): JsonFoldPath = selectDynamic(field).index(i)
+
+  final def apply(i: Int): JsonFoldPath = index(i)
 
   final def index(i: Int): JsonFoldPath =
     JsonFoldPath(json composePrism jArrayPrism composeOptional Index.index(i))

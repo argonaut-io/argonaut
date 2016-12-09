@@ -46,6 +46,11 @@ object JsonPathSpecification extends Specification {
       root.cars(1).model.string.getOption(john) must_== Some("suv")
     }
 
+    "support traversal by array index using apply on the root" >> {
+      val jsonArray = Json.array("first".asJson, "second".asJson).asJson
+      root(0).string.getOption(jsonArray) must_== Some("first")
+    }
+
     "support insertion and deletion" >> {
       root.at("first_name").setOption(None)(john) must_== john.obj.map(_.-("first_name")).map(jObject)
       root.at("foo").set(Some(true.asJson))(john).obj.flatMap(_.apply("foo")) must_== Some(jTrue)
