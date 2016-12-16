@@ -9,6 +9,6 @@ object ACursorMonocle extends ACursorMonocles
 
 trait ACursorMonocles {
   val aCursor: Iso[ACursor, Either[HCursor, HCursor]] = GenIso[ACursor, Either[HCursor, HCursor]]
-  val success: Prism[ACursor, HCursor] = aCursor composePrism either.stdRight
-  val fail: Prism[ACursor, HCursor]    = aCursor composePrism either.stdLeft
+  val hSuccess: Prism[ACursor, HCursor] = aCursor composePrism either.stdRight
+  val hFail: Prism[ACursor, HCursor]    = aCursor composePrism either.stdLeft
 }

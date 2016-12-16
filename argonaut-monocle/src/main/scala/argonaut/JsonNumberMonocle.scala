@@ -4,7 +4,9 @@ import java.math.MathContext
 
 import monocle.{Iso, Prism}
 
-object JsonNumberMonocle {
+object JsonNumberMonocle extends JsonNumberMonocles
+
+trait JsonNumberMonocles {
   // val jNumberToDouble: Optional[JsonNumber, Double] =
   //   Optional[JsonNumber, Double](_.toDouble)(d => n => d.asPossibleJsonNumber.getOrElse(n))
 

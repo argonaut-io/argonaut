@@ -1,22 +1,15 @@
 package argonaut
 
-object ArgonautMonocle
-//  extends ArgonautMonocles
+object ArgonautMonocle extends ArgonautMonocles
 
-//trait ArgonautMonocles extends
-//ACursorMonocles with
-//CodecJsonMonocles with
-//ContextMonocles with
-//CursorMonocles with
-//CursorHistoryMonocles with
-//CursorOpMonocles with
-//CursorOpElementMonocles with
-//DecodeJsonMonocles with
-//DecodeResultMonocles with
-//EncodeJsonMonocles with
-//HCursorMonocles with
-//JsonMonocles with
-//JsonIdentityMonocles with
-//JsonObjectMonocles with
-//PrettyParamsMonocles with
-//StringWrapMonocles
+trait ArgonautMonocles extends
+  ACursorMonocles with
+  CursorHistoryMonocles with
+  CursorOpMonocles with
+  DecodeResultMonocles with
+  HCursorMonocles with
+  JsonMonocles with
+  JsonNumberMonocles with
+  JsonObjectMonocles with
+  JsonPaths with
+  PrettyParamsMonocles
