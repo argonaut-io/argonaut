@@ -3,7 +3,6 @@ package argonaut
 import argonaut.JsonMonocle._
 import argonaut.JsonObjectMonocle._
 import monocle.function.{At, FilterIndex, Index}
-import monocle.std.list._
 import monocle.{Fold, Optional, Traversal}
 
 import scala.language.dynamics

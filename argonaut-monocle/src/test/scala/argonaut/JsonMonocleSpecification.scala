@@ -1,12 +1,12 @@
 package argonaut
 
 import argonaut.Data._
+import argonaut.JsonMonocle._
 import argonaut.JsonNumberScalaz._
 import argonaut.JsonObjectScalaz._
 import argonaut.JsonScalaz._
-import argonaut.JsonMonocle._
 import monocle.function.Plated
-import monocle.law.discipline.{TraversalTests, PrismTests}
+import monocle.law.discipline.{PrismTests, TraversalTests}
 import org.specs2.{ScalaCheck, Specification}
 
 import scalaz.std.anyVal._

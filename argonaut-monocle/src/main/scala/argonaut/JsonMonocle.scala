@@ -3,11 +3,10 @@ package argonaut
 import argonaut.Json._
 import argonaut.JsonObjectMonocle._
 import monocle.function.{Each, Plated}
-import monocle.std.list._
 import monocle.{Prism, Traversal}
 
+import scalaz.Applicative
 import scalaz.Scalaz._
-import scalaz.{Optional => _, _}
 
 object JsonMonocle extends JsonMonocles
 
@@ -118,8 +117,8 @@ trait JsonMonocles {
   val jDescendants: Traversal[Json, Json] = new Traversal[Json, Json]{
     override def modifyF[F[_]](f: Json => F[Json])(s: Json)(implicit F: scalaz.Applicative[F]): F[Json] =
       s.fold(F.pure(s), _ => F.pure(s), _ => F.pure(s), _ => F.pure(s),
-        arr => F.map(Each.each[List[Json], Json].modifyF(f)(arr))(Json.array(_: _*)),
-        obj => F.map(Each.each[JsonObject, Json].modifyF(f)(obj))(Json.jObject)
+        arr => Each.each[List[Json], Json].modifyF(f)(arr).map(Json.array(_: _*)),
+        obj => Each.each[JsonObject, Json].modifyF(f)(obj).map(Json.jObject)
       )
   }
 
