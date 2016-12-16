@@ -83,7 +83,7 @@ object JsonPathSpecification extends Specification {
     }
 
     "support a safe filtering by value" >> {
-      root.cars.each.filter(root.maxSpeed.int.asFold.exist(_ > 100)(_)).model.string.getAll(john) must_== List("fancy")
+      root.cars.each.filter(root.maxSpeed.int.exist(_ > 100)).model.string.getAll(john) must_== List("fancy")
     }
 
   }
