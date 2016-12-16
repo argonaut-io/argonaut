@@ -17,7 +17,7 @@ notifications:
 matrix:
   include:
     - jdk: oraclejdk8
-      scala: 2.12.0
+      scala: 2.12.1
       script: sbt ++${TRAVIS_SCALA_VERSION} test
     - jdk: oraclejdk8
       scala: 2.11.8
