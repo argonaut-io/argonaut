@@ -15,16 +15,16 @@ object JawnParser extends SupportParser[Json] {
 
       def singleContext() = new FContext[Json] {
         var value: Json = null
-        def add(s: String) { value = jstring(s) }
-        def add(v: Json) { value = v }
+        def add(s: String) = { value = jstring(s) }
+        def add(v: Json) = { value = v }
         def finish: Json = value
         def isObj: Boolean = false
       }
 
       def arrayContext() = new FContext[Json] {
         val vs = mutable.ListBuffer.empty[Json]
-        def add(s: String) { vs += jstring(s) }
-        def add(v: Json) { vs += v }
+        def add(s: String) = { vs += jstring(s) }
+        def add(v: Json) = { vs += v }
         def finish: Json = Json.jArray(vs.toList)
         def isObj: Boolean = false
       }

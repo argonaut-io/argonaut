@@ -21,7 +21,7 @@ object ScalaSettings {
     scalaVersion := "2.11.8"
   , crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1")
   , fork in test := true
-  , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint")
+  , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint", "-Xfuture")
   , scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)){
       case Some((2, v)) if v >= 11 => unusedWarnings
     }.toList.flatten

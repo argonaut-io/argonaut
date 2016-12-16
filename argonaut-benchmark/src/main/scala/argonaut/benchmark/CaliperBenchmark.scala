@@ -25,13 +25,13 @@ trait SimpleScalaBenchmark extends SimpleBenchmark {
 }
 
 object CaliperArgonautBenchmarkRunner {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     Runner.main(classOf[CaliperArgonautBenchmark], args)
   }
 }
 
 object CaliperJacksonBenchmarkRunner {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     Runner.main(classOf[CaliperJacksonBenchmark], args)
   }
 }
@@ -67,7 +67,7 @@ case class CaliperJacksonBenchmark() extends CaliperBenchmark {
 }
 
 object ArgonautSimpleBench {
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     Thread.sleep(10000)
     (0 to 3000).foldLeft(0l){(left, right) => left + Data.example.parseOption.get.spaces4.length + right}
   }
