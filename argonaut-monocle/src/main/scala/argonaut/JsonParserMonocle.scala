@@ -1,4 +1,0 @@
-package argonaut
-
-object JsonParserMonocle {
-}

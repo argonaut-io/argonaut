@@ -51,7 +51,9 @@ final case class JsonPath(json: Optional[Json, Json]) extends Dynamic {
     json composeFold OpticsHelper.parse
 }
 
-object JsonPath {
+object JsonPath extends JsonPaths
+
+trait JsonPaths {
   val root: JsonPath = JsonPath(Optional.id)
 }
 

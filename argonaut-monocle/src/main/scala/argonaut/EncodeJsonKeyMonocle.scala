@@ -1,5 +1,0 @@
-package argonaut
-
-
-object EncodeJsonKeyMonocle {
-}
