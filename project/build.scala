@@ -15,7 +15,7 @@ object build {
 
   val scalazVersion              = "7.2.8"
   val paradiseVersion            = "2.1.0"
-  val monocleVersion             = "1.4.0-M1"
+  val monocleVersion             = "1.4.0-M2"
   val catsVersion                = "0.8.1"
   val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
   val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.13" % "test"
