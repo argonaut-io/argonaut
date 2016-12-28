@@ -16,6 +16,7 @@ object CodecSpecification extends Specification with ScalaCheck {
   Codec
     Unit encode/decode ${encodedecode[Unit]}
     Json encode/decode ${encodedecode[Json]}
+    UUID encode/decode ${encodedecode[java.util.UUID]}
     List[String] encode/decode ${encodedecode[List[String]]}
     List[Int] encode/decode ${encodedecode[List[Int]]}
     List[Long] encode/decode ${encodedecode[List[Long]]}

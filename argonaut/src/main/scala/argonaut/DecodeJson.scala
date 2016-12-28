@@ -212,6 +212,10 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     )
   }
 
+  implicit val UUIDDecodeJson: DecodeJson[java.util.UUID] = {
+    optionDecoder(_.string.flatMap(s =>
+      tryTo(java.util.UUID.fromString(s))), "UUID")
+  }
 
   implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] = CanBuildFromDecodeJson[A, List]
 
