@@ -86,6 +86,9 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   implicit val StringEncodeJson: EncodeJson[String] =
     EncodeJson(jString)
 
+  implicit val UUIDEncodeJson: EncodeJson[java.util.UUID] =
+    StringEncodeJson.contramap(_.toString)
+
   implicit val DoubleEncodeJson: EncodeJson[Double] =
     EncodeJson(a => a.asPossibleJsonNumber.fold(jNull)(_.asJson))
 
