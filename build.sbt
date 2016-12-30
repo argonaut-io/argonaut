@@ -18,6 +18,7 @@ val argonautScalaz = argonautCrossProject("argonaut-scalaz").settings(
     name := "argonaut-scalaz"
   , libraryDependencies ++= Seq(
       "org.scalaz"                   %%% "scalaz-core"               % scalazVersion
+    , "org.scalaz"                   %%% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.13" % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")

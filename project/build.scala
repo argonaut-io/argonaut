@@ -52,7 +52,6 @@ object build {
     libraryDependencies ++= Seq(
       "org.scalacheck"               %%  "scalacheck"                % scalacheckVersion        % "test"
     , "org.specs2"                   %%  "specs2-scalacheck"         % "3.8.6"                  % "test"
-    , "org.scalaz"                   %%  "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.13" % "test"
     )
   )
 
