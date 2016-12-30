@@ -3,7 +3,7 @@ import build._
 import sbtrelease.ReleasePlugin
 
 val argonaut = argonautCrossProject("argonaut").settings(
-  commonSettings ++ Seq[Sett](
+  commonSettings ++ InfoSettings.all ++ Seq[Sett](
     name := "argonaut"
   , (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.gen).taskValue
   )
