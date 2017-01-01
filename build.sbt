@@ -2,59 +2,59 @@ import Tools.onVersion
 import build._
 import sbtrelease.ReleasePlugin
 
-val argonaut = Project(
-  id = "argonaut"
-, base = file("argonaut")
-, settings = commonSettings ++ Seq[Sett](
+val argonaut = argonautCrossProject("argonaut").settings(
+  commonSettings ++ InfoSettings.all ++ Seq[Sett](
     name := "argonaut"
   , (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.gen).taskValue
-  , libraryDependencies ++= Seq(
-        scalacheck
-      , specs2Scalacheck
-    )
   )
 )
 
-val argonautScalaz = Project(
-  id = "argonaut-scalaz"
-, base = file("argonaut-scalaz")
-, settings = commonSettings ++ Seq(
+val argonautJVM = argonaut.jvm
+val argonautJS  = argonaut.js
+
+
+val argonautScalaz = argonautCrossProject("argonaut-scalaz").settings(
+  commonSettings ++ Seq(
     name := "argonaut-scalaz"
   , libraryDependencies ++= Seq(
-        scalaz
-      , scalacheck
-      , specs2Scalacheck
-      , scalazScalaCheckBinding
+      "org.scalaz"                   %%% "scalaz-core"               % scalazVersion
+    , "org.scalaz"                   %%% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.13" % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
 
-val argonautMonocle = Project(
-  id = "argonaut-monocle"
-, base = file("argonaut-monocle")
-, settings = commonSettings ++ Seq[Sett](
+val argonautScalazJVM = argonautScalaz.jvm
+val argonautScalazJS  = argonautScalaz.js
+
+
+val argonautMonocle = argonautCrossProject("argonaut-monocle").settings(
+  commonSettings ++ Seq[Sett](
     name := "argonaut-monocle"
   , libraryDependencies ++= Seq(
-        monocle
-      , monocleMacro
-      , monocleLaw
+      "com.github.julien-truffaut"   %%% "monocle-core"              % monocleVersion
+    , "com.github.julien-truffaut"   %%% "monocle-macro"             % monocleVersion
+    , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion           % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
-val argonautCats = Project(
-  id = "argonaut-cats"
-  , base = file("argonaut-cats")
-  , settings = commonSettings ++ Seq(
+val argonautMonocleJVM = argonautMonocle.jvm
+val argonautMonocleJS  = argonautMonocle.js
+
+
+val argonautCats = argonautCrossProject("argonaut-cats").settings(
+  commonSettings ++ Seq(
     name := "argonaut-cats"
-    , libraryDependencies ++= Seq(
-      cats
-      , catsLaw
-      , scalacheck
-      , specs2Scalacheck
+  , libraryDependencies ++= Seq(
+      "org.typelevel"                %%% "cats-core"                 % catsVersion
+    , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
+
+val argonautCatsJVM = argonautCats.jvm
+val argonautCatsJS  = argonautCats.js
+
 
 val argonautJawn = Project(
   id = "argonaut-jawn"
@@ -62,10 +62,11 @@ val argonautJawn = Project(
 , settings = commonSettings ++ Seq[Sett](
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      jawnParser
+      "org.spire-math"               %%  "jawn-parser"               % "0.10.3"
     )
   )
-).dependsOn(argonaut % "compile->compile;test->test")
+).dependsOn(argonautJVM % "compile->compile;test->test")
+
 
 val argonautBenchmark = Project(
   id = "argonaut-benchmark"
@@ -74,10 +75,22 @@ val argonautBenchmark = Project(
     name := "argonaut-benchmark"
   , fork in run := true
   , publishArtifact := false
-  , libraryDependencies ++= Seq(caliper, jackson)
+  , libraryDependencies ++= Seq(
+      "com.google.caliper"           %   "caliper"                   % "0.5-rc1"
+    , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.4.1.1"
+    )
   , javaOptions in run ++= ((fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }).value
   )
-).dependsOn(argonaut)
+).dependsOn(argonautJVM)
+
+
+val jsProjects = Seq[ProjectReference](
+  argonautJS, argonautScalazJS, argonautMonocleJS, argonautCatsJS
+)
+
+val jvmProjects = Seq[ProjectReference](
+  argonautJVM, argonautScalazJVM, argonautMonocleJVM, argonautCatsJVM, argonautJawn, argonautBenchmark
+)
 
 val argonautParent = Project(
   id = "argonaut-parent"
@@ -87,10 +100,4 @@ val argonautParent = Project(
   , fork in run := true
   , publishArtifact := false
   )
-).aggregate(
-  argonaut
-, argonautScalaz
-, argonautMonocle
-, argonautCats
-, argonautJawn
-, argonautBenchmark)
+, aggregate = jsProjects ++ jvmProjects)

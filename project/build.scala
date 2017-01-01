@@ -5,6 +5,7 @@ import Tools.onVersion
 import sbtrelease.ReleasePlugin
 import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
+import org.scalajs.sbtplugin.cross.{ CrossProject, CrossType }
 
 object build {
   type Sett = Def.Setting[_]
@@ -17,19 +18,7 @@ object build {
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.4.0-M2"
   val catsVersion                = "0.8.1"
-  val scalaz                     = "org.scalaz"                   %% "scalaz-core"               % scalazVersion
-  val scalazScalaCheckBinding    = "org.scalaz"                   %% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.13" % "test"
-  val scalacheck                 = "org.scalacheck"               %% "scalacheck"                % "1.13.4"                 % "test"
-  val specs2Scalacheck           = "org.specs2"                   %% "specs2-scalacheck"         % "3.8.6"                  % "test"
-  val caliper                    = "com.google.caliper"           %  "caliper"                   % "0.5-rc1"
-  val jackson                    = "com.fasterxml.jackson.core"   %  "jackson-core"              % "2.4.1.1"
-  val jawnParser                 = "org.spire-math"               %% "jawn-parser"               % "0.10.3"
-  val monocle                    = "com.github.julien-truffaut"   %% "monocle-core"              % monocleVersion
-  val monocleMacro               = "com.github.julien-truffaut"   %% "monocle-macro"             % monocleVersion
-  val monocleLaw                 = "com.github.julien-truffaut"   %% "monocle-law"               % monocleVersion           % "test"
-  val cats                       = "org.typelevel"                %% "cats-core"                 % catsVersion
-  val catsLaw                    = "org.typelevel"                %% "cats-laws"                 % catsVersion              % "test"
-  val catsTests                  = "org.typelevel"                %% "cats-tests"                % catsVersion              % "test"
+  val scalacheckVersion          = "1.13.4"
 
   def reflect(v: String)         =
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
@@ -39,17 +28,13 @@ object build {
     ReplSettings.all ++
     ReleasePlugin.projectSettings ++
     PublishSettings.all ++
-    InfoSettings.all ++
     Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
     Seq[Sett](
       scalacOptions += "-language:_"
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
-    , libraryDependencies ++= Seq(
-      scalacheck
-    , specs2Scalacheck
-    ) ++ reflect(scalaVersion.value)
+    , libraryDependencies ++= reflect(scalaVersion.value)
     // no mima until 6.2.0 release.
     , previousArtifact := None
     /*
@@ -62,4 +47,17 @@ object build {
     }
     */
   )
+
+  val jvmSettings = Seq[Sett](
+    libraryDependencies ++= Seq(
+      "org.scalacheck"               %%  "scalacheck"                % scalacheckVersion        % "test"
+    , "org.specs2"                   %%  "specs2-scalacheck"         % "3.8.6"                  % "test"
+    )
+  )
+
+  def argonautCrossProject(name: String) = {
+    CrossProject(name, file(name), CrossType.Full)
+      .settings(commonSettings)
+      .jvmSettings(jvmSettings)
+  }
 }

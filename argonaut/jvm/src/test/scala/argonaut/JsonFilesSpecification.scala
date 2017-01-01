@@ -6,7 +6,7 @@ import argonaut.Argonaut._
 import org.specs2._
 
 object JsonFilesSpecification extends Specification with ScalaCheck {
-  def find = new File("./argonaut/src/test/resources/data").listFiles.toList
+  def find = new File("./argonaut/jvm/src/test/resources/data").listFiles.toList
 
   case class JsonFile(file: File)
 
