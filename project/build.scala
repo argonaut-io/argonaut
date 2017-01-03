@@ -3,6 +3,7 @@ import Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
 import Tools.onVersion
 import sbtrelease.ReleasePlugin
+import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import org.scalajs.sbtplugin.cross.{ CrossProject, CrossType }
@@ -24,6 +25,18 @@ object build {
                                     Seq("org.scala-lang" % "scala-reflect"  % v) ++
            (if (v.contains("2.10")) Seq("org.scalamacros" %% "quasiquotes" % paradiseVersion) else Seq())
 
+  private[this] val tagName = Def.setting {
+    s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
+  }
+
+  private[this] val tagOrHash = Def.setting {
+    if(isSnapshot.value) {
+      sys.process.Process("git rev-parse HEAD").lines_!.head
+    } else {
+      tagName.value
+    }
+  }
+
   val commonSettings = base ++
     ReplSettings.all ++
     ReleasePlugin.projectSettings ++
@@ -31,6 +44,11 @@ object build {
     Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
     Seq[Sett](
       scalacOptions += "-language:_"
+    , scalacOptions in (Compile, doc) ++= {
+        val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
+        Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
+      }
+    , releaseTagName := tagName.value
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
@@ -59,5 +77,12 @@ object build {
     CrossProject(name, file(name), CrossType.Full)
       .settings(commonSettings)
       .jvmSettings(jvmSettings)
+      .jsSettings(
+        scalacOptions += {
+          val a = (baseDirectory in LocalRootProject).value.toURI.toString
+          val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
+          s"-P:scalajs:mapSourceURI:$a->$g/"
+        }
+      )
   }
 }
