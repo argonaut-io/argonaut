@@ -38,5 +38,5 @@ trait JsonObjectMonocles {
     }
   }
 
-  implicit val jObjectIndex: Index[JsonObject, JsonField, Json] = Index.atIndex
+  implicit val jObjectIndex: Index[JsonObject, JsonField, Json] = Index.fromAt
 }
