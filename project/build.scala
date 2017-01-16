@@ -18,7 +18,7 @@ object build {
   val scalazVersion              = "7.2.8"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.4.0"
-  val catsVersion                = "0.8.1"
+  val catsVersion                = "0.9.0"
   val scalacheckVersion          = "1.13.4"
 
   def reflect(v: String)         =
