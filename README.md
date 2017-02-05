@@ -14,7 +14,7 @@ Argonaut is licenced under BSD3 (see `LICENCE`). See more at [http://argonaut.io
 
 * [User Docs](http://argonaut.io/doc/)
 * [Scala Docs](http://argonaut.io/scaladocs/)
-* [Examples](https://github.com/argonaut-io/argonaut/tree/master/argonaut/src/test/scala/argonaut/example)
+* [Examples](https://github.com/argonaut-io/argonaut/tree/master/argonaut/jvm/src/test/scala/argonaut/example)
 
 
 ### SBT Settings
