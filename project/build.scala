@@ -7,6 +7,7 @@ import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import org.scalajs.sbtplugin.cross.{ CrossProject, CrossType }
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.scalaJSOptimizerOptions
 
 object build {
   type Sett = Def.Setting[_]
@@ -78,6 +79,16 @@ object build {
       .settings(commonSettings)
       .jvmSettings(jvmSettings)
       .jsSettings(
+        scalaJSOptimizerOptions ~= { options =>
+          // https://github.com/scala-js/scala-js/issues/2798
+          try {
+            scala.util.Properties.isJavaAtLeast("1.8")
+            options
+          } catch {
+            case _: NumberFormatException =>
+              options.withParallel(false)
+          }
+        },
         scalacOptions += {
           val a = (baseDirectory in LocalRootProject).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
