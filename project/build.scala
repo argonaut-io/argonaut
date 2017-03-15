@@ -22,8 +22,8 @@ object build {
   val catsVersion                = "0.9.0"
   val scalacheckVersion          = "1.13.4"
 
-  def reflect(v: String)         =
-                                    Seq("org.scala-lang" % "scala-reflect"  % v) ++
+  def reflect(o: String, v: String) =
+                                    Seq(o % "scala-reflect"  % v) ++
            (if (v.contains("2.10")) Seq("org.scalamacros" %% "quasiquotes" % paradiseVersion) else Seq())
 
   private[this] val tagName = Def.setting {
@@ -42,7 +42,7 @@ object build {
     ReplSettings.all ++
     ReleasePlugin.projectSettings ++
     PublishSettings.all ++
-    Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.full)) ++
+    Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.patch)) ++
     Seq[Sett](
       scalacOptions += "-language:_"
     , scalacOptions in (Compile, doc) ++= {
@@ -53,7 +53,7 @@ object build {
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
-    , libraryDependencies ++= reflect(scalaVersion.value)
+    , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     // no mima until 6.2.0 release.
     , previousArtifact := None
     /*
