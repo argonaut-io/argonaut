@@ -16,11 +16,11 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.8"
+  val scalazVersion              = "7.2.10"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.4.0"
   val catsVersion                = "0.9.0"
-  val scalacheckVersion          = "1.13.4"
+  val scalacheckVersion          = "1.13.5"
 
   def reflect(o: String, v: String) =
                                     Seq(o % "scala-reflect"  % v) ++
@@ -70,7 +70,7 @@ object build {
   val jvmSettings = Seq[Sett](
     libraryDependencies ++= Seq(
       "org.scalacheck"               %%  "scalacheck"                % scalacheckVersion        % "test"
-    , "org.specs2"                   %%  "specs2-scalacheck"         % "3.8.6"                  % "test"
+    , "org.specs2"                   %%  "specs2-scalacheck"         % "3.8.9"                  % "test"
     )
   )
 
