@@ -55,9 +55,9 @@ object build {
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     // no mima until 6.2.0 release.
-    , previousArtifact := None
+    , mimaPreviousArtifacts := Set()
     /*
-    , binaryIssueFilters ++= {
+    , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
       /* adding functions to sealed traits is binary incompatible from java, but ok for scala, so ignoring */
