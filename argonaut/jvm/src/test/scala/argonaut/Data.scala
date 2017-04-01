@@ -202,7 +202,7 @@ object Data {
     def buildPath(currentPath: Seq[String], original: Json, jsonValue: Json): (Seq[String], Json, Json) = {
       jsonValue match {
         case jsonObject: JObject => {
-          shuffle(jsonObject.o.toMap.toList.collect{case pair@ (innerString: String, innerValue: Json) => pair}.toList)
+          shuffle(jsonObject.o.toMap.toList.collect{case pair@ (innerString: String, innerValue: Json) => pair})
             .headOption
             .map{innerPair =>
               buildPath(currentPath :+ innerPair._1, original, innerPair._2)
