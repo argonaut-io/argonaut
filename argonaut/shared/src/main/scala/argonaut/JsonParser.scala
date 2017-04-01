@@ -31,7 +31,7 @@ object JsonParser {
   @inline
   private[this] final def excerpt(string: String, position: Int, limit: Int = 50): String = {
     val remaining = string.drop(position)
-    if (remaining.size > limit) {
+    if (remaining.length > limit) {
       remaining.take(limit) + "..."
     } else {
       remaining
