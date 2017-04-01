@@ -53,9 +53,9 @@ object ACursorSpecification extends Specification with ScalaCheck {
       case Last =>
         start.last
       case Down =>
-        if (start.focus.map(_.isObject).getOrElse(false))
+        if (start.focus.exists(_.isObject))
           withField(start, _.downField(_))
-        else if (start.focus.map(_.isArray).getOrElse(false))
+        else if (start.focus.exists(_.isArray))
           start.downArray
         else
           start
