@@ -15,11 +15,13 @@ notifications:
     skip_join: true
     template:
       - "\x0313argonaut\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
+script:
+- sbt ++${TRAVIS_SCALA_VERSION} mimaReportBinaryIssues test
 matrix:
   include:
     - jdk: oraclejdk8
       scala: 2.12.1
-      script: sbt ++${TRAVIS_SCALA_VERSION} test
+      script: sbt ++${TRAVIS_SCALA_VERSION} mimaReportBinaryIssues test
     - dist: trusty
       group: edge
       sudo: required
@@ -38,4 +40,4 @@ matrix:
       - cd ..
       - echo "sbt.version=0.13.14-RC1" > project/build.properties
       - wget https://raw.githubusercontent.com/paulp/sbt-extras/9ade5fa54914ca8aded44105bf4b9a60966f3ccd/sbt && chmod +x ./sbt
-      - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext ++$TRAVIS_SCALA_VERSION test
+      - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext ++$TRAVIS_SCALA_VERSION mimaReportBinaryIssues test

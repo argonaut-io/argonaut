@@ -7,7 +7,7 @@ import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import org.scalajs.sbtplugin.cross.{ CrossProject, CrossType }
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.scalaJSOptimizerOptions
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.{isScalaJSProject, scalaJSOptimizerOptions}
 
 object build {
   type Sett = Def.Setting[_]
@@ -54,9 +54,16 @@ object build {
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    // no mima until 6.2.0 release.
-    , mimaPreviousArtifacts := Set()
-    /*
+    , mimaPreviousArtifacts := {
+        val baseName =
+          if(isScalaJSProject.value) {
+            s"${name.value}_sjs0.6"
+          } else {
+            s"${name.value}"
+          }
+
+        Set(organization.value %% baseName % "6.2")
+      }
     , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
@@ -64,7 +71,6 @@ object build {
       Seq(
       ) map exclude[MissingMethodProblem]
     }
-    */
   )
 
   val jvmSettings = Seq[Sett](
