@@ -4,7 +4,7 @@ import scala.util.control.Exception.catching
 import scalaz._, Scalaz._
 import Json._
 
-trait DecodeJson[+A] {
+trait DecodeJson[A] {
   /**
    * Decode the given hcursor. Alias for `decode`.
    */
@@ -82,7 +82,7 @@ trait DecodeJson[+A] {
   /**
    * Choose the first succeeding decoder.
    */
-  def |||[AA >: A](x: => DecodeJson[AA]): DecodeJson[AA] =
+  def |||(x: => DecodeJson[A]): DecodeJson[A] =
     DecodeJson(c => {
       val q = apply(c)
       q.result.fold(_ => x(c), _ => q)

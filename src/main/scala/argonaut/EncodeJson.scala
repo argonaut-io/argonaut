@@ -9,7 +9,7 @@ import Json._
  *
  * @author Tony Morris
  */
-trait EncodeJson[-A] {
+trait EncodeJson[A] {
   /**
    * Encode the given value. Alias for `encode`.
    */
