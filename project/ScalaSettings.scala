@@ -18,8 +18,8 @@ object ScalaSettings {
     }
 
   lazy val all: Seq[Sett] = Seq(
-    scalaVersion := "2.11.8"
-  , crossScalaVersions := Seq("2.10.6", "2.11.8", "2.12.1")
+    scalaVersion := "2.11.11"
+  , crossScalaVersions := Seq("2.10.6", "2.11.11", "2.12.2")
   , fork in test := true
   , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint", "-Xfuture")
   , scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)){
