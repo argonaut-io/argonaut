@@ -6,8 +6,11 @@ import sbtrelease.ReleasePlugin
 import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
-import org.scalajs.sbtplugin.cross.{ CrossProject, CrossType }
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.scalaJSOptimizerOptions
+import sbtcrossproject.{CrossProject, Platform}
+import sbtcrossproject.CrossPlugin.autoImport._
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
+import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 
 object build {
   type Sett = Def.Setting[_]
@@ -37,6 +40,14 @@ object build {
       tagName.value
     }
   }
+
+  def nativeTestId = "nativeTest"
+  def nativeParentId = "nativeParent"
+
+  val nativeSettings = Seq(
+      scalaVersion := ScalaSettings.Scala211
+    , crossScalaVersions := ScalaSettings.Scala211 :: Nil
+  )
 
   val commonSettings = base ++
     ReplSettings.all ++
@@ -74,8 +85,8 @@ object build {
     )
   )
 
-  def argonautCrossProject(name: String) = {
-    CrossProject(name, file(name), CrossType.Full)
+  def argonautCrossProject(name: String, platforms: Seq[Platform]) = {
+    val p = CrossProject(name, file(name), CrossType.Full, platforms: _*)
       .settings(commonSettings)
       .jvmSettings(jvmSettings)
       .jsSettings(
@@ -95,5 +106,10 @@ object build {
           s"-P:scalajs:mapSourceURI:$a->$g/"
         }
       )
+
+    if (platforms.contains(NativePlatform))
+      p.nativeSettings(nativeSettings)
+    else
+      p
   }
 }
