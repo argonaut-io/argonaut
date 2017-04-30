@@ -87,14 +87,14 @@ case class PrettyParams(
   }
 
   // TODO: Vector based memoisation.
-  private[this] final val lbraceMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(_lbraceLeft(depth), openBraceText, _lbraceRight(depth + 1))}
-  private[this] final val rbraceMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(_rbraceLeft(depth), closeBraceText, _rbraceRight(depth + 1))}
-  private[this] final val lbracketMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(_lbracketLeft(depth), openArrayText, _lbracketRight(depth + 1))}
-  private[this] final val rbracketMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(_rbracketLeft(depth), closeArrayText, _rbracketRight(depth))}
-  private[this] final val lrbracketsEmptyMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(openArrayText, _lrbracketsEmpty(depth), closeArrayText)}
-  private[this] final val arrayCommaMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(_arrayCommaLeft(depth + 1), commaText, _arrayCommaRight(depth + 1))}
-  private[this] final val objectCommaMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(_objectCommaLeft(depth + 1), commaText, _objectCommaRight(depth + 1))}
-  private[this] final val colonMemo = PrettyParams.vectorMemo{depth: Int => "%s%s%s".format(_colonLeft(depth + 1), colonText, _colonRight(depth + 1))}
+  private[this] final val lbraceMemo = PrettyParams.vectorMemo{depth: Int => _lbraceLeft(depth) + openBraceText + _lbraceRight(depth + 1)}
+  private[this] final val rbraceMemo = PrettyParams.vectorMemo{depth: Int => _rbraceLeft(depth) + closeBraceText + _rbraceRight(depth + 1)}
+  private[this] final val lbracketMemo = PrettyParams.vectorMemo{depth: Int => _lbracketLeft(depth) + openArrayText + _lbracketRight(depth + 1)}
+  private[this] final val rbracketMemo = PrettyParams.vectorMemo{depth: Int => _rbracketLeft(depth) + closeArrayText + _rbracketRight(depth)}
+  private[this] final val lrbracketsEmptyMemo = PrettyParams.vectorMemo{depth: Int => openArrayText + _lrbracketsEmpty(depth) + closeArrayText}
+  private[this] final val arrayCommaMemo = PrettyParams.vectorMemo{depth: Int => _arrayCommaLeft(depth + 1) + commaText + _arrayCommaRight(depth + 1)}
+  private[this] final val objectCommaMemo = PrettyParams.vectorMemo{depth: Int => _objectCommaLeft(depth + 1) + commaText + _objectCommaRight(depth + 1)}
+  private[this] final val colonMemo = PrettyParams.vectorMemo{depth: Int => _colonLeft(depth + 1) + colonText + _colonRight(depth + 1)}
 
   /**
    * Returns a string representation of a pretty-printed JSON value.

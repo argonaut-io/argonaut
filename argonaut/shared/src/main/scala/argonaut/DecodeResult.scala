@@ -49,7 +49,7 @@ case class DecodeResult[A](result: Either[(String, CursorHistory), A]) {
   def |||[AA >: A](r: => DecodeResult[AA]): DecodeResult[AA] =
     DecodeResult(result.fold(_ => r.result, _ => result))
 
-  override def toString(): String = "DecodeResult(%s)".format(result)
+  override def toString(): String = s"DecodeResult(${result})"
 }
 
 object DecodeResult extends DecodeResults {

@@ -36,7 +36,7 @@ case class CursorHistory(toList: List[CursorOp]) {
   def acursor(c: Cursor): ACursor =
     ACursor.ok(HCursor(c, this))
 
-  override def toString(): String = "CursorHistory(%s)".format(toList.toString)
+  override def toString(): String = s"CursorHistory(${toList.toString})"
 }
 
 object CursorHistory extends CursorHistorys
