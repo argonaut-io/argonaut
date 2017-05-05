@@ -20,6 +20,9 @@ matrix:
     - jdk: oraclejdk8
       scala: 2.12.2
       script: sbt ++${TRAVIS_SCALA_VERSION} test
+    - jdk: oraclejdk8
+      scala: 2.13.0-M1
+      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJS/compile
     - dist: trusty
       group: edge
       sudo: required
