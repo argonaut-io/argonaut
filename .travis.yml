@@ -6,7 +6,6 @@ scala:
 jdk:
   - oraclejdk7
   - oraclejdk8
-  - openjdk6
   - openjdk7
 notifications:
   irc:
@@ -41,3 +40,25 @@ matrix:
       - cd ..
       - wget https://raw.githubusercontent.com/paulp/sbt-extras/9ade5fa54914ca8aded44105bf4b9a60966f3ccd/sbt && chmod +x ./sbt
       - ./sbt -Dscala.ext.dirs=$HOME/.sbt/0.13/java9-rt-ext ++$TRAVIS_SCALA_VERSION test
+    - scala: 2.11.11
+      jdk: oraclejdk8
+      sudo: required
+      before_install:
+      - sudo apt-get -qq update
+      - sudo sh -c "echo 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise-3.7 main' >> /etc/apt/sources.list"
+      - sudo sh -c "echo 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main' >> /etc/apt/sources.list"
+      - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+      - sudo add-apt-repository --yes ppa:ubuntu-toolchain-r/test
+      - sudo apt-get -qq update
+      - sudo apt-get install -y libgc-dev clang++-3.7 llvm-3.7 llvm-3.7-dev llvm-3.7-runtime llvm-3.7-tool libunwind7-dev
+      - sudo apt-get install -y make
+      - export CXX=clang++-3.7
+      - git clone https://code.googlesource.com/re2
+      - pushd re2
+      - git checkout 2017-03-01
+      - make -j4 test
+      - sudo make install prefix=/usr
+      - make testinstall prefix=/usr
+      - popd
+      script:
+      - ./sbt ++$TRAVIS_SCALA_VERSION nativeTest/run

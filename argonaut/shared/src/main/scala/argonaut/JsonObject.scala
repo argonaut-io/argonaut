@@ -142,7 +142,7 @@ private[argonaut] case class JsonObjectInstance(
   def size: Int = fields.size
 
   override def toString: String = {
-    "object[%s]".format(fieldsMap.map(_.toString).mkString(","))
+    s"object[${fieldsMap.map(_.toString).mkString(",")}]"
   }
 
   override def equals(o: Any) = {
