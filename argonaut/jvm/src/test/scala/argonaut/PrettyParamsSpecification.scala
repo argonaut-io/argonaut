@@ -6,6 +6,7 @@ import org.scalacheck.Gen
 import Data._
 import Argonaut._
 import org.specs2._
+import CompatParColls.Converters._
 
 object PrettyParamsSpecification extends Specification with ScalaCheck {
   val jsonSpacesMap: Map[Int, String] = Map(

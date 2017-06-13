@@ -64,6 +64,14 @@ object build {
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
+    , libraryDependencies ++= {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, v)) if v >= 13 =>
+            Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.1.2" % "test")
+          case _ =>
+            Seq()
+        }
+      }
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     // no mima until 6.2.0 release.
     , mimaPreviousArtifacts := Set()
