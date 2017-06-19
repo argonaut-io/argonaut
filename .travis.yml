@@ -61,4 +61,6 @@ matrix:
       - make testinstall prefix=/usr
       - popd
       script:
-      - ./sbt ++$TRAVIS_SCALA_VERSION nativeTest/run
+      # TODO "sbt nativeTest/run" invoke jvm main !?
+      - ./sbt ++$TRAVIS_SCALA_VERSION nativeTest/nativeLink
+      - ./native-test/target/scala-2.11/nativetest-out
