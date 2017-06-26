@@ -21,7 +21,7 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test
     - jdk: oraclejdk8
       scala: 2.13.0-M1
-      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonautJS/compile
+      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonaut-scalazJVM/test argonautJS/compile argonaut-scalazJS/compile
     - scala: 2.11.11
       jdk: oraclejdk8
       sudo: required
