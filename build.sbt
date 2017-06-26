@@ -1,6 +1,5 @@
 import build._
 import sbtrelease.ReleasePlugin
-import sbtcrossproject.CrossProject.crossClasspathDependencyConstructor
 
 val argonaut = argonautCrossProject(
     "argonaut"
@@ -94,7 +93,7 @@ val argonautBenchmark = Project(
   , publishArtifact := false
   , libraryDependencies ++= Seq(
       "com.google.caliper"           %   "caliper"                   % "0.5-rc1"
-    , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.8.7"
+    , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.8.9"
     )
   , javaOptions in run ++= ((fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }).value
   )

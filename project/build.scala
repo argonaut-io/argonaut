@@ -19,7 +19,7 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.13"
+  val scalazVersion              = "7.2.14"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.4.0"
   val catsVersion                = "0.9.0"
@@ -89,7 +89,7 @@ object build {
   val jvmSettings = Seq[Sett](
     libraryDependencies ++= Seq(
       "org.scalacheck"               %%  "scalacheck"                % scalacheckVersion        % "test"
-    , "org.specs2"                   %%  "specs2-scalacheck"         % "3.9.0"                  % "test"
+    , "org.specs2"                   %%  "specs2-scalacheck"         % "3.9.1"                  % "test"
     )
   )
 
