@@ -30,6 +30,7 @@ object JsonSpecification extends Specification with ScalaCheck {
     jSingleArray is single array          $isSingleArray
     jObject isObject                      $isObject
     jSingleObject is single object        $isSingleObject
+    toString preserves order              $toStringPreservesOrder
   """
 
   def sameValue = prop((j: Json) => j == j)
@@ -75,4 +76,6 @@ object JsonSpecification extends Specification with ScalaCheck {
   def isObject = prop((a: JsonObject) => jObject(a).isObject)
 
   def isSingleObject = prop((f: JsonField, j: Json) => (jSingleObject(f, j).obj map (_.toList)) == List((f, j)).some)
+
+  def toStringPreservesOrder = prop((j: Json) => PrettyParams.nospace.copy(preserveOrder = true).pretty(j) === j.toString)
 }
