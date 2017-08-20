@@ -47,7 +47,7 @@ object CodecSpecification extends Specification with ScalaCheck {
     Tuple2[String, Int] encode/decode ${encodedecode[Tuple2[String, Int]]}
     Tuple3[String, Int, Boolean] encode/decode ${encodedecode[Tuple3[String, Int, Boolean]]}
     Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
-    22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}}
+    22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}
     22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
     CodecJson[Person] derived ${derived.testDerivedPerson}
     CodecJson[BackTicks] derived ${derived.testDerivedBackTicks}
