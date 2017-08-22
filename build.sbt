@@ -104,11 +104,11 @@ val nativeProjects = Seq[ProjectReference](
   argonautNative, argonautScalazNative
 )
 
-val jsProjects = Seq[ProjectReference](
+val jsProjects = Seq(
   argonautJS, argonautScalazJS, argonautMonocleJS, argonautCatsJS
 )
 
-val jvmProjects = Seq[ProjectReference](
+val jvmProjects = Seq(
   argonautJVM, argonautScalazJVM, argonautMonocleJVM, argonautCatsJVM, argonautJawn, argonautBenchmark
 )
 
@@ -141,6 +141,26 @@ val nativeParent = Project(
   nativeProjects : _*
 )
 
+val jvmParent = project
+  .settings(
+    base
+  , noPublish
+  ).aggregate(
+    jvmProjects.map(p => p: ProjectReference) : _*
+  )
+
+val jsParent = project
+  .settings(
+    base
+  , noPublish
+  , commands += Command.command("testSequential"){
+      // avoid "org.scalajs.jsenv.ComJSEnv$ComClosedException: Node.js isn't connected" error in travis-ci
+      jsProjects.map(_.id + "/test").sorted ::: _
+    }
+  ).aggregate(
+    jsProjects.map(p => p: ProjectReference) : _*
+  )
+
 val argonautParent = Project(
   id = "argonaut-parent"
 , base = file(".")
@@ -152,5 +172,5 @@ val argonautParent = Project(
   , name := "argonaut-parent"
   , fork in run := true
 ).aggregate(
-  jsProjects ++ jvmProjects : _*
+  (jsProjects ++ jvmProjects).map(p => p: ProjectReference) : _*
 )

@@ -8,8 +8,9 @@ import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import sbtcrossproject.{CrossProject, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{toScalaJSGroupID => _, _}
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.isScalaJSProject
 
 object build {
   type Sett = Def.Setting[_]
@@ -23,6 +24,9 @@ object build {
   val monocleVersion             = "1.4.0"
   val catsVersion                = "1.0.0-MF"
   val scalacheckVersion          = "1.13.5"
+
+  val enableScalaJSTests         = settingKey[Boolean]("")
+  val specs2Version              = settingKey[String]("")
 
   def reflect(o: String, v: String) =
                                     Seq(o % "scala-reflect"  % v) ++
@@ -45,6 +49,7 @@ object build {
 
   val nativeSettings = Seq(
       scalaVersion := ScalaSettings.Scala211
+    , sources in Test := Nil // disable native test
     , crossScalaVersions := ScalaSettings.Scala211 :: Nil
   )
 
@@ -72,6 +77,20 @@ object build {
         }
       }
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
+    , specs2Version := {
+        if(enableScalaJSTests.value)
+          "4.0.0-RC2"
+        else
+          "3.9.1"
+      }
+    , enableScalaJSTests := {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, 11 | 12)) =>
+            true
+          case _ =>
+            false
+        }
+      }
     // no mima until 6.2.0 release.
     , mimaPreviousArtifacts := Set()
     /*
@@ -85,18 +104,28 @@ object build {
     */
   )
 
-  val jvmSettings = Seq[Sett](
-    libraryDependencies ++= Seq(
-      "org.scalacheck"               %%  "scalacheck"                % scalacheckVersion        % "test"
-    , "org.specs2"                   %%  "specs2-scalacheck"         % "3.9.1"                  % "test"
-    )
-  )
-
   def argonautCrossProject(name: String, platforms: Seq[Platform]) = {
     val p = CrossProject(name, file(name), CrossType.Full, platforms: _*)
       .settings(commonSettings)
-      .jvmSettings(jvmSettings)
+      .platformsSettings(JVMPlatform, JSPlatform)(
+        libraryDependencies ++= {
+          if(!isScalaJSProject.value || enableScalaJSTests.value) {
+            Seq(
+              "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
+            , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion        % "test"
+            , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
+            )
+          } else Nil
+        }
+      )
       .jsSettings(
+        parallelExecution in Test := false,
+        sources in Test := {
+          if(enableScalaJSTests.value)
+            (sources in Test).value
+          else
+            Nil
+        },
         scalacOptions += {
           val a = (baseDirectory in LocalRootProject).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
