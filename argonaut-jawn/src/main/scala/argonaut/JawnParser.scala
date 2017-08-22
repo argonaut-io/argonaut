@@ -9,13 +9,12 @@ object JawnParser extends SupportParser[Json] {
       def jnull() = Json.jNull
       def jfalse() = Json.jFalse
       def jtrue() = Json.jTrue
-      def jnum(s: String) = Json.jNumber(JsonNumber.unsafeDecimal(s))
-      def jint(s: String) = Json.jNumber(JsonNumber.unsafeDecimal(s))
-      def jstring(s: String) = Json.jString(s)
+      def jnum(s: CharSequence, decIndex: Int, expIndex: Int) = Json.jNumber(JsonNumber.unsafeDecimal(s.toString))
+      def jstring(s: CharSequence) = Json.jString(s.toString)
 
       def singleContext() = new FContext[Json] {
         var value: Json = null
-        def add(s: String) = { value = jstring(s) }
+        def add(s: CharSequence) = { value = jstring(s.toString) }
         def add(v: Json) = { value = v }
         def finish: Json = value
         def isObj: Boolean = false
@@ -23,7 +22,7 @@ object JawnParser extends SupportParser[Json] {
 
       def arrayContext() = new FContext[Json] {
         val vs = mutable.ListBuffer.empty[Json]
-        def add(s: String) = { vs += jstring(s) }
+        def add(s: CharSequence) = { vs += jstring(s.toString) }
         def add(v: Json) = { vs += v }
         def finish: Json = Json.jArray(vs.toList)
         def isObj: Boolean = false
@@ -32,8 +31,8 @@ object JawnParser extends SupportParser[Json] {
       def objectContext() = new FContext[Json] {
         var key: String = null
         var vs = JsonObject.empty
-        def add(s: String): Unit =
-          if (key == null) { key = s } else { vs = vs + (key, jstring(s)); key = null }
+        def add(s: CharSequence): Unit =
+          if (key == null) { key = s.toString } else { vs = vs + (key, jstring(s.toString)); key = null }
         def add(v: Json): Unit =
         { vs = vs + (key, v); key = null }
         def finish = Json.jObject(vs)
