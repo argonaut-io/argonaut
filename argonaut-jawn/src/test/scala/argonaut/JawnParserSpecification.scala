@@ -3,7 +3,6 @@ package argonaut
 import scala.util.Try
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
-import org.specs2._
 import Argonaut._
 
 object JawnParserSpecification {
@@ -21,7 +20,7 @@ object JawnParserSpecification {
   )
 }
 
-class JawnParserSpecification extends Specification with ScalaCheck {
+class JawnParserSpecification extends ArgonautSpec {
   import JawnParserSpecification._
   import JawnParser.facade
 

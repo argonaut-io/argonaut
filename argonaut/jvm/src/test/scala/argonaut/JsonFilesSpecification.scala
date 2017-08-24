@@ -3,9 +3,8 @@ package argonaut
 import java.io.File
 
 import argonaut.Argonaut._
-import org.specs2._
 
-object JsonFilesSpecification extends Specification with ScalaCheck {
+object JsonFilesSpecification extends ArgonautSpec {
   def find = new File("./argonaut/jvm/src/test/resources/data").listFiles.toList
 
   case class JsonFile(file: File)
