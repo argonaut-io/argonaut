@@ -22,7 +22,7 @@ object build {
   val scalazVersion              = "7.2.15"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.4.0"
-  val catsVersion                = "1.0.0-MF"
+  val catsVersion                = "1.0.0-RC1"
   val scalacheckVersion          = "1.13.5"
 
   val enableScalaJSTests         = settingKey[Boolean]("")
