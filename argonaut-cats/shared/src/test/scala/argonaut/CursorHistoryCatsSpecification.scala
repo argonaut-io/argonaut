@@ -1,6 +1,6 @@
 package argonaut
 
-import cats.kernel.laws.GroupLaws
+import cats.kernel.laws.discipline.MonoidTests
 import arbitrary._
 import CursorHistoryCats._
 import org.typelevel.discipline.specs2.Discipline
@@ -10,5 +10,5 @@ import org.typelevel.discipline.specs2.Discipline
   */
 class CursorHistoryCatsSpecification extends ArgonautSpec with Discipline { def is =
   br ^ br ^
-  checkAll("CursorHistory", GroupLaws[CursorHistory].monoid)
+  checkAll("CursorHistory", MonoidTests[CursorHistory].monoid)
 }
