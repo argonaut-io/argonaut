@@ -28,8 +28,8 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
 
     - jdk: oraclejdk8
-      scala: 2.13.0-M1
-      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonaut-scalazJVM/test argonautJS/test argonaut-scalazJS/test
+      scala: 2.13.0-M2
+      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonaut-scalazJVM/test
 
     - scala: 2.11.11
       jdk: oraclejdk8
