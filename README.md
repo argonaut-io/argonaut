@@ -26,9 +26,9 @@ Stable:
     "io.argonaut" %% "argonaut" % "6.2.1"
 
 
-Note that the 6.1.x release supports scala 2.10.* and 2.11.* with scalaz 7.1.*.
+Note that the 6.1.x release supports scala `2.10.*` and `2.11.*` with scalaz `7.1.*`.
 
-Note that the 6.2.x releass supports scala 2.10.*, 2.11.* and 2.12.* with scalaz 7.2.*.
+Note that the 6.2.x releass supports scala `2.10.*`, `2.11.*` and `2.12.*` with scalaz `7.2.*`.
 
 
 ### Release
