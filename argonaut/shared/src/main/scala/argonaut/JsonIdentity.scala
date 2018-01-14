@@ -1,7 +1,6 @@
 package argonaut
 
-trait JsonIdentity[J] {
-  val j: J
+class JsonIdentity[J](val j: J) extends AnyVal {
 
   /**
    * Encode to a JSON value using the given implicit encoder.
@@ -27,11 +26,8 @@ trait JsonIdentity[J] {
 object JsonIdentity extends JsonIdentitys
 
 trait JsonIdentitys {
-  implicit def ToJsonIdentity[J](k: J): JsonIdentity[J] = {
-    new JsonIdentity[J] {
-      val j = k
-    }
-  }
+  implicit def ToJsonIdentity[J](k: J): JsonIdentity[J] =
+    new JsonIdentity[J](k)
 
   implicit def FromJsonIdentity[J](k: JsonIdentity[J]): J = k.j
 }
