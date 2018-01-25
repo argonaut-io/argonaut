@@ -17,10 +17,10 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test
 
     - jdk: openjdk7
-      scala: 2.11.11
+      scala: 2.11.12
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test # scala-js test unstable with java7
     - jdk: oraclejdk8
-      scala: 2.11.11
+      scala: 2.11.12
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
 
     - jdk: oraclejdk8
@@ -31,7 +31,7 @@ matrix:
       scala: 2.13.0-M2
       script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonaut-scalazJVM/test
 
-    - scala: 2.11.11
+    - scala: 2.11.12
       jdk: oraclejdk8
       sudo: required
       before_install:
