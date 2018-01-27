@@ -21,7 +21,7 @@ object build {
 
   val scalazVersion              = "7.2.18"
   val paradiseVersion            = "2.1.0"
-  val monocleVersion             = "1.4.0"
+  val monocleVersion             = "1.5.0"
   val catsVersion                = "1.0.1"
   val scalacheckVersion          = "1.13.5"
 
