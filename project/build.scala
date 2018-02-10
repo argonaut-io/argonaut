@@ -10,6 +10,7 @@ import sbtcrossproject.{CrossProject, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{toScalaJSGroupID => _, _}
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.isScalaJSProject
 
 object build {
@@ -107,7 +108,8 @@ object build {
   )
 
   def argonautCrossProject(name: String, platforms: Seq[Platform]) = {
-    val p = CrossProject(name, file(name), CrossType.Full, platforms: _*)
+    val p = CrossProject(name, file(name))(platforms: _*)
+      .crossType(CrossType.Full)
       .settings(commonSettings)
       .platformsSettings(JVMPlatform, JSPlatform)(
         libraryDependencies ++= {
