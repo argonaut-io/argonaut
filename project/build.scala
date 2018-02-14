@@ -80,7 +80,7 @@ object build {
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := {
         if(scalaVersion.value.startsWith("2.13"))
-          "4.0.1"
+          "4.0.2"
         else if(enableScalaJSTests.value)
           "4.0.0-RC4"
         else
@@ -88,8 +88,8 @@ object build {
       }
     , enableScalaJSTests := {
         CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, 11 | 12)) =>
-            true
+          case Some((2, v)) =>
+            v >= 11
           case _ =>
             false
         }
