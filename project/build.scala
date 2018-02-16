@@ -82,7 +82,7 @@ object build {
         if(scalaVersion.value.startsWith("2.13"))
           "4.0.2"
         else if(enableScalaJSTests.value)
-          "4.0.0-RC4"
+          "4.0.0-RC4" // 4.0.2 broken https://github.com/etorreborre/specs2/issues/636
         else
           "3.9.1"
       }
