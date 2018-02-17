@@ -78,7 +78,7 @@ val argonautJawn = Project(
 , settings = commonSettings ++ Seq[Sett](
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.spire-math"               %%  "jawn-parser"               % "0.11.0"
+      "org.spire-math"               %%  "jawn-parser"               % "0.11.1"
     )
   )
 ).dependsOn(argonautJVM % "compile->compile;test->test")
