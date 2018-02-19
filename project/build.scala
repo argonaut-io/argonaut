@@ -79,10 +79,8 @@ object build {
       }
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := {
-        if(scalaVersion.value.startsWith("2.13"))
-          "4.0.2"
-        else if(enableScalaJSTests.value)
-          "4.0.0-RC4" // 4.0.2 broken https://github.com/etorreborre/specs2/issues/636
+        if (enableScalaJSTests.value)
+          "4.0.3"
         else
           "3.9.1"
       }
