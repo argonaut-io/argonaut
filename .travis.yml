@@ -10,10 +10,10 @@ notifications:
 matrix:
   include:
     - jdk: openjdk7
-      scala: 2.10.6
+      scala: 2.10.7
       script: sbt ++${TRAVIS_SCALA_VERSION} test
     - jdk: oraclejdk8
-      scala: 2.10.6
+      scala: 2.10.7
       script: sbt ++${TRAVIS_SCALA_VERSION} test
 
     - jdk: openjdk7
