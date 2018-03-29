@@ -10,6 +10,7 @@ import sbtcrossproject.{CrossProject, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport.{toScalaJSGroupID => _, _}
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.isScalaJSProject
 
