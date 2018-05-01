@@ -32,7 +32,12 @@ object build {
 
   def reflect(o: String, v: String) =
                                     Seq(o % "scala-reflect"  % v) ++
-           (if (v.contains("2.10")) Seq("org.scalamacros" %% "quasiquotes" % paradiseVersion) else Seq())
+           (if (v.contains("2.10"))
+             Seq(
+               "org.scalamacros" %% "quasiquotes" % paradiseVersion,
+               compilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.patch)
+             ) else Seq()
+           )
 
   private[this] val tagName = Def.setting {
     s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
@@ -59,7 +64,6 @@ object build {
     ReplSettings.all ++
     ReleasePlugin.projectSettings ++
     PublishSettings.all ++
-    Seq(addCompilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.patch)) ++
     Seq[Sett](
       scalacOptions += "-language:_"
     , scalacOptions in (Compile, doc) ++= {
