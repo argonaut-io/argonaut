@@ -21,10 +21,10 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.20"
+  val scalazVersion              = "7.2.22"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.5.0"
-  val catsVersion                = "1.0.1"
+  val catsVersion                = "1.1.0"
   val scalacheckVersion          = "1.13.5"
 
   val enableScalaJSTests         = settingKey[Boolean]("")

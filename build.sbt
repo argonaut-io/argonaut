@@ -78,7 +78,7 @@ val argonautJawn = Project(
 , settings = commonSettings ++ Seq[Sett](
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.spire-math"               %%  "jawn-parser"               % "0.11.1"
+      "org.spire-math"               %%  "jawn-parser"               % "0.12.1"
     )
   )
 ).dependsOn(argonautJVM % "compile->compile;test->test")
@@ -93,7 +93,7 @@ val argonautBenchmark = Project(
   , publishArtifact := false
   , libraryDependencies ++= Seq(
       "com.google.caliper"           %   "caliper"                   % "0.5-rc1"
-    , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.9.3"
+    , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.9.5"
     )
   , javaOptions in run ++= ((fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }).value
   )
