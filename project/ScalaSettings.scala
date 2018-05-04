@@ -13,7 +13,7 @@ object ScalaSettings {
 
   def Scala211 = "2.11.12"
 
-  lazy val all: Seq[Sett] = Seq(
+  lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala211
   , crossScalaVersions := Seq("2.10.7", Scala211, "2.12.6")
   , fork in test := true
@@ -21,13 +21,15 @@ object ScalaSettings {
   , scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)){
       case Some((2, v)) if v >= 11 => unusedWarnings
     }.toList.flatten
-  , unmanagedSourceDirectories in Compile ++= {
-      CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, v)) if v >= 11 =>
-          val base = baseDirectory.value.getParentFile / "shared/src/main"
-          Seq(base / "scala-2.11+")
-        case _ =>
-          Nil
+  , Seq((Compile, "main"), (Test, "test")).map { case (scope, dir) =>
+      unmanagedSourceDirectories in scope ++= {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, v)) if v >= 11 =>
+            val base = baseDirectory.value.getParentFile / "shared/src" / dir
+            Seq(base / "scala-2.11+")
+          case _ =>
+            Nil
+        }
       }
     }
   ) ++ Seq(Compile, Test).flatMap(c =>

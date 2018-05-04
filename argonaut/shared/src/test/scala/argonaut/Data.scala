@@ -9,11 +9,8 @@ import org.scalacheck.{Arbitrary, Cogen, Gen}
 
 import scala.util.Random.shuffle
 
-object Data {
+object Data extends Data0 {
   val maxJsonStructureDepth = 3
-
-  implicit val ArbitraryUUID: Arbitrary[java.util.UUID] =
-    Arbitrary(Gen.uuid)
 
   implicit val bigDecimalEq: Equal[BigDecimal] = Equal.equalA[BigDecimal]
   implicit val bigIntEq: Equal[BigInt] = Equal.equalA[BigInt]
