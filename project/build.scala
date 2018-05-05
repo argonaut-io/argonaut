@@ -25,8 +25,8 @@ object build {
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.5.0"
   val catsVersion                = "1.1.0"
-  val scalacheckVersion          = "1.13.5"
 
+  val scalacheckVersion          = settingKey[String]("")
   val enableScalaJSTests         = settingKey[Boolean]("")
   val specs2Version              = settingKey[String]("")
 
@@ -85,7 +85,7 @@ object build {
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := {
         if (enableScalaJSTests.value)
-          "4.0.3"
+          "4.2.0"
         else
           "3.9.1"
       }
@@ -115,11 +115,19 @@ object build {
       .crossType(CrossType.Full)
       .settings(commonSettings)
       .platformsSettings(JVMPlatform, JSPlatform)(
+        scalacheckVersion := {
+          CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((2, 10)) =>
+              "1.13.5"
+            case _ =>
+              "1.14.0"
+          }
+        },
         libraryDependencies ++= {
           if(!isScalaJSProject.value || enableScalaJSTests.value) {
             Seq(
               "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
-            , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion        % "test"
+            , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
             , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
             )
           } else Nil
