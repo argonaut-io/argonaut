@@ -103,23 +103,15 @@ case class PrettyParams(
     import Json._
     import StringEscaping._
 
-    @tailrec
-    def appendJsonString(builder: StringBuilder, jsonString: String, normalChars: Boolean = true): StringBuilder = {
-      if (normalChars) {
-        jsonString.span(isNormalChar) match {
-          case (prefix, suffix) => {
-            val prefixAppended = builder.append(prefix)
-            if (suffix.isEmpty) prefixAppended else appendJsonString(prefixAppended, suffix, false)
-          }
-        }
-      } else {
-        jsonString.span(isNotNormalChar) match {
-          case (prefix, suffix) => {
-            val prefixAppended = prefix.foldLeft(builder)((working, char) => working.append(escape(char)))
-            if (suffix.isEmpty) prefixAppended else appendJsonString(prefixAppended, suffix, true)
-          }
+    def appendJsonString(builder: StringBuilder, jsonString: String): StringBuilder = {
+      for (ch <- jsonString) {
+        if (isNormalChar(ch)) {
+          builder.append(ch)
+        } else {
+          builder.append(escape(ch))
         }
       }
+      builder
     }
 
     def encloseJsonString(builder: StringBuilder, jsonString: JsonString): StringBuilder = {
@@ -215,7 +207,6 @@ object StringEscaping {
     case '\t' => false
     case possibleUnicode => !Character.isISOControl(possibleUnicode)
   }
-  final val isNotNormalChar: Char => Boolean = char => !isNormalChar(char)
 }
 
 object PrettyParams extends PrettyParamss {
