@@ -14,5 +14,7 @@ object Main {
     ParserBench.parseAndPrint("twitter100", Data.twitter100)
     ParserBench.parseAndPrint("twitter20", Data.twitter20)
     ParserBench.parseAndPrint("twitter50", Data.twitter50)
+    ParserBench.parseAndPrint("largestring", Data.largestring)
+    ParserBench.parseAndPrint("manystrings", Data.manystrings)
   }
 }
