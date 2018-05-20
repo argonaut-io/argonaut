@@ -77,7 +77,9 @@ object build {
     , libraryDependencies ++= {
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, v)) if v >= 13 =>
-            Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.1.2" % "test")
+            // TODO https://github.com/scala/scala-parallel-collections/issues/41
+            // Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.1.2" % "test")
+            Seq()
           case _ =>
             Seq()
         }
@@ -125,11 +127,17 @@ object build {
         },
         libraryDependencies ++= {
           if(!isScalaJSProject.value || enableScalaJSTests.value) {
-            Seq(
-              "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
-            , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
-            , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
-            )
+            CrossVersion.partialVersion(scalaVersion.value) match {
+              case Some((2, v)) if v <= 12 =>
+                Seq(
+                  "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
+                , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
+                , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
+                )
+              case _ =>
+                // TODO specs2 and scalacheck for Scala 2.13.0-M4
+                Nil
+            }
           } else Nil
         }
       )
