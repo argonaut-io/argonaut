@@ -114,7 +114,7 @@ object build {
     val p = CrossProject(name, file(name))(platforms: _*)
       .crossType(CrossType.Full)
       .settings(commonSettings)
-      .platformsSettings(JVMPlatform, JSPlatform)(
+      .platformsSettings(platforms: _*)(
         scalacheckVersion := {
           CrossVersion.partialVersion(scalaVersion.value) match {
             case Some((2, 10)) =>
@@ -133,7 +133,9 @@ object build {
           } else Nil
         }
       )
-      .jsSettings(
+    
+    val withJS = if (platforms.contains(JSPlatform)) {
+      p.jsSettings(
         parallelExecution in Test := false,
         sources in Test := {
           if(enableScalaJSTests.value)
@@ -147,10 +149,14 @@ object build {
           s"-P:scalajs:mapSourceURI:$a->$g/"
         }
       )
-
-    if (platforms.contains(NativePlatform))
-      p.nativeSettings(nativeSettings)
-    else
+    } else {
       p
+    }
+
+    if (platforms.contains(NativePlatform)) {
+      withJS.nativeSettings(nativeSettings)
+    } else {
+      withJS
+    }
   }
 }

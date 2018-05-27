@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import Tools.onVersionTask
+import org.ensime.EnsimeKeys._
 
 object ScalaSettings {
   type Sett = Def.Setting[_]
@@ -16,6 +17,7 @@ object ScalaSettings {
   lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala211
   , crossScalaVersions := Seq("2.10.7", Scala211, "2.12.6")
+  , ensimeScalaVersion := Scala211
   , fork in test := true
   , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint", "-Xfuture")
   , scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)){

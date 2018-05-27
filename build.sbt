@@ -78,17 +78,19 @@ val argonautCatsJVM = argonautCats.jvm
 val argonautCatsJS  = argonautCats.js
 
 
-val argonautJawn = Project(
-  id = "argonaut-jawn"
-, base = file("argonaut-jawn")
-, settings = commonSettings ++ Seq[Sett](
+val argonautJawn = argonautCrossProject(
+    "argonaut-jawn"
+  , Seq(JVMPlatform)
+).settings(
+  commonSettings ++ Seq(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.spire-math"               %%  "jawn-parser"               % "0.12.1"
+      "org.spire-math"               %%%  "jawn-parser"               % "0.12.1"
     )
   )
-).dependsOn(argonautJVM % "compile->compile;test->test")
+).dependsOn(argonaut % "compile->compile;test->test")
 
+val argonautJawnJVM = argonautJawn.jvm
 
 val argonautBenchmark = Project(
   id = "argonaut-benchmark"
@@ -115,7 +117,7 @@ val jsProjects = Seq(
 )
 
 val jvmProjects = Seq(
-  argonautJVM, argonautScalazJVM, argonautMonocleJVM, argonautCatsJVM, argonautJawn, argonautBenchmark
+  argonautJVM, argonautScalazJVM, argonautMonocleJVM, argonautCatsJVM, argonautJawnJVM, argonautBenchmark
 )
 
 lazy val noPublish = Seq(
