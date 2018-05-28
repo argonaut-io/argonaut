@@ -114,7 +114,7 @@ object build {
     val p = CrossProject(name, file(name))(platforms: _*)
       .crossType(CrossType.Full)
       .settings(commonSettings)
-      .platformsSettings(platforms: _*)(
+      .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         scalacheckVersion := {
           CrossVersion.partialVersion(scalaVersion.value) match {
             case Some((2, 10)) =>
