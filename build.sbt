@@ -131,7 +131,10 @@ lazy val noPublish = Seq(
 val nativeTest = Project(
   nativeTestId
 , file("native-test")
-).enablePlugins(ScalaNativePlugin).settings(
+)
+.enablePlugins(ScalaNativePlugin)
+.disablePlugins(sbt.plugins.BackgroundRunPlugin)
+.settings(
     base
   , noPublish
   , nativeSettings

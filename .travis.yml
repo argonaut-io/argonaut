@@ -37,6 +37,5 @@ matrix:
       before_install:
       - curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -
       script:
-      # TODO "sbt nativeTest/run" invoke jvm main !?
       - ./sbt ++$TRAVIS_SCALA_VERSION nativeTest/nativeLink
       - ./native-test/target/scala-2.11/nativetest-out
