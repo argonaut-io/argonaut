@@ -21,7 +21,7 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.22"
+  val scalazVersion              = "7.2.24"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.5.0"
   val catsVersion                = "1.1.0"
@@ -74,20 +74,10 @@ object build {
     , resolvers += Resolver.sonatypeRepo("releases")
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
-    , libraryDependencies ++= {
-        CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, v)) if v >= 13 =>
-            // TODO https://github.com/scala/scala-parallel-collections/issues/41
-            // Seq("org.scala-lang.modules" %% "scala-parallel-collections" % "0.1.2" % "test")
-            Seq()
-          case _ =>
-            Seq()
-        }
-      }
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := {
         if (enableScalaJSTests.value)
-          "4.2.0"
+          "4.3.0"
         else
           "3.9.1"
       }
@@ -127,17 +117,11 @@ object build {
         },
         libraryDependencies ++= {
           if(!isScalaJSProject.value || enableScalaJSTests.value) {
-            CrossVersion.partialVersion(scalaVersion.value) match {
-              case Some((2, v)) if v <= 12 =>
-                Seq(
-                  "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
-                , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
-                , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
-                )
-              case _ =>
-                // TODO specs2 and scalacheck for Scala 2.13.0-M4
-                Nil
-            }
+            Seq(
+              "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
+            , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
+            , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
+            )
           } else Nil
         }
       )

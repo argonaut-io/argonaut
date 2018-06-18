@@ -6,7 +6,7 @@ import scalajs.js.Dynamic
 object JsonFilesSpecification extends JsonFilesSpecBase {
   val fs = Dynamic.global.require("fs")
 
-  def listFiles(path: String): Seq[String] =
+  def listFiles(path: String): collection.Seq[String] =
     fs.readdirSync(path).asInstanceOf[js.Array[String]]
 
   override def testData = {

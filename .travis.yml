@@ -29,7 +29,7 @@ matrix:
 
     - jdk: oraclejdk8
       scala: 2.13.0-M4
-      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/compile
+      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonaut-scalazJVM/test argonautJS/test argonaut-scalazJS/test
 
     - scala: 2.11.12
       jdk: oraclejdk8
