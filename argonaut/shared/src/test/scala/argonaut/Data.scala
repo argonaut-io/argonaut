@@ -255,8 +255,7 @@ object Data extends Data0 {
   }
 
   implicit def ArbitraryVector[A: Arbitrary]: Arbitrary[Vector[A]] =
-    Arbitrary(arbitrary[List[A]].map((as: List[A]) =>
-      as.map(a => a)(collection.breakOut)))
+    Arbitrary(arbitrary[List[A]].map(_.toVector))
 
   case class SometimesNullString(s: String) {
     override def toString = s

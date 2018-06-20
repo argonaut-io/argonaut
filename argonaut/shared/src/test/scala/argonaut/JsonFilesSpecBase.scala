@@ -15,7 +15,7 @@ abstract class JsonFilesSpecBase extends ArgonautSpec {
 
   val TestData = JsonFilesSpecBase.TestData
 
-  def testData: Seq[TestData]
+  def testData: collection.Seq[TestData]
 
   def test: Fragments =
     testData.map(testFile).reduce(_.append(_))

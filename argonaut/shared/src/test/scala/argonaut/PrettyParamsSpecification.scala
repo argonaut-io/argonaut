@@ -150,9 +150,9 @@ object PrettyParamsSpecification extends ArgonautSpec {
   def spacesComparison = forAllNoShrink(Gen.oneOf(0, 2, 4), Gen.oneOf(0, 2, 4)){(firstIndex, secondIndex) =>
     val json = jsonSpacesMap(firstIndex).parseOption.get
     val printedJson = secondIndex match {
-      case 0 => json.nospaces
-      case 2 => json.spaces2
-      case 4 => json.spaces4
+      case 0 => PrettyParams.nospace.copy(preserveOrder = true).pretty(json)
+      case 2 => PrettyParams.spaces2.copy(preserveOrder = true).pretty(json)
+      case 4 => PrettyParams.spaces4.copy(preserveOrder = true).pretty(json)
     }
     printedJson === jsonSpacesMap(secondIndex)
   }

@@ -2,7 +2,9 @@ package argonaut
 
 import org.scalacheck.Prop._
 import org.scalacheck.Gen
-import CompatParColls.Converters._
+import scala.concurrent.{Await, Future}
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object PrettyParamsJVMSpecification extends ArgonautSpec {
   def is = s2"""
@@ -14,7 +16,10 @@ object PrettyParamsJVMSpecification extends ArgonautSpec {
     val f: Int => String = _.toString
     val memo = memoFunction(f)
     val notParallel = (1 to count).map(f).toList
-    val isParallel = (1 to count).par.map(memo).toList
+    val isParallel = Await.result(
+      Future.traverse(1 to count)(n => Future(memo(n))),
+      5.seconds
+    ).toList
     isParallel must beEqualTo(notParallel)
   }
 }
