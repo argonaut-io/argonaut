@@ -77,7 +77,7 @@ object build {
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := {
         if (enableScalaJSTests.value)
-          "4.3.0"
+          "4.3.2"
         else
           "3.9.1"
       }
