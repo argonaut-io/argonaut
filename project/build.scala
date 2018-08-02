@@ -24,7 +24,7 @@ object build {
   val scalazVersion              = "7.2.24"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.5.0"
-  val catsVersion                = "1.1.0"
+  val catsVersion                = "1.2.0"
 
   val scalacheckVersion          = settingKey[String]("")
   val enableScalaJSTests         = settingKey[Boolean]("")
