@@ -356,23 +356,24 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     })
   }
 
-  implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] = {
+  implicit def MapDecodeJson[K, V](implicit dk: DecodeJson[K], dv: DecodeJson[V]): DecodeJson[Map[K, V]] = {
     DecodeJson(a =>
       a.fields match {
-        case None => DecodeResult.fail("[V]Map[String, V]", a.history)
+        case None => DecodeResult.fail("[K, V]Map[K, V]", a.history)
         case Some(s) => {
-          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] = {
+          def spin(x: List[JsonField], m: DecodeResult[Map[K, V]]): DecodeResult[Map[K, V]] = {
             x match {
               case Nil => m
               case h::t => {
                 spin(t, for {
                   mm <- m
-                  v <- a.get(h)(e)
-                } yield mm + ((h, v)))
+                  k <- dk.decodeJson(jString(h))
+                  v <- a.get(h)(dv)
+                } yield mm + ((k, v)))
               }
             }
           }
-          spin(s, DecodeResult.ok(Map.empty[String, V]))
+          spin(s, DecodeResult.ok(Map.empty[K, V]))
         }
       }
     )
