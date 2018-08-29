@@ -116,7 +116,9 @@ object build {
           }
         },
         libraryDependencies ++= {
-          if(!isScalaJSProject.value || enableScalaJSTests.value) {
+          if (scalaVersion.value == "2.13.0-M5") {
+            Nil
+          } else if (!isScalaJSProject.value || enableScalaJSTests.value) {
             Seq(
               "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
             , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"

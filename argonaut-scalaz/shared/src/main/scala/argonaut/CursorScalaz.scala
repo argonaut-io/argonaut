@@ -91,8 +91,8 @@ trait CursorScalazs {
        }
      }
 
-    override def show(c: Cursor) = {
-      c.context.show + " ==> " + c.focus.show
+    override def shows(c: Cursor): String = {
+      s"${c.context.shows} ==> ${c.focus.shows}"
     }
   }
 }

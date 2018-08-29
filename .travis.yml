@@ -31,6 +31,10 @@ matrix:
       scala: 2.13.0-M4
       script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonaut-scalazJVM/test argonaut-catsJVM/test argonautJS/test argonaut-scalazJS/test argonaut-catsJS/test argonaut-jawnJVM/test
 
+    - jdk: oraclejdk8
+      scala: 2.13.0-M5
+      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/compile
+
     - scala: 2.11.12
       jdk: oraclejdk8
       sudo: required
