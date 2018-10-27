@@ -77,7 +77,7 @@ object build {
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := {
         if (enableScalaJSTests.value)
-          "4.3.2"
+          "4.3.5"
         else
           "3.9.1"
       }
@@ -116,9 +116,7 @@ object build {
           }
         },
         libraryDependencies ++= {
-          if (scalaVersion.value == "2.13.0-M5") {
-            Nil
-          } else if (!isScalaJSProject.value || enableScalaJSTests.value) {
+          if (!isScalaJSProject.value || enableScalaJSTests.value) {
             Seq(
               "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
             , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
