@@ -27,15 +27,7 @@ val argonautScalaz = argonautCrossProject(
     )
   )
 ).platformsSettings(JVMPlatform, JSPlatform)(
-  libraryDependencies += {
-    val v = CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 10)) =>
-        s"${scalazVersion}-scalacheck-1.13"
-      case _ =>
-        s"${scalazVersion}-scalacheck-1.14"
-    }
-    "org.scalaz" %%% "scalaz-scalacheck-binding" % v % "test"
-  }
+  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.14" % "test"
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautScalazJVM = argonautScalaz.jvm
