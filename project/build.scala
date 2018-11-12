@@ -23,21 +23,13 @@ object build {
 
   val scalazVersion              = "7.2.27"
   val paradiseVersion            = "2.1.0"
-  val monocleVersion             = "1.5.0"
-  val catsVersion                = "1.2.0"
+  val monocleVersion             = "1.6.0-M1"
+  val catsVersion                = "1.4.0"
 
   val scalacheckVersion          = settingKey[String]("")
-  val enableScalaJSTests         = settingKey[Boolean]("")
   val specs2Version              = settingKey[String]("")
 
-  def reflect(o: String, v: String) =
-                                    Seq(o % "scala-reflect"  % v) ++
-           (if (v.contains("2.10"))
-             Seq(
-               "org.scalamacros" %% "quasiquotes" % paradiseVersion,
-               compilerPlugin("org.scalamacros" % "paradise" % paradiseVersion cross CrossVersion.patch)
-             ) else Seq()
-           )
+  def reflect(o: String, v: String) = Seq(o % "scala-reflect"  % v)
 
   private[this] val tagName = Def.setting {
     s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
@@ -75,20 +67,7 @@ object build {
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := {
-        if (enableScalaJSTests.value)
-          "4.3.5"
-        else
-          "3.9.1"
-      }
-    , enableScalaJSTests := {
-        CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, v)) =>
-            v >= 11
-          case _ =>
-            false
-        }
-      }
+    , specs2Version := "4.3.5"
     // no mima until 6.2.0 release.
     , mimaPreviousArtifacts := Set()
     /*
@@ -107,34 +86,17 @@ object build {
       .crossType(CrossType.Full)
       .settings(commonSettings)
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
-        scalacheckVersion := {
-          CrossVersion.partialVersion(scalaVersion.value) match {
-            case Some((2, 10)) =>
-              "1.13.5"
-            case _ =>
-              "1.14.0"
-          }
-        },
-        libraryDependencies ++= {
-          if (!isScalaJSProject.value || enableScalaJSTests.value) {
-            Seq(
-              "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
-            , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
-            , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
-            )
-          } else Nil
-        }
+        scalacheckVersion := "1.14.0",
+        libraryDependencies ++= Seq(
+            "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
+          , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
+          , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
+        )
       )
     
     val withJS = if (platforms.contains(JSPlatform)) {
       p.jsSettings(
         parallelExecution in Test := false,
-        sources in Test := {
-          if(enableScalaJSTests.value)
-            (sources in Test).value
-          else
-            Nil
-        },
         scalacOptions += {
           val a = (baseDirectory in LocalRootProject).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
