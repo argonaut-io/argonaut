@@ -5,7 +5,6 @@ import Json._
 import scalaz.syntax.std.option._
 
 object JsonSpecification extends ArgonautSpec {
-  // NOTE: List[Json] should be JsonArray, but it is failing to resolve under 2.10.0 with type alias.
 
   def is = s2"""
   Json
@@ -58,7 +57,7 @@ object JsonSpecification extends ArgonautSpec {
 
   def effectWithString = prop((j: Json, k: JsonString => JsonString) => ((j withString k) == j) || j.isString)
 
-  def effectWithArray = prop((j: Json, k: List[Json] => List[Json]) => ((j withArray k) == j) || j.isArray)
+  def effectWithArray = prop((j: Json, k: JsonArray => JsonArray) => ((j withArray k) == j) || j.isArray)
 
   def effectWithObject = prop((j: Json, k: JsonObject => JsonObject) => ((j withObject k) == j) || j.isObject)
 
@@ -68,7 +67,7 @@ object JsonSpecification extends ArgonautSpec {
 
   def isString = prop((s: String) => jString(s).isString)
 
-  def isArray = prop((a: List[Json]) => jArray(a).isArray)
+  def isArray = prop((a: JsonArray) => jArray(a).isArray)
 
   def isSingleArray = prop((j: Json) => jSingleArray(j).array == List(j).some)
 
