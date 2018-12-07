@@ -17,11 +17,11 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
 
     - jdk: openjdk11
-      scala: 2.12.7
+      scala: 2.12.8
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
 
     - jdk: oraclejdk8
-      scala: 2.12.7
+      scala: 2.12.8
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
 
     - jdk: oraclejdk8
