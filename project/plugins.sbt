@@ -6,7 +6,7 @@ scalacOptions += "-deprecation"
 
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
 
-addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.10")
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "1.0.11")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.3.0")
 
