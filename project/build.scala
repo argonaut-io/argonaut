@@ -24,7 +24,7 @@ object build {
   val scalazVersion              = "7.2.27"
   val paradiseVersion            = "2.1.0"
   val monocleVersion             = "1.6.0-M1"
-  val catsVersion                = "1.5.0"
+  val catsVersion                = "1.6.0"
 
   val scalacheckVersion          = settingKey[String]("")
   val specs2Version              = settingKey[String]("")
