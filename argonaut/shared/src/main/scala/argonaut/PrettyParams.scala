@@ -207,6 +207,7 @@ object StringEscaping {
     case '\t' => false
     case possibleUnicode => !Character.isISOControl(possibleUnicode)
   }
+  final val isNotNormalChar: Char => Boolean = char => !isNormalChar(char)
 }
 
 object PrettyParams extends PrettyParamss {

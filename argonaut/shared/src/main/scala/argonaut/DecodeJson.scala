@@ -1,8 +1,10 @@
 package argonaut
 
+import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.Builder
 import scala.util.control.Exception.catching
 import Json._
+import DecodeJson.BuilderDecodeJson
 
 trait DecodeJson[A] {
   /**
@@ -161,27 +163,6 @@ object DecodeJson extends DecodeJsons {
   def derive[A]: DecodeJson[A] = macro internal.Macros.materializeDecodeImpl[A]
 
   def of[A: DecodeJson] = implicitly[DecodeJson[A]]
-}
-
-trait DecodeJsons extends GeneratedDecodeJsons {
-
-  def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] = {
-    DecodeJson[A](a => k(a.focus) match {
-      case None => DecodeResult.fail(e, a.history)
-      case Some(w) => DecodeResult.ok(w)
-    })
-  }
-
-  /**
-   * Construct a succeeding decoder from the given function.
-   */
-  def decodeArr[A](f: HCursor => A): DecodeJson[A] = DecodeJson(j => DecodeResult.ok(f(j)))
-
-  def tryTo[A](f: => A): Option[A] = catching(classOf[IllegalArgumentException]).opt(f)
-
-  implicit def HCursorDecodeJson: DecodeJson[HCursor] = decodeArr(q => q)
-
-  implicit def JsonDecodeJson: DecodeJson[Json] = decodeArr(j => j.focus)
 
   def BuilderDecodeJson[A, C[_]](newBuilder: () => Builder[A, C[A]])(implicit e: DecodeJson[A]): DecodeJson[C[A]] = {
     DecodeJson(a =>
@@ -211,6 +192,31 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       }
     )
   }
+}
+
+trait DecodeJsons extends GeneratedDecodeJsons {
+
+  def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] = {
+    DecodeJson[A](a => k(a.focus) match {
+      case None => DecodeResult.fail(e, a.history)
+      case Some(w) => DecodeResult.ok(w)
+    })
+  }
+
+  /**
+   * Construct a succeeding decoder from the given function.
+   */
+  def decodeArr[A](f: HCursor => A): DecodeJson[A] = DecodeJson(j => DecodeResult.ok(f(j)))
+
+  def tryTo[A](f: => A): Option[A] = catching(classOf[IllegalArgumentException]).opt(f)
+
+  implicit def HCursorDecodeJson: DecodeJson[HCursor] = decodeArr(q => q)
+
+  implicit def JsonDecodeJson: DecodeJson[Json] = decodeArr(j => j.focus)
+
+  // for binary compatibility. does not work with Scala 2.13.x
+  private[argonaut] def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] =
+    BuilderDecodeJson[A, C](() => c.asInstanceOf[{def apply(): Builder[A, C[A]]}].apply())
 
   implicit val UUIDDecodeJson: DecodeJson[java.util.UUID] = {
     optionDecoder(_.string.flatMap(s =>
@@ -360,24 +366,23 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     })
   }
 
-  implicit def MapDecodeJson[K, V](implicit dk: DecodeJson[K], dv: DecodeJson[V]): DecodeJson[Map[K, V]] = {
+  implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] = {
     DecodeJson(a =>
       a.fields match {
-        case None => DecodeResult.fail("[K, V]Map[K, V]", a.history)
+        case None => DecodeResult.fail("[V]Map[String, V]", a.history)
         case Some(s) => {
-          def spin(x: List[JsonField], m: DecodeResult[Map[K, V]]): DecodeResult[Map[K, V]] = {
+          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] = {
             x match {
               case Nil => m
               case h::t => {
                 spin(t, for {
                   mm <- m
-                  k <- dk.decodeJson(jString(h))
-                  v <- a.get(h)(dv)
-                } yield mm + ((k, v)))
+                  v <- a.get(h)(e)
+                } yield mm + ((h, v)))
               }
             }
           }
-          spin(s, DecodeResult.ok(Map.empty[K, V]))
+          spin(s, DecodeResult.ok(Map.empty[String, V]))
         }
       }
     )

@@ -69,16 +69,22 @@ object build {
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := "4.5.1"
     // no mima until 6.2.0 release.
-    , mimaPreviousArtifacts := Set()
-    /*
+    , mimaPreviousArtifacts := {
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, 11 | 12)) =>
+            Set("6.2.2").map(
+              organization.value %% name.value % _
+            )
+          case _ =>
+            Set.empty
+        }
+      }
     , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
-      /* adding functions to sealed traits is binary incompatible from java, but ok for scala, so ignoring */
       Seq(
-      ) map exclude[MissingMethodProblem]
+      )
     }
-    */
   )
 
   def argonautCrossProject(name: String, platforms: Seq[Platform]) = {

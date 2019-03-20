@@ -14,7 +14,7 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test # scala-js test unstable with java7
     - jdk: oraclejdk8
       scala: 2.11.12
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
+      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 
     - jdk: openjdk11
       scala: 2.12.8
@@ -22,7 +22,7 @@ matrix:
 
     - jdk: oraclejdk8
       scala: 2.12.8
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
+      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 
     - jdk: oraclejdk8
       scala: 2.13.0-M5
