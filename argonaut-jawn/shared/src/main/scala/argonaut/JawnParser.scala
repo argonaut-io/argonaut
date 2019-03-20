@@ -1,7 +1,7 @@
 package argonaut
 
 import scala.collection.mutable
-import jawn.{Facade, FContext, SupportParser}
+import org.typelevel.jawn.{Facade, FContext, SupportParser}
 
 object JawnParser extends SupportParser[Json] {
   implicit val facade: Facade[Json] =

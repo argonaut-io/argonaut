@@ -32,7 +32,7 @@ class JawnParserSpecification extends ArgonautSpec {
   def marshal =
     prop { (e: Example) =>
       val jsonString: String = exampleCodecJson.encode(e).nospaces
-      val json: Try[Json] = jawn.Parser.parseFromString(jsonString)
+      val json: Try[Json] = org.typelevel.jawn.Parser.parseFromString(jsonString)
       exampleCodecJson.decodeJson(json.get).toOption match {
         case None => ko("did not parse")
         case Some(example) => example must_== e
