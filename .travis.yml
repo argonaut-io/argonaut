@@ -26,7 +26,7 @@ matrix:
 
     - jdk: oraclejdk8
       scala: 2.13.0-M5
-      script: sbt ++${TRAVIS_SCALA_VERSION} argonautJVM/test argonaut-scalazJVM/test argonaut-monocleJVM/test argonautJS/test argonaut-scalazJS/test argonaut-monocleJS/test
+      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
 
     - scala: 2.11.12
       jdk: oraclejdk8

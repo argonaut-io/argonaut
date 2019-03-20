@@ -77,7 +77,7 @@ val argonautJawn = argonautCrossProject(
   commonSettings ++ Seq(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.spire-math"               %%%  "jawn-parser"               % "0.13.0"
+      "org.typelevel"               %%%  "jawn-parser"               % "0.14.1"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
