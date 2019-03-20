@@ -9,7 +9,7 @@ import org.scalacheck.{Arbitrary, Cogen, Gen}
 
 import scala.util.Random.shuffle
 
-object Data extends Data0 {
+object Data {
   val maxJsonStructureDepth = 3
 
   implicit val bigDecimalEq: Equal[BigDecimal] = Equal.equalA[BigDecimal]
