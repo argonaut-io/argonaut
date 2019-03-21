@@ -87,7 +87,8 @@ val argonautJawnJVM = argonautJawn.jvm
 val argonautBenchmark = Project(
   id = "argonaut-benchmark"
 , base = file("argonaut-benchmark")
-, settings = base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
+).settings(
+  base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
     name := "argonaut-benchmark"
   , fork in run := true
   , publishArtifact := false
@@ -125,7 +126,6 @@ val nativeTest = Project(
 , file("native-test")
 )
 .enablePlugins(ScalaNativePlugin)
-.disablePlugins(sbt.plugins.BackgroundRunPlugin)
 .settings(
     base
   , noPublish
@@ -158,7 +158,7 @@ val jsParent = project
   , noPublish
   , commands += Command.command("testSequential"){
       // avoid "org.scalajs.jsenv.ComJSEnv$ComClosedException: Node.js isn't connected" error in travis-ci
-      jsProjects.map(_.id + "/test").sorted ::: _
+      jsProjects.map(_.id + "/test").sorted.toList ::: _
     }
   ).aggregate(
     jsProjects.map(p => p: ProjectReference) : _*
