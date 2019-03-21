@@ -6,10 +6,14 @@ import org.ensime.EnsimeKeys._
 object ScalaSettings {
   type Sett = Def.Setting[_]
 
-  private[this] val unusedWarnings = (
-    "-Ywarn-unused" ::
-    Nil
-  )
+  private[this] val unusedWarnings = Def.setting {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 11)) =>
+        Seq("-Ywarn-unused-import")
+      case _ =>
+        Seq("-Ywarn-unused:imports")
+    }
+  }
 
   def Scala211 = "2.11.12"
 
@@ -19,10 +23,8 @@ object ScalaSettings {
   , ensimeScalaVersion := Scala211
   , fork in test := true
   , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint", "-Xfuture")
-  , scalacOptions ++= PartialFunction.condOpt(CrossVersion.partialVersion(scalaVersion.value)){
-      case Some((2, v)) if v >= 11 => unusedWarnings
-    }.toList.flatten
+  , scalacOptions ++= unusedWarnings.value
   ) ++ Seq(Compile, Test).flatMap(c =>
-    scalacOptions in (c, console) ~= {_.filterNot(unusedWarnings.toSet)}
+    scalacOptions in (c, console) --= unusedWarnings.value
   )
 }
