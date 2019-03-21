@@ -1,5 +1,4 @@
 import build._
-import sbtrelease.ReleasePlugin
 
 val argonaut = argonautCrossProject(
     "argonaut"

@@ -1,6 +1,5 @@
 import sbt._
 import Keys._
-import Tools.onVersionTask
 import org.ensime.EnsimeKeys._
 
 object ScalaSettings {
