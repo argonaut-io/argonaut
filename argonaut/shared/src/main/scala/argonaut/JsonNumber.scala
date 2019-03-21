@@ -378,11 +378,19 @@ object JsonNumber {
     """(-)?((?:[1-9][0-9]*|0))(?:\.([0-9]+))?(?:[eE]([-+]?[0-9]+))?""".r
 }
 
-trait EncodeJsonNumber[T] {
+trait EncodeJsonNumber[T] { self =>
   def encodeJsonNumber(value: T): JsonNumber
+  def contramap[A](f: A => T): EncodeJsonNumber[A] =
+    new EncodeJsonNumber[A] {
+      def encodeJsonNumber(value: A) = self.encodeJsonNumber(f(value))
+    }
 }
-trait EncodePossibleJsonNumber[T] {
+trait EncodePossibleJsonNumber[T] { self =>
   def possiblyEncodeJsonNumber(value: T): Option[JsonNumber]
+  def contramap[A](f: A => T): EncodePossibleJsonNumber[A] =
+    new EncodePossibleJsonNumber[A] {
+      def possiblyEncodeJsonNumber(value: A) = self.possiblyEncodeJsonNumber(f(value))
+    }
 }
 
 object EncodeJsonNumber {
