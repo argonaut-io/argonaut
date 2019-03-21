@@ -54,7 +54,7 @@ object JsonParser {
       result match {
         case (`jsonLength`, jsonInstance) => Right(jsonInstance)
         case (remainder, jsonInstance) if (validSuffixContent(remainder)) => Right(jsonInstance)
-        case (remainder, _) => Left("JSON contains invalid suffix content: %s".format(excerpt(json, remainder)))
+        case (remainder, _) => Left("JSON contains invalid suffix content: " + excerpt(json, remainder))
       }
     }
 
@@ -68,7 +68,7 @@ object JsonParser {
     else stream(position) match {
       case `token` => Right(position + 1)
       case ' ' | '\r' | '\n' | '\t' => expectedSpacerToken(stream, position + 1, token, failMessage)
-      case _ => Left("%s but found: %s".format(failMessage, excerpt(stream, position)))
+      case _ => Left(s"${failMessage} but found: ${excerpt(stream, position)}")
     }
   }
 
@@ -151,7 +151,7 @@ object JsonParser {
           val numberAsString = stream.substring(position, numberEndIndex)
           JsonNumber.fromString(numberAsString) match {
             case Some(jn) => Right((numberEndIndex, jn.asJson))
-            case None => Left("Value [%s] cannot be parsed into a number.".format(numberAsString))
+            case None => Left(s"Value [${numberAsString}] cannot be parsed into a number.")
           }
         }
       }
@@ -168,7 +168,7 @@ object JsonParser {
 
   @inline
   private[this] final def unexpectedContent[T](stream: TokenSource, position: Int): Either[String, T] = {
-    Left("Unexpected content found: %s".format(excerpt(stream, position)))
+    Left("Unexpected content found: " + excerpt(stream, position))
   }
 
   // Note the mutable collection type in the parameters.

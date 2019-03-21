@@ -1,6 +1,6 @@
 package argonaut
 
-import scala.collection.generic.CanBuildFrom
+import scala.collection.mutable.Builder
 import scala.util.control.Exception.catching
 import Json._
 
@@ -183,12 +183,12 @@ trait DecodeJsons extends GeneratedDecodeJsons {
 
   implicit def JsonDecodeJson: DecodeJson[Json] = decodeArr(j => j.focus)
 
-  def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] = {
+  def BuilderDecodeJson[A, C[_]](newBuilder: () => Builder[A, C[A]])(implicit e: DecodeJson[A]): DecodeJson[C[A]] = {
     DecodeJson(a =>
       a.downArray.hcursor match {
         case None => {
           if (a.focus.isArray) {
-            DecodeResult.ok(c.apply.result)
+            DecodeResult.ok(newBuilder.apply.result)
           } else {
             DecodeResult.fail("[A]", a.history)
           }
@@ -196,7 +196,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
         case Some(hcursor) => {
           hcursor.rights match {
             case Some(elements) => {
-              (hcursor.focus :: elements).foldLeft(DecodeResult.ok(c.apply)){(working, elem) =>
+              (hcursor.focus :: elements).foldLeft(DecodeResult.ok(newBuilder.apply)){(working, elem) =>
                 for {
                   w <- working
                   e <- elem.jdecode[A]
@@ -217,13 +217,17 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       tryTo(java.util.UUID.fromString(s))), "UUID")
   }
 
-  implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] = CanBuildFromDecodeJson[A, List]
+  implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
+    BuilderDecodeJson[A, List](() => List.newBuilder)
 
-  implicit def VectorDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Vector[A]] = CanBuildFromDecodeJson[A, Vector]
+  implicit def VectorDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Vector[A]] =
+    BuilderDecodeJson[A, Vector](() => Vector.newBuilder)
 
-  implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] = CanBuildFromDecodeJson[A, Stream]
+  implicit def StreamDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Stream[A]] =
+    BuilderDecodeJson[A, Stream](() => Stream.newBuilder)
 
-  implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] = CanBuildFromDecodeJson[A, Set]
+  implicit def SetDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Set[A]] =
+    BuilderDecodeJson[A, Set](() => Set.newBuilder)
 
   implicit def UnitDecodeJson: DecodeJson[Unit] = {
     DecodeJson.apply[Unit](a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray) {
@@ -356,23 +360,24 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     })
   }
 
-  implicit def MapDecodeJson[V](implicit e: DecodeJson[V]): DecodeJson[Map[String, V]] = {
+  implicit def MapDecodeJson[K, V](implicit dk: DecodeJson[K], dv: DecodeJson[V]): DecodeJson[Map[K, V]] = {
     DecodeJson(a =>
       a.fields match {
-        case None => DecodeResult.fail("[V]Map[String, V]", a.history)
+        case None => DecodeResult.fail("[K, V]Map[K, V]", a.history)
         case Some(s) => {
-          def spin(x: List[JsonField], m: DecodeResult[Map[String, V]]): DecodeResult[Map[String, V]] = {
+          def spin(x: List[JsonField], m: DecodeResult[Map[K, V]]): DecodeResult[Map[K, V]] = {
             x match {
               case Nil => m
               case h::t => {
                 spin(t, for {
                   mm <- m
-                  v <- a.get(h)(e)
-                } yield mm + ((h, v)))
+                  k <- dk.decodeJson(jString(h))
+                  v <- a.get(h)(dv)
+                } yield mm + ((k, v)))
               }
             }
           }
-          spin(s, DecodeResult.ok(Map.empty[String, V]))
+          spin(s, DecodeResult.ok(Map.empty[K, V]))
         }
       }
     )

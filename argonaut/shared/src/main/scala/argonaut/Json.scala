@@ -426,6 +426,12 @@ sealed abstract class Json extends Product with Serializable {
     PrettyParams.nospace.pretty(this)
 
   /**
+    * Pretty-print this JSON value to a string with no spaces, preserving order.
+    */
+  def nospacesWithOrder: String =
+    PrettyParams.nospace.copy(preserveOrder = true).pretty(this)
+
+  /**
    * Pretty-print this JSON value to a string indentation of two spaces.
    */
   def spaces2: String =
@@ -465,7 +471,7 @@ sealed abstract class Json extends Product with Serializable {
    * Compute a `String` representation for this JSON value.
    */
   override def toString =
-    nospaces
+    nospacesWithOrder
 }
 
 import Json._

@@ -3,7 +3,7 @@ package argonaut
 import CursorHistoryCats._
 import cats._
 import instances.tuple._
-import instances.either._, instances.string._
+import instances.either._, instances.string._, instances.eq._
 import syntax.contravariant._
 
 object DecodeResultCats extends DecodeResultCatss {
@@ -14,7 +14,7 @@ trait DecodeResultCatss {
   type DecodeEither[A] = Either[(String, CursorHistory), A]
 
   implicit def DecodeResultEq[A](implicit EA: Eq[A]): Eq[DecodeResult[A]] =
-    Eq[DecodeEither[A]].on(_.toEither)
+    Eq[DecodeEither[A]].contramap(_.toEither)
 
   implicit def DecodeResultMonad: Monad[DecodeResult] = new Monad[DecodeResult] {
     def pure[A](a: A) = DecodeResult.ok(a)

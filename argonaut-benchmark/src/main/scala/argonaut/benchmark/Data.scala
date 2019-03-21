@@ -47,4 +47,10 @@ object Data {
 
   lazy val apachebuilds =
     read("apache_builds")
+
+  lazy val largestring =
+    read("largestring")
+
+  lazy val manystrings =
+    read("manystrings")
 }

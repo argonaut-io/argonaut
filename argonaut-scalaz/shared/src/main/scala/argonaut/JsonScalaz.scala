@@ -62,4 +62,16 @@ trait JsonScalazs {
       override def show(a: Json) = Show.showFromToString.show(a)
     }
   }
+
+  /**
+    * Decode `A` based on `HCursor => ValidationNel[String, A]` function.
+    */
+  def asWithValidation[A](f: HCursor => ValidationNel[String, A]): DecodeJson[A] =
+    new DecodeJson[A] {
+      def decode(c: HCursor): DecodeResult[A] = f(c) match {
+        case Success(a)   => DecodeResult.ok(a)
+        case Failure(err) => DecodeResult.fail(err.shows, c.history)
+      }
+    }
+
 }
