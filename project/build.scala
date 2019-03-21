@@ -1,7 +1,6 @@
 import sbt._
 import Keys._
 import com.typesafe.sbt.pgp.PgpKeys._
-import Tools.onVersion
 import sbtrelease.ReleasePlugin
 import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
@@ -12,7 +11,6 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.isScalaJSProject
 
 object build {
   type Sett = Def.Setting[_]
