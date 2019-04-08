@@ -21,7 +21,15 @@ object ScalaSettings {
   , crossScalaVersions := Seq(Scala211, "2.12.8", "2.13.0-M5")
   , ensimeScalaVersion := Scala211
   , fork in test := true
-  , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint", "-Xfuture")
+  , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint")
+  , scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, 11 | 12)) =>
+          Seq("-Xfuture")
+        case _ =>
+          Nil
+      }
+    }
   , scalacOptions ++= unusedWarnings.value
   ) ++ Seq(Compile, Test).flatMap(c =>
     scalacOptions in (c, console) --= unusedWarnings.value
