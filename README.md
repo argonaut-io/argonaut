@@ -33,7 +33,7 @@ Note that the 6.2.x releass supports scala `2.11.*`, `2.12.*` and `2.13.*` with 
 
 ### Release
 
-Add to `~/.sbt/0.13/sonatype.sbt`
+Add to `~/.sbt/1.0/sonatype.sbt`
 
 
     credentials += Credentials("Sonatype Nexus Repository Manager",
