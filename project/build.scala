@@ -20,7 +20,14 @@ object build {
   )
 
   val scalazVersion              = "7.2.27"
-  val monocleVersion             = "1.6.0-M1"
+  val monocleVersion             = Def.setting(
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, v)) if v <= 11 =>
+        "1.6.0-M1"
+      case _ =>
+        "1.6.0-M4"
+    }
+  )
   val catsVersion                = "1.6.0"
 
   val scalacheckVersion          = settingKey[String]("")
