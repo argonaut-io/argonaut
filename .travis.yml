@@ -25,10 +25,6 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 
     - jdk: oraclejdk8
-      scala: 2.13.0-M5
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
-
-    - jdk: oraclejdk8
       scala: 2.13.0-RC1
       script:
       - sbt "++ ${TRAVIS_SCALA_VERSION}" "all argonaut-benchmark/test argonaut-scalazJS/test argonaut-scalazJVM/test argonautJS/test argonautJVM/test"
