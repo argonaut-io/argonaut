@@ -21,9 +21,6 @@ matrix:
       scala: 2.12.8
 
     - jdk: oraclejdk8
-      scala: 2.13.0-M5
-
-    - jdk: oraclejdk8
       scala: 2.13.0-RC1
       script:
       - sbt "++ ${TRAVIS_SCALA_VERSION}!" "all argonaut-benchmark/test argonaut-scalazJS/test argonaut-scalazJVM/test argonautJS/test argonautJVM/test"
