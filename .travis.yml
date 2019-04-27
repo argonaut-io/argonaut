@@ -17,6 +17,7 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 
     - jdk: openjdk11
+      dist: xenial
       scala: 2.12.8
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
 
