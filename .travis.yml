@@ -15,6 +15,7 @@ matrix:
       scala: 2.11.12
 
     - jdk: openjdk11
+      dist: xenial
       scala: 2.12.8
 
     - jdk: oraclejdk8
