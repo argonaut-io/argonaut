@@ -61,7 +61,7 @@ val argonautCats = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.typelevel"                %%% "cats-core"                 % catsVersion
     , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test"
-    , "org.typelevel"                %%% "discipline-specs2"         % "0.12.0-M1"              % "test"
+    , "org.typelevel"                %%% "discipline-specs2"         % "0.12.0-M2"              % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
