@@ -27,17 +27,14 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 
     - jdk: oraclejdk8
-      scala: 2.13.0-RC3
+      scala: 2.13.0
       script:
       - sbt
         "++${TRAVIS_SCALA_VERSION}"
-        argonautJVM/test
-        argonautJS/test
-        argonaut-scalazJVM/test
-        argonaut-scalazJS/test
-        argonaut-jawnJVM/test
-        argonaut-catsJVM/test
-        argonaut-catsJS/test
+        'project argonautJVM'        'set libraryDependencies ~= {_.filter(_.configurations != Some("test"))}'
+        'project argonautJS'         'set libraryDependencies ~= {_.filter(_.configurations != Some("test"))}'
+        'project argonaut-scalazJVM' 'set libraryDependencies ~= {_.filter(_.configurations != Some("test"))}' compile
+        'project argonaut-scalazJS'  'set libraryDependencies ~= {_.filter(_.configurations != Some("test"))}' compile
 
     - scala: 2.11.12
       jdk: oraclejdk8
