@@ -30,6 +30,8 @@ matrix:
         argonautJS/test
         argonaut-scalazJVM/test
         argonaut-scalazJS/test
+        argonaut-catsJVM/test
+        argonaut-catsJS/test
 
     - scala: 2.11.12
       jdk: oraclejdk8
