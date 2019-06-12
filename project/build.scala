@@ -25,7 +25,7 @@ object build {
       case Some((2, v)) if v <= 11 =>
         "1.6.0-M1"
       case _ =>
-        "1.6.0-M4"
+        "1.6.0-RC1"
     }
   )
   val catsVersion                = "2.0.0-M4"
