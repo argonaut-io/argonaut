@@ -28,17 +28,7 @@ matrix:
 
     - jdk: oraclejdk8
       scala: 2.13.0
-      script:
-      - sbt
-        "++${TRAVIS_SCALA_VERSION}"
-        argonautJVM/test
-        argonautJS/test
-        argonaut-scalazJVM/test
-        argonaut-scalazJS/test
-        argonaut-catsJVM/test
-        argonaut-catsJS/test
-        argonaut-monocleJVM/test
-        argonaut-monocleJS/test
+      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential # TODO enable mima
 
     - scala: 2.11.12
       jdk: oraclejdk8
