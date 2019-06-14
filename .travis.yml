@@ -8,6 +8,8 @@ notifications:
     skip_join: true
     template:
       - "\x0313argonaut\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
+script:
+- sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 matrix:
   include:
     - jdk: openjdk7
@@ -15,7 +17,6 @@ matrix:
       script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test # scala-js test unstable with java7
     - jdk: oraclejdk8
       scala: 2.11.12
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 
     - jdk: openjdk11
       dist: xenial
@@ -24,11 +25,9 @@ matrix:
 
     - jdk: oraclejdk8
       scala: 2.12.8
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 
     - jdk: oraclejdk8
       scala: 2.13.0
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential # TODO enable mima
 
     - scala: 2.11.12
       jdk: oraclejdk8
