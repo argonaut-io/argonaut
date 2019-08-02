@@ -25,7 +25,7 @@ object build {
       case Some((2, v)) if v <= 11 =>
         "1.6.0-M1"
       case _ =>
-        "1.6.0-RC1"
+        "1.6.0"
     }
   )
   val catsVersion                = "2.0.0-M4"
@@ -71,7 +71,7 @@ object build {
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := "4.5.1"
+    , specs2Version := "4.6.0"
     // no mima until 6.2.0 release.
     , mimaPreviousArtifacts := Set()
     /*
@@ -89,6 +89,12 @@ object build {
     val p = CrossProject(name, file(name))(platforms: _*)
       .crossType(CrossType.Full)
       .settings(commonSettings)
+      .platformsSettings(JVMPlatform)(
+        // https://github.com/scala/scala-parser-combinators/issues/197
+        // https://github.com/sbt/sbt/issues/4609
+        fork in Test := true,
+        baseDirectory in Test := (baseDirectory in LocalRootProject).value
+      )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         scalacheckVersion := "1.14.0",
         libraryDependencies ++= Seq(
