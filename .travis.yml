@@ -9,23 +9,20 @@ notifications:
       - "\x0313argonaut\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
 script:
 - sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
+jdk: openjdk8
+dist: xenial
 matrix:
   include:
-    - jdk: oraclejdk8
-      scala: 2.11.12
+    - scala: 2.11.12
 
     - jdk: openjdk11
-      dist: xenial
       scala: 2.12.8
 
-    - jdk: oraclejdk8
-      scala: 2.12.8
+    - scala: 2.12.8
 
-    - jdk: oraclejdk8
-      scala: 2.13.0
+    - scala: 2.13.0
 
     - scala: 2.11.12
-      jdk: oraclejdk8
       sudo: required
       env: SCALA_NATIVE
       before_install:
