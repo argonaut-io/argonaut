@@ -78,6 +78,10 @@ object build {
             Set("6.2.2", "6.2.3").map(
               organization.value %% name.value % _
             )
+          case Some((2, 13)) =>
+            Set("6.2.3").map(
+              organization.value %% name.value % _
+            )
           case _ =>
             Set.empty
         }
