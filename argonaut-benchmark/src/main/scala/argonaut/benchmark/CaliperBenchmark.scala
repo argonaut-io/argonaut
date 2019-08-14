@@ -81,7 +81,7 @@ case class CaliperJacksonBenchmark() extends CaliperBenchmark {
 object ArgonautSimpleBench {
   def main(args: Array[String]): Unit = {
     Thread.sleep(10000)
-    (0 to 3000).foldLeft(0l){(left, right) => left + Data.example.parseOption.get.spaces4.length + right}
+    (0 to 3000).foldLeft(0L){(left, right) => left + Data.example.parseOption.get.spaces4.length + right}
   }
 }
 
