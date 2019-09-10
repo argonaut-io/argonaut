@@ -28,7 +28,7 @@ object build {
         "1.6.0"
     }
   )
-  val catsVersion                = "2.0.0-RC3"
+  val catsVersion                = "2.0.0"
 
   val scalacheckVersion          = settingKey[String]("")
   val specs2Version              = settingKey[String]("")
