@@ -71,7 +71,7 @@ object build {
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := "4.7.0"
+    , specs2Version := "4.7.1"
     // no mima until 6.2.0 release.
     , mimaPreviousArtifacts := Set()
     /*
