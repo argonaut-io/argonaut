@@ -96,7 +96,7 @@ object build {
         baseDirectory in Test := (baseDirectory in LocalRootProject).value
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
-        scalacheckVersion := "1.14.0",
+        scalacheckVersion := "1.14.1",
         libraryDependencies ++= Seq(
             "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
           , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
