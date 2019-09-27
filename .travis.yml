@@ -16,11 +16,11 @@ matrix:
     - scala: 2.11.12
 
     - jdk: openjdk11
-      scala: 2.12.8
+      scala: 2.12.10
 
-    - scala: 2.12.8
+    - scala: 2.12.10
 
-    - scala: 2.13.0
+    - scala: 2.13.1
 
     - scala: 2.11.12
       sudo: required
