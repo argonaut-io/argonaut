@@ -19,7 +19,7 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.29"
+  val scalazVersion              = "7.2.30"
   val monocleVersion             = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, v)) if v <= 11 =>
