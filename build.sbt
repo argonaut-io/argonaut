@@ -2,7 +2,7 @@ import build._
 
 val argonaut = argonautCrossProject(
     "argonaut"
-  , Seq(JVMPlatform, JSPlatform, NativePlatform)
+  , Seq(JVMPlatform, JSPlatform)
 ).settings(
   commonSettings ++ InfoSettings.all ++ Seq[Sett](
     name := "argonaut"
@@ -12,12 +12,11 @@ val argonaut = argonautCrossProject(
 
 val argonautJVM = argonaut.jvm
 val argonautJS  = argonaut.js
-val argonautNative = argonaut.native
 
 
 val argonautScalaz = argonautCrossProject(
     "argonaut-scalaz"
-  , Seq(JVMPlatform, JSPlatform, NativePlatform)
+  , Seq(JVMPlatform, JSPlatform)
 ).settings(
   commonSettings ++ Seq(
     name := "argonaut-scalaz"
@@ -31,7 +30,6 @@ val argonautScalaz = argonautCrossProject(
 
 val argonautScalazJVM = argonautScalaz.jvm
 val argonautScalazJS  = argonautScalaz.js
-val argonautScalazNative = argonautScalaz.native
 
 
 val argonautMonocle = argonautCrossProject(
@@ -101,10 +99,6 @@ val argonautBenchmark = Project(
 ).dependsOn(argonautJVM)
 
 
-val nativeProjects = Seq[ProjectReference](
-  argonautNative, argonautScalazNative
-)
-
 val jsProjects = Seq(
   argonautJS, argonautScalazJS, argonautMonocleJS, argonautCatsJS
 )
@@ -119,29 +113,6 @@ lazy val noPublish = Seq(
   publishLocal := {},
   publishArtifact in Compile := false,
   publish := {}
-)
-
-val nativeTest = Project(
-  nativeTestId
-, file("native-test")
-)
-.enablePlugins(ScalaNativePlugin)
-.settings(
-    base
-  , noPublish
-  , nativeSettings
-).dependsOn(
-  nativeProjects.map(p => p: ClasspathDep[ProjectReference]) : _*
-)
-
-val nativeParent = Project(
-  nativeParentId
-, file("native-parent")
-).settings(
-    base
-  , noPublish
-).aggregate(
-  nativeProjects : _*
 )
 
 val jvmParent = project

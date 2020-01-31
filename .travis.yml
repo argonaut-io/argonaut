@@ -13,20 +13,9 @@ jdk: openjdk8
 dist: xenial
 matrix:
   include:
-    - scala: 2.11.12
-
     - jdk: openjdk11
       scala: 2.12.10
 
     - scala: 2.12.10
 
     - scala: 2.13.1
-
-    - scala: 2.11.12
-      sudo: required
-      env: SCALA_NATIVE
-      before_install:
-      - curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -
-      script:
-      - sbt ++$TRAVIS_SCALA_VERSION nativeTest/nativeLink
-      - ./native-test/target/scala-2.11/nativetest-out

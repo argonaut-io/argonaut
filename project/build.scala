@@ -8,8 +8,6 @@ import com.typesafe.tools.mima.plugin.MimaKeys._
 import sbtcrossproject.{CrossProject, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
-import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
-import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object build {
@@ -21,12 +19,7 @@ object build {
 
   val scalazVersion              = "7.2.30"
   val monocleVersion             = Def.setting(
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, v)) if v <= 11 =>
-        "1.6.0-M1"
-      case _ =>
-        "1.6.0"
-    }
+    "1.6.0"
   )
   val catsVersion                = "2.0.0"
 
@@ -46,15 +39,6 @@ object build {
       tagName.value
     }
   }
-
-  def nativeTestId = "nativeTest"
-  def nativeParentId = "nativeParent"
-
-  val nativeSettings = Seq(
-      scalaVersion := ScalaSettings.Scala211
-    , sources in Test := Nil // disable native test
-    , crossScalaVersions := ScalaSettings.Scala211 :: Nil
-  )
 
   val commonSettings = base ++
     ReplSettings.all ++
@@ -95,7 +79,7 @@ object build {
         fork in Test := true,
         baseDirectory in Test := (baseDirectory in LocalRootProject).value
       )
-      .platformsSettings(platforms.filter(NativePlatform != _): _*)(
+      .settings(
         scalacheckVersion := "1.14.3",
         libraryDependencies ++= Seq(
             "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
@@ -104,7 +88,7 @@ object build {
         )
       )
     
-    val withJS = if (platforms.contains(JSPlatform)) {
+    if (platforms.contains(JSPlatform)) {
       p.jsSettings(
         parallelExecution in Test := false,
         scalacOptions += {
@@ -115,12 +99,6 @@ object build {
       )
     } else {
       p
-    }
-
-    if (platforms.contains(NativePlatform)) {
-      withJS.nativeSettings(nativeSettings)
-    } else {
-      withJS
     }
   }
 }
