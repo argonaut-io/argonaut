@@ -39,9 +39,9 @@ val argonautMonocle = argonautCrossProject(
   commonSettings ++ Seq[Sett](
     name := "argonaut-monocle"
   , libraryDependencies ++= Seq(
-      "com.github.julien-truffaut"   %%% "monocle-core"              % monocleVersion.value
-    , "com.github.julien-truffaut"   %%% "monocle-macro"             % monocleVersion.value
-    , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion.value     % "test"
+      "com.github.julien-truffaut"   %%% "monocle-core"              % monocleVersion
+    , "com.github.julien-truffaut"   %%% "monocle-macro"             % monocleVersion
+    , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")

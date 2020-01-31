@@ -18,9 +18,7 @@ object build {
   )
 
   val scalazVersion              = "7.2.30"
-  val monocleVersion             = Def.setting(
-    "1.6.0"
-  )
+  val monocleVersion             = "1.6.0"
   val catsVersion                = "2.0.0"
 
   val scalacheckVersion          = settingKey[String]("")
