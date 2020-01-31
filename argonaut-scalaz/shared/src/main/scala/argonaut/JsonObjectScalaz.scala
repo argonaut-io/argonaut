@@ -37,6 +37,6 @@ trait JsonObjectScalazs {
       FF.apply2(acc, f(v)){(elems, newV) =>
         (k, newV) :: elems
       }
-    }.map(elems => JsonObject.fromTraversableOnce(elems.reverse))
+    }.map(elems => JsonObject.fromIterable(elems.reverse))
   }
 }

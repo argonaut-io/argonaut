@@ -673,11 +673,11 @@ trait Jsons {
    * Construct a JSON value that is an object from an association list.
    */
   def jObjectAssocList(x: JsonAssocList): Json =
-    JObject(JsonObject.fromTraversableOnce(x))
+    JObject(JsonObject.fromIterable(x))
 
   /**
    * Construct a JSON value that is an object from an association list (var args).
    */
   def jObjectFields(x: (JsonField, Json)*): Json =
-    JObject(JsonObject.fromTraversableOnce(x))
+    JObject(JsonObject.fromIterable(x))
 }

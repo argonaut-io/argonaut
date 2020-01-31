@@ -36,7 +36,7 @@ trait Parse[A] {
    * Parses the value to a possible JSON value.
    */
   def parseOption(value: A): Option[Json] = {
-    parse(value).right.toOption
+    parse(value).toOption
   }
 
   /**
@@ -44,8 +44,8 @@ trait Parse[A] {
    * either the JSON parsing or the decoding.
    */
   def decode[X: DecodeJson](value: A): Either[Either[String, (String, CursorHistory)], X] = for {
-    json <- parse(value).left.map(Left.apply).right
-    decoded <- json.jdecode[X].fold((msg, history) => Left(Right((msg, history))), Right.apply).right
+    json <- parse(value).left.map(Left.apply)
+    decoded <- json.jdecode[X].fold((msg, history) => Left(Right((msg, history))), Right.apply)
   } yield decoded
 
   /**
@@ -94,7 +94,7 @@ trait Parse[A] {
    * Parses and decodes the value to a possible JSON value.
    */
   def decodeOption[X: DecodeJson](value: A): Option[X] = {
-    decode(value).right.toOption
+    decode(value).toOption
   }
 
   /**

@@ -6,7 +6,7 @@ case class ACursor(either: Either[HCursor, HCursor]) {
 
   /** Get the current hcursor if we are in an succeeded state. Alias for `success`. */
   def hcursor: Option[HCursor] =
-    either.right.toOption
+    either.toOption
 
   /** Get the current hcursor if we are in an succeeded state. Alias for `hcursor`. */
   def success: Option[HCursor] =
@@ -73,7 +73,7 @@ case class ACursor(either: Either[HCursor, HCursor]) {
 
   /** Update the focus with the given function (alias for `>->`). */
   def withFocus(k: Json => Json): ACursor =
-    ACursor(either.right.map(_.withFocus(k)))
+    ACursor(either.map(_.withFocus(k)))
 
   /** Set the focus to the given value (alias for `:=`). */
   def set(j: Json): ACursor =
@@ -95,7 +95,7 @@ case class ACursor(either: Either[HCursor, HCursor]) {
   def rights: Option[JsonArray] = hcursor.flatMap(_.rights)
 
   def withHCursor(f: HCursor => ACursor): ACursor =
-    ACursor(either.right.flatMap(c => f(c).either))
+    ACursor(either.flatMap(c => f(c).either))
 
   /** Move the cursor left in a JSON array. */
   def left: ACursor =

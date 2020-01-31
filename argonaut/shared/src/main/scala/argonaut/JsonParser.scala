@@ -58,7 +58,7 @@ object JsonParser {
       }
     }
 
-    expectValue(json, 0).right.flatMap(parseResult)
+    expectValue(json, 0).flatMap(parseResult)
   }
 
   @tailrec
@@ -89,10 +89,10 @@ object JsonParser {
       case ' ' | '\r' | '\n' | '\t' => expectObject(stream, position + 1, first, fields)
       case _ => {
         val next = for {
-          afterEntrySeparator <- (if (first) Right(position) else expectEntrySeparator(stream, position)).right
-          streamAndKey <- expectString(stream, afterEntrySeparator).right
-          afterFieldSeparator <- expectFieldSeparator(stream, streamAndKey._1).right
-          streamAndValue <- expectValue(stream, afterFieldSeparator).right
+          afterEntrySeparator <- (if (first) Right(position) else expectEntrySeparator(stream, position))
+          streamAndKey <- expectString(stream, afterEntrySeparator)
+          afterFieldSeparator <- expectFieldSeparator(stream, streamAndKey._1)
+          streamAndValue <- expectValue(stream, afterFieldSeparator)
         } yield (streamAndValue._1, fields.add(streamAndKey._2, streamAndValue._2))
         next match {
           case Right((newPosition, newFields)) => expectObject(stream, newPosition, false, newFields)
@@ -111,8 +111,8 @@ object JsonParser {
       case ' ' | '\r' | '\n' | '\t' => expectArray(stream, position + 1, first, fields)
       case _ => {
         val next = for {
-          afterEntrySeparator <- (if (first) Right(position) else expectEntrySeparator(stream, position)).right
-          streamAndValue <- expectValue(stream, afterEntrySeparator).right
+          afterEntrySeparator <- (if (first) Right(position) else expectEntrySeparator(stream, position))
+          streamAndValue <- expectValue(stream, afterEntrySeparator)
         } yield (streamAndValue._1, fields += streamAndValue._2)
         next match {
           case Right((newPosition, newFields)) => expectArray(stream, newPosition, false, newFields)
@@ -139,7 +139,7 @@ object JsonParser {
     else stream(position) match {
       case '[' => expectArray(stream, position + 1)
       case '{' => expectObject(stream, position + 1)
-      case '"' => expectStringNoStartBounds(stream, position + 1).right.map(pair => (pair._1, jString(pair._2)))
+      case '"' => expectStringNoStartBounds(stream, position + 1).map(pair => (pair._1, jString(pair._2)))
       case 't' if stream.startsWith("true", position) => Right((position + 4, jTrue))
       case 'f' if stream.startsWith("false", position) => Right((position + 5, jFalse))
       case 'n' if stream.startsWith("null", position) => Right((position + 4, jNull))
@@ -161,8 +161,8 @@ object JsonParser {
   @inline
   private[this] final def expectString(stream: TokenSource, position: Int): Either[String, (Int, String)] = {
     for {
-      afterOpen <- expectStringBounds(stream, position).right
-      afterString <- expectStringNoStartBounds(stream, afterOpen).right
+      afterOpen <- expectStringBounds(stream, position)
+      afterString <- expectStringNoStartBounds(stream, afterOpen)
     } yield afterString
   }
 
@@ -230,7 +230,7 @@ object JsonParser {
   @inline
   private[this] final def expectStringNoStartBounds(stream: TokenSource, position: Int): Either[String, (Int, String)] = {
     for {
-      elements <- collectStringParts(stream, position).right
+      elements <- collectStringParts(stream, position)
     } yield (elements._1, elements._2.toString())
   }
 }

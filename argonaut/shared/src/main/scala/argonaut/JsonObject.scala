@@ -167,9 +167,9 @@ object JsonObject extends JsonObjects {
     JsonObject.empty + (f, j)
   }
   /**
-    * Construct an object from a TraversableOnce instance.
+    * Construct an object from a Iterable instance.
     */
-  def fromTraversableOnce(t: TraversableOnce[(JsonField, Json)]): JsonObject = {
+  def fromIterable(t: Iterable[(JsonField, Json)]): JsonObject = {
     t.foldLeft(empty)(_ :+ _)
   }
 }

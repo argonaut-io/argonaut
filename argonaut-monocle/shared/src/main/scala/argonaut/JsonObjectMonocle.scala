@@ -34,7 +34,7 @@ trait JsonObjectMonocles {
           from.toList.traverse[F, (JsonField, Json)]{ case (field, json) =>
             Applicative[F].map(if(predicate(field)) f(json) else json.point[F])(field -> _)
           }
-        )(JsonObject.fromTraversableOnce(_))
+        )(JsonObject.fromIterable(_))
     }
   }
 

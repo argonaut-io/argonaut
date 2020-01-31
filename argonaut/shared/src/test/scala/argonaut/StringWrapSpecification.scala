@@ -61,7 +61,7 @@ object StringWrapSpecification extends ArgonautSpec {
       returns a failure for undecodable JSON ${
         forAllNoShrink(alphaStr, arbitrary[Int]) { (name: String, age: Int) =>
           val json = invalidJSONTemplate.format(name, age)
-          json.decode[Person].left.map(_.right.map(_._1)) must_== Left(Right("Person"))
+          json.decode[Person].left.map(_.map(_._1)) must_== Left(Right("Person"))
         }
       }
 
