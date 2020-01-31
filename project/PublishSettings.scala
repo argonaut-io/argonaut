@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 import com.jsuereth.sbtpgp.SbtPgp.autoImport.PgpKeys._
 import sbtrelease.ReleasePlugin.autoImport._
+import xerial.sbt.Sonatype.autoImport._
 
 object PublishSettings {
   type Sett = Def.Setting[_]
@@ -27,6 +28,7 @@ object PublishSettings {
        publishArtifacts,
        releaseStepCommand(s"++${ScalaSettings.Scala211}"),
        releaseStepCommand(build.nativeParentId + "/publishSigned"),
+       releaseStepCommandAndRemaining("sonatypeBundleRelease"),
        setNextVersion,
        commitNextVersion,
        pushChanges
@@ -64,11 +66,5 @@ object PublishSettings {
     )
 
   lazy val publish: Sett =
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (version.value.trim.endsWith("SNAPSHOT"))
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-    }
+    publishTo := sonatypePublishToBundle.value
 }
