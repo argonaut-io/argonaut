@@ -49,8 +49,6 @@ object build {
         Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
       }
     , releaseTagName := tagName.value
-    , resolvers += Resolver.sonatypeRepo("releases")
-    , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := "4.8.3"
