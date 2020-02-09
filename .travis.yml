@@ -1,6 +1,7 @@
 sudo: false
 language: scala
-dist: trusty
+dist: xenial
+jdk: openjdk8
 notifications:
   irc:
     channels:
@@ -12,29 +13,20 @@ script:
 - sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test mimaReportBinaryIssues "project jsParent" testSequential
 matrix:
   include:
-    - jdk: openjdk7
-      scala: 2.11.12
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test # scala-js test unstable with java7
-    - jdk: oraclejdk8
-      scala: 2.11.12
+    - scala: 2.11.12
 
     - jdk: openjdk11
-      dist: xenial
-      scala: 2.12.8
-      script: sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
+      scala: 2.12.10
 
-    - jdk: oraclejdk8
-      scala: 2.12.8
+    - scala: 2.12.10
 
-    - jdk: oraclejdk8
-      scala: 2.13.0
+    - scala: 2.13.1
 
     - scala: 2.11.12
-      jdk: oraclejdk8
       sudo: required
       env: SCALA_NATIVE
       before_install:
       - curl https://raw.githubusercontent.com/scala-native/scala-native/master/scripts/travis_setup.sh | bash -
       script:
-      - ./sbt ++$TRAVIS_SCALA_VERSION nativeTest/nativeLink
+      - sbt ++$TRAVIS_SCALA_VERSION nativeTest/nativeLink
       - ./native-test/target/scala-2.11/nativetest-out

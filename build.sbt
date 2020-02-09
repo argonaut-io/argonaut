@@ -61,7 +61,7 @@ val argonautCats = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.typelevel"                %%% "cats-core"                 % catsVersion
     , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test"
-    , "org.typelevel"                %%% "discipline-specs2"         % "1.0.0-RC1"              % "test"
+    , "org.typelevel"                %%% "discipline-specs2"         % "1.0.0"                  % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -77,7 +77,7 @@ val argonautJawn = argonautCrossProject(
   commonSettings ++ Seq(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.typelevel"               %%%  "jawn-parser"               % "0.14.2"
+      "org.typelevel"               %%%  "jawn-parser"               % "0.14.3"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -87,7 +87,8 @@ val argonautJawnJVM = argonautJawn.jvm
 val argonautBenchmark = Project(
   id = "argonaut-benchmark"
 , base = file("argonaut-benchmark")
-, settings = base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
+).settings(
+  base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
     name := "argonaut-benchmark"
   , fork in run := true
   , publishArtifact := false
@@ -125,7 +126,6 @@ val nativeTest = Project(
 , file("native-test")
 )
 .enablePlugins(ScalaNativePlugin)
-.disablePlugins(sbt.plugins.BackgroundRunPlugin)
 .settings(
     base
   , noPublish
@@ -158,7 +158,7 @@ val jsParent = project
   , noPublish
   , commands += Command.command("testSequential"){
       // avoid "org.scalajs.jsenv.ComJSEnv$ComClosedException: Node.js isn't connected" error in travis-ci
-      jsProjects.map(_.id + "/test").sorted ::: _
+      jsProjects.map(_.id + "/test").sorted.toList ::: _
     }
   ).aggregate(
     jsProjects.map(p => p: ProjectReference) : _*
@@ -177,3 +177,5 @@ val argonautParent = Project(
 ).aggregate(
   (jsProjects ++ jvmProjects).map(p => p: ProjectReference) : _*
 )
+
+mimaFailOnNoPrevious in ThisBuild := false

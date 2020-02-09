@@ -1,6 +1,6 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.pgp.PgpKeys._
+import com.jsuereth.sbtpgp.SbtPgp.autoImport.PgpKeys._
 import sbtrelease.ReleasePlugin
 import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
@@ -19,7 +19,7 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.28"
+  val scalazVersion              = "7.2.30"
   val monocleVersion             = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, v)) if v <= 12 =>
@@ -28,7 +28,7 @@ object build {
         "1.6.0"
     }
   )
-  val catsVersion                = "2.0.0-RC1"
+  val catsVersion                = "2.0.0"
 
   val scalacheckVersion          = settingKey[String]("")
   val specs2Version              = settingKey[String]("")
@@ -41,7 +41,7 @@ object build {
 
   private[this] val tagOrHash = Def.setting {
     if(isSnapshot.value) {
-      sys.process.Process("git rev-parse HEAD").lines_!.head
+      sys.process.Process("git rev-parse HEAD").lineStream_!.head
     } else {
       tagName.value
     }
@@ -71,14 +71,10 @@ object build {
     , resolvers += Resolver.sonatypeRepo("snapshots")
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := "4.7.0"
+    , specs2Version := "4.8.3"
     , mimaPreviousArtifacts := {
         CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, 11 | 12)) =>
-            Set("6.2.2", "6.2.3").map(
-              organization.value %% name.value % _
-            )
-          case Some((2, 13)) =>
+          case Some((2, _)) =>
             Set("6.2.3").map(
               organization.value %% name.value % _
             )
@@ -105,7 +101,7 @@ object build {
         baseDirectory in Test := (baseDirectory in LocalRootProject).value
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
-        scalacheckVersion := "1.14.0",
+        scalacheckVersion := "1.14.3",
         libraryDependencies ++= Seq(
             "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
           , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"

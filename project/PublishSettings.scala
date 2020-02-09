@@ -1,6 +1,6 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.pgp.PgpKeys._
+import com.jsuereth.sbtpgp.SbtPgp.autoImport.PgpKeys._
 import sbtrelease.ReleasePlugin.autoImport._
 
 object PublishSettings {
