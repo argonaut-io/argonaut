@@ -1,5 +1,3 @@
-resolvers += Resolver.sonatypeRepo("releases")
-
 scalacOptions += "-deprecation"
 
 addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.1")
