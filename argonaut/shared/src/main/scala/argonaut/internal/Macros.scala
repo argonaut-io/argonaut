@@ -27,7 +27,7 @@ object Macros extends MacrosCompat {
         }
         val decodedNames: List[String] = fieldNames.map(_.decodedName.toString)
         val fieldTypes: List[c.universe.Type] = getParameterLists(c)(constructor).flatten.map{field =>
-          getDeclaration(c)(tpe, field.name).typeSignature
+          getDeclaration(c)(tpe, field.name).infoIn(tpe)
         }
         val fieldCount = fieldNames.size
         val invocations = fieldNames.map{fieldName => 
@@ -59,7 +59,7 @@ object Macros extends MacrosCompat {
         }
         val decodedNames: List[String] = fieldNames.map(_.decodedName.toString)
         val fieldTypes: List[c.universe.Type] = getParameterLists(c)(constructor).flatten.map{field =>
-          getDeclaration(c)(tpe, field.name).typeSignature
+          getDeclaration(c)(tpe, field.name).infoIn(tpe)
         }
         val fieldCount = fieldNames.size
         val functionParameters = fieldNames.zip(fieldTypes).map{case (fieldName, fieldType) =>
