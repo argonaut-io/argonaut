@@ -51,6 +51,7 @@ object CodecSpecification extends ArgonautSpec {
     CodecJson[Person] derived ${derived.testDerivedPerson}
     CodecJson[BackTicks] derived ${derived.testDerivedBackTicks}
     CodecJson[Shape] derived ${derived.testDerivedShape}
+    CodecJson[Parameterized[A]] derived ${derived.testParameterized}
   """
 
   def mapArbitrary[A, B](arbitrary: Arbitrary[A])(f: A => B): Arbitrary[B] = {
@@ -134,9 +135,14 @@ object CodecSpecification extends ArgonautSpec {
     implicit def OrderCodecJson: CodecJson[Order] = CodecJson.derive[Order]
     implicit def PersonCodecJson: CodecJson[Person] = CodecJson.derive[Person]
     implicit def BackTicksCodecJson: CodecJson[BackTicks] = CodecJson.derive[BackTicks]
+    implicit def ParameterizedCodecJson [T: EncodeJson: DecodeJson] = CodecJson.derive[Parameterized[T]]
 
     def testDerivedPerson = encodedecode[Person]
     def testDerivedBackTicks = encodedecode[BackTicks]
     def testDerivedShape = encodedecode[Shape]
+    def testParameterized = {
+      encodedecode[Parameterized[String]]
+      encodedecode[Parameterized[Int]]
+    }
   }
 }

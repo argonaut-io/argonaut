@@ -14,6 +14,8 @@ case class Square(side: Int) extends Shape
 
 case class BackTicks(`a.b.c`: String)
 
+case class Parameterized[A](value1: String, value2: A)
+
 object TestTypes {
   implicit def PersonEqual: Equal[Person] = Equal.equalA
   implicit def PersonShow: Show[Person] = Show.showFromToString
@@ -47,4 +49,9 @@ object TestTypes {
   ))
 
   implicit def BackticksArbitrary: Arbitrary[BackTicks] = Arbitrary(arbitrary[String].map(BackTicks.apply))
+
+  implicit def ParameterizedArbitrary [T:Arbitrary]: Arbitrary[Parameterized[T]] = Arbitrary(for {
+    v1 <- arbitrary[String]
+    v2 <- arbitrary[T]
+  } yield Parameterized[T](v1, v2))
 }
