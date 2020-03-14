@@ -70,6 +70,7 @@ object build {
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := "4.8.3"
+    , ThisBuild / mimaReportSignatureProblems := true
     , mimaPreviousArtifacts := {
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, _)) =>
