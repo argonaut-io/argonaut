@@ -4,7 +4,7 @@ import argonaut.Argonaut._
 import org.specs2.mutable.Specification
 import argonaut.JsonPath.root
 
-object JsonPathSpecification extends Specification {
+class JsonPathSpecification extends Specification {
 
   case class Car(model: String, maxSpeed: Int, automatic: Boolean)
   object  Car {
