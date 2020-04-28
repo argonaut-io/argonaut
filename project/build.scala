@@ -74,7 +74,7 @@ object build {
     , mimaPreviousArtifacts := {
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, _)) =>
-            Set("6.2.3").map(
+            Set("6.2.3", "6.2.4", "6.2.5").map(
               organization.value %% name.value % _
             )
           case _ =>
