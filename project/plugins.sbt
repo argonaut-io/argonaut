@@ -16,4 +16,4 @@ addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.3.9")
 
 addSbtPlugin("org.ensime" % "sbt-ensime" % "2.6.1")
 
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.8.1")
+addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.2")
