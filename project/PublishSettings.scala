@@ -1,6 +1,6 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.pgp.PgpKeys._
+import com.jsuereth.sbtpgp.PgpKeys._
 import sbtrelease.ReleasePlugin.autoImport._
 import xerial.sbt.Sonatype.autoImport._
 

@@ -1,6 +1,6 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.pgp.PgpKeys._
+import com.jsuereth.sbtpgp.PgpKeys._
 import sbtrelease.ReleasePlugin
 import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
@@ -18,7 +18,7 @@ object build {
   )
 
   val scalazVersion              = "7.2.30"
-  val monocleVersion             = "1.6.0"
+  val monocleVersion             = "1.6.3"
   val catsVersion                = "2.1.1"
 
   val scalacheckVersion          = settingKey[String]("")
@@ -51,9 +51,10 @@ object build {
     , releaseTagName := tagName.value
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := "4.8.3"
+    , specs2Version := "4.9.4"
     // no mima until 6.2.0 release.
     , mimaPreviousArtifacts := Set()
+    , ThisBuild / mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
