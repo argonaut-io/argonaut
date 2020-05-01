@@ -58,10 +58,10 @@ trait DecodeResultScalazs {
 
   implicit def DecodeResultShow[A : Show]: Show[DecodeResult[A]] = new IsomorphismShow[DecodeResult[A], DecodeEither[A]] {
     def G = new Show[Either[(String, CursorHistory), A]]{
-      override def shows(e: Either[(String, CursorHistory), A]): String = {
+      override def show(e: Either[(String, CursorHistory), A]) = {
         e match {
-          case Left(l) => l.shows
-          case Right(r) => r.shows
+          case Left(l) => l.show
+          case Right(r) => r.show
         }
       }
     }

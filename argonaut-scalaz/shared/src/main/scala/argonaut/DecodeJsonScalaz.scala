@@ -49,8 +49,8 @@ trait DecodeJsonScalazs {
   implicit def NonEmptyListDecodeJson[A: DecodeJson]: DecodeJson[NonEmptyList[A]] = {
     implicitly[DecodeJson[List[A]]].flatMap(l =>
       DecodeJson[NonEmptyList[A]](c => std.list.toNel(l) match {
-        case None => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
-        case Some(n) => DecodeResult.ok(n)
+        case Maybe.Empty() => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
+        case Maybe.Just(n) => DecodeResult.ok(n)
       })
     ) setName "[A]NonEmptyList[A]"
   }

@@ -16,7 +16,7 @@ trait ContextScalazs {
         Equal.equalBy((_: Context).toList).equal(c1, c2)
       }
       override def show(c: Context) = {
-        c.toList.map(_.shows).intersperse(".").mkString
+        Foldable[List].suml(c.toList.map(_.show).intersperse(Cord(".")))
       }
     }
   }
@@ -40,7 +40,7 @@ trait ContextElementScalazs {
         }
       }
 
-      override def show(c: ContextElement) = {
+      override def show(c: ContextElement) = Cord{
         c match {
           case ArrayContext(n, j) => "[" + n + "]"
           case ObjectContext(f, j) => "{" + f + "}"

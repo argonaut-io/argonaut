@@ -25,7 +25,7 @@ val argonautScalaz = argonautCrossProject(
     )
   )
 ).platformsSettings(JVMPlatform, JSPlatform)(
-  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.14" % "test"
+  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test"
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautScalazJVM = argonautScalaz.jvm

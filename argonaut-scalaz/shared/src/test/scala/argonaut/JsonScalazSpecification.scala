@@ -9,11 +9,9 @@ import Data.ArbitraryJson
 object JsonScalazSpecification extends ArgonautSpec {
 
   private implicit def NonEmptyListStrGen: Gen[NonEmptyList[String]] = for {
-    list <- Gen.nonEmptyListOf[String](Gen.alphaNumStr)
-    res  <- list match {
-      case x :: xs => Gen.const(NonEmptyList(x, xs: _*))
-      case Nil     => Gen.fail[NonEmptyList[String]]
-    }
+    head <- Gen.alphaNumStr
+    tail <- Gen.listOf(Gen.alphaNumStr)
+    res  <- Gen.const(NonEmptyList.fromSeq(head, tail))
   } yield res
 
   private implicit def NonEmptyListArb: Arbitrary[NonEmptyList[String]] =

@@ -10,8 +10,10 @@ trait CursorOpScalazs {
   implicit val CursorOpInstances: Show[CursorOp] with Equal[CursorOp] = {
     new Show[CursorOp] with Equal[CursorOp] {
       override def show(x: CursorOp) = x match {
-        case Reattempt => ".?."
-        case El(o, s) => if(s) o.show else '*' -: '.' -: o.show
+        case Reattempt =>
+          Cord(".?.")
+        case El(o, s) =>
+          if(s) o.show else Cord('*' + '.' + o.shows)
       }
       def equal(a1: CursorOp, a2: CursorOp) = {
         a1 == a2

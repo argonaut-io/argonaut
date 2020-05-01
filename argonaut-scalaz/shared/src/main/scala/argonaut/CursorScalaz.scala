@@ -91,8 +91,8 @@ trait CursorScalazs {
        }
      }
 
-    override def shows(c: Cursor): String = {
-      s"${c.context.shows} ==> ${c.focus.shows}"
+    override def show(c: Cursor): Cord = {
+      Cord(z"${c.context} ==> ${c.focus}")
     }
   }
 }

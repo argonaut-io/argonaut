@@ -17,8 +17,8 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.30"
-  val monocleVersion             = "1.6.3"
+  val scalazVersion              = "7.3.0"
+  val monocleVersion             = "1.7.0"
   val catsVersion                = "2.1.1"
 
   val scalacheckVersion          = settingKey[String]("")

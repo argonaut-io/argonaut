@@ -1,7 +1,9 @@
 package argonaut
 
 import Json._
-import scalaz._, syntax.traverse._
+import scalaz._
+import scalaz.syntax.foldable._
+import scalaz.syntax.functor._
 import JsonObject._, Json._
 
 object JsonObjectScalaz extends JsonObjectScalazs {

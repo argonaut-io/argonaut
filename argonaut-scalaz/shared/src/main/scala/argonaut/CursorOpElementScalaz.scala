@@ -8,7 +8,7 @@ object CursorOpElementScalaz extends CursorOpElementScalazs
 trait CursorOpElementScalazs {
   implicit val CursorOpElementInstances: Show[CursorOpElement] with Equal[CursorOpElement] = {
     new Show[CursorOpElement] with Equal[CursorOpElement] {
-      override def show(e: CursorOpElement) = {
+      override def show(e: CursorOpElement) = Cord{
         e match {
           case CursorOpLeft => "<-"
           case CursorOpRight => "->"
