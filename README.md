@@ -23,12 +23,13 @@ Just add argonaut as a dependency.
 
 Stable:
 
-    "io.argonaut" %% "argonaut" % "6.2.5"
-
-
-Note that the 6.1.x release supports scala `2.10.*` and `2.11.*` with scalaz `7.1.*`.
+```scala
+libraryDependencies += "io.argonaut" %% "argonaut" % "6.3.0"
+```
 
 Note that the 6.2.x releass supports scala `2.11.*`, `2.12.*` and `2.13.*` with scalaz `7.2.*`.
+
+Note that the 6.3.x releass supports scala `2.12.*` and `2.13.*` with scalaz `7.3.*`.
 
 
 ### Release
