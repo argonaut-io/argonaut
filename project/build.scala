@@ -38,6 +38,8 @@ object build {
     }
   }
 
+  private[this] val previousVersions = (0 to 0).map(n => s"6.3.$n")
+
   val commonSettings = base ++
     ReplSettings.all ++
     ReleasePlugin.projectSettings ++
@@ -52,8 +54,6 @@ object build {
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := "4.9.4"
-    // no mima until 6.2.0 release.
-    , mimaPreviousArtifacts := Set()
     , ThisBuild / mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
@@ -76,6 +76,13 @@ object build {
         fork in Test := true,
         baseDirectory in Test := (baseDirectory in LocalRootProject).value
       )
+      .jvmSettings(
+        mimaPreviousArtifacts := {
+          previousVersions.map { n =>
+            organization.value %% Keys.name.value % n
+          }.toSet
+        }
+      )
       .settings(
         scalacheckVersion := "1.14.3",
         libraryDependencies ++= Seq(
@@ -88,6 +95,9 @@ object build {
     if (platforms.contains(JSPlatform)) {
       p.jsSettings(
         parallelExecution in Test := false,
+        mimaPreviousArtifacts := previousVersions.map { n =>
+          organization.value %% s"${Keys.name.value}_sjs1" % n
+        }.toSet,
         scalacOptions += {
           val a = (baseDirectory in LocalRootProject).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value

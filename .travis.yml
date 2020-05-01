@@ -8,7 +8,7 @@ notifications:
     template:
       - "\x0313argonaut\x03/\x0306%{branch}\x03 \x0314%{commit}\x03 %{build_url} %{message}"
 script:
-- sbt ++${TRAVIS_SCALA_VERSION} test:compile jvmParent/test "project jsParent" testSequential
+- sbt ++${TRAVIS_SCALA_VERSION} mimaReportBinaryIssues test:compile jvmParent/test "project jsParent" testSequential
 jdk: openjdk8
 dist: xenial
 matrix:

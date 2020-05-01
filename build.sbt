@@ -90,6 +90,7 @@ val argonautBenchmark = Project(
     name := "argonaut-benchmark"
   , fork in run := true
   , publishArtifact := false
+  , mimaFailOnNoPrevious := false
   , libraryDependencies ++= Seq(
       "com.google.caliper"           %   "caliper"                   % "0.5-rc1"
     , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.11.0"
@@ -141,6 +142,7 @@ val argonautParent = Project(
 ).settings(
     base
   , ReleasePlugin.projectSettings
+  , mimaFailOnNoPrevious := false
   , PublishSettings.all
   , noPublish
   , name := "argonaut-parent"
