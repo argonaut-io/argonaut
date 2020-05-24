@@ -1,6 +1,7 @@
 package argonaut
 
 import java.math.MathContext
+import scala.util.matching.Regex
 
 /**
  * JSON numbers with optimization by cases.
@@ -241,7 +242,7 @@ case class JsonBigDecimal(value: BigDecimal) extends JsonNumber {
 }
 
 case class JsonLong(value: Long) extends JsonNumber {
-  def toBigDecimal = BigDecimal(value)
+  def toBigDecimal: BigDecimal = BigDecimal(value)
   def toLong: Option[Long] = Some(value)
   override def truncateToLong: Long = value
 }
@@ -374,7 +375,7 @@ object JsonNumber {
    * The negative sign, fractional part and exponent part are optional matches
    * and may be `null`.
    */
-  val JsonNumberRegex =
+  val JsonNumberRegex: Regex =
     """(-)?((?:[1-9][0-9]*|0))(?:\.([0-9]+))?(?:[eE]([-+]?[0-9]+))?""".r
 }
 
