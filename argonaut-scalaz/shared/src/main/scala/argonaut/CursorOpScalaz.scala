@@ -13,7 +13,7 @@ trait CursorOpScalazs {
         case Reattempt =>
           Cord(".?.")
         case El(o, s) =>
-          if(s) o.show else Cord('*' + '.' + o.shows)
+          if(s) o.show else Cord("*." + o.shows)
       }
       def equal(a1: CursorOp, a2: CursorOp) = {
         a1 == a2
