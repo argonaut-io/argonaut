@@ -12,9 +12,9 @@ object JsonObjectCats extends JsonObjectCatss {
 }
 
 trait JsonObjectCatss {
-  implicit val JsonObjectEq = Eq.fromUniversalEquals[JsonObject]
+  implicit val JsonObjectEq: Eq[JsonObject] = Eq.fromUniversalEquals[JsonObject]
 
-  implicit val JsonObjectShow = Show.fromToString[JsonObject]
+  implicit val JsonObjectShow: Show[JsonObject] = Show.fromToString[JsonObject]
 
   def traverse[F[_]](o: JsonObject, f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
     o.toList.foldLeft(FF.pure(List[JsonAssoc]())){case (acc, (k, v)) =>
