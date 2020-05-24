@@ -42,7 +42,7 @@ case class CursorHistory(toList: List[CursorOp]) {
 object CursorHistory extends CursorHistorys
 
 trait CursorHistorys {
-  def empty = CursorHistory(List())
+  def empty: CursorHistory = CursorHistory(List())
 
-  def start(e: CursorOp) = CursorHistory(List(e))
+  def start(e: CursorOp): CursorHistory = CursorHistory(List(e))
 }

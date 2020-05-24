@@ -11,7 +11,7 @@ import scalaz.syntax.applicative._
 object JsonObjectMonocle extends JsonObjectMonocles
 
 trait JsonObjectMonocles {
-  implicit val jObjectEach = new Each[JsonObject, Json]{
+  implicit val jObjectEach: Each[JsonObject, Json] = new Each[JsonObject, Json]{
     def each = new Traversal[JsonObject, Json]{
       def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] = {
         JsonObjectScalaz.traverse(from, f)
@@ -19,14 +19,14 @@ trait JsonObjectMonocles {
     }
   }
 
-  implicit val jObjectAt = new At[JsonObject, JsonField, Option[Json]]{
+  implicit val jObjectAt: At[JsonObject, JsonField, Option[Json]] = new At[JsonObject, JsonField, Option[Json]]{
     def at(field: JsonField): Lens[JsonObject, Option[Json]] =
       monocle.Lens[JsonObject, Option[Json]](_.apply(field))( optVal => jObj =>
         optVal.fold(jObj - field)(value => jObj + (field, value))
       )
   }
 
-  implicit val jObjectFilterIndex = new FilterIndex[JsonObject, JsonField, Json]{
+  implicit val jObjectFilterIndex: FilterIndex[JsonObject, JsonField, Json] = new FilterIndex[JsonObject, JsonField, Json]{
     import scalaz.syntax.traverse._
     def filterIndex(predicate: JsonField => Boolean) = new Traversal[JsonObject, Json]{
       def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =

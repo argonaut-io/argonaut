@@ -88,14 +88,14 @@ trait DecodeJson[A] {
   /**
    * Build a new DecodeJson codec with the specified precondition that f(c) == true.
    */
-  def validate(f: HCursor => Boolean, message: => String) = {
+  def validate(f: HCursor => Boolean, message: => String): DecodeJson[A] = {
     DecodeJson(c => if (f(c)) apply(c) else DecodeResult.fail[A](message, c.history))
   }
 
   /**
    * Build a new DecodeJson codec with the precondition that the cursor focus is object with exactly n field.
    */
-  def validateFields(n: Int) = {
+  def validateFields(n: Int): DecodeJson[A] = {
     validate(_.focus.obj exists (_.size == n), "Expected json object with exactly [" + n + "] fields.")
   }
 
@@ -139,7 +139,7 @@ trait DecodeJson[A] {
   /**
    * Widen A into AA.
    */
-  def widen[AA]()(implicit ev: A <:< AA) = map(ev)
+  def widen[AA]()(implicit ev: A <:< AA): DecodeJson[AA] = map(ev)
 
 }
 
@@ -160,7 +160,7 @@ object DecodeJson extends DecodeJsons {
 
   def derive[A]: DecodeJson[A] = macro internal.Macros.materializeDecodeImpl[A]
 
-  def of[A: DecodeJson] = implicitly[DecodeJson[A]]
+  def of[A: DecodeJson]: DecodeJson[A] = implicitly[DecodeJson[A]]
 }
 
 trait DecodeJsons extends GeneratedDecodeJsons {

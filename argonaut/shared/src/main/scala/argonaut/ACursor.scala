@@ -255,17 +255,17 @@ case class ACursor(either: Either[HCursor, HCursor]) {
 }
 
 object ACursor extends ACursors {
-  def ok(cursor: HCursor) =
+  def ok(cursor: HCursor): ACursor =
     ACursor(Right(cursor))
 
-  def fail(cursor: HCursor) =
+  def fail(cursor: HCursor): ACursor =
     ACursor(Left(cursor))
 }
 
 trait ACursors {
-  def okACursor(cursor: HCursor) =
+  def okACursor(cursor: HCursor): ACursor =
     ACursor.ok(cursor)
 
-  def failACursor(cursor: HCursor) =
+  def failACursor(cursor: HCursor): ACursor =
     ACursor.fail(cursor)
 }

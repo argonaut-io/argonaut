@@ -56,7 +56,7 @@ object EncodeJson extends EncodeJsons {
 
   def derive[A]: EncodeJson[A] = macro internal.Macros.materializeEncodeImpl[A]
 
-  def of[A: EncodeJson] = implicitly[EncodeJson[A]]
+  def of[A: EncodeJson]: EncodeJson[A] = implicitly[EncodeJson[A]]
 }
 
 trait EncodeJsons extends GeneratedEncodeJsons {

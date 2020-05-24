@@ -30,9 +30,9 @@ trait JsonObjectScalazs {
     PLens.somePLens compose ~jsonObjectL(f)
   }
 
-  implicit val JsonObjectShow = Show.showFromToString[JsonObject]
+  implicit val JsonObjectShow: Show[JsonObject] = Show.showFromToString[JsonObject]
 
-  implicit val JsonObjectEqual = Equal.equalA[JsonObject]
+  implicit val JsonObjectEqual: Equal[JsonObject] = Equal.equalA[JsonObject]
 
   def traverse[F[_]](o: JsonObject, f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
     o.toList.foldLeft(FF.point(List[JsonAssoc]())){case (acc, (k, v)) =>
