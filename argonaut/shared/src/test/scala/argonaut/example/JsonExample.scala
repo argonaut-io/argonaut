@@ -20,8 +20,8 @@ object JsonExample extends ArgonautSpec {
   case class Coin(value: Int)
   case class Person(name: String, age: Int, wallet: List[Coin])
 
-  implicit val CodecCoin = casecodec1(Coin.apply, Coin.unapply)("value")
-  implicit val CodecPerson = casecodec3(Person.apply, Person.unapply)("name", "age", "wallet")
+  implicit val CodecCoin: CodecJson[Coin] = casecodec1(Coin.apply, Coin.unapply)("value")
+  implicit val CodecPerson: CodecJson[Person] = casecodec3(Person.apply, Person.unapply)("name", "age", "wallet")
 
   def is = s2"""
   Can decode hand crafted object ${
