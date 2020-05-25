@@ -9,6 +9,7 @@ import sbtcrossproject.{CrossProject, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
 
 object build {
   type Sett = Def.Setting[_]
@@ -44,14 +45,23 @@ object build {
     ReplSettings.all ++
     ReleasePlugin.projectSettings ++
     PublishSettings.all ++
-    Seq[Sett](
-      scalacOptions += "-language:_"
-    , scalacOptions in (Compile, doc) ++= {
+    Def.settings(
+      Seq(Compile, Test).map { scope =>
+        unmanagedSourceDirectories in scope += {
+          val base = baseDirectory.value.getParentFile / "shared" / "src"
+          val dir = base / Defaults.nameForSrc(scope.name)
+          if (isDotty.value) {
+            dir / "scala3"
+          } else {
+            dir / "scala2"
+          }
+        }
+      },
+      scalacOptions in (Compile, doc) ++= {
         val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
         Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
       }
     , releaseTagName := tagName.value
-    , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
     , specs2Version := "4.9.4"
     , ThisBuild / mimaReportSignatureProblems := true

@@ -143,7 +143,7 @@ trait DecodeJson[A] {
 
 }
 
-object DecodeJson extends DecodeJsons {
+object DecodeJson extends DecodeJsons with DecodeJsonMacro {
   def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] = {
     new DecodeJson[A] {
       def decode(c: HCursor) = r(c)
@@ -157,8 +157,6 @@ object DecodeJson extends DecodeJsons {
       override def tryDecode(c: ACursor) = r(c)
     }
   }
-
-  def derive[A]: DecodeJson[A] = macro internal.Macros.materializeDecodeImpl[A]
 
   def of[A: DecodeJson]: DecodeJson[A] = implicitly[DecodeJson[A]]
 }

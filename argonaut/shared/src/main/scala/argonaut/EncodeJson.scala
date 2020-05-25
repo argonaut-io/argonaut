@@ -48,13 +48,11 @@ trait EncodeJson[A] {
   }
 }
 
-object EncodeJson extends EncodeJsons {
+object EncodeJson extends EncodeJsons with EncodeJsonMacro {
   def apply[A](f: A => Json): EncodeJson[A] =
     new EncodeJson[A] {
       def encode(a: A) = f(a)
     }
-
-  def derive[A]: EncodeJson[A] = macro internal.Macros.materializeEncodeImpl[A]
 
   def of[A: EncodeJson]: EncodeJson[A] = implicitly[EncodeJson[A]]
 }

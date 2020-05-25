@@ -7,6 +7,7 @@ val argonaut = argonautCrossProject(
   commonSettings ++ InfoSettings.all ++ Seq[Sett](
     name := "argonaut"
   , (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.gen).taskValue
+  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
   )
 )
 
@@ -25,7 +26,8 @@ val argonautScalaz = argonautCrossProject(
     )
   )
 ).platformsSettings(JVMPlatform, JSPlatform)(
-  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test"
+  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
+  libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautScalazJVM = argonautScalaz.jvm
@@ -43,6 +45,7 @@ val argonautMonocle = argonautCrossProject(
     , "com.github.julien-truffaut"   %%% "monocle-macro"             % monocleVersion
     , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion % "test"
     )
+  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
   )
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
@@ -62,6 +65,7 @@ val argonautCats = argonautCrossProject(
     , "org.typelevel"                %%% "discipline-specs2"         % "1.1.0"                  % "test"
     )
   )
+  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautCatsJVM = argonautCats.jvm
@@ -77,6 +81,7 @@ val argonautJawn = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.typelevel"               %%%  "jawn-parser"               % "1.0.0"
     )
+  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
 

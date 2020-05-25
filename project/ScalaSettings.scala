@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 import org.ensime.EnsimeKeys._
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.{isDotty, dottyLatestNightlyBuild}
 
 object ScalaSettings {
   type Sett = Def.Setting[_]
@@ -13,10 +14,32 @@ object ScalaSettings {
 
   lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala212
+  , commands += Command.command("SetDottyNightlyVersion") {
+      s"""++ ${dottyLatestNightlyBuild.get}!""" :: _
+    }
   , crossScalaVersions := Seq(Scala212, "2.13.2")
   , ensimeScalaVersion := Scala212
   , fork in test := true
-  , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint")
+  , scalacOptions ++= {
+      if (isDotty.value) {
+        Seq(
+          "-Xignore-scala2-macros"
+        )
+      } else {
+        Seq(
+          unusedWarnings.value,
+          Seq(
+            "-Xlint"
+          )
+        ).flatten
+      }
+    }
+  , scalacOptions ++= Seq(
+      "-deprecation"
+    , "-unchecked"
+    , "-feature"
+    , "-language:implicitConversions,higherKinds"
+    )
   , scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 11 | 12)) =>
@@ -25,7 +48,6 @@ object ScalaSettings {
           Nil
       }
     }
-  , scalacOptions ++= unusedWarnings.value
   ) ++ Seq(Compile, Test).flatMap(c =>
     scalacOptions in (c, console) --= unusedWarnings.value
   )

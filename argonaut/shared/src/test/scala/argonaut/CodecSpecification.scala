@@ -3,7 +3,6 @@ package argonaut
 import Data._
 import org.scalacheck._, Arbitrary._
 import org.specs2.scalacheck.ScalaCheckFunction1
-import org.specs2.specification.core.SpecStructure
 
 object CodecSpecification extends ArgonautSpec {
   def encodedecode[A: EncodeJson: DecodeJson: Arbitrary]: ScalaCheckFunction1[A, Boolean] = {
