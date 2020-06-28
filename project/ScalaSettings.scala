@@ -17,7 +17,7 @@ object ScalaSettings {
   , commands += Command.command("SetDottyNightlyVersion") {
       s"""++ ${dottyLatestNightlyBuild.get}!""" :: _
     }
-  , crossScalaVersions := Seq(Scala212, "2.13.2")
+  , crossScalaVersions := Seq(Scala212, "2.13.3")
   , ensimeScalaVersion := Scala212
   , fork in test := true
   , scalacOptions ++= {

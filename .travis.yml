@@ -18,7 +18,7 @@ matrix:
 
     - scala: 2.12.11
 
-    - scala: 2.13.2
+    - scala: 2.13.3
 
     - name: dotty
       script: sbt SetDottyNightlyVersion "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile"
