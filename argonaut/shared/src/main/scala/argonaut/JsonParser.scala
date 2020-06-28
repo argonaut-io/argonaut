@@ -107,7 +107,7 @@ object JsonParser {
   private[this] final def expectArray(stream: TokenSource, position: Int, first: Boolean = true, fields: Builder[Json, List[Json]] = List.newBuilder): Either[String, (Int, Json)] = {
     if (position >= stream.length) unexpectedTermination
     else stream(position) match {
-      case ']' => Right((position + 1, jArray(fields.result)))
+      case ']' => Right((position + 1, jArray(fields.result())))
       case ' ' | '\r' | '\n' | '\t' => expectArray(stream, position + 1, first, fields)
       case _ => {
         val next = for {

@@ -186,7 +186,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       a.downArray.hcursor match {
         case None => {
           if (a.focus.isArray) {
-            DecodeResult.ok(newBuilder.apply.result)
+            DecodeResult.ok(newBuilder.apply().result())
           } else {
             DecodeResult.fail("[A]", a.history)
           }
@@ -194,12 +194,12 @@ trait DecodeJsons extends GeneratedDecodeJsons {
         case Some(hcursor) => {
           hcursor.rights match {
             case Some(elements) => {
-              (hcursor.focus :: elements).foldLeft(DecodeResult.ok(newBuilder.apply)){(working, elem) =>
+              (hcursor.focus :: elements).foldLeft(DecodeResult.ok(newBuilder.apply())){(working, elem) =>
                 for {
                   w <- working
                   e <- elem.jdecode[A]
                 } yield w += e
-              }.map(_.result)
+              }.map(_.result())
             }
             case _ => {
               DecodeResult.fail("[A]", a.history)
