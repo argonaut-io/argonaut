@@ -4,7 +4,6 @@ import org.scalacheck.Gen._
 import org.scalacheck.Gen
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop._
-import org.scalacheck._
 import org.scalacheck.Shrink._
 import org.specs2._
 import org.specs2.matcher._

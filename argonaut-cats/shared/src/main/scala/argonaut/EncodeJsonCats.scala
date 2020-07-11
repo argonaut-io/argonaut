@@ -26,7 +26,7 @@ trait EncodeJsonCatss {
     fromFoldable[NonEmptyList, A]
 
   implicit def ValidatedEncodeJson[E, A](implicit EA: EncodeJson[E], EB: EncodeJson[A]): EncodeJson[Validated[E, A]] =
-    EncodeJson(_ fold (
+    EncodeJson(_.fold (
       e => jSingleObject("Invalid", EA(e)), a => jSingleObject("Valid", EB(a))
     ))
 }

@@ -1,6 +1,5 @@
 package argonaut
 
-import Json._
 import scalaz._
 import scalaz.syntax.foldable._
 import scalaz.syntax.functor._

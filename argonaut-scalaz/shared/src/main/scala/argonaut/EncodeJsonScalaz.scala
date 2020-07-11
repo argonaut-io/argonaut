@@ -19,7 +19,7 @@ trait EncodeJsonScalazs {
     ))
 
   implicit def ValidationEncodeJson[E, A](implicit ea: EncodeJson[E], eb: EncodeJson[A]): EncodeJson[Validation[E, A]] =
-    EncodeJson(_ fold (
+    EncodeJson(_.fold (
       e => jSingleObject("Failure", ea(e)), a => jSingleObject("Success", eb(a))
     ))
 
