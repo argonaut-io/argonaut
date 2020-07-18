@@ -14,9 +14,9 @@ dist: xenial
 matrix:
   include:
     - jdk: openjdk11
-      scala: 2.12.11
+      scala: 2.12.12
 
-    - scala: 2.12.11
+    - scala: 2.12.12
 
     - scala: 2.13.3
 
