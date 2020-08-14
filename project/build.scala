@@ -63,7 +63,7 @@ object build {
       }
     , releaseTagName := tagName.value
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := "4.10.2"
+    , specs2Version := "4.10.3"
     , ThisBuild / mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
