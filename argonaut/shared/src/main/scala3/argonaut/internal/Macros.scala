@@ -1,7 +1,8 @@
 package argonaut
 package internal
 
-import scala.collection.{AbstractIterable, AbstractIterator}
+import scala.annotation.tailrec
+import scala.collection.AbstractIterator
 import scala.deriving.{ArrayProduct, Mirror}
 import scala.compiletime.{constValue, erasedValue, summonFrom}
 
@@ -70,26 +71,24 @@ object Macros {
 
       override def encode(a: A): Json =
         Json.jObject(
-          JsonObject.fromIterable(encodedIterable(a.asInstanceOf[Product]))
+          createJsonObject(a.asInstanceOf[Product])
         )
 
-      private[this] def encodedIterable(value: Product): Iterable[(String, Json)] =
-        new AbstractIterable[(String, Json)] {
-          private[this] def encodeWith(index: Int)(p: Any): (String, Json) =
-            (value.productElementName(index), elemEncoders(index).asInstanceOf[EncodeJson[Any]].apply(p))
-
-          def iterator: Iterator[(String, Json)] =
-            new scala.collection.AbstractIterator[(String, Json)] {
-              private[this] val elems: Iterator[Any] = value.productIterator
-              private[this] var index: Int = 0
-              def hasNext: Boolean = elems.hasNext
-              def next(): (String, Json) = {
-                val field = encodeWith(index)(elems.next())
-                index += 1
-                field
-              }
-            }
+      private[this] def createJsonObject(value: Product): JsonObject = {
+        def encodeWith(index: Int)(p: Any): (String, Json) = {
+          (value.productElementName(index), elemEncoders(index).asInstanceOf[EncodeJson[Any]].apply(p))
         }
+        val elems: Iterator[Any] = value.productIterator
+        @tailrec def loop(i: Int, acc: JsonObject): JsonObject = {
+          if (elems.hasNext) {
+            val field = encodeWith(i)(elems.next())
+            loop(i + 1, acc :+ field)
+          } else {
+            acc
+          }
+        }
+        loop(0, JsonObject.empty)
+      }
     }
 
   inline def derivedCodec[A](using inline A: Mirror.ProductOf[A]): CodecJson[A] =
