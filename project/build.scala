@@ -56,10 +56,23 @@ object build {
             dir / "scala2"
           }
         }
-      },
-      scalacOptions in (Compile, doc) ++= {
+      }
+    , scalacOptions in (Compile, doc) ++= {
+        val tag = tagOrHash.value
         val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
-        Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
+        if (isDotty.value) {
+          Nil
+        } else {
+          Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
+        }
+      }
+    , sources in (Compile, doc) := {
+        val src = (sources in (Compile, doc)).value
+        if (isDotty.value) {
+          Nil
+        } else {
+          src
+        }
       }
     , releaseTagName := tagName.value
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
