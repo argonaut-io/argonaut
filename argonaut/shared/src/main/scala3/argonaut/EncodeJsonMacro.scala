@@ -1,6 +1,6 @@
 package argonaut
 
-trait EncodeJsonMacro {
-  // TODO
-  def derive[A]: EncodeJson[A] = ???
+trait EncodeJsonMacro { self: EncodeJson.type =>
+  inline def derive[A]: EncodeJson[A] =
+    internal.Macros.summonEncoder[A]
 }
