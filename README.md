@@ -24,7 +24,7 @@ Just add argonaut as a dependency.
 Stable:
 
 ```scala
-libraryDependencies += "io.argonaut" %% "argonaut" % "6.3.0"
+libraryDependencies += "io.argonaut" %% "argonaut" % "6.3.1"
 ```
 
 Note that the 6.2.x releass supports scala `2.11.*`, `2.12.*` and `2.13.*` with scalaz `7.2.*`.
