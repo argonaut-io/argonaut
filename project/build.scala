@@ -9,7 +9,7 @@ import sbtcrossproject.{CrossProject, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDotty
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.{isDotty, isDottyJS}
 
 object build {
   type Sett = Def.Setting[_]
@@ -25,7 +25,13 @@ object build {
   val scalacheckVersion          = settingKey[String]("")
   val specs2Version              = settingKey[String]("")
 
-  def reflect(o: String, v: String) = Seq(o % "scala-reflect"  % v)
+  val reflect = Def.setting(
+    if (isDotty.value) {
+      Nil
+    } else {
+      Seq(scalaOrganization.value % "scala-reflect" % scalaVersion.value)
+    }
+  )
 
   private[this] val tagName = Def.setting {
     s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
@@ -75,7 +81,7 @@ object build {
         }
       }
     , releaseTagName := tagName.value
-    , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
+    , libraryDependencies ++= reflect.value
     , specs2Version := "4.10.3"
     , ThisBuild / mimaReportSignatureProblems := true
     /*
@@ -121,10 +127,16 @@ object build {
         mimaPreviousArtifacts := previousVersions.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
-        scalacOptions += {
-          val a = (baseDirectory in LocalRootProject).value.toURI.toString
-          val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
-          s"-P:scalajs:mapSourceURI:$a->$g/"
+        scalacOptions ++= {
+          if (isDottyJS.value) {
+            // TODO
+            // https://github.com/lampepfl/dotty/blob/4c99388e77be12ee6cc/compiler/src/dotty/tools/backend/sjs/JSPositions.scala#L64-L69
+            Nil
+          } else {
+            val a = (baseDirectory in LocalRootProject).value.toURI.toString
+            val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
+            Seq(s"-P:scalajs:mapSourceURI:$a->$g/")
+          }
         }
       )
     } else {

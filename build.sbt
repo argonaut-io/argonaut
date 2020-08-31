@@ -1,5 +1,24 @@
 import build._
 
+val dottySetting = {
+  libraryDependencies := {
+    val previous = libraryDependencies.value
+
+    // https://github.com/lampepfl/dotty/pull/9637/
+    val jsExcludeNames = Set(
+      "dotty-library_sjs1"
+    )
+
+    previous.map(x =>
+      if (jsExcludeNames(x.name) && isDottyJS.value) {
+        x
+      } else {
+        x.withDottyCompat(scalaVersion.value)
+      }
+    )
+  }
+}
+
 val argonaut = argonautCrossProject(
     "argonaut"
   , Seq(JVMPlatform, JSPlatform)
@@ -7,7 +26,7 @@ val argonaut = argonautCrossProject(
   InfoSettings.all ++ Seq[Sett](
     name := "argonaut"
   , (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.gen).taskValue
-  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
+  , dottySetting
   )
 )
 
@@ -27,7 +46,7 @@ val argonautScalaz = argonautCrossProject(
   )
 ).platformsSettings(JVMPlatform, JSPlatform)(
   libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
-  libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
+  dottySetting
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautScalazJVM = argonautScalaz.jvm
@@ -45,7 +64,7 @@ val argonautMonocle = argonautCrossProject(
     , "com.github.julien-truffaut"   %%% "monocle-macro"             % monocleVersion
     , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion % "test"
     )
-  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
+  , dottySetting
   )
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
@@ -65,7 +84,7 @@ val argonautCats = argonautCrossProject(
     , "org.typelevel"                %%% "discipline-specs2"         % "1.1.0"                  % "test"
     )
   )
-  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
+  , dottySetting
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautCatsJVM = argonautCats.jvm
@@ -81,7 +100,7 @@ val argonautJawn = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.typelevel"               %%%  "jawn-parser"               % "1.0.0"
     )
-  , libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value))
+  , dottySetting
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
 
