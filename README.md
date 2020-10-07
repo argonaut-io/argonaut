@@ -1,6 +1,6 @@
 # Argonaut
 
-[![Join the chat at https://gitter.im/argonaut-io/argonaut](https://badges.gitter.im/argonaut-io/argonaut.svg)](https://gitter.im/argonaut-io/argonaut?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)[![Build Status](https://travis-ci.org/argonaut-io/argonaut.png)](https://travis-ci.org/argonaut-io/argonaut) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.argonaut/argonaut_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.argonaut/argonaut_2.12)
+[![Join the chat at https://gitter.im/argonaut-io/argonaut](https://badges.gitter.im/argonaut-io/argonaut.svg)](https://gitter.im/argonaut-io/argonaut?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/io.argonaut/argonaut_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/io.argonaut/argonaut_2.12)
 
 
 ### What is Argonaut?

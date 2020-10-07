@@ -1,0 +1,33 @@
+name: CI
+on:
+  pull_request:
+  push:
+  schedule:
+  - cron: '0 0 * * 0'
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - java: 8
+            name: scala_2
+            command: sbt -v -sbt-opts .github/workflows/.sbtopts +mimaReportBinaryIssues +test:compile +jvmParent/test "project jsParent" testSequentialCross
+          - java: 11
+            name: scala_2
+            command: sbt -v -sbt-opts .github/workflows/.sbtopts +mimaReportBinaryIssues +test:compile +jvmParent/test "project jsParent" testSequentialCross
+          - java: 8
+            name: scala_3
+            command: sbt
+                     -sbt-opts .github/workflows/.sbtopts
+                     -v
+                     SetDottyNightlyVersion
+                     "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
+    steps:
+    - uses: actions/checkout@v1
+    - uses: olafurpg/setup-scala@v7
+      with:
+        java-version: "adopt@1.${{ matrix.java }}"
+    - uses: coursier/cache-action@v4.1
+    - name: ${{ matrix.name }} ${{ matrix.java }}
+      run: ${{ matrix.command }}
