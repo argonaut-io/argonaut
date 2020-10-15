@@ -25,9 +25,9 @@ jobs:
                      "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
     steps:
     - uses: actions/checkout@v1
-    - uses: olafurpg/setup-scala@v7
+    - uses: olafurpg/setup-scala@v10
       with:
         java-version: "adopt@1.${{ matrix.java }}"
-    - uses: coursier/cache-action@v4.1
+    - uses: coursier/cache-action@v5
     - name: ${{ matrix.name }} ${{ matrix.java }}
       run: ${{ matrix.command }}
