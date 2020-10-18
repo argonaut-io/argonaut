@@ -19,7 +19,7 @@ object build {
   )
 
   val scalazVersion              = "7.3.2"
-  val monocleVersion             = "1.7.0"
+  val monocleVersion             = "1.7.3"
   val catsVersion                = "2.2.0"
 
   val scalacheckVersion          = settingKey[String]("")
