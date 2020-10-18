@@ -21,7 +21,7 @@ jobs:
             command: sbt
                      -sbt-opts .github/workflows/.sbtopts
                      -v
-                     "++0.27.0-RC1!"
+                     SetDottyNightlyVersion
                      "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
     steps:
     - uses: actions/checkout@v1
