@@ -6,6 +6,7 @@ val dottySetting = {
 
     // https://github.com/lampepfl/dotty/pull/9637/
     val jsExcludeNames = Set(
+      "scala3-library_sjs1",
       "dotty-library_sjs1"
     )
 
