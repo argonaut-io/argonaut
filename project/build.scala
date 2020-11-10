@@ -113,7 +113,7 @@ object build {
         }
       )
       .settings(
-        scalacheckVersion := "1.15.0",
+        scalacheckVersion := "1.15.1",
         libraryDependencies ++= Seq(
             "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
           , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
