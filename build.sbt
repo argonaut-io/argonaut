@@ -99,7 +99,7 @@ val argonautJawn = argonautCrossProject(
   Seq(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.typelevel"               %%%  "jawn-parser"               % "1.0.0"
+      "org.typelevel"               %%%  "jawn-parser"               % "1.0.1"
     )
   , dottySetting
   )
