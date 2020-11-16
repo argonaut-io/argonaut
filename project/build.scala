@@ -69,7 +69,7 @@ object build {
         if (isDotty.value) {
           Nil
         } else {
-          Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
+          Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tag + "€{FILE_PATH}.scala")
         }
       }
     , sources in (Compile, doc) := {
