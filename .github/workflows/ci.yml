@@ -22,7 +22,7 @@ jobs:
             command: sbt
                      -sbt-opts .github/workflows/.sbtopts
                      -v
-                     "++3.0.0-M1!"
+                     "++3.0.0-M3!"
                      "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
     steps:
     - uses: actions/checkout@v2.3.4
