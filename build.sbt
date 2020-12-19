@@ -82,7 +82,7 @@ val argonautCats = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.typelevel"                %%% "cats-core"                 % catsVersion
     , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test"
-    , "org.typelevel"                %%% "discipline-specs2"         % "1.1.2"                  % "test"
+    , "org.typelevel"                %%% "discipline-specs2"         % "1.1.3"                  % "test"
     )
   )
   , dottySetting
