@@ -82,7 +82,7 @@ object build {
       }
     , releaseTagName := tagName.value
     , libraryDependencies ++= reflect.value
-    , specs2Version := "4.10.5"
+    , specs2Version := "4.10.6"
     , ThisBuild / mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
