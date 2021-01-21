@@ -23,8 +23,7 @@ jobs:
       with:
         java-version: "adopt@1.${{ matrix.java }}"
     - uses: coursier/cache-action@v5
-    - name: ${{ matrix.name }} ${{ matrix.java }}
-      run: |
+    - run: |
         case ${{ matrix.name }} in
           "scala_2")
             sbt -v \
@@ -32,6 +31,8 @@ jobs:
             +mimaReportBinaryIssues \
             +test:compile \
             +jvmParent/test \
+            +nativeParent/test \
+            +nativeTest/run \
             "project jsParent" \
             testSequentialCross
             ;;
@@ -40,6 +41,20 @@ jobs:
             -sbt-opts .github/workflows/.sbtopts \
             "++3.0.0-M3!" \
             "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
+            ;;
+          *)
+            echo "unknown jobtype"
+            exit 1
+        esac
+    - run: |
+        case ${{ matrix.name }} in
+          "scala_2")
+            ./native-test/target/scala-2.12/nativetest-out
+
+            ./native-test/target/scala-2.13/nativetest-out
+
+            ;;
+          "scala_3")
             ;;
           *)
             echo "unknown jobtype"

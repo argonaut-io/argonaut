@@ -8,6 +8,8 @@ import com.typesafe.tools.mima.plugin.MimaKeys._
 import sbtcrossproject.{CrossProject, Platform}
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
+import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 import dotty.tools.sbtplugin.DottyPlugin.autoImport.{isDotty, isDottyJS}
 
@@ -46,6 +48,13 @@ object build {
   }
 
   private[this] val previousVersions = (0 to 0).map(n => s"6.3.$n")
+
+  def nativeTestId = "nativeTest"
+  def nativeParentId = "nativeParent"
+
+  val nativeSettings = Seq(
+    sources in Test := Nil // disable native test
+  )
 
   val commonSettings = base ++
     ReplSettings.all ++
@@ -112,7 +121,7 @@ object build {
           }.toSet
         }
       )
-      .settings(
+      .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         scalacheckVersion := "1.15.2",
         libraryDependencies ++= Seq(
             "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
@@ -121,7 +130,7 @@ object build {
         )
       )
     
-    if (platforms.contains(JSPlatform)) {
+    val withJS = if (platforms.contains(JSPlatform)) {
       p.jsSettings(
         parallelExecution in Test := false,
         mimaPreviousArtifacts := previousVersions.map { n =>
@@ -141,6 +150,12 @@ object build {
       )
     } else {
       p
+    }
+
+    if (platforms.contains(NativePlatform)) {
+      withJS.nativeSettings(nativeSettings)
+    } else {
+      withJS
     }
   }
 }
