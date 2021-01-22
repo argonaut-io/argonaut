@@ -13,17 +13,10 @@ jobs:
         include:
           - java: 8
             name: scala_2
-            command: sbt -v -sbt-opts .github/workflows/.sbtopts +mimaReportBinaryIssues +test:compile +jvmParent/test "project jsParent" testSequentialCross
           - java: 11
             name: scala_2
-            command: sbt -v -sbt-opts .github/workflows/.sbtopts +mimaReportBinaryIssues +test:compile +jvmParent/test "project jsParent" testSequentialCross
           - java: 8
             name: scala_3
-            command: sbt
-                     -sbt-opts .github/workflows/.sbtopts
-                     -v
-                     "++3.0.0-M3!"
-                     "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
     steps:
     - uses: actions/checkout@v2.3.4
     - uses: olafurpg/setup-scala@v10
@@ -31,4 +24,24 @@ jobs:
         java-version: "adopt@1.${{ matrix.java }}"
     - uses: coursier/cache-action@v5
     - name: ${{ matrix.name }} ${{ matrix.java }}
-      run: ${{ matrix.command }}
+      run: |
+        case ${{ matrix.name }} in
+          "scala_2")
+            sbt -v \
+            -sbt-opts .github/workflows/.sbtopts \
+            +mimaReportBinaryIssues \
+            +test:compile \
+            +jvmParent/test \
+            "project jsParent" \
+            testSequentialCross
+            ;;
+          "scala_3")
+            sbt -v \
+            -sbt-opts .github/workflows/.sbtopts \
+            "++3.0.0-M3!" \
+            "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
+            ;;
+          *)
+            echo "unknown jobtype"
+            exit 1
+        esac
