@@ -1,24 +1,9 @@
 package argonaut
 
-import java.io.{BufferedInputStream, File, FileInputStream}
+import java.io.File
+import scala.io.Source
 
 object TestMain {
-
-  // scala.io.Source is too slow in scala-native 0.2.1
-  private[this] def read(file: File): String = {
-    val in = new BufferedInputStream(new FileInputStream(file))
-    try {
-      val contents = new Array[Byte](4096)
-      var n = 0
-      var str = ""
-      while ({ n = in.read(contents); n } != -1) {
-        str += new String(contents, 0, n)
-      }
-      str
-    } finally {
-      in.close()
-    }
-  }
 
   def main(args: Array[String]): Unit = {
     val base = new File("argonaut/jvm/src/test/resources/data/")
@@ -26,7 +11,7 @@ object TestMain {
 
     jsonFiles.foreach { jsonFile =>
       val time0 = System.currentTimeMillis
-      val json = read(jsonFile)
+      val json = Source.fromFile(jsonFile).getLines().mkString("\n")
       val time1 = System.currentTimeMillis
       JsonParser.parse(json) match {
         case Right(j) =>
