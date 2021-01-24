@@ -51,9 +51,7 @@ object build {
   def nativeParentId = "nativeParent"
 
   val nativeSettings = Seq(
-      scalaVersion := ScalaSettings.Scala211
-    , sources in Test := Nil // disable native test
-    , crossScalaVersions := ScalaSettings.Scala211 :: Nil
+    sources in Test := Nil // disable native test
   )
 
   val commonSettings = base ++

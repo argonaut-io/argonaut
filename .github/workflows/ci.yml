@@ -24,11 +24,9 @@ jobs:
     - run: |
         case "${{ matrix.name }}" in
           "scala-native")
-            .github/scala-native-setup.sh
-
             sbt -v \
-            nativeParent/test \
-            nativeTest/run
+            "+nativeParent/test" \
+            "+nativeTest/run"
             ;;
           *)
             sbt -v \
