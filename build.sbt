@@ -160,6 +160,9 @@ val jsParent = project
       // avoid "org.scalajs.jsenv.ComJSEnv$ComClosedException: Node.js isn't connected" error in travis-ci
       jsProjects.map(_.id + "/test").sorted.toList ::: _
     }
+  , commands += Command.command("testSequentialCross"){
+      jsProjects.map(x => s"+${x.id}/test").sorted.toList ::: _
+    }
   ).aggregate(
     jsProjects.map(p => p: ProjectReference) : _*
   )
