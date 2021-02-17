@@ -3,7 +3,7 @@ package internal
 
 import scala.annotation.tailrec
 import scala.collection.AbstractIterator
-import scala.deriving.{ArrayProduct, Mirror}
+import scala.deriving.Mirror
 import scala.compiletime.{constValue, erasedValue, summonFrom}
 
 object Macros {
@@ -140,7 +140,18 @@ object Macros {
           }
 
           if (failed eq null) {
-            Right(A.fromProduct(new ArrayProduct(res)))
+            Right(
+              A.fromProduct(
+                new Product{
+                  override def canEqual(that: Any): Boolean =
+                    true
+                  override def productArity: Int =
+                    res.length
+                  override def productElement(n: Int): Any =
+                    res.apply(n)
+                }
+              )
+            )
           } else {
             Left(failed)
           }
