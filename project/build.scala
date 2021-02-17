@@ -36,7 +36,7 @@ object build {
   )
 
   private[this] val tagName = Def.setting {
-    s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
+    s"v${if (releaseUseGlobalVersion.value) (ThisBuild / version).value else version.value}"
   }
 
   private[this] val tagOrHash = Def.setting {
@@ -53,7 +53,7 @@ object build {
   def nativeParentId = "nativeParent"
 
   val nativeSettings = Seq(
-    sources in Test := Nil // disable native test
+    Test / sources := Nil // disable native test
   )
 
   val commonSettings = base ++
@@ -62,7 +62,7 @@ object build {
     PublishSettings.all ++
     Def.settings(
       Seq(Compile, Test).map { scope =>
-        unmanagedSourceDirectories in scope += {
+        (scope / unmanagedSourceDirectories) += {
           val base = baseDirectory.value.getParentFile / "shared" / "src"
           val dir = base / Defaults.nameForSrc(scope.name)
           if (isDotty.value) {
@@ -72,17 +72,17 @@ object build {
           }
         }
       }
-    , scalacOptions in (Compile, doc) ++= {
+    , (Compile / doc / scalacOptions) ++= {
         val tag = tagOrHash.value
-        val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
+        val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
         if (isDotty.value) {
           Nil
         } else {
           Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tag + "€{FILE_PATH}.scala")
         }
       }
-    , sources in (Compile, doc) := {
-        val src = (sources in (Compile, doc)).value
+    , (Compile / doc / sources) := {
+        val src = (Compile / doc / sources).value
         if (isDotty.value) {
           Nil
         } else {
@@ -111,8 +111,8 @@ object build {
       .platformsSettings(JVMPlatform)(
         // https://github.com/scala/scala-parser-combinators/issues/197
         // https://github.com/sbt/sbt/issues/4609
-        fork in Test := true,
-        baseDirectory in Test := (baseDirectory in LocalRootProject).value
+        Test / fork := true,
+        (Test / baseDirectory) := (LocalRootProject / baseDirectory).value
       )
       .jvmSettings(
         mimaPreviousArtifacts := {
@@ -132,7 +132,7 @@ object build {
     
     val withJS = if (platforms.contains(JSPlatform)) {
       p.jsSettings(
-        parallelExecution in Test := false,
+        Test / parallelExecution := false,
         mimaPreviousArtifacts := previousVersions.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
@@ -142,7 +142,7 @@ object build {
             // https://github.com/lampepfl/dotty/blob/4c99388e77be12ee6cc/compiler/src/dotty/tools/backend/sjs/JSPositions.scala#L64-L69
             Nil
           } else {
-            val a = (baseDirectory in LocalRootProject).value.toURI.toString
+            val a = (LocalRootProject / baseDirectory).value.toURI.toString
             val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
             Seq(s"-P:scalajs:mapSourceURI:$a->$g/")
           }

@@ -19,7 +19,7 @@ object ScalaSettings {
     }
   , crossScalaVersions := Seq(Scala212, "2.13.4")
   , ensimeScalaVersion := Scala212
-  , fork in test := true
+  , test / fork := true
   , scalacOptions ++= {
       if (isDotty.value) {
         Seq(
@@ -49,6 +49,6 @@ object ScalaSettings {
       }
     }
   ) ++ Seq(Compile, Test).flatMap(c =>
-    scalacOptions in (c, console) --= unusedWarnings.value
+    (c / console / scalacOptions) --= unusedWarnings.value
   )
 }
