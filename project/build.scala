@@ -122,7 +122,7 @@ object build {
         }
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
-        scalacheckVersion := "1.15.2",
+        scalacheckVersion := "1.15.3",
         libraryDependencies ++= Seq(
             "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
           , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
