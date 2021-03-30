@@ -61,6 +61,7 @@ object build {
     ReleasePlugin.projectSettings ++
     PublishSettings.all ++
     Def.settings(
+      addCommandAlias("SetScala3", s"++ ${PublishSettings.Scala3}!"),
       Seq(Compile, Test).map { scope =>
         (scope / unmanagedSourceDirectories) += {
           val base = baseDirectory.value.getParentFile / "shared" / "src"

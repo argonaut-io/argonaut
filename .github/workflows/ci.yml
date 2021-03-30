@@ -39,7 +39,7 @@ jobs:
           "scala_3")
             sbt -v \
             -sbt-opts .github/workflows/.sbtopts \
-            "++3.0.0-RC2!" \
+            SetScala3 \
             "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
             ;;
           *)
