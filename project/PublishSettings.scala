@@ -7,7 +7,7 @@ import xerial.sbt.Sonatype.autoImport._
 object PublishSettings {
   type Sett = Def.Setting[_]
 
-  def Scala3 = "3.0.0-RC1"
+  def Scala3 = "3.0.0-RC2"
 
   // TODO monocle
   val scala3projects = Seq(
