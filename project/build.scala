@@ -137,16 +137,16 @@ object build {
         mimaPreviousArtifacts := previousVersions.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
-        scalacOptions ++= {
-          if (isDottyJS.value) {
-            // TODO
-            // https://github.com/lampepfl/dotty/blob/4c99388e77be12ee6cc/compiler/src/dotty/tools/backend/sjs/JSPositions.scala#L64-L69
-            Nil
-          } else {
-            val a = (LocalRootProject / baseDirectory).value.toURI.toString
-            val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
-            Seq(s"-P:scalajs:mapSourceURI:$a->$g/")
+        scalacOptions += {
+          val a = (LocalRootProject / baseDirectory).value.toURI.toString
+          val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
+          val key = CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((3, _)) =>
+              "-scalajs-mapSourceURI"
+            case _ =>
+              "-P:scalajs:mapSourceURI"
           }
+          s"${key}:$a->$g/"
         }
       )
     } else {
