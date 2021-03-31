@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
 import org.ensime.EnsimeKeys._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport.{isDotty, dottyLatestNightlyBuild}
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.dottyLatestNightlyBuild
 
 object ScalaSettings {
   type Sett = Def.Setting[_]
@@ -21,7 +21,7 @@ object ScalaSettings {
   , ensimeScalaVersion := Scala212
   , test / fork := true
   , scalacOptions ++= {
-      if (isDotty.value) {
+      if (build.isScala3.value) {
         Seq(
           "-Xignore-scala2-macros"
         )

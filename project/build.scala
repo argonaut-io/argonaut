@@ -11,10 +11,14 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport.{isDotty, isDottyJS}
+import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDottyJS
 
 object build {
   type Sett = Def.Setting[_]
+
+  val isScala3 = Def.setting(
+    CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
+  )
 
   val base = ScalaSettings.all ++ Seq[Sett](
       organization := "io.argonaut"
@@ -28,7 +32,7 @@ object build {
   val specs2Version              = settingKey[String]("")
 
   val reflect = Def.setting(
-    if (isDotty.value) {
+    if (isScala3.value) {
       Nil
     } else {
       Seq(scalaOrganization.value % "scala-reflect" % scalaVersion.value)
@@ -66,7 +70,7 @@ object build {
         (scope / unmanagedSourceDirectories) += {
           val base = baseDirectory.value.getParentFile / "shared" / "src"
           val dir = base / Defaults.nameForSrc(scope.name)
-          if (isDotty.value) {
+          if (isScala3.value) {
             dir / "scala3"
           } else {
             dir / "scala2"
@@ -76,7 +80,7 @@ object build {
     , (Compile / doc / scalacOptions) ++= {
         val tag = tagOrHash.value
         val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
-        if (isDotty.value) {
+        if (isScala3.value) {
           Nil
         } else {
           Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tag + "€{FILE_PATH}.scala")
@@ -84,7 +88,7 @@ object build {
       }
     , (Compile / doc / sources) := {
         val src = (Compile / doc / sources).value
-        if (isDotty.value) {
+        if (isScala3.value) {
           Nil
         } else {
           src
