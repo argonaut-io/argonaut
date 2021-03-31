@@ -18,4 +18,4 @@ addSbtPlugin("org.ensime" % "sbt-ensime" % "2.6.1")
 
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.7")
 
-addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.5.3")
+addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.5.4")
