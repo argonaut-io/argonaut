@@ -120,7 +120,7 @@ val argonautBenchmark = Project(
   , mimaFailOnNoPrevious := false
   , libraryDependencies ++= Seq(
       "com.google.caliper"           %   "caliper"                   % "0.5-rc1"
-    , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.12.2"
+    , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.12.3"
     )
   , (run / javaOptions) ++= ((Runtime / fullClasspath) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }).value
   )
