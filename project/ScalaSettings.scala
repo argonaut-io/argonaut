@@ -1,7 +1,6 @@
 import sbt._
 import Keys._
 import org.ensime.EnsimeKeys._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport.dottyLatestNightlyBuild
 
 object ScalaSettings {
   type Sett = Def.Setting[_]
@@ -14,9 +13,6 @@ object ScalaSettings {
 
   lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala212
-  , commands += Command.command("SetDottyNightlyVersion") {
-      s"""++ ${dottyLatestNightlyBuild.get}!""" :: _
-    }
   , crossScalaVersions := Seq(Scala212, "2.13.5")
   , ensimeScalaVersion := Scala212
   , test / fork := true

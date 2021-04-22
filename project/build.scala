@@ -11,7 +11,6 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
-import dotty.tools.sbtplugin.DottyPlugin.autoImport.isDottyJS
 
 object build {
   type Sett = Def.Setting[_]
@@ -129,9 +128,8 @@ object build {
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         scalacheckVersion := "1.15.3",
         libraryDependencies ++= Seq(
-            "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
-          , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
-          , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
+            "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test" cross CrossVersion.for3Use2_13
+          , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test" cross CrossVersion.for3Use2_13
         )
       )
     
