@@ -95,7 +95,7 @@ object build {
       }
     , releaseTagName := tagName.value
     , libraryDependencies ++= reflect.value
-    , specs2Version := "4.11.0"
+    , specs2Version := "4.12.0"
     , ThisBuild / mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
