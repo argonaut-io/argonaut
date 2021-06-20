@@ -50,7 +50,7 @@ object build {
     }
   }
 
-  private[this] val previousVersions = (0 to 0).map(n => s"6.3.$n")
+  private[this] val previousVersions = (0 to 3).map(n => s"6.3.$n")
 
   def nativeTestId = "nativeTest"
   def nativeParentId = "nativeParent"
