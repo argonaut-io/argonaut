@@ -50,7 +50,14 @@ object build {
     }
   }
 
-  private[this] val previousVersions = (0 to 5).map(n => s"6.3.$n")
+  private[this] val previousVersions = Def.setting {
+    val last = 5
+    if (isScala3.value) {
+      (3 to last).map(n => s"6.3.$n")
+    } else {
+      (0 to last).map(n => s"6.3.$n")
+    }
+  }
 
   def nativeTestId = "nativeTest"
   def nativeParentId = "nativeParent"
@@ -131,7 +138,7 @@ object build {
           }
         },
         mimaPreviousArtifacts := {
-          previousVersions.map { n =>
+          previousVersions.value.map { n =>
             organization.value %% Keys.name.value % n
           }.toSet
         },
@@ -154,7 +161,7 @@ object build {
     val withJS = if (platforms.contains(JSPlatform)) {
       p.jsSettings(
         Test / parallelExecution := false,
-        mimaPreviousArtifacts := previousVersions.map { n =>
+        mimaPreviousArtifacts := previousVersions.value.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
         libraryDependencies ++= {
