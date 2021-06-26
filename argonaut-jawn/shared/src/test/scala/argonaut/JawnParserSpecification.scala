@@ -1,5 +1,6 @@
 package argonaut
 
+import argonaut.TestCompat._
 import scala.util.Try
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
@@ -9,7 +10,7 @@ object JawnParserSpecification {
   case class Example(a: Int, b: Long, c: Double)
 
   val exampleCodecJson: CodecJson[Example] =
-    casecodec3(Example.apply, Example.unapply)("a", "b", "c")
+    casecodec3(Example.apply, (_: Example).asTuple)("a", "b", "c")
 
   implicit val exampleCaseClassArbitrary: Arbitrary[Example] = Arbitrary(
     for {

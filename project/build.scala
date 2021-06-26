@@ -95,7 +95,13 @@ object build {
       }
     , releaseTagName := tagName.value
     , libraryDependencies ++= reflect.value
-    , specs2Version := "4.12.2"
+    , specs2Version := {
+        if (isScala3.value) {
+          "SPECS2-5.0.0-RC0"
+        } else {
+          "4.12.2"
+        }
+      }
     , ThisBuild / mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
@@ -112,24 +118,36 @@ object build {
     val p = CrossProject(name, file(name))(platforms: _*)
       .crossType(CrossType.Full)
       .settings(commonSettings)
-      .platformsSettings(JVMPlatform)(
+      .jvmSettings(
         // https://github.com/scala/scala-parser-combinators/issues/197
         // https://github.com/sbt/sbt/issues/4609
         Test / fork := true,
-        (Test / baseDirectory) := (LocalRootProject / baseDirectory).value
-      )
-      .jvmSettings(
+        (Test / baseDirectory) := (LocalRootProject / baseDirectory).value,
+        libraryDependencies ++= {
+          if (isScala3.value) {
+            Nil
+          } else {
+            Seq("com.chuusai" %%% "shapeless" % "2.3.7" % "test")
+          }
+        },
         mimaPreviousArtifacts := {
           previousVersions.map { n =>
             organization.value %% Keys.name.value % n
           }.toSet
-        }
+        },
+        libraryDependencies += "org.specs2" %%% "specs2-scalacheck" % specs2Version.value % "test",
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         scalacheckVersion := "1.15.3",
+        libraryDependencies ++= {
+          if (isScala3.value) {
+            Nil
+          } else {
+            Seq("com.chuusai" %%% "shapeless" % "2.3.7" % "test")
+          }
+        },
         libraryDependencies ++= Seq(
-            "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test" cross CrossVersion.for3Use2_13
-          , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test" cross CrossVersion.for3Use2_13
+          "org.scalaz" %%% "scalaz-core" % scalazVersion % "test" cross CrossVersion.for3Use2_13
         )
       )
     
@@ -139,6 +157,13 @@ object build {
         mimaPreviousArtifacts := previousVersions.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
+        libraryDependencies ++= {
+          if (isScala3.value) {
+            Nil // TODO
+          } else {
+            Seq("org.specs2" %%% "specs2-scalacheck" % specs2Version.value % "test")
+          }
+        },
         scalacOptions += {
           val a = (LocalRootProject / baseDirectory).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
