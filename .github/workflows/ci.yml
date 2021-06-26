@@ -40,7 +40,7 @@ jobs:
             sbt -v \
             -sbt-opts .github/workflows/.sbtopts \
             SetScala3 \
-            "all argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/compile argonaut-scalazJVM/compile argonaut-catsJS/compile argonaut-scalazJS/compile"
+            "all argonautJVM/test argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/test argonaut-scalazJVM/test argonaut-catsJS/compile argonaut-scalazJS/compile"
             ;;
           *)
             echo "unknown jobtype"

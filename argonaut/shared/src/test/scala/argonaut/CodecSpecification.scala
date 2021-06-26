@@ -1,5 +1,6 @@
 package argonaut
 
+import argonaut.TestCompat._
 import Data._
 import org.scalacheck._, Arbitrary._
 import org.specs2.scalacheck.ScalaCheckFunction1
@@ -114,7 +115,8 @@ object CodecSpecification extends ArgonautSpec {
   }
 
   object CodecInstances {
-    implicit val testClassCodec: CodecJson[TestClass] = CodecJson.casecodec22(TestClass.apply, TestClass.unapply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
+    implicit val testClassCodec: CodecJson[TestClass] =
+      CodecJson.casecodec22(TestClass.apply, (_: TestClass).asTuple)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
   }
 
   object derived {
