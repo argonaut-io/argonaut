@@ -6,7 +6,7 @@ object CodecOptionSpecification extends ArgonautSpec {
   case class Thing(value: Option[String])
 
   implicit def ThingCodecJson: CodecJson[Thing] =
-    casecodec1(Thing.apply, Thing.unapply)("value")
+    casecodec1(Thing.apply, (a: Thing) => Option(a.value))("value")
 
   def is = s2"""
   Codec Option

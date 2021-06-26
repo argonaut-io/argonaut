@@ -136,8 +136,8 @@ object PrettyParamsSpecification extends ArgonautSpec {
     val json = prettyParams.pretty(jObjectAssocList(pairs)).parseOption.get
     if (preserve) {
       val pairsDeduplicated = pairs.foldLeft[JsonAssocList](List.empty){case (working, (key, value)) =>
-        if (working.exists(_._1 === key)) {
-          working.map{case (pKey, pValue) => (pKey, if (pKey === key) value else pValue)}
+        if (working.exists(_._1 == key)) {
+          working.map{case (pKey, pValue) => (pKey, if (pKey == key) value else pValue)}
         } else {
           working :+ ((key, value))
         }
