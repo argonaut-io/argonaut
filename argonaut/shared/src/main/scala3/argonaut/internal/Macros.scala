@@ -66,6 +66,8 @@ object Macros {
 
   inline def derivedEncoder[A](using inline A: Mirror.ProductOf[A]): EncodeJson[A] =
     new EncodeJson[A] {
+      implicit def self: EncodeJson[A] = this // for recursive type
+
       private[this] val elemEncoders: Array[EncodeJson[_]] =
         Macros.summonEncoders[A.MirroredElemTypes]
 
@@ -99,6 +101,8 @@ object Macros {
 
   inline def derivedDecoder[A](using inline A: Mirror.ProductOf[A]): DecodeJson[A] =
     new DecodeJson[A] {
+      implicit def self: DecodeJson[A] = this // for recursive type
+
       private[this] def decodeWith(index: Int)(c: HCursor): DecodeResult[AnyRef] =
         elemDecoders(index).asInstanceOf[DecodeJson[AnyRef]].tryDecode(c.downField(elemLabels(index)))
 
