@@ -51,7 +51,7 @@ object build {
   }
 
   private[this] val previousVersions = Def.setting {
-    val last = 5
+    val last = 6
     if (isScala3.value) {
       (3 to last).map(n => s"6.3.$n")
     } else {
