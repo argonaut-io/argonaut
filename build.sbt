@@ -19,12 +19,10 @@ val argonautScalaz = argonautCrossProject(
     "argonaut-scalaz"
   , Seq(JVMPlatform, JSPlatform, NativePlatform)
 ).settings(
-  Seq(
     name := "argonaut-scalaz"
   , libraryDependencies ++= Seq(
       "org.scalaz"                   %%% "scalaz-core"               % scalazVersion cross CrossVersion.for3Use2_13
     )
-  )
 ).platformsSettings(JVMPlatform, JSPlatform)(
   libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test" cross CrossVersion.for3Use2_13,
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -38,14 +36,12 @@ val argonautMonocle = argonautCrossProject(
     "argonaut-monocle"
   , Seq(JVMPlatform, JSPlatform)
 ).settings(
-  Seq[Sett](
     name := "argonaut-monocle"
   , libraryDependencies ++= Seq(
       "com.github.julien-truffaut"   %%% "monocle-core"              % monocleVersion
     , "com.github.julien-truffaut"   %%% "monocle-macro"             % monocleVersion
     , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion % "test"
     )
-  )
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
 val argonautMonocleJVM = argonautMonocle.jvm
@@ -56,13 +52,11 @@ val argonautCats = argonautCrossProject(
     "argonaut-cats"
   , Seq(JVMPlatform, JSPlatform)
 ).settings(
-  Seq(
     name := "argonaut-cats"
   , libraryDependencies ++= Seq(
       "org.typelevel"                %%% "cats-core"                 % catsVersion
     , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test"
     )
-  )
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautCatsJVM = argonautCats.jvm
@@ -73,12 +67,10 @@ val argonautJawn = argonautCrossProject(
     "argonaut-jawn"
   , Seq(JVMPlatform)
 ).settings(
-  Seq(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
       "org.typelevel"               %%%  "jawn-parser"               % "1.1.2"
     )
-  )
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautJawnJVM = argonautJawn.jvm
