@@ -59,9 +59,8 @@ val argonautCats = argonautCrossProject(
   Seq(
     name := "argonaut-cats"
   , libraryDependencies ++= Seq(
-      "org.typelevel"                %%% "cats-core"                 % catsVersion cross CrossVersion.for3Use2_13
-    , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test" cross CrossVersion.for3Use2_13
-    , "org.typelevel"                %%% "discipline-specs2"         % "1.1.6"                  % "test" cross CrossVersion.for3Use2_13
+      "org.typelevel"                %%% "cats-core"                 % catsVersion
+    , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -77,7 +76,7 @@ val argonautJawn = argonautCrossProject(
   Seq(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.typelevel"               %%%  "jawn-parser"               % "1.1.2" cross CrossVersion.for3Use2_13
+      "org.typelevel"               %%%  "jawn-parser"               % "1.1.2"
     )
   )
 ).dependsOn(argonaut % "compile->compile;test->test")

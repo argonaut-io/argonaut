@@ -40,7 +40,7 @@ jobs:
             sbt -v \
             -sbt-opts .github/workflows/.sbtopts \
             SetScala3 \
-            "all argonautJVM/test argonaut-benchmark/compile argonaut-catsJVM/compile argonaut-jawnJVM/test argonaut-scalazJVM/test argonaut-catsJS/compile argonaut-scalazJS/compile" \
+            "all argonautJVM/test argonaut-benchmark/compile argonaut-catsJVM/test argonaut-jawnJVM/test argonaut-scalazJVM/test argonaut-catsJS/compile argonaut-scalazJS/compile" \
             "all argonautJVM/mimaReportBinaryIssues argonaut-catsJVM/mimaReportBinaryIssues argonaut-jawnJVM/mimaReportBinaryIssues argonaut-scalazJVM/mimaReportBinaryIssues argonaut-catsJS/mimaReportBinaryIssues argonaut-scalazJS/mimaReportBinaryIssues"
             ;;
           *)

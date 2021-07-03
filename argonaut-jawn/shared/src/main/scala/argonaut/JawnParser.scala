@@ -16,7 +16,7 @@ object JawnParser extends SupportParser[Json] {
         var value: Json = null
         def add(s: CharSequence) = { value = jstring(s.toString) }
         def add(v: Json) = { value = v }
-        def finish: Json = value
+        def finish(): Json = value
         def isObj: Boolean = false
       }
 
@@ -24,7 +24,7 @@ object JawnParser extends SupportParser[Json] {
         val vs = mutable.ListBuffer.empty[Json]
         def add(s: CharSequence) = { vs += jstring(s.toString) }
         def add(v: Json) = { vs += v }
-        def finish: Json = Json.jArray(vs.toList)
+        def finish(): Json = Json.jArray(vs.toList)
         def isObj: Boolean = false
       }
 
@@ -35,7 +35,7 @@ object JawnParser extends SupportParser[Json] {
           if (key == null) { key = s.toString } else { vs = vs + (key, jstring(s.toString)); key = null }
         def add(v: Json): Unit =
         { vs = vs + (key, v); key = null }
-        def finish = Json.jObject(vs)
+        def finish() = Json.jObject(vs)
         def isObj = true
       }
     }
