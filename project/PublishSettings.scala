@@ -17,6 +17,7 @@ object PublishSettings {
     "argonaut-jawnJVM",
     "argonaut-scalazJVM",
     "argonaut-catsJS",
+    "argonaut-jawnJS",
     "argonaut-scalazJS",
   )
 
