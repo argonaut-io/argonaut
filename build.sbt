@@ -76,7 +76,7 @@ val argonautJawn = argonautCrossProject(
 val argonautJawnJVM = argonautJawn.jvm
 val argonautJawnJS = argonautJawn.js.settings(
   mimaPreviousArtifacts := {
-    mimaPreviousArtifacts.value -- (0 to 6).map { n =>
+    mimaPreviousArtifacts.value -- (0 to 5).map { n =>
       organization.value %% s"${Keys.name.value}_sjs1" % s"6.3.${n}"
     }
   }
