@@ -71,18 +71,7 @@ object build {
     ReleasePlugin.projectSettings ++
     PublishSettings.all ++
     Def.settings(
-      addCommandAlias("SetScala3", s"++ ${PublishSettings.Scala3}!"),
-      Seq(Compile, Test).map { scope =>
-        (scope / unmanagedSourceDirectories) += {
-          val base = baseDirectory.value.getParentFile / "shared" / "src"
-          val dir = base / Defaults.nameForSrc(scope.name)
-          if (isScala3.value) {
-            dir / "scala3"
-          } else {
-            dir / "scala2"
-          }
-        }
-      }
+      addCommandAlias("SetScala3", s"++ ${PublishSettings.Scala3}!")
     , (Compile / doc / scalacOptions) ++= {
         val tag = tagOrHash.value
         val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
