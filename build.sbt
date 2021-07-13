@@ -27,7 +27,16 @@ val argonautScalaz = argonautCrossProject(
   libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test" cross CrossVersion.for3Use2_13,
 ).dependsOn(argonaut % "compile->compile;test->test")
 
-val argonautScalazJVM = argonautScalaz.jvm
+val argonautScalazJVM = argonautScalaz.jvm.settings(
+  conflictWarning := {
+    if (scalaBinaryVersion.value == "3") {
+      // TODO
+      ConflictWarning("warn", Level.Warn, false)
+    } else {
+      conflictWarning.value
+    }
+  },
+)
 val argonautScalazJS  = argonautScalaz.js
 val argonautScalazNative = argonautScalaz.native
 
