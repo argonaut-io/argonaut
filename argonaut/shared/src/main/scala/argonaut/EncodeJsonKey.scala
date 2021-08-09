@@ -17,10 +17,7 @@ trait EncodeJsonKey[A] { self =>
   def toJsonKey(key: A): String
 
   final def contramap[B](f: B => A): EncodeJsonKey[B] = {
-    new EncodeJsonKey[B] {
-      def toJsonKey(key: B) =
-        self.toJsonKey(f(key))
-    }
+    (key: B) => self.toJsonKey(f(key))
   }
 }
 
@@ -29,9 +26,7 @@ object EncodeJsonKey {
   @inline def apply[A](implicit A: EncodeJsonKey[A]): EncodeJsonKey[A] = A
 
   def from[A](f: A => String): EncodeJsonKey[A] = {
-    new EncodeJsonKey[A] {
-      def toJsonKey(key: A) = f(key)
-    }
+    (key: A) => f(key)
   }
 
   implicit val StringEncodeJsonKey: EncodeJsonKey[String] = from(x => x)

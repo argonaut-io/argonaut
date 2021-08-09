@@ -57,12 +57,10 @@ trait DecodeResultScalazs {
   }
 
   implicit def DecodeResultShow[A : Show]: Show[DecodeResult[A]] = new IsomorphismShow[DecodeResult[A], DecodeEither[A]] {
-    def G = new Show[Either[(String, CursorHistory), A]]{
-      override def show(e: Either[(String, CursorHistory), A]) = {
-        e match {
-          case Left(l) => l.show
-          case Right(r) => r.show
-        }
+    def G = (e: Either[(String, CursorHistory), A]) => {
+      e match {
+        case Left(l) => l.show
+        case Right(r) => r.show
       }
     }
     def iso = decodeResultIsoSet

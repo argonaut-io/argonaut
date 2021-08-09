@@ -33,12 +33,10 @@ trait DecodeJson[A] {
     */
   def flatMapCursor(f: HCursor => DecodeResult[HCursor]): DecodeJson[A] = {
     val original = this
-    new DecodeJson[A]{
-      override def decode(c: HCursor): DecodeResult[A] = for {
-        fr <- f(c)
-        result <- original.decode(fr)
-      } yield result
-    }
+    (c: HCursor) => for {
+      fr <- f(c)
+      result <- original.decode(fr)
+    } yield result
   }
 
   /**
@@ -145,9 +143,7 @@ trait DecodeJson[A] {
 
 object DecodeJson extends DecodeJsons with DecodeJsonMacro {
   def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] = {
-    new DecodeJson[A] {
-      def decode(c: HCursor) = r(c)
-    }
+    (c: HCursor) => r(c)
   }
 
   def withReattempt[A](r: ACursor => DecodeResult[A]): DecodeJson[A] = {

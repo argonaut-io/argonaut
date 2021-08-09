@@ -32,9 +32,7 @@ trait EncodeJson[A] {
    */
   def mapJson(f: Json => Json): EncodeJson[A] = {
     val original = this
-    new EncodeJson[A] {
-      override def encode(a: A): Json = f(original(a))
-    }
+    (a: A) => f(original(a))
   }
 
   /**
@@ -50,9 +48,7 @@ trait EncodeJson[A] {
 
 object EncodeJson extends EncodeJsons with EncodeJsonMacro {
   def apply[A](f: A => Json): EncodeJson[A] =
-    new EncodeJson[A] {
-      def encode(a: A) = f(a)
-    }
+    (a: A) => f(a)
 
   def of[A: EncodeJson]: EncodeJson[A] = implicitly[EncodeJson[A]]
 }

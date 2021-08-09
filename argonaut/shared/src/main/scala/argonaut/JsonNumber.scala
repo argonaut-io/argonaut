@@ -382,71 +382,51 @@ object JsonNumber {
 trait EncodeJsonNumber[T] { self =>
   def encodeJsonNumber(value: T): JsonNumber
   def contramap[A](f: A => T): EncodeJsonNumber[A] =
-    new EncodeJsonNumber[A] {
-      def encodeJsonNumber(value: A) = self.encodeJsonNumber(f(value))
-    }
+    (value: A) => self.encodeJsonNumber(f(value))
 }
 trait EncodePossibleJsonNumber[T] { self =>
   def possiblyEncodeJsonNumber(value: T): Option[JsonNumber]
   def contramap[A](f: A => T): EncodePossibleJsonNumber[A] =
-    new EncodePossibleJsonNumber[A] {
-      def possiblyEncodeJsonNumber(value: A) = self.possiblyEncodeJsonNumber(f(value))
-    }
+    (value: A) => self.possiblyEncodeJsonNumber(f(value))
 }
 
 object EncodeJsonNumber {
-  implicit val encodeJsonNumberJavaByte: EncodeJsonNumber[java.lang.Byte] = new EncodeJsonNumber[java.lang.Byte] {
-    override def encodeJsonNumber(value: java.lang.Byte): JsonNumber = new JsonLong(value.byteValue.toLong)
-  }
-  implicit val encodeJsonNumberJavaShort: EncodeJsonNumber[java.lang.Short] = new EncodeJsonNumber[java.lang.Short] {
-    override def encodeJsonNumber(value: java.lang.Short): JsonNumber = new JsonLong(value.shortValue.toLong)
-  }
-  implicit val encodeJsonNumberJavaInteger: EncodeJsonNumber[java.lang.Integer] = new EncodeJsonNumber[java.lang.Integer] {
-    override def encodeJsonNumber(value: java.lang.Integer): JsonNumber = new JsonLong(value.intValue.toLong)
-  }
-  implicit val encodeJsonNumberJavaLong: EncodeJsonNumber[java.lang.Long] = new EncodeJsonNumber[java.lang.Long] {
-    override def encodeJsonNumber(value: java.lang.Long): JsonNumber = new JsonLong(value.longValue)
-  }
-  implicit val encodeJsonNumberJavaFloat: EncodePossibleJsonNumber[java.lang.Float] = new EncodePossibleJsonNumber[java.lang.Float] {
-    override def possiblyEncodeJsonNumber(value: java.lang.Float): Option[JsonNumber] = encodeJsonNumberFloat.possiblyEncodeJsonNumber(value.floatValue)
-  }
-  implicit val encodeJsonNumberJavaDouble: EncodePossibleJsonNumber[java.lang.Double] = new EncodePossibleJsonNumber[java.lang.Double] {
-    override def possiblyEncodeJsonNumber(value: java.lang.Double): Option[JsonNumber] = encodeJsonNumberDouble.possiblyEncodeJsonNumber(value.doubleValue)
-  }
-  implicit val encodeJsonNumberByte: EncodeJsonNumber[Byte] = new EncodeJsonNumber[Byte] {
-    override def encodeJsonNumber(value: Byte): JsonNumber = new JsonLong(value.toLong)
-  }
-  implicit val encodeJsonNumberShort: EncodeJsonNumber[Short] = new EncodeJsonNumber[Short] {
-    override def encodeJsonNumber(value: Short): JsonNumber = new JsonLong(value.toLong)
-  }
-  implicit val encodeJsonNumberInt: EncodeJsonNumber[Int] = new EncodeJsonNumber[Int] {
-    override def encodeJsonNumber(value: Int): JsonNumber = new JsonLong(value.toLong)
-  }
-  implicit val encodeJsonNumberLong: EncodeJsonNumber[Long] = new EncodeJsonNumber[Long] {
-    override def encodeJsonNumber(value: Long): JsonNumber = new JsonLong(value)
-  }
-  implicit val encodeJsonNumberFloat: EncodePossibleJsonNumber[Float] = new EncodePossibleJsonNumber[Float] {
-    override def possiblyEncodeJsonNumber(value: Float): Option[JsonNumber] = {
-      if (value.isInfinity || java.lang.Float.isNaN(value)) {
-        None
-      } else {
-        Some(new JsonDecimal(value.toString))
-      }
+  implicit val encodeJsonNumberJavaByte: EncodeJsonNumber[java.lang.Byte] =
+    (value: java.lang.Byte) => new JsonLong(value.byteValue.toLong)
+  implicit val encodeJsonNumberJavaShort: EncodeJsonNumber[java.lang.Short] =
+    (value: java.lang.Short) => new JsonLong(value.shortValue.toLong)
+  implicit val encodeJsonNumberJavaInteger: EncodeJsonNumber[java.lang.Integer] =
+    (value: java.lang.Integer) => new JsonLong(value.intValue.toLong)
+  implicit val encodeJsonNumberJavaLong: EncodeJsonNumber[java.lang.Long] =
+    (value: java.lang.Long) => new JsonLong(value.longValue)
+  implicit val encodeJsonNumberJavaFloat: EncodePossibleJsonNumber[java.lang.Float] =
+    (value: java.lang.Float) => encodeJsonNumberFloat.possiblyEncodeJsonNumber(value.floatValue)
+  implicit val encodeJsonNumberJavaDouble: EncodePossibleJsonNumber[java.lang.Double] =
+    (value: java.lang.Double) => encodeJsonNumberDouble.possiblyEncodeJsonNumber(value.doubleValue)
+  implicit val encodeJsonNumberByte: EncodeJsonNumber[Byte] =
+    (value: Byte) => new JsonLong(value.toLong)
+  implicit val encodeJsonNumberShort: EncodeJsonNumber[Short] =
+    (value: Short) => new JsonLong(value.toLong)
+  implicit val encodeJsonNumberInt: EncodeJsonNumber[Int] =
+    (value: Int) => new JsonLong(value.toLong)
+  implicit val encodeJsonNumberLong: EncodeJsonNumber[Long] =
+    (value: Long) => new JsonLong(value)
+  implicit val encodeJsonNumberFloat: EncodePossibleJsonNumber[Float] = (value: Float) => {
+    if (value.isInfinity || java.lang.Float.isNaN(value)) {
+      None
+    } else {
+      Some(new JsonDecimal(value.toString))
     }
   }
-  implicit val encodeJsonNumberDouble: EncodePossibleJsonNumber[Double] = new EncodePossibleJsonNumber[Double] {
-    override def possiblyEncodeJsonNumber(value: Double): Option[JsonNumber] = {
-      if (value.isInfinity || java.lang.Double.isNaN(value)) {
-        None
-      } else {
-        Some(new JsonDecimal(value.toString))
-      }
+  implicit val encodeJsonNumberDouble: EncodePossibleJsonNumber[Double] = (value: Double) => {
+    if (value.isInfinity || java.lang.Double.isNaN(value)) {
+      None
+    } else {
+      Some(new JsonDecimal(value.toString))
     }
   }
-  implicit val encodeJsonNumberBigInt: EncodeJsonNumber[BigInt] = new EncodeJsonNumber[BigInt] {
-    override def encodeJsonNumber(value: BigInt): JsonNumber = new JsonBigDecimal(BigDecimal(value, java.math.MathContext.UNLIMITED))
-  }
-  implicit val encodeJsonNumberBigDecimal: EncodeJsonNumber[BigDecimal] = new EncodeJsonNumber[BigDecimal] {
-    override def encodeJsonNumber(value: BigDecimal): JsonNumber = new JsonBigDecimal(value)
-  }
+  implicit val encodeJsonNumberBigInt: EncodeJsonNumber[BigInt] =
+    (value: BigInt) => new JsonBigDecimal(BigDecimal(value, java.math.MathContext.UNLIMITED))
+  implicit val encodeJsonNumberBigDecimal: EncodeJsonNumber[BigDecimal] =
+    (value: BigDecimal) => new JsonBigDecimal(value)
 }
