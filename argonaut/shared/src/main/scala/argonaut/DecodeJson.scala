@@ -4,6 +4,8 @@ import scala.collection.mutable.Builder
 import scala.util.control.Exception.catching
 import Json._
 
+import scala.annotation.tailrec
+
 trait DecodeJson[A] {
   /**
    * Decode the given hcursor. Alias for `decode`.
@@ -359,6 +361,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
       a.fields match {
         case None => DecodeResult.fail("[K, V]Map[K, V]", a.history)
         case Some(s) => {
+          @tailrec
           def spin(x: List[JsonField], m: DecodeResult[Map[K, V]]): DecodeResult[Map[K, V]] = {
             x match {
               case Nil => m

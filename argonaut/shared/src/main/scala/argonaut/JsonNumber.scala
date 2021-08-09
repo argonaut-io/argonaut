@@ -1,6 +1,7 @@
 package argonaut
 
 import java.math.MathContext
+import scala.annotation.tailrec
 import scala.util.matching.Regex
 
 /**
@@ -201,6 +202,7 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
   def normalized: (BigInt, BigDecimal) = {
     val JsonNumber.JsonNumberRegex(negative, intStr, decStr, expStr) = value
 
+    @tailrec
     def decScale(i: Int): Option[Int] = {
       if (i >= decStr.length) None
       else if (decStr(i) == '0') decScale(i + 1)
@@ -271,6 +273,7 @@ object JsonNumber {
   def fromString(value: String): Option[JsonNumber] = {
 
     // Span over [0-9]*
+    @tailrec
     def digits(index: Int): Int = {
       if (index >= value.length) value.length
       else {
