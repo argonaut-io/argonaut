@@ -76,7 +76,7 @@ object Data {
       def placeDecimal(n: Int): String = {
         val adjustedScale = scale + n
         if (n <= 0) {
-          s"""${sign}${unscaledValue}${("0" * -n)}.0e$adjustedScale"""
+          s"""${sign}${unscaledValue}${"0" * -n}.0e$adjustedScale"""
         } else if (n >= unscaledValue.length) {
           s"""${sign}0.${"0" * (n - unscaledValue.length)}${unscaledValue}e$adjustedScale"""
         } else {
@@ -88,7 +88,7 @@ object Data {
 
     def genDecimal: Gen[Decimal] = for {
       unscaledValue <- arbitrary[BigInt].map(_.abs)
-      if (unscaledValue != 0)
+      if unscaledValue != 0
       scale <- arbitrary[BigInt]
       negative <- arbitrary[Boolean]
     } yield Decimal(if (negative) "-" else "", unscaledValue.toString, scale)

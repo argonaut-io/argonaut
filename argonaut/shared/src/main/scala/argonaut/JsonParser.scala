@@ -53,7 +53,7 @@ object JsonParser {
     def parseResult(result: (Int, Json)): Either[String, Json] = {
       result match {
         case (`jsonLength`, jsonInstance) => Right(jsonInstance)
-        case (remainder, jsonInstance) if (validSuffixContent(remainder)) => Right(jsonInstance)
+        case (remainder, jsonInstance) if validSuffixContent(remainder) => Right(jsonInstance)
         case (remainder, _) => Left("JSON contains invalid suffix content: " + excerpt(json, remainder))
       }
     }

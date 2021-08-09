@@ -258,37 +258,37 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   implicit def IntDecodeJson: DecodeJson[Int] = {
     optionDecoder(x =>
       (x.number map (_.truncateToInt)).orElse(
-      (x.string flatMap (s => tryTo(s.toInt)))), "Int")
+      x.string flatMap (s => tryTo(s.toInt))), "Int")
   }
 
   implicit def LongDecodeJson: DecodeJson[Long] = {
     optionDecoder(x =>
       (x.number map (_.truncateToLong)).orElse(
-      (x.string flatMap (s => tryTo(s.toLong)))), "Long")
+      x.string flatMap (s => tryTo(s.toLong))), "Long")
   }
 
   implicit def ShortDecodeJson: DecodeJson[Short] = {
     optionDecoder(x =>
       (x.number map (_.truncateToShort)).orElse(
-      (x.string flatMap (s => tryTo(s.toShort)))), "Short")
+      x.string flatMap (s => tryTo(s.toShort))), "Short")
   }
 
   implicit def ByteDecodeJson: DecodeJson[Byte] = {
     optionDecoder(x =>
       (x.number map (_.truncateToByte)).orElse(
-      (x.string flatMap (s => tryTo(s.toByte)))), "Byte")
+      x.string flatMap (s => tryTo(s.toByte))), "Byte")
   }
 
   implicit def BigIntDecodeJson: DecodeJson[BigInt] = {
     optionDecoder(x =>
       (x.number flatMap (_.truncateToBigInt)).orElse(
-      (x.string flatMap (s => tryTo(BigInt(s))))), "BigInt")
+      x.string flatMap (s => tryTo(BigInt(s)))), "BigInt")
   }
 
   implicit def BigDecimalDecodeJson: DecodeJson[BigDecimal] = {
     optionDecoder(x =>
       (x.number map (_.toBigDecimal)).orElse(
-      (x.string flatMap (s => tryTo(BigDecimal(s))))), "BigDecimal")
+      x.string flatMap (s => tryTo(BigDecimal(s)))), "BigDecimal")
   }
 
   implicit def BooleanDecodeJson: DecodeJson[Boolean] = {

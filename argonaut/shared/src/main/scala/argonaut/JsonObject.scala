@@ -129,7 +129,7 @@ private[argonaut] case class JsonObjectInstance(
 
   def ??(f: JsonField): Boolean = fieldsMap.contains(f)
 
-  def toList: List[(JsonAssoc)] = orderedFields.map(field => (field, fieldsMap(field))).toList
+  def toList: List[JsonAssoc] = orderedFields.map(field => (field, fieldsMap(field))).toList
 
   def values: List[Json] = orderedFields.map(field => fieldsMap(field)).toList
 

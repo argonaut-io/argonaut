@@ -34,7 +34,7 @@ object Macros extends MacrosCompat {
           val termName = createTermName(c)(fieldName.toString)
           q"toEncode.$termName"
         }
-        val methodName = createTermName(c)("jencode" + (fieldCount.toString) + "L")
+        val methodName = createTermName(c)(s"jencode${fieldCount}L")
         val expr = c.Expr[EncodeJson[T]]{q"""
           _root_.argonaut.EncodeJson.$methodName[$tpe, ..$fieldTypes](toEncode => (..$invocations))(..$decodedNames)
         """}
@@ -70,7 +70,7 @@ object Macros extends MacrosCompat {
           val termName = createTermName(c)(fieldName.toString)
           q"$termName"
         }
-        val methodName = createTermName(c)("jdecode" + (fieldCount.toString) + "L")
+        val methodName = createTermName(c)("jdecode" + fieldCount.toString + "L")
         val expr = c.Expr[DecodeJson[T]]{q"""
           _root_.argonaut.DecodeJson.$methodName[..$fieldTypes, $tpe]((..$functionParameters) => new $tpe(..$parameters))(..$decodedNames)
         """}

@@ -157,7 +157,7 @@ sealed abstract class JsonNumber {
   override def hashCode: Int = toJsonDecimal.normalized.hashCode
 
   override def equals(that: Any): Boolean = that match {
-    case (that: JsonNumber) => {
+    case that: JsonNumber => {
       (this, that) match {
         case (a @ JsonDecimal(_), b) => a.normalized == b.toJsonDecimal.normalized
         case (a, b @ JsonDecimal(_)) => a.toJsonDecimal.normalized == b.normalized

@@ -95,7 +95,7 @@ object ACursorSpecification extends ArgonautSpec {
   implicit val ArbitraryTestOp: Arbitrary[TestOp] =
     Arbitrary(Gen.frequency(
       (9, Gen.oneOf(Down, Up, Left, Right, Delete)),
-      (1, arbitrary[Json] map (Set))
+      (1, arbitrary[Json] map Set)
     ))
 
 }
