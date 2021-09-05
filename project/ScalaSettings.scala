@@ -19,7 +19,6 @@ object ScalaSettings {
   , scalacOptions ++= {
       if (build.isScala3.value) {
         Seq(
-          "-Xignore-scala2-macros"
         )
       } else {
         Seq(
