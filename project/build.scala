@@ -98,7 +98,9 @@ object build {
           "4.12.2"
         }
       }
-    , ThisBuild / mimaReportSignatureProblems := true
+    , ThisBuild / mimaReportSignatureProblems := {
+        isScala3.value == false
+      }
     /*
     , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
