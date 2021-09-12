@@ -93,7 +93,7 @@ object build {
     , libraryDependencies ++= reflect.value
     , specs2Version := {
         if (isScala3.value) {
-          "5.0.0-RC-06"
+          "5.0.0-RC-11"
         } else {
           "4.12.2"
         }
