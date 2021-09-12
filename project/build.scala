@@ -156,11 +156,7 @@ object build {
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
         libraryDependencies ++= {
-          if (isScala3.value) {
-            Nil // TODO
-          } else {
-            Seq("org.specs2" %%% "specs2-scalacheck" % specs2Version.value % "test")
-          }
+          Seq("org.specs2" %%% "specs2-scalacheck" % specs2Version.value % "test")
         },
         scalacOptions += {
           val a = (LocalRootProject / baseDirectory).value.toURI.toString
