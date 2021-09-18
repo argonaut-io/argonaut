@@ -1,5 +1,39 @@
 import build._
 
+lazy val disableScala2_12 = Def.settings(
+  mimaPreviousArtifacts := {
+    if (scalaBinaryVersion.value == "2.12") {
+      Set.empty
+    } else {
+      mimaPreviousArtifacts.value
+    }
+  },
+  libraryDependencies := {
+    if (scalaBinaryVersion.value == "2.12") {
+      Nil
+    } else {
+      libraryDependencies.value
+    }
+  },
+  Seq(Compile, Test).map { x =>
+    (x / sources) := {
+      if (scalaBinaryVersion.value == "2.12") {
+        Nil
+      } else {
+        (x / sources).value
+      }
+    }
+  },
+  Test / test := {
+    if (scalaBinaryVersion.value == "2.12") {
+      ()
+    } else {
+      (Test / test).value
+    }
+  },
+  publish / skip := (scalaBinaryVersion.value == "2.12")
+)
+
 val argonaut = argonautCrossProject(
     "argonaut"
   , Seq(JVMPlatform, JSPlatform, NativePlatform)
@@ -14,6 +48,16 @@ val argonautJVM = argonaut.jvm
 val argonautJS  = argonaut.js
 val argonautNative = argonaut.native
 
+lazy val conflictWarningSetting = Def.settings(
+  conflictWarning := {
+    if (scalaBinaryVersion.value == "3") {
+      // TODO
+      ConflictWarning("warn", Level.Warn, false)
+    } else {
+      conflictWarning.value
+    }
+  }
+)
 
 val argonautScalaz = argonautCrossProject(
     "argonaut-scalaz"
@@ -23,14 +67,7 @@ val argonautScalaz = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.scalaz"                   %%% "scalaz-core"               % scalazVersion cross CrossVersion.for3Use2_13
     )
-  , conflictWarning := {
-      if (scalaBinaryVersion.value == "3") {
-        // TODO
-        ConflictWarning("warn", Level.Warn, false)
-      } else {
-        conflictWarning.value
-      }
-    }
+  , conflictWarningSetting
 ).platformsSettings(JVMPlatform, JSPlatform)(
   libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test" cross CrossVersion.for3Use2_13,
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -44,19 +81,22 @@ val argonautMonocle = argonautCrossProject(
     "argonaut-monocle"
   , Seq(JVMPlatform, JSPlatform)
 ).settings(
-    name := "argonaut-monocle"
+    name := "argonaut-monocle3"
+  , conflictWarningSetting
+  , previousVersions --= (0 to 6).map(n => s"6.3.$n")
   , libraryDependencies ++= Seq(
-      "com.github.julien-truffaut"   %%% "monocle-core"              % monocleVersion
-    , "com.github.julien-truffaut"   %%% "monocle-macro"             % monocleVersion
-    , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion % "test"
+      "dev.optics"   %%% "monocle-core"              % monocleVersion
+    , "dev.optics"   %%% "monocle-macro"             % monocleVersion
+    , "dev.optics"   %%% "monocle-law"               % monocleVersion % "test"
     )
-).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
+  , disableScala2_12
+).dependsOn(argonaut % "compile->compile;test->test", argonautCats % "compile->compile;test->test")
 
 val argonautMonocleJVM = argonautMonocle.jvm
 val argonautMonocleJS  = argonautMonocle.js
 
 
-val argonautCats = argonautCrossProject(
+lazy val argonautCats = argonautCrossProject(
     "argonaut-cats"
   , Seq(JVMPlatform, JSPlatform)
 ).settings(
@@ -136,6 +176,7 @@ lazy val noPublish = Seq(
   PgpKeys.publishSigned := {},
   PgpKeys.publishLocalSigned := {},
   publishLocal := {},
+  previousVersions := Nil,
   Compile / publishArtifact := false,
   publish := {}
 )
@@ -146,6 +187,7 @@ val nativeParent = Project(
 ).settings(
     base
   , noPublish
+  , nativeSettings
 ).aggregate(
   nativeProjects : _*
 )

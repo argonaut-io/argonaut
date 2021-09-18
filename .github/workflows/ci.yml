@@ -13,52 +13,22 @@ jobs:
       matrix:
         include:
           - java: 8
-            name: scala_2
           - java: 11
-            name: scala_2
-          - java: 8
-            name: scala_3
     steps:
     - uses: actions/checkout@v2.3.4
     - uses: olafurpg/setup-scala@v12
       with:
         java-version: "adopt@1.${{ matrix.java }}"
     - uses: coursier/cache-action@v6
-    - run: |
-        case ${{ matrix.name }} in
-          "scala_2")
-            sbt -v \
-            -sbt-opts .github/workflows/.sbtopts \
-            +mimaReportBinaryIssues \
-            "+Test/compile" \
-            +jvmParent/test \
-            +nativeParent/test \
-            +nativeTest/run \
-            "project jsParent" \
-            testSequentialCross
-            ;;
-          "scala_3")
-            sbt -v \
-            -sbt-opts .github/workflows/.sbtopts \
-            SetScala3 \
-            "all argonautJVM/test argonaut-benchmark/compile argonaut-catsJVM/test argonaut-jawnJVM/test argonaut-scalazJVM/test argonautJS/test argonaut-catsJS/test argonaut-scalazJS/test argonaut-jawnJS/test" \
-            "all argonautJVM/mimaReportBinaryIssues argonaut-catsJVM/mimaReportBinaryIssues argonaut-jawnJVM/mimaReportBinaryIssues argonaut-scalazJVM/mimaReportBinaryIssues argonaut-catsJS/mimaReportBinaryIssues argonaut-scalazJS/mimaReportBinaryIssues"
-            ;;
-          *)
-            echo "unknown jobtype"
-            exit 1
-        esac
-    - run: |
-        case ${{ matrix.name }} in
-          "scala_2")
-            ./native-test/target/scala-2.12/nativetest-out
-
-            ./native-test/target/scala-2.13/nativetest-out
-
-            ;;
-          "scala_3")
-            ;;
-          *)
-            echo "unknown jobtype"
-            exit 1
-        esac
+    - run: sbt -v
+           -sbt-opts .github/workflows/.sbtopts
+           "+mimaReportBinaryIssues"
+           "+Test/compile"
+           "+jvmParent/test"
+           "+nativeParent/test"
+           "+nativeParent/mimaReportBinaryIssues"
+           "+nativeTest/run"
+           "project jsParent"
+           testSequentialCross
+    - run: ./native-test/target/scala-2.12/nativetest-out
+    - run: ./native-test/target/scala-2.13/nativetest-out

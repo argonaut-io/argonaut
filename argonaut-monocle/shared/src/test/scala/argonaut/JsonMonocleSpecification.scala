@@ -2,14 +2,11 @@ package argonaut
 
 import argonaut.Data._
 import argonaut.JsonMonocle._
-import argonaut.JsonNumberScalaz._
-import argonaut.JsonObjectScalaz._
-import argonaut.JsonScalaz._
+import argonaut.JsonNumberCats._
+import argonaut.JsonObjectCats._
+import argonaut.JsonCats._
 import monocle.function.Plated
 import monocle.law.discipline.{PrismTests, TraversalTests}
-
-import scalaz.std.anyVal._
-import scalaz.std.list._
 
 object JsonMonocleSpecification extends ArgonautSpec {
 

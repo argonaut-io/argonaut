@@ -7,20 +7,6 @@ import xerial.sbt.Sonatype.autoImport._
 object PublishSettings {
   type Sett = Def.Setting[_]
 
-  def Scala3 = "3.0.2"
-
-  // TODO monocle
-  val scala3projects = Seq(
-    "argonautJVM",
-    "argonautJS",
-    "argonaut-catsJVM",
-    "argonaut-jawnJVM",
-    "argonaut-scalazJVM",
-    "argonaut-catsJS",
-    "argonaut-jawnJS",
-    "argonaut-scalazJS",
-  )
-
   lazy val all = Seq[Sett](
     pom
   , publish
@@ -39,7 +25,6 @@ object PublishSettings {
        commitReleaseVersion,
        tagRelease,
        publishArtifacts,
-       releaseStepCommandAndRemaining(s"++ ${Scala3}!;all ${scala3projects.map(_ + "/publishSigned").mkString(" ")}"),
        releaseStepCommandAndRemaining("+ " + build.nativeParentId + "/publishSigned"),
        releaseStepCommandAndRemaining("sonatypeBundleRelease"),
        setNextVersion,

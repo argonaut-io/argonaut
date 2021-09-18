@@ -5,8 +5,8 @@ import argonaut.JsonObjectMonocle._
 import monocle.function.{Each, Plated}
 import monocle.{Prism, Traversal}
 
-import scalaz.Applicative
-import scalaz.Scalaz._
+import cats.Applicative
+import cats.syntax.all._
 
 object JsonMonocle extends JsonMonocles
 
@@ -46,39 +46,39 @@ trait JsonMonocles {
 
   /** A Prism for JSON number values. */
   val jBigDecimalPrism: Prism[Json, BigDecimal] =
-    jNumberPrism composeIso JsonNumberMonocle.jNumberToBigDecimal
+    jNumberPrism andThen JsonNumberMonocle.jNumberToBigDecimal
 
   /**
    * An Optional for JSON number values based on Doubles.
    */
   // val jDoubleOptional: Optional[Json, Double] =
-  //   jNumberPrism composeOptional JsonNumberMonocle.jNumberToDouble
+  //   jNumberPrism andThen JsonNumberMonocle.jNumberToDouble
 
   /**
    * An Optional for JSON number values based on Floats.
    */
   // val jFloatOptional: Optional[Json, Float] =
-  //   jNumberPrism composeOptional JsonNumberMonocle.jNumberToFloat
+  //   jNumberPrism andThen JsonNumberMonocle.jNumberToFloat
 
   /** A Prism for JSON BigInt values. */
   val jBigIntPrism: Prism[Json, BigInt] =
-    jNumberPrism composePrism JsonNumberMonocle.jNumberToBigInt
+    jNumberPrism andThen JsonNumberMonocle.jNumberToBigInt
 
   /** A Prism for JSON Long values. */
   val jLongPrism: Prism[Json, Long] =
-    jNumberPrism composePrism JsonNumberMonocle.jNumberToLong
+    jNumberPrism andThen JsonNumberMonocle.jNumberToLong
 
   /**  A Prism for JSON Int values. */
   val jIntPrism: Prism[Json, Int] =
-    jNumberPrism composePrism JsonNumberMonocle.jNumberToInt
+    jNumberPrism andThen JsonNumberMonocle.jNumberToInt
 
   /** A Prism for JSON Short values. */
   val jShortPrism: Prism[Json, Short] =
-    jNumberPrism composePrism JsonNumberMonocle.jNumberToShort
+    jNumberPrism andThen JsonNumberMonocle.jNumberToShort
 
   /** A Prism for JSON Byte values. */
   def jBytePrism: Prism[Json, Byte] =
-    jNumberPrism composePrism JsonNumberMonocle.jNumberToByte
+    jNumberPrism andThen JsonNumberMonocle.jNumberToByte
 
   /** A Prism for JSON string values. */
   val jStringPrism: Prism[Json, JsonString] =
@@ -115,23 +115,23 @@ trait JsonMonocles {
 
   /** a Traversal to all values of a JsonObject or JsonList */
   val jDescendants: Traversal[Json, Json] = new Traversal[Json, Json]{
-    override def modifyF[F[_]](f: Json => F[Json])(s: Json)(implicit F: scalaz.Applicative[F]): F[Json] =
+    override def modifyA[F[_]](f: Json => F[Json])(s: Json)(implicit F: Applicative[F]): F[Json] =
       s.fold(F.pure(s), _ => F.pure(s), _ => F.pure(s), _ => F.pure(s),
-        arr => Each.each[List[Json], Json].modifyF(f)(arr).map(Json.array(_: _*)),
-        obj => Each.each[JsonObject, Json].modifyF(f)(obj).map(Json.jObject)
+        arr => Each.each[List[Json], Json].modifyA(f)(arr).map(Json.array(_: _*)),
+        obj => Each.each[JsonObject, Json].modifyA(f)(obj).map(Json.jObject)
       )
   }
 
   implicit lazy val jsonPlated: Plated[Json] = new Plated[Json] {
     val plate: Traversal[Json, Json] = new Traversal[Json, Json] {
-      def modifyF[F[_]](f: Json => F[Json])(a: Json)(implicit F: Applicative[F]): F[Json] = {
+      def modifyA[F[_]](f: Json => F[Json])(a: Json)(implicit F: Applicative[F]): F[Json] = {
         a.fold(
           F.pure(a),
           b => F.pure(jBool(b)),
           n => F.pure(jNumber(n)),
           s => F.pure(jString(s)),
           _.traverse(f).map(jArray),
-          JsonObjectScalaz.traverse(_, f).map(jObject)
+          JsonObjectCats.traverse(_, f).map(jObject)
         )
       }
     }

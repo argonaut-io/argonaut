@@ -4,17 +4,16 @@ import argonaut.Json._
 import monocle.function.{At, Each, FilterIndex, Index}
 import monocle.{Lens, Traversal}
 
-import scalaz.Applicative
-import scalaz.std.list._
-import scalaz.syntax.applicative._
+import cats.Applicative
+import cats.syntax.all._
 
 object JsonObjectMonocle extends JsonObjectMonocles
 
 trait JsonObjectMonocles {
   implicit val jObjectEach: Each[JsonObject, Json] = new Each[JsonObject, Json]{
     def each = new Traversal[JsonObject, Json]{
-      def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] = {
-        JsonObjectScalaz.traverse(from, f)
+      def modifyA[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] = {
+        JsonObjectCats.traverse(from, f)
       }
     }
   }
@@ -27,12 +26,11 @@ trait JsonObjectMonocles {
   }
 
   implicit val jObjectFilterIndex: FilterIndex[JsonObject, JsonField, Json] = new FilterIndex[JsonObject, JsonField, Json]{
-    import scalaz.syntax.traverse._
     def filterIndex(predicate: JsonField => Boolean) = new Traversal[JsonObject, Json]{
-      def modifyF[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =
+      def modifyA[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =
         Applicative[F].map(
           from.toList.traverse[F, (JsonField, Json)]{ case (field, json) =>
-            Applicative[F].map(if(predicate(field)) f(json) else json.point[F])(field -> _)
+            Applicative[F].map(if(predicate(field)) f(json) else json.pure[F])(field -> _)
           }
         )(JsonObject.fromIterable(_))
     }

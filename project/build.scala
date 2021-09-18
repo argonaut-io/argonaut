@@ -24,7 +24,7 @@ object build {
   )
 
   val scalazVersion              = "7.3.5"
-  val monocleVersion             = "1.7.3"
+  val monocleVersion             = "3.1.0"
   val catsVersion                = "2.6.1"
 
   val scalacheckVersion          = settingKey[String]("")
@@ -50,19 +50,17 @@ object build {
     }
   }
 
-  private[this] val previousVersions = Def.setting {
-    val last = 6
-    if (isScala3.value) {
-      (3 to last).map(n => s"6.3.$n")
-    } else {
-      (0 to last).map(n => s"6.3.$n")
-    }
-  }
+  val previousVersions = settingKey[Seq[String]]("")
 
   def nativeTestId = "nativeTest"
   def nativeParentId = "nativeParent"
 
   val nativeSettings = Seq(
+    crossScalaVersions -= ScalaSettings.Scala3,
+    previousVersions --= (0 to 2).map("6.3." + _),
+    mimaPreviousArtifacts := previousVersions.value.map { n =>
+      organization.value %% s"${Keys.name.value}_native0.4" % n
+    }.toSet,
     Test / sources := Nil // disable native test
   )
 
@@ -71,14 +69,21 @@ object build {
     ReleasePlugin.projectSettings ++
     PublishSettings.all ++
     Def.settings(
-      addCommandAlias("SetScala3", s"++ ${PublishSettings.Scala3}!")
-    , (Compile / doc / scalacOptions) ++= {
+      (Compile / doc / scalacOptions) ++= {
         val tag = tagOrHash.value
         val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
         if (isScala3.value) {
           Nil
         } else {
           Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tag + "€{FILE_PATH}.scala")
+        }
+      }
+    , previousVersions := {
+        val last = 6
+        if (isScala3.value) {
+          (3 to last).map(n => s"6.3.$n")
+        } else {
+          (0 to last).map(n => s"6.3.$n")
         }
       }
     , (Compile / doc / sources) := {
@@ -98,7 +103,7 @@ object build {
           "4.12.2"
         }
       }
-    , ThisBuild / mimaReportSignatureProblems := {
+    , mimaReportSignatureProblems := {
         isScala3.value == false
       }
     /*

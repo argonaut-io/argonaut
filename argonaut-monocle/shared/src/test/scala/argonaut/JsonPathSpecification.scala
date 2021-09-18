@@ -3,12 +3,20 @@ package argonaut
 import argonaut.Argonaut._
 import org.specs2.mutable.Specification
 import argonaut.JsonPath.root
+import argonaut.TestCompat._
 
 class JsonPathSpecification extends Specification {
 
+  private implicit final class MustEqualExtension[A](a1: A) {
+    def must_==(a2: A) = a1 must beEqualTo(a2)
+  }
+
   case class Car(model: String, maxSpeed: Int, automatic: Boolean)
   object  Car {
-    implicit val codec: CodecJson[Car] = CodecJson.casecodec3(Car.apply, Car.unapply)("model", "maxSpeed", "automatic")
+    implicit val codec: CodecJson[Car] = CodecJson.casecodec3(
+      Car.apply,
+      (_: Car).asTuple
+    )("model", "maxSpeed", "automatic")
   }
 
   val john: Json = Json.obj(
@@ -52,8 +60,8 @@ class JsonPathSpecification extends Specification {
     }
 
     "support insertion and deletion" >> {
-      root.at("first_name").setOption(None)(john) must_== john.obj.map(_.-("first_name")).map(jObject)
-      root.at("foo").set(Some(true.asJson))(john).obj.flatMap(_.apply("foo")) must_== Some(jTrue)
+      root.at("first_name").replaceOption(None)(john) must_== john.obj.map(_.-("first_name")).map(jObject)
+      root.at("foo").replace(Some(true.asJson))(john).obj.flatMap(_.apply("foo")) must_== Some(jTrue)
     }
 
     "support parsing json using a codec" >> {
