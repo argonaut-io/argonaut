@@ -114,13 +114,6 @@ object build {
         // https://github.com/sbt/sbt/issues/4609
         Test / fork := true,
         (Test / baseDirectory) := (LocalRootProject / baseDirectory).value,
-        libraryDependencies ++= {
-          if (isScala3.value) {
-            Nil
-          } else {
-            Seq("com.chuusai" %%% "shapeless" % "2.3.7" % "test")
-          }
-        },
         mimaPreviousArtifacts := {
           previousVersions.value.map { n =>
             organization.value %% Keys.name.value % n
