@@ -79,9 +79,9 @@ object build {
         }
       }
     , previousVersions := {
-        val last = 6
+        val last = 7
         if (isScala3.value) {
-          (3 to last).map(n => s"6.3.$n")
+          (7 to last).map(n => s"6.3.$n")
         } else {
           (0 to last).map(n => s"6.3.$n")
         }
@@ -103,9 +103,7 @@ object build {
           "4.12.9"
         }
       }
-    , mimaReportSignatureProblems := {
-        isScala3.value == false
-      }
+    , mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
