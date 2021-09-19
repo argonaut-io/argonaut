@@ -27,8 +27,6 @@ object build {
   val monocleVersion             = "3.1.0"
   val catsVersion                = "2.6.1"
 
-  val scalacheckVersion          = settingKey[String]("")
-
   val reflect = Def.setting(
     if (isScala3.value) {
       Nil
@@ -130,7 +128,6 @@ object build {
         },
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
-        scalacheckVersion := "1.15.3",
         libraryDependencies += {
           if (isScala3.value) {
             "org.specs2" %%% "specs2-scalacheck" % "5.0.0-RC-11" % "test"
