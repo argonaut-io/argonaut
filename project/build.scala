@@ -100,7 +100,7 @@ object build {
         if (isScala3.value) {
           "5.0.0-RC-11"
         } else {
-          "4.12.2"
+          "4.12.9"
         }
       }
     , mimaReportSignatureProblems := {
