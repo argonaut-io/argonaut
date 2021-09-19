@@ -28,7 +28,6 @@ object build {
   val catsVersion                = "2.6.1"
 
   val scalacheckVersion          = settingKey[String]("")
-  val specs2Version              = settingKey[String]("")
 
   val reflect = Def.setting(
     if (isScala3.value) {
@@ -96,13 +95,6 @@ object build {
       }
     , releaseTagName := tagName.value
     , libraryDependencies ++= reflect.value
-    , specs2Version := {
-        if (isScala3.value) {
-          "5.0.0-RC-11"
-        } else {
-          "4.12.9"
-        }
-      }
     , mimaReportSignatureProblems := true
     /*
     , mimaBinaryIssueFilters ++= {
@@ -136,10 +128,16 @@ object build {
             organization.value %% Keys.name.value % n
           }.toSet
         },
-        libraryDependencies += "org.specs2" %%% "specs2-scalacheck" % specs2Version.value % "test",
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         scalacheckVersion := "1.15.3",
+        libraryDependencies += {
+          if (isScala3.value) {
+            "org.specs2" %%% "specs2-scalacheck" % "5.0.0-RC-11" % "test"
+          } else {
+            "org.specs2" %%% "specs2-scalacheck" % "4.12.12" % "test"
+          }
+        },
         libraryDependencies ++= {
           if (isScala3.value) {
             Nil
@@ -158,9 +156,6 @@ object build {
         mimaPreviousArtifacts := previousVersions.value.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
-        libraryDependencies ++= {
-          Seq("org.specs2" %%% "specs2-scalacheck" % specs2Version.value % "test")
-        },
         scalacOptions += {
           val a = (LocalRootProject / baseDirectory).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
