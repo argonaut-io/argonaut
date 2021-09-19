@@ -36,7 +36,6 @@ object PublishSettings {
   , homepage := Some(url("http://argonaut.io"))
   , autoAPIMappings := true
   , apiURL := Some(url("http://argonaut.io/scaladocs/"))
-  , useGpg := true
   )
 
   lazy val pom: Sett =

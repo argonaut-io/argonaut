@@ -17,7 +17,6 @@ object ScalaSettings {
     scalaVersion := Scala213
   , crossScalaVersions := Seq(Scala212, Scala213, Scala3)
   , ensimeScalaVersion := Scala212
-  , test / fork := true
   , scalacOptions ++= {
       if (build.isScala3.value) {
         Seq(
