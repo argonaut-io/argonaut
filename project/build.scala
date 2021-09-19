@@ -149,9 +149,7 @@ object build {
           "org.scalaz" %%% "scalaz-core" % scalazVersion % "test" cross CrossVersion.for3Use2_13
         )
       )
-    
-    val withJS = if (platforms.contains(JSPlatform)) {
-      p.jsSettings(
+      .jsSettings(
         Test / parallelExecution := false,
         mimaPreviousArtifacts := previousVersions.value.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
@@ -168,14 +166,11 @@ object build {
           s"${key}:$a->$g/"
         }
       )
-    } else {
-      p
-    }
 
     if (platforms.contains(NativePlatform)) {
-      withJS.nativeSettings(nativeSettings)
+      p.nativeSettings(nativeSettings)
     } else {
-      withJS
+      p
     }
   }
 }
