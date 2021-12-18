@@ -54,7 +54,10 @@ object build {
 
   val nativeSettings = Seq(
     crossScalaVersions -= ScalaSettings.Scala3,
-    previousVersions --= (0 to 2).map("6.3." + _),
+    previousVersions --= {
+      val last = if (name.value == "argonaut-jawn") 7 else 2
+      (0 to last).map("6.3." + _),
+    },
     mimaPreviousArtifacts := previousVersions.value.map { n =>
       organization.value %% s"${Keys.name.value}_native0.4" % n
     }.toSet,

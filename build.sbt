@@ -113,7 +113,7 @@ val argonautCatsJS  = argonautCats.js
 
 val argonautJawn = argonautCrossProject(
     "argonaut-jawn"
-  , Seq(JVMPlatform, JSPlatform)
+  , Seq(JVMPlatform, JSPlatform, NativePlatform)
 ).settings(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
@@ -129,6 +129,7 @@ val argonautJawnJS = argonautJawn.js.settings(
     }
   }
 )
+val argonautJawnNative = argonautJawn.native
 
 val argonautBenchmark = Project(
   id = "argonaut-benchmark"
@@ -161,7 +162,7 @@ val nativeTest = Project(
 )
 
 lazy val nativeProjects = Seq[ProjectReference](
-  argonautNative, argonautScalazNative
+  argonautNative, argonautScalazNative, argonautJawnNative
 )
 
 val jsProjects = Seq(
