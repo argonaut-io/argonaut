@@ -35,7 +35,7 @@ object PublishSettings {
   , licenses := Seq("BSD-3-Clause" -> url("http://www.opensource.org/licenses/BSD-3-Clause"))
   , homepage := Some(url("http://argonaut.io"))
   , autoAPIMappings := true
-  , apiURL := Some(url("http://argonaut.io/scaladocs/"))
+  , apiURL := Some(url("https://javadoc.io/doc/io.argonaut/argonaut_2.13/latest/argonaut/index.html"))
   )
 
   lazy val pom: Sett =
