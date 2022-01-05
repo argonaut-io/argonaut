@@ -34,3 +34,4 @@ jobs:
            testSequentialCross
     - run: ./native-test/target/scala-2.12/nativetest-out
     - run: ./native-test/target/scala-2.13/nativetest-out
+    - run: ./native-test/target/scala-3.1.0/nativetest-out

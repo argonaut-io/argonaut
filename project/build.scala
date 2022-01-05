@@ -53,9 +53,25 @@ object build {
   def nativeParentId = "nativeParent"
 
   val nativeSettings = Seq(
-    crossScalaVersions -= ScalaSettings.Scala3,
+    Compile / doc / scalacOptions --= {
+      // TODO remove this workaround
+      // https://github.com/scala-native/scala-native/issues/2503
+      if (scalaBinaryVersion.value == "3") {
+        (Compile / doc / scalacOptions).value.filter(_.contains("-Xplugin"))
+      } else {
+        Nil
+      }
+    },
     previousVersions --= {
-      val last = if (name.value == "argonaut-jawn") 6 else 2
+      val last = {
+        if (scalaBinaryVersion.value == "3") {
+          7
+        } else if (name.value == "argonaut-jawn") {
+          6
+        } else {
+          2
+        }
+      }
       (0 to last).map("6.3." + _),
     },
     mimaPreviousArtifacts := previousVersions.value.map { n =>

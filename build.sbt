@@ -68,6 +68,8 @@ val argonautScalaz = argonautCrossProject(
       "org.scalaz"                   %%% "scalaz-core"               % scalazVersion cross CrossVersion.for3Use2_13
     )
   , conflictWarningSetting
+).nativeSettings(
+  crossScalaVersions -= ScalaSettings.Scala3,
 ).platformsSettings(JVMPlatform, JSPlatform)(
   libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test" cross CrossVersion.for3Use2_13,
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -119,6 +121,8 @@ val argonautJawn = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.typelevel"               %%%  "jawn-parser"               % "1.3.0"
     )
+).nativeSettings(
+  crossScalaVersions -= ScalaSettings.Scala3,
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautJawnJVM = argonautJawn.jvm
@@ -158,7 +162,7 @@ val nativeTest = Project(
   , noPublish
   , nativeSettings
 ).dependsOn(
-  nativeProjects.map(p => p: ClasspathDep[ProjectReference]) : _*
+  argonautNative
 )
 
 lazy val nativeProjects = Seq[ProjectReference](
@@ -189,6 +193,7 @@ val nativeParent = Project(
     base
   , noPublish
   , nativeSettings
+  , crossScalaVersions -= ScalaSettings.Scala3
 ).aggregate(
   nativeProjects : _*
 )
