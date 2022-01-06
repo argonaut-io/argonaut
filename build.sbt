@@ -119,7 +119,7 @@ val argonautJawn = argonautCrossProject(
 ).settings(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.typelevel"               %%%  "jawn-parser"               % "1.3.0"
+      "org.typelevel"               %%%  "jawn-parser"               % "1.3.2"
     )
 ).nativeSettings(
   crossScalaVersions -= ScalaSettings.Scala3,
