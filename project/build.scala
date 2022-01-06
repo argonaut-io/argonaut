@@ -27,6 +27,8 @@ object build {
   val monocleVersion             = "3.1.0"
   val catsVersion                = "2.6.1"
 
+  private def lastVersion = 7
+
   val reflect = Def.setting(
     if (isScala3.value) {
       Nil
@@ -65,7 +67,11 @@ object build {
     previousVersions --= {
       val last = {
         if (scalaBinaryVersion.value == "3") {
-          7
+          if (name.value == "argonaut") {
+            6
+          } else {
+            lastVersion
+          }
         } else if (name.value == "argonaut-jawn") {
           6
         } else {
@@ -95,11 +101,10 @@ object build {
         }
       }
     , previousVersions := {
-        val last = 7
         if (isScala3.value) {
-          (7 to last).map(n => s"6.3.$n")
+          (7 to lastVersion).map(n => s"6.3.$n")
         } else {
-          (0 to last).map(n => s"6.3.$n")
+          (0 to lastVersion).map(n => s"6.3.$n")
         }
       }
     , (Compile / doc / sources) := {
