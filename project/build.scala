@@ -149,7 +149,7 @@ object build {
           if (isScala3.value) {
             "org.specs2" %%% "specs2-scalacheck" % "5.0.0-RC-22" % "test"
           } else {
-            "org.specs2" %%% "specs2-scalacheck" % "4.13.1" % "test"
+            "org.specs2" %%% "specs2-scalacheck" % "4.13.2" % "test"
           }
         },
         libraryDependencies ++= {
