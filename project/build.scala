@@ -160,7 +160,7 @@ object build {
           }
         },
         libraryDependencies ++= Seq(
-          "org.scalaz" %%% "scalaz-core" % scalazVersion % "test" cross CrossVersion.for3Use2_13
+          "org.scalaz" %%% "scalaz-core" % scalazVersion % "test"
         )
       )
       .jsSettings(

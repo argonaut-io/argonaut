@@ -65,13 +65,13 @@ val argonautScalaz = argonautCrossProject(
 ).settings(
     name := "argonaut-scalaz"
   , libraryDependencies ++= Seq(
-      "org.scalaz"                   %%% "scalaz-core"               % scalazVersion cross CrossVersion.for3Use2_13
+      "org.scalaz"                   %%% "scalaz-core"               % scalazVersion
     )
   , conflictWarningSetting
 ).nativeSettings(
   crossScalaVersions -= ScalaSettings.Scala3,
 ).platformsSettings(JVMPlatform, JSPlatform)(
-  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test" cross CrossVersion.for3Use2_13,
+  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautScalazJVM = argonautScalaz.jvm
