@@ -11,7 +11,7 @@ object ScalaSettings {
 
   def Scala212 = "2.12.15"
   def Scala213 = "2.13.8"
-  def Scala3 = "3.1.0"
+  def Scala3 = "3.1.1"
 
   lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala213
