@@ -69,6 +69,8 @@ object build {
         if (scalaBinaryVersion.value == "3") {
           if (name.value == "argonaut") {
             6
+          } else if (name.value == "argonaut-scalaz") {
+            7
           } else {
             lastVersion
           }
