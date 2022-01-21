@@ -6,7 +6,7 @@ val argonaut = argonautCrossProject(
 ).settings(
   commonSettings ++ InfoSettings.all ++ Seq[Sett](
     name := "argonaut"
-  , (sourceGenerators in Compile) += ((sourceManaged in Compile) map Boilerplate.gen).taskValue
+  , (Compile / sourceGenerators) += ((Compile / sourceManaged) map Boilerplate.gen).taskValue
   )
 )
 
@@ -90,13 +90,13 @@ val argonautBenchmark = Project(
 ).settings(
   base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
     name := "argonaut-benchmark"
-  , fork in run := true
+  , (run / fork) := true
   , publishArtifact := false
   , libraryDependencies ++= Seq(
       "com.google.caliper"           %   "caliper"                   % "0.5-rc1"
     , "com.fasterxml.jackson.core"   %   "jackson-core"              % "2.13.1"
     )
-  , javaOptions in run ++= ((fullClasspath in Runtime) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }).value
+  , (run / javaOptions) ++= ((Runtime / fullClasspath) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }).value
   )
 ).dependsOn(argonautJVM)
 
@@ -117,7 +117,7 @@ lazy val noPublish = Seq(
   PgpKeys.publishSigned := {},
   PgpKeys.publishLocalSigned := {},
   publishLocal := {},
-  publishArtifact in Compile := false,
+  (Compile / publishArtifact) := false,
   publish := {}
 )
 
@@ -176,9 +176,9 @@ val argonautParent = Project(
   , PublishSettings.all
   , noPublish
   , name := "argonaut-parent"
-  , fork in run := true
+  , (run / fork) := true
 ).aggregate(
   (jsProjects ++ jvmProjects).map(p => p: ProjectReference) : _*
 )
 
-mimaFailOnNoPrevious in ThisBuild := false
+(ThisBuild / mimaFailOnNoPrevious) := false

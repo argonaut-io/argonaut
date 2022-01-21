@@ -6,8 +6,8 @@ object InfoSettings {
 
   def all = Seq[Sett](versioninfo)
 
-  val versioninfo = sourceGenerators in Compile += task{
-    val file = (sourceManaged in Compile).value / "info.scala"
+  val versioninfo = (Compile / sourceGenerators) += task{
+    val file = (Compile / sourceManaged).value / "info.scala"
     IO.write(file, s"""package argonaut
                      |object Info {
                      |  val version = "${version.value}"
