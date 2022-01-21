@@ -22,3 +22,4 @@ jobs:
         github-token: ${{ steps.generate_token.outputs.token }}
         author-email: "74832392+argonaut-bot[bot]@users.noreply.github.com"
         author-name: argonaut-bot[bot]
+        branches: "master,series/6.2.x"
