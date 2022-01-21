@@ -36,7 +36,7 @@ object build {
   def reflect(o: String, v: String) = Seq(o % "scala-reflect"  % v)
 
   private[this] val tagName = Def.setting {
-    s"v${if (releaseUseGlobalVersion.value) (version in ThisBuild).value else version.value}"
+    s"v${if (releaseUseGlobalVersion.value) (ThisBuild / version).value else version.value}"
   }
 
   private[this] val tagOrHash = Def.setting {
@@ -51,7 +51,7 @@ object build {
   def nativeParentId = "nativeParent"
 
   val nativeSettings = Seq(
-    sources in Test := Nil // disable native test
+    (Test / sources) := Nil // disable native test
   )
 
   val commonSettings = base ++
@@ -60,8 +60,8 @@ object build {
     PublishSettings.all ++
     Seq[Sett](
       scalacOptions += "-language:_"
-    , scalacOptions in (Compile, doc) ++= {
-        val base = (baseDirectory in LocalRootProject).value.getAbsolutePath
+    , (Compile / doc / scalacOptions) ++= {
+        val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
         Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
       }
     , releaseTagName := tagName.value
@@ -94,8 +94,8 @@ object build {
       .platformsSettings(JVMPlatform)(
         // https://github.com/scala/scala-parser-combinators/issues/197
         // https://github.com/sbt/sbt/issues/4609
-        fork in Test := true,
-        baseDirectory in Test := (baseDirectory in LocalRootProject).value
+        (Test / fork) := true,
+        (Test / baseDirectory) := (LocalRootProject / baseDirectory).value
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         scalacheckVersion := "1.14.3",
@@ -108,9 +108,9 @@ object build {
     
     val withJS = if (platforms.contains(JSPlatform)) {
       p.jsSettings(
-        parallelExecution in Test := false,
+        (Test / parallelExecution) := false,
         scalacOptions += {
-          val a = (baseDirectory in LocalRootProject).value.toURI.toString
+          val a = (LocalRootProject / baseDirectory).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
           s"-P:scalajs:mapSourceURI:$a->$g/"
         }
