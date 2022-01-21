@@ -27,7 +27,7 @@ object build {
   val monocleVersion             = "3.1.0"
   val catsVersion                = "2.6.1"
 
-  private def lastVersion = 7
+  private def lastVersion = 8
 
   val reflect = Def.setting(
     if (isScala3.value) {
@@ -69,6 +69,8 @@ object build {
         if (scalaBinaryVersion.value == "3") {
           if (name.value == "argonaut") {
             6
+          } else if (name.value == "argonaut-scalaz") {
+            7
           } else {
             lastVersion
           }
