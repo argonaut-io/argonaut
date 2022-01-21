@@ -1,5 +1,41 @@
 import build._
 
+val disableScala211 = disableScala("2.11")
+
+def disableScala(v: String) = Def.settings(
+  mimaPreviousArtifacts := {
+    if (scalaBinaryVersion.value == v) {
+      Set.empty
+    } else {
+      mimaPreviousArtifacts.value
+    }
+  },
+  libraryDependencies := {
+    if (scalaBinaryVersion.value == v) {
+      Nil
+    } else {
+      libraryDependencies.value
+    }
+  },
+  Seq(Compile, Test).map { x =>
+    (x / sources) := {
+      if (scalaBinaryVersion.value == v) {
+        Nil
+      } else {
+        (x / sources).value
+      }
+    }
+  },
+  Test / test := {
+    if (scalaBinaryVersion.value == v) {
+      ()
+    } else {
+      (Test / test).value
+    }
+  },
+  publish / skip := (scalaBinaryVersion.value == v)
+)
+
 val argonaut = argonautCrossProject(
     "argonaut"
   , Seq(JVMPlatform, JSPlatform, NativePlatform)
@@ -49,21 +85,22 @@ val argonautMonocle = argonautCrossProject(
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
 val argonautMonocleJVM = argonautMonocle.jvm
-val argonautMonocleJS  = argonautMonocle.js
-
+val argonautMonocleJS  = argonautMonocle.js.settings(
+  disableScala211
+)
 
 val argonautCats = argonautCrossProject(
     "argonaut-cats"
   , Seq(JVMPlatform, JSPlatform)
 ).settings(
-  commonSettings ++ Seq(
-    name := "argonaut-cats"
-  , libraryDependencies ++= Seq(
-      "org.typelevel"                %%% "cats-core"                 % catsVersion
-    , "org.typelevel"                %%% "cats-laws"                 % catsVersion              % "test"
-    , "org.typelevel"                %%% "discipline-specs2"         % "1.0.0"                  % "test"
-    )
-  )
+  commonSettings,
+  name := "argonaut-cats",
+  libraryDependencies ++= Seq(
+    "org.typelevel"                %%% "cats-core"                 % catsVersion.value
+  , "org.typelevel"                %%% "cats-laws"                 % catsVersion.value        % "test"
+  , "org.typelevel"                %%% "discipline-specs2"         % "1.1.0"                  % "test"
+  ),
+  disableScala211,
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautCatsJVM = argonautCats.jvm
