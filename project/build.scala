@@ -21,14 +21,28 @@ object build {
 
   val scalazVersion              = "7.2.31"
   val monocleVersion             = Def.setting(
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, v)) if v <= 12 =>
-        "1.6.0-M1"
-      case _ =>
-        "1.6.0"
+    crossProjectPlatform.?.value match {
+      case Some(JVMPlatform) | None =>
+        CrossVersion.partialVersion(scalaVersion.value) match {
+          case Some((2, v)) if v <= 12 =>
+            "1.6.0-M1"
+          case _ =>
+            "1.6.0"
+        }
+      case Some(JSPlatform) =>
+        "1.6.3"
+      case Some(p) =>
+        sys.error(p.toString)
     }
   )
-  val catsVersion                = "2.0.0"
+  val catsVersion = Def.setting(
+    crossProjectPlatform.?.value match {
+      case Some(JSPlatform) =>
+        "2.6.1"
+      case _=>
+        "2.0.0"
+    }
+  )
 
   val scalacheckVersion          = settingKey[String]("")
   val specs2Version              = settingKey[String]("")
@@ -67,13 +81,13 @@ object build {
     , releaseTagName := tagName.value
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := "4.8.3"
+    , specs2Version := "4.10.6"
     , ThisBuild / mimaReportSignatureProblems := true
     , mimaPreviousArtifacts := {
         CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, _)) =>
             Set("6.2.3", "6.2.4", "6.2.5").map(
-              organization.value %% name.value % _
+              organization.value %% name.value % _ // TODO use %%% after 6.2.6
             )
           case _ =>
             Set.empty
