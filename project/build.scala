@@ -67,7 +67,7 @@ object build {
     , releaseTagName := tagName.value
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
-    , specs2Version := "4.8.3"
+    , specs2Version := "4.10.6"
     , ThisBuild / mimaReportSignatureProblems := true
     , mimaPreviousArtifacts := {
         CrossVersion.partialVersion(scalaVersion.value) match {
