@@ -2,6 +2,7 @@ name: CI
 on:
   pull_request:
   push:
+    branches: [ "series/6.2.x" ]
   schedule:
   - cron: '0 13 * * 4'
 jobs:
