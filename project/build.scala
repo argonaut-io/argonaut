@@ -47,7 +47,13 @@ object build {
   val scalacheckVersion          = settingKey[String]("")
   val specs2Version              = settingKey[String]("")
 
-  def reflect(o: String, v: String) = Seq(o % "scala-reflect"  % v)
+  def reflect = Def.setting {
+    if (scalaBinaryVersion.value == "3") {
+      Nil
+    } else {
+      Seq(scalaOrganization.value % "scala-reflect" % scalaVersion.value)
+    }
+  }
 
   private[this] val tagName = Def.setting {
     s"v${if (releaseUseGlobalVersion.value) (ThisBuild / version).value else version.value}"
@@ -80,7 +86,7 @@ object build {
       }
     , releaseTagName := tagName.value
     , autoScalaLibrary := false
-    , libraryDependencies ++= reflect(scalaOrganization.value, scalaVersion.value)
+    , libraryDependencies ++= reflect.value
     , specs2Version := "4.10.6"
     , ThisBuild / mimaReportSignatureProblems := true
     , mimaPreviousArtifacts := {
