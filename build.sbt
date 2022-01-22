@@ -98,7 +98,7 @@ val argonautCats = argonautCrossProject(
   libraryDependencies ++= Seq(
     "org.typelevel"                %%% "cats-core"                 % catsVersion.value
   , "org.typelevel"                %%% "cats-laws"                 % catsVersion.value        % "test"
-  , "org.typelevel"                %%% "discipline-specs2"         % "1.1.0"                  % "test"
+  , "org.typelevel"                %%% "discipline-specs2"         % "1.1.6"                  % "test"
   ),
   disableScala211,
 ).dependsOn(argonaut % "compile->compile;test->test")
