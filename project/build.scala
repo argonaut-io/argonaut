@@ -76,7 +76,7 @@ object build {
         } else if (name.value == "argonaut-jawn") {
           6
         } else if (name.value == "argonaut-cats") {
-          8
+          7
         } else {
           2
         }
