@@ -44,9 +44,6 @@ object build {
     }
   )
 
-  val scalacheckVersion          = settingKey[String]("")
-  val specs2Version              = settingKey[String]("")
-
   def reflect = Def.setting {
     if (scalaBinaryVersion.value == "3") {
       Nil
@@ -87,7 +84,6 @@ object build {
     , releaseTagName := tagName.value
     , autoScalaLibrary := false
     , libraryDependencies ++= reflect.value
-    , specs2Version := "4.10.6"
     , ThisBuild / mimaReportSignatureProblems := true
     , mimaPreviousArtifacts := {
         CrossVersion.partialVersion(scalaVersion.value) match {
@@ -118,11 +114,18 @@ object build {
         (Test / baseDirectory) := (LocalRootProject / baseDirectory).value
       )
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
-        scalacheckVersion := "1.14.3",
+        libraryDependencies += {
+          scalaBinaryVersion.value match {
+            case "3" =>
+              "org.specs2" %%% "specs2-scalacheck" % "5.0.0-RC-22" % "test"
+            case "2.11" =>
+              "org.specs2" %%% "specs2-scalacheck" % "4.10.6" % "test"
+            case _ =>
+              "org.specs2" %%% "specs2-scalacheck" % "4.13.2" % "test"
+          }
+        },
         libraryDependencies ++= Seq(
-            "org.scalaz"               %%% "scalaz-core"               % scalazVersion            % "test"
-          , "org.scalacheck"           %%% "scalacheck"                % scalacheckVersion.value  % "test"
-          , "org.specs2"               %%% "specs2-scalacheck"         % specs2Version.value      % "test"
+          "org.scalaz" %%% "scalaz-core" % scalazVersion % "test"
         )
       )
     
