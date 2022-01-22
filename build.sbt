@@ -1,15 +1,18 @@
 import build._
 
-lazy val disableScala2_12 = Def.settings(
+def disableScala2_12 = disableScala("2.12")
+def disableScala3 = disableScala("3")
+
+def disableScala(v: String) = Def.settings(
   mimaPreviousArtifacts := {
-    if (scalaBinaryVersion.value == "2.12") {
+    if (scalaBinaryVersion.value == v) {
       Set.empty
     } else {
       mimaPreviousArtifacts.value
     }
   },
   libraryDependencies := {
-    if (scalaBinaryVersion.value == "2.12") {
+    if (scalaBinaryVersion.value == v) {
       Nil
     } else {
       libraryDependencies.value
@@ -17,7 +20,7 @@ lazy val disableScala2_12 = Def.settings(
   },
   Seq(Compile, Test).map { x =>
     (x / sources) := {
-      if (scalaBinaryVersion.value == "2.12") {
+      if (scalaBinaryVersion.value == v) {
         Nil
       } else {
         (x / sources).value
@@ -25,13 +28,13 @@ lazy val disableScala2_12 = Def.settings(
     }
   },
   Test / test := {
-    if (scalaBinaryVersion.value == "2.12") {
+    if (scalaBinaryVersion.value == v) {
       ()
     } else {
       (Test / test).value
     }
   },
-  publish / skip := (scalaBinaryVersion.value == "2.12")
+  publish / skip := (scalaBinaryVersion.value == v)
 )
 
 val argonaut = argonautCrossProject(
@@ -98,7 +101,7 @@ val argonautMonocleJS  = argonautMonocle.js
 
 lazy val argonautCats = argonautCrossProject(
     "argonaut-cats"
-  , Seq(JVMPlatform, JSPlatform)
+  , Seq(JVMPlatform, JSPlatform, NativePlatform)
 ).settings(
     name := "argonaut-cats"
   , libraryDependencies ++= Seq(
@@ -109,7 +112,9 @@ lazy val argonautCats = argonautCrossProject(
 
 val argonautCatsJVM = argonautCats.jvm
 val argonautCatsJS  = argonautCats.js
-
+val argonautCatsNative = argonautCats.native.settings(
+  disableScala3, // TODO
+)
 
 val argonautJawn = argonautCrossProject(
     "argonaut-jawn"
@@ -120,7 +125,7 @@ val argonautJawn = argonautCrossProject(
       "org.typelevel"               %%%  "jawn-parser"               % "1.3.2"
     )
 ).nativeSettings(
-  crossScalaVersions -= ScalaSettings.Scala3,
+  disableScala3,
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautJawnJVM = argonautJawn.jvm
@@ -164,7 +169,7 @@ val nativeTest = Project(
 )
 
 lazy val nativeProjects = Seq[ProjectReference](
-  argonautNative, argonautScalazNative, argonautJawnNative
+  argonautNative, argonautScalazNative, argonautJawnNative, argonautCatsNative
 )
 
 val jsProjects = Seq(
@@ -176,6 +181,7 @@ val jvmProjects = Seq(
 )
 
 lazy val noPublish = Seq(
+  mimaFailOnNoPrevious := false,
   PgpKeys.publishSigned := {},
   PgpKeys.publishLocalSigned := {},
   publishLocal := {},
@@ -185,13 +191,12 @@ lazy val noPublish = Seq(
 )
 
 val nativeParent = Project(
-  nativeParentId
+  "nativeParent"
 , file("native-parent")
 ).settings(
     base
   , noPublish
   , nativeSettings
-  , crossScalaVersions -= ScalaSettings.Scala3
 ).aggregate(
   nativeProjects : _*
 )
@@ -219,17 +224,10 @@ val jsParent = project
     jsProjects.map(p => p: ProjectReference) : _*
   )
 
-val argonautParent = Project(
-  id = "argonaut-parent"
-, base = file(".")
-).settings(
-    base
-  , ReleasePlugin.projectSettings
-  , mimaFailOnNoPrevious := false
-  , PublishSettings.all
-  , noPublish
-  , name := "argonaut-parent"
-  , run / fork := true
-).aggregate(
-  (jsProjects ++ jvmProjects).map(p => p: ProjectReference) : _*
-)
+base
+ReleasePlugin.projectSettings
+mimaFailOnNoPrevious := false
+PublishSettings.all
+noPublish
+name := "argonaut-parent"
+run / fork := true

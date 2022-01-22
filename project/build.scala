@@ -52,7 +52,6 @@ object build {
   val previousVersions = settingKey[Seq[String]]("")
 
   def nativeTestId = "nativeTest"
-  def nativeParentId = "nativeParent"
 
   val nativeSettings = Seq(
     Compile / doc / scalacOptions --= {
@@ -76,6 +75,8 @@ object build {
           }
         } else if (name.value == "argonaut-jawn") {
           6
+        } else if (name.value == "argonaut-cats") {
+          8
         } else {
           2
         }
