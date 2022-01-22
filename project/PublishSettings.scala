@@ -25,7 +25,6 @@ object PublishSettings {
        commitReleaseVersion,
        tagRelease,
        publishArtifacts,
-       releaseStepCommandAndRemaining("+ " + build.nativeParentId + "/publishSigned"),
        releaseStepCommandAndRemaining("sonatypeBundleRelease"),
        setNextVersion,
        commitNextVersion,

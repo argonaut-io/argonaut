@@ -28,7 +28,6 @@ jobs:
            "+Test/compile"
            "+jvmParent/test"
            "+nativeParent/test"
-           "+nativeParent/mimaReportBinaryIssues"
            "+nativeTest/run"
            "project jsParent"
            testSequentialCross
