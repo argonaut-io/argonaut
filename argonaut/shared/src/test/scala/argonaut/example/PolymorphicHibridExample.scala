@@ -8,8 +8,8 @@ object PolymorphicHibridExample extends ArgonautSpec {
   case class Dog(name: String) extends Animal
   case class Cat(age: Int) extends Animal
 
-  val CodecDog = casecodec1(Dog.apply, Dog.unapply)("name") // not implicit
-  val CodecCat = casecodec1(Cat.apply, Cat.unapply)("age")  // not implicit
+  val CodecDog = casecodec1(Dog.apply, (a: Dog) => Option(a.name))("name") // not implicit
+  val CodecCat = casecodec1(Cat.apply, (a: Cat) => Option(a.age))("age")  // not implicit
 
   implicit def AnimalsCodecJson : CodecJson[Animal] =
     CodecJson(
