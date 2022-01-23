@@ -1,6 +1,7 @@
 import build._
 
 val disableScala211 = disableScala("2.11")
+val disableScala3 = disableScala("3")
 
 def disableScala(v: String) = Def.settings(
   mimaPreviousArtifacts := {
@@ -61,8 +62,6 @@ val argonautScalaz = argonautCrossProject(
       "org.scalaz"                   %%% "scalaz-core"               % scalazVersion
     )
   )
-).platformsSettings(JVMPlatform, JSPlatform)(
-  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.15" % "test"
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautScalazJVM = argonautScalaz.jvm
@@ -82,6 +81,7 @@ val argonautMonocle = argonautCrossProject(
     , "com.github.julien-truffaut"   %%% "monocle-law"               % monocleVersion.value     % "test"
     )
   )
+  , disableScala3
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
 val argonautMonocleJVM = argonautMonocle.jvm
@@ -98,7 +98,6 @@ val argonautCats = argonautCrossProject(
   libraryDependencies ++= Seq(
     "org.typelevel"                %%% "cats-core"                 % catsVersion.value
   , "org.typelevel"                %%% "cats-laws"                 % catsVersion.value        % "test"
-  , "org.typelevel"                %%% "discipline-specs2"         % "1.3.1"                  % "test"
   ),
   disableScala211,
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -117,6 +116,7 @@ val argonautJawn = argonautCrossProject(
       "org.typelevel"               %%%  "jawn-parser"               % "0.14.3"
     )
   )
+  , disableScala3
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautJawnJVM = argonautJawn.jvm

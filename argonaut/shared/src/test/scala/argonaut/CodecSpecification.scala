@@ -1,10 +1,13 @@
 package argonaut
 
+import argonaut.TestCompat._
 import Data._
 import org.scalacheck._, Arbitrary._
+import org.specs2.scalacheck.ScalaCheckFunction1
+import org.specs2.specification.core.SpecStructure
 
 object CodecSpecification extends ArgonautSpec {
-  def encodedecode[A: EncodeJson: DecodeJson: Arbitrary] = {
+  def encodedecode[A: EncodeJson: DecodeJson: Arbitrary]: ScalaCheckFunction1[A, Boolean] = {
     val aCodec = CodecJson.derived[A]
     prop[A, Boolean]{a =>
       CodecJson.codecLaw(aCodec)(a)
@@ -113,7 +116,8 @@ object CodecSpecification extends ArgonautSpec {
   }
 
   object CodecInstances {
-    implicit val testClassCodec: CodecJson[TestClass] = CodecJson.casecodec22(TestClass.apply, TestClass.unapply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
+    implicit val testClassCodec: CodecJson[TestClass] =
+      CodecJson.casecodec22(TestClass.apply, (_: TestClass).asTuple)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
   }
 
   object derived {
@@ -135,7 +139,7 @@ object CodecSpecification extends ArgonautSpec {
     implicit def OrderCodecJson: CodecJson[Order] = CodecJson.derive[Order]
     implicit def PersonCodecJson: CodecJson[Person] = CodecJson.derive[Person]
     implicit def BackTicksCodecJson: CodecJson[BackTicks] = CodecJson.derive[BackTicks]
-    implicit def ParameterizedCodecJson [T: EncodeJson: DecodeJson] = CodecJson.derive[Parameterized[T]]
+    implicit def ParameterizedCodecJson [T: EncodeJson: DecodeJson]: CodecJson[Parameterized[T]] = CodecJson.derive[Parameterized[T]]
 
     def testDerivedPerson = encodedecode[Person]
     def testDerivedBackTicks = encodedecode[BackTicks]

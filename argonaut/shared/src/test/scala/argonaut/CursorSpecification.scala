@@ -16,8 +16,8 @@ object CursorSpecification extends ArgonautSpec {
     >-> aliases withFocus                      ${prop((c: Cursor, f: Json => Json) => (c withFocus f) === (c >-> f))}
     set gives focus                            ${prop((c: Cursor, j: Json) => (c set j).focus === j)}
     := aliases set                             ${prop((c: Cursor, j: Json) => (c set j) === (c := j))}
-    lefts head is left                         ${prop((c: Cursor) => c.lefts forall (a => a.headOption === c.left.map(_.focus)))}
-    rights head is right                       ${prop((c: Cursor) => c.rights forall (a => a.headOption === c.right.map(_.focus)))}
+    lefts head is left                         ${prop((c: Cursor) => c.lefts forall (a => a.headOption == c.left.map(_.focus)))}
+    rights head is right                       ${prop((c: Cursor) => c.rights forall (a => a.headOption == c.right.map(_.focus)))}
     first has no lefts                         ${prop((c: Cursor) => c.first forall (_.left.isEmpty))}
     last has no rights                         ${prop((c: Cursor) => c.last forall (_.right.isEmpty))}
     left->right                                ${prop((c: Cursor) => c.left forall (_.right exists (_ == c)))}

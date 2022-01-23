@@ -145,7 +145,7 @@ trait DecodeJson[A] {
 
 }
 
-object DecodeJson extends DecodeJsons {
+object DecodeJson extends DecodeJsons with DecodeJsonMacro {
   def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] = {
     new DecodeJson[A] {
       def decode(c: HCursor) = r(c)
@@ -160,9 +160,7 @@ object DecodeJson extends DecodeJsons {
     }
   }
 
-  def derive[A]: DecodeJson[A] = macro internal.Macros.materializeDecodeImpl[A]
-
-  def of[A: DecodeJson] = implicitly[DecodeJson[A]]
+  def of[A: DecodeJson]: DecodeJson[A] = implicitly[DecodeJson[A]]
 
   def BuilderDecodeJson[A, C[_]](newBuilder: () => Builder[A, C[A]])(implicit e: DecodeJson[A]): DecodeJson[C[A]] = {
     DecodeJson(a =>
@@ -215,8 +213,10 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   implicit def JsonDecodeJson: DecodeJson[Json] = decodeArr(j => j.focus)
 
   // for binary compatibility. does not work with Scala 2.13.x
-  private[argonaut] def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] =
+  private[argonaut] def CanBuildFromDecodeJson[A, C[_]](implicit e: DecodeJson[A], c: CanBuildFrom[Nothing, A, C[A]]): DecodeJson[C[A]] = {
+    import scala.language.reflectiveCalls
     BuilderDecodeJson[A, C](() => c.asInstanceOf[{def apply(): Builder[A, C[A]]}].apply())
+  }
 
   implicit val UUIDDecodeJson: DecodeJson[java.util.UUID] = {
     optionDecoder(_.string.flatMap(s =>

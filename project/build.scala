@@ -36,12 +36,7 @@ object build {
     }
   )
   val catsVersion = Def.setting(
-    crossProjectPlatform.?.value match {
-      case Some(JSPlatform) =>
-        "2.6.1"
-      case _=>
-        "2.0.0"
-    }
+    "2.6.1"
   )
 
   def reflect = Def.setting {
@@ -82,7 +77,6 @@ object build {
         Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tagOrHash.value + "€{FILE_PATH}.scala")
       }
     , releaseTagName := tagName.value
-    , autoScalaLibrary := false
     , libraryDependencies ++= reflect.value
     , ThisBuild / mimaReportSignatureProblems := true
     , mimaPreviousArtifacts := {
@@ -125,8 +119,16 @@ object build {
           }
         },
         libraryDependencies ++= Seq(
-          "org.scalaz" %%% "scalaz-core" % scalazVersion % "test"
-        )
+          "org.scalaz" %%% "scalaz-scalacheck-binding" % s"${scalazVersion}-scalacheck-1.15" % "test"
+        ),
+        Test / baseDirectory := (LocalRootProject / baseDirectory).value,
+        libraryDependencies ++= {
+          if (scalaBinaryVersion.value == "3") {
+            Nil
+          } else {
+            Seq("com.chuusai" %%% "shapeless" % "2.3.7" % "test")
+          }
+        },
       )
     
     val withJS = if (platforms.contains(JSPlatform)) {

@@ -19,8 +19,8 @@ object OptionParserSpecification extends ArgonautSpec{  def is = s2"""
   case class OtherObject(a: Int, b: Option[AnObject])
 
 
-  implicit val codec2 = CodecJson.derive[AnObject]
-  implicit val codec1 = CodecJson.derive[OtherObject]
+  implicit val codec2: CodecJson[AnObject] = CodecJson.derive[AnObject]
+  implicit val codec1: CodecJson[OtherObject] = CodecJson.derive[OtherObject]
 
   def emptyString = "".decodeEither[AnObject] must beLeft
 
