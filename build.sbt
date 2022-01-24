@@ -91,7 +91,7 @@ val argonautMonocleJS  = argonautMonocle.js.settings(
 
 val argonautCats = argonautCrossProject(
     "argonaut-cats"
-  , Seq(JVMPlatform, JSPlatform)
+  , Seq(JVMPlatform, JSPlatform, NativePlatform)
 ).settings(
   commonSettings,
   name := "argonaut-cats",
@@ -104,6 +104,7 @@ val argonautCats = argonautCrossProject(
 
 val argonautCatsJVM = argonautCats.jvm
 val argonautCatsJS  = argonautCats.js
+val argonautCatsNative = argonautCats.native
 
 
 val argonautJawn = argonautCrossProject(
@@ -139,7 +140,7 @@ val argonautBenchmark = Project(
 
 
 val nativeProjects = Seq[ProjectReference](
-  argonautNative, argonautScalazNative
+  argonautNative, argonautScalazNative, argonautCatsNative
 )
 
 val jsProjects = Seq(
