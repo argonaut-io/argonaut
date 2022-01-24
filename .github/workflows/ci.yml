@@ -26,6 +26,7 @@ jobs:
         case "${{ matrix.name }}" in
           "scala-native")
             sbt -v \
+            "+nativeParent/mimaReportBinaryIssues" \
             "+nativeParent/test" \
             "+nativeTest/run"
             ;;
