@@ -150,7 +150,7 @@ object build {
       .platformsSettings(platforms.filter(NativePlatform != _): _*)(
         libraryDependencies += {
           if (isScala3.value) {
-            "org.specs2" %%% "specs2-scalacheck" % "5.0.0-RC-22" % "test"
+            "org.specs2" %%% "specs2-scalacheck" % "5.0.0" % "test"
           } else {
             "org.specs2" %%% "specs2-scalacheck" % "4.13.2" % "test"
           }
