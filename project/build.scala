@@ -120,7 +120,7 @@ object build {
       }
     , releaseTagName := tagName.value
     , libraryDependencies ++= reflect.value
-    , mimaReportSignatureProblems := true
+    , mimaReportSignatureProblems := (scalaBinaryVersion.value != "3")
     /*
     , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
