@@ -28,7 +28,6 @@ jobs:
            "+Test/compile"
            "+jvmParent/test"
            "+nativeParent/test"
-           "+nativeTest/run"
            "project jsParent"
            testSequentialCross
     - run: ./native-test/target/scala-2.12/nativetest-out

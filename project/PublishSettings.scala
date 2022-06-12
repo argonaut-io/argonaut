@@ -20,7 +20,6 @@ object PublishSettings {
        checkSnapshotDependencies,
        inquireVersions,
        runTest,
-       releaseStepCommandAndRemaining("+ " + build.nativeTestId + "/run"),
        setReleaseVersion,
        commitReleaseVersion,
        tagRelease,
