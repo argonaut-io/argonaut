@@ -71,7 +71,7 @@ val argonautScalaz = argonautCrossProject(
       "org.scalaz"                   %%% "scalaz-core"               % scalazVersion
     )
   , conflictWarningSetting
-).platformsSettings(JVMPlatform, JSPlatform)(
+).platformsSettings(JVMPlatform, JSPlatform, NativePlatform)(
   libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
 ).dependsOn(argonaut % "compile->compile;test->test")
 
@@ -154,19 +154,6 @@ val argonautBenchmark = Project(
   , (run / javaOptions) ++= ((Runtime / fullClasspath) map { cp => Seq("-cp", sbt.Attributed.data(cp).mkString(":")) }).value
   )
 ).dependsOn(argonautJVM)
-
-val nativeTest = Project(
-  nativeTestId
-, file("native-test")
-)
-.enablePlugins(ScalaNativePlugin)
-.settings(
-    base
-  , noPublish
-  , nativeSettings
-).dependsOn(
-  argonautNative
-)
 
 lazy val nativeProjects = Seq[ProjectReference](
   argonautNative, argonautScalazNative, argonautJawnNative, argonautCatsNative

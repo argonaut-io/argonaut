@@ -27,7 +27,9 @@ object JsonNumberSpecification extends ArgonautSpec {
   }
 
   def parseValidJsonNumbers = prop { (num: ValidJsonNumber) =>
-    JsonNumber.fromString(num.value) must beSome.like{
+    val Some(x) = JsonNumber.fromString(num.value)
+
+    x match {
       case JsonDecimal(value) => num.value must_== value
       case JsonLong(value) => num.value must_== value.toString
     }

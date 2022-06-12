@@ -51,8 +51,6 @@ object build {
 
   val previousVersions = settingKey[Seq[String]]("")
 
-  def nativeTestId = "nativeTest"
-
   val nativeSettings = Seq(
     Compile / doc / scalacOptions --= {
       // TODO remove this workaround
@@ -86,7 +84,6 @@ object build {
     mimaPreviousArtifacts := previousVersions.value.map { n =>
       organization.value %% s"${Keys.name.value}_native0.4" % n
     }.toSet,
-    Test / sources := Nil // disable native test
   )
 
   val commonSettings = base ++
@@ -147,13 +144,9 @@ object build {
           }.toSet
         },
       )
-      .platformsSettings(platforms.filter(NativePlatform != _): _*)(
+      .settings(
         libraryDependencies += {
-          if (isScala3.value) {
-            "org.specs2" %%% "specs2-scalacheck" % "5.0.0" % "test"
-          } else {
-            "org.specs2" %%% "specs2-scalacheck" % "4.16.0" % "test"
-          }
+          "org.specs2" %%% "specs2-scalacheck" % "4.16.0" % "test"
         },
         libraryDependencies ++= {
           if (isScala3.value) {
