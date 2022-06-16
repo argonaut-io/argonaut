@@ -112,9 +112,7 @@ lazy val argonautCats = argonautCrossProject(
 
 val argonautCatsJVM = argonautCats.jvm
 val argonautCatsJS  = argonautCats.js
-val argonautCatsNative = argonautCats.native.settings(
-  disableScala3, // TODO
-)
+val argonautCatsNative = argonautCats.native
 
 val argonautJawn = argonautCrossProject(
     "argonaut-jawn"
