@@ -50,17 +50,6 @@ val argonautJVM = argonaut.jvm
 val argonautJS  = argonaut.js
 val argonautNative = argonaut.native
 
-lazy val conflictWarningSetting = Def.settings(
-  conflictWarning := {
-    if (scalaBinaryVersion.value == "3") {
-      // TODO
-      ConflictWarning("warn", Level.Warn, false)
-    } else {
-      conflictWarning.value
-    }
-  }
-)
-
 val argonautScalaz = argonautCrossProject(
     "argonaut-scalaz"
   , Seq(JVMPlatform, JSPlatform, NativePlatform)
@@ -69,7 +58,6 @@ val argonautScalaz = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.scalaz"                   %%% "scalaz-core"               % scalazVersion
     )
-  , conflictWarningSetting
 ).platformsSettings(JVMPlatform, JSPlatform, NativePlatform)(
   libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
 ).dependsOn(argonaut % "compile->compile;test->test")
@@ -84,7 +72,6 @@ val argonautMonocle = argonautCrossProject(
   , Seq(JVMPlatform, JSPlatform)
 ).settings(
     name := "argonaut-monocle3"
-  , conflictWarningSetting
   , previousVersions --= (0 to 6).map(n => s"6.3.$n")
   , libraryDependencies ++= Seq(
       "dev.optics"   %%% "monocle-core"              % monocleVersion
