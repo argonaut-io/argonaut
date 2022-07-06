@@ -1,7 +1,6 @@
 import build._
 
 def disableScala2_12 = disableScala("2.12")
-def disableScala3 = disableScala("3")
 
 def disableScala(v: String) = Def.settings(
   mimaPreviousArtifacts := {
@@ -122,8 +121,6 @@ val argonautJawn = argonautCrossProject(
   , libraryDependencies ++= Seq(
       "org.typelevel"               %%%  "jawn-parser"               % "1.4.0"
     )
-).nativeSettings(
-  disableScala3,
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautJawnJVM = argonautJawn.jvm
