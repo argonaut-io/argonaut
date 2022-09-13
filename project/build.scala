@@ -126,7 +126,7 @@ object build {
           if (scalaBinaryVersion.value == "3") {
             Nil
           } else {
-            Seq("com.chuusai" %%% "shapeless" % "2.3.9" % "test")
+            Seq("com.chuusai" %%% "shapeless" % "2.3.10" % "test")
           }
         },
       )
