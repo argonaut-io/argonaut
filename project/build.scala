@@ -23,7 +23,7 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.3.6"
+  val scalazVersion              = "7.3.7"
   val monocleVersion             = "3.1.0"
   val catsVersion                = "2.9.0"
 
