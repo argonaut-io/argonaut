@@ -19,7 +19,7 @@ object build {
       organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.2.34"
+  val scalazVersion              = "7.2.35"
   val monocleVersion             = Def.setting(
     crossProjectPlatform.?.value match {
       case Some(JVMPlatform) | None =>
