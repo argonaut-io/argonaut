@@ -59,11 +59,11 @@ case class ACursor(either: Either[HCursor, HCursor]) {
   def unary_~ : ACursor =
     reattempt
 
-  /** Return the current focus, iff we are succeeded */
+  /** Return the current focus, if we are succeeded */
   def focus: Option[Json] =
     success.map(_.focus)
 
-  /** Return the previous focus, iff we are !succeeded. */
+  /** Return the previous focus, if we are !succeeded. */
   def failureFocus: Option[Json] =
     failure.map(_.focus)
 
