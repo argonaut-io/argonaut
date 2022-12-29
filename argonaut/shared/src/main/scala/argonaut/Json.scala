@@ -483,6 +483,12 @@ private[argonaut] case class JString(s: String) extends Json
 private[argonaut] case class JArray(a: JsonArray) extends Json
 private[argonaut] case class JObject(o: JsonObject) extends Json
 
+private[argonaut] object JBool extends (Boolean => JBool)
+private[argonaut] object JNumber extends (JsonNumber => JNumber)
+private[argonaut] object JString extends (String => JString)
+private[argonaut] object JArray extends (JsonArray => JArray)
+private[argonaut] object JObject extends (JsonObject => JObject)
+
 object Json extends Jsons {
   def apply(fields: (JsonField, Json)*): Json =
     jObjectAssocList(fields.toList)
