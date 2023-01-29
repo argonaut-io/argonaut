@@ -1,6 +1,5 @@
 import build._
 
-val disableScala211 = disableScala("2.11")
 val disableScala3 = disableScala("3")
 
 def disableScala(v: String) = Def.settings(
@@ -85,9 +84,7 @@ val argonautMonocle = argonautCrossProject(
 ).dependsOn(argonaut % "compile->compile;test->test", argonautScalaz % "compile->compile;test->test")
 
 val argonautMonocleJVM = argonautMonocle.jvm
-val argonautMonocleJS  = argonautMonocle.js.settings(
-  disableScala211
-)
+val argonautMonocleJS  = argonautMonocle.js
 
 val argonautCats = argonautCrossProject(
     "argonaut-cats"
@@ -99,7 +96,6 @@ val argonautCats = argonautCrossProject(
     "org.typelevel"                %%% "cats-core"                 % catsVersion.value
   , "org.typelevel"                %%% "cats-laws"                 % catsVersion.value        % "test"
   ),
-  disableScala211,
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautCatsJVM = argonautCats.jvm
