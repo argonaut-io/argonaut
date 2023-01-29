@@ -112,7 +112,7 @@ val argonautJawn = argonautCrossProject(
   commonSettings ++ Seq(
     name := "argonaut-jawn"
   , libraryDependencies ++= Seq(
-      "org.typelevel"               %%%  "jawn-parser"               % "0.14.3"
+      "org.typelevel"               %%%  "jawn-parser"               % "1.4.0"
     )
   )
   , disableScala3
