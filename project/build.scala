@@ -112,8 +112,6 @@ object build {
           scalaBinaryVersion.value match {
             case "3" =>
               "org.specs2" %%% "specs2-scalacheck" % "5.2.0" % "test"
-            case "2.11" =>
-              "org.specs2" %%% "specs2-scalacheck" % "4.10.6" % "test"
             case _ =>
               "org.specs2" %%% "specs2-scalacheck" % "4.19.1" % "test"
           }

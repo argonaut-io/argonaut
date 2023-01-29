@@ -6,24 +6,19 @@ object ScalaSettings {
   type Sett = Def.Setting[_]
 
   private[this] val unusedWarnings = Def.setting {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 11)) =>
-        Seq("-Ywarn-unused-import")
-      case _ =>
-        Seq("-Ywarn-unused:imports")
-    }
+    Seq("-Ywarn-unused:imports")
   }
 
-  def Scala211 = "2.11.12"
+  def Scala212 = "2.12.17"
 
   lazy val all: Seq[Sett] = Def.settings(
-    scalaVersion := Scala211
-  , crossScalaVersions := Seq(Scala211, "2.12.17", "2.13.10", "3.2.2")
-  , ensimeScalaVersion := Scala211
+    scalaVersion := Scala212
+  , crossScalaVersions := Seq(Scala212, "2.13.10", "3.2.2")
+  , ensimeScalaVersion := Scala212
   , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint")
   , scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
-        case Some((2, 11 | 12)) =>
+        case Some((2, 12)) =>
           Seq("-Xfuture")
         case _ =>
           Nil
