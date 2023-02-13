@@ -27,9 +27,9 @@ Stable:
 libraryDependencies += "io.argonaut" %% "argonaut" % "6.3.8"
 ```
 
-Note that the 6.2.x releass supports scala `2.11.*`, `2.12.*` and `2.13.*` with scalaz `7.2.*`.
+Note that the 6.2.x releases supports scala `2.11.*`, `2.12.*` and `2.13.*` with scalaz `7.2.*`.
 
-Note that the 6.3.x releass supports scala `2.12.*`, `2.13.*` and `3.x` with scalaz `7.3.*`.
+Note that the 6.3.x releases supports scala `2.12.*`, `2.13.*` and `3.x` with scalaz `7.3.*`.
 
 
 ### Release
