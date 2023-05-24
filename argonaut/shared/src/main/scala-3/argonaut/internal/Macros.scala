@@ -64,7 +64,7 @@ object Macros {
         summonEncoder[t] :: summonEncodersRec[ts]
     }
 
-  inline def derivedEncoder[A](using inline A: Mirror.ProductOf[A]): EncodeJson[A] =
+  inline def derivedEncoder[A](using A: Mirror.ProductOf[A]): EncodeJson[A] =
     new EncodeJson[A] {
       implicit def self: EncodeJson[A] = this // for recursive type
 
@@ -93,13 +93,13 @@ object Macros {
       }
     }
 
-  inline def derivedCodec[A](using inline A: Mirror.ProductOf[A]): CodecJson[A] =
+  inline def derivedCodec[A](using A: Mirror.ProductOf[A]): CodecJson[A] =
     CodecJson.derived[A](
       E = derivedEncoder[A],
       D = derivedDecoder[A],
     )
 
-  inline def derivedDecoder[A](using inline A: Mirror.ProductOf[A]): DecodeJson[A] =
+  inline def derivedDecoder[A](using A: Mirror.ProductOf[A]): DecodeJson[A] =
     new DecodeJson[A] {
       implicit def self: DecodeJson[A] = this // for recursive type
 
