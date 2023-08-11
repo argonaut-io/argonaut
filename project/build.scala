@@ -146,7 +146,7 @@ object build {
       )
       .settings(
         libraryDependencies += {
-          "org.specs2" %%% "specs2-scalacheck" % "4.20.1" % "test"
+          "org.specs2" %%% "specs2-scalacheck" % "4.20.2" % "test"
         },
         libraryDependencies ++= {
           if (isScala3.value) {
