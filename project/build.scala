@@ -113,7 +113,7 @@ object build {
             case "3" =>
               "org.specs2" %%% "specs2-scalacheck" % "5.2.0" % "test"
             case _ =>
-              "org.specs2" %%% "specs2-scalacheck" % "4.20.0" % "test"
+              "org.specs2" %%% "specs2-scalacheck" % "4.20.2" % "test"
           }
         },
         libraryDependencies ++= Seq(
