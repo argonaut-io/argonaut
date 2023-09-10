@@ -11,7 +11,7 @@ object JsonObjectMonocle extends JsonObjectMonocles
 
 trait JsonObjectMonocles {
   implicit val jObjectEach: Each[JsonObject, Json] = new Each[JsonObject, Json]{
-    def each = new Traversal[JsonObject, Json]{
+    def each: Traversal[JsonObject, Json] = new Traversal[JsonObject, Json]{
       def modifyA[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] = {
         JsonObjectCats.traverse(from, f)
       }
@@ -26,7 +26,7 @@ trait JsonObjectMonocles {
   }
 
   implicit val jObjectFilterIndex: FilterIndex[JsonObject, JsonField, Json] = new FilterIndex[JsonObject, JsonField, Json]{
-    def filterIndex(predicate: JsonField => Boolean) = new Traversal[JsonObject, Json]{
+    def filterIndex(predicate: JsonField => Boolean): Traversal[JsonObject, Json] = new Traversal[JsonObject, Json]{
       def modifyA[F[_]: Applicative](f: Json => F[Json])(from: JsonObject): F[JsonObject] =
         Applicative[F].map(
           from.toList.traverse[F, (JsonField, Json)]{ case (field, json) =>
