@@ -12,7 +12,7 @@ object JawnParser extends SupportParser[Json] {
       def jnum(s: CharSequence, decIndex: Int, expIndex: Int) = Json.jNumber(JsonNumber.unsafeDecimal(s.toString))
       def jstring(s: CharSequence) = Json.jString(s.toString)
 
-      def singleContext() = new FContext.NoIndexFContext[Json] {
+      def singleContext(): FContext[Json] = new FContext.NoIndexFContext[Json] {
         var value: Json = null
         def add(s: CharSequence) = { value = jstring(s.toString) }
         def add(v: Json) = { value = v }
@@ -20,7 +20,7 @@ object JawnParser extends SupportParser[Json] {
         def isObj: Boolean = false
       }
 
-      def arrayContext() = new FContext.NoIndexFContext[Json] {
+      def arrayContext(): FContext[Json] = new FContext.NoIndexFContext[Json] {
         val vs = mutable.ListBuffer.empty[Json]
         def add(s: CharSequence) = { vs += jstring(s.toString) }
         def add(v: Json) = { vs += v }
@@ -28,7 +28,7 @@ object JawnParser extends SupportParser[Json] {
         def isObj: Boolean = false
       }
 
-      def objectContext() = new FContext.NoIndexFContext[Json] {
+      def objectContext(): FContext[Json] = new FContext.NoIndexFContext[Json] {
         var key: String = null
         var vs = JsonObject.empty
         def add(s: CharSequence): Unit =

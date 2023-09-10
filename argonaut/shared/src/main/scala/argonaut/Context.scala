@@ -12,7 +12,7 @@ sealed abstract class Context {
 object Context extends Contexts {
   def empty: Context =
     new Context {
-      val toList = Nil
+      val toList: List[ContextElement] = Nil
     }
 }
 
