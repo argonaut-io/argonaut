@@ -13,7 +13,7 @@ object ScalaSettings {
 
   lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala212
-  , crossScalaVersions := Seq(Scala212, "2.13.11", "3.3.1")
+  , crossScalaVersions := Seq(Scala212, "2.13.12", "3.3.1")
   , ensimeScalaVersion := Scala212
   , scalacOptions ++= Seq("-deprecation", "-unchecked", "-feature", "-language:_", "-Xlint")
   , scalacOptions ++= {
