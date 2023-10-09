@@ -37,6 +37,21 @@ object ScalaSettings {
     , "-language:implicitConversions,higherKinds"
     )
   , scalacOptions ++= {
+      if (scalaBinaryVersion.value == "2.13") {
+        Seq("-Wconf:msg=constructor modifiers are assumed by synthetic:info")
+      } else {
+        Nil
+      }
+    }
+  , scalacOptions ++= {
+      CrossVersion.partialVersion(scalaVersion.value) match {
+        case Some((2, _)) =>
+          Seq("-Xsource:3")
+        case _ =>
+          Nil
+      }
+    }
+  , scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 11 | 12)) =>
           Seq("-Xfuture")

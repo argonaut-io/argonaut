@@ -171,6 +171,10 @@ sealed abstract class JsonNumber {
   def asJson: Json = JNumber(this)
 }
 
+object JsonDecimal extends runtime.AbstractFunction1[String, JsonDecimal] {
+  def apply(value: String): JsonDecimal = new JsonDecimal(value)
+}
+
 /**
  * A JsonDecimal represents and valid JSON number as a String. Unfortunately,
  * there is no type in the Scala standard library which can represent all valid
