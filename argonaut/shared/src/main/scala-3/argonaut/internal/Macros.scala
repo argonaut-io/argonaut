@@ -10,10 +10,10 @@ object Macros {
   inline def summonLabels[T <: Tuple]: Array[String] =
     summonLabelsRec[T].toArray
 
-  inline def summonDecoders[T <: Tuple]: Array[DecodeJson[_]] =
+  inline def summonDecoders[T <: Tuple]: Array[DecodeJson[?]] =
     summonDecodersRec[T].toArray
 
-  inline def summonEncoders[T <: Tuple]: Array[EncodeJson[_]] =
+  inline def summonEncoders[T <: Tuple]: Array[EncodeJson[?]] =
     summonEncodersRec[T].toArray
 
   inline def summonEncoder[A]: EncodeJson[A] =
@@ -48,7 +48,7 @@ object Macros {
         constValue[t].asInstanceOf[String] :: summonLabelsRec[ts]
     }
 
-  inline def summonDecodersRec[T <: Tuple]: List[DecodeJson[_]] =
+  inline def summonDecodersRec[T <: Tuple]: List[DecodeJson[?]] =
     inline erasedValue[T] match {
       case _: EmptyTuple =>
         Nil
@@ -56,7 +56,7 @@ object Macros {
         summonDecoder[t] :: summonDecodersRec[ts]
     }
 
-  inline def summonEncodersRec[T <: Tuple]: List[EncodeJson[_]] =
+  inline def summonEncodersRec[T <: Tuple]: List[EncodeJson[?]] =
     inline erasedValue[T] match {
       case _: EmptyTuple =>
         Nil
@@ -68,7 +68,7 @@ object Macros {
     new EncodeJson[A] {
       implicit def self: EncodeJson[A] = this // for recursive type
 
-      private[this] val elemEncoders: Array[EncodeJson[_]] =
+      private[this] val elemEncoders: Array[EncodeJson[?]] =
         Macros.summonEncoders[A.MirroredElemTypes]
 
       override def encode(a: A): Json =
@@ -121,7 +121,7 @@ object Macros {
 
       private[this] val elemLabels = Macros.summonLabels[A.MirroredElemLabels]
 
-      private[this] val elemDecoders: Array[DecodeJson[_]] =
+      private[this] val elemDecoders: Array[DecodeJson[?]] =
         Macros.summonDecoders[A.MirroredElemTypes]
 
       private[this] val elemCount = elemDecoders.size
