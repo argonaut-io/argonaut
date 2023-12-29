@@ -7,7 +7,7 @@ import syntax.show._
 object CursorOpCats extends CursorOpCatss {}
 
 trait CursorOpCatss {
-  implicit val CursorOpInstances: Show[CursorOp] with Eq[CursorOp] = {
+  implicit val CursorOpInstances: Show[CursorOp] & Eq[CursorOp] = {
     new Show[CursorOp] with Eq[CursorOp] {
       override def show(x: CursorOp) = x match {
         case Reattempt => ".?."

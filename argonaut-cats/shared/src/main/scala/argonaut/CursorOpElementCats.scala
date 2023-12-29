@@ -5,7 +5,7 @@ import cats._
 object CursorOpElementCats extends CursorOpElementCatss
 
 trait CursorOpElementCatss {
-  implicit val CursorOpElementInstances: Show[CursorOpElement] with Eq[CursorOpElement] = {
+  implicit val CursorOpElementInstances: Show[CursorOpElement] & Eq[CursorOpElement] = {
     new Show[CursorOpElement] with Eq[CursorOpElement] {
       override def show(e: CursorOpElement) = {
         e match {

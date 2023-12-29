@@ -10,7 +10,7 @@ import syntax.show._
 object ContextCats extends ContextCatss
 
 trait ContextCatss {
-  implicit val ContextInstances: Eq[Context] with Show[Context] = {
+  implicit val ContextInstances: Eq[Context] & Show[Context] = {
     new Eq[Context] with Show[Context] {
       def eqv(c1: Context, c2: Context) = {
         Eq.by((_: Context).toList).eqv(c1, c2)
@@ -25,7 +25,7 @@ trait ContextCatss {
 object ContextElementCats extends ContextElementCatss
 
 trait ContextElementCatss {
-  implicit val ContextElementInstances: Eq[ContextElement] with Show[ContextElement] = {
+  implicit val ContextElementInstances: Eq[ContextElement] & Show[ContextElement] = {
     new Eq[ContextElement] with Show[ContextElement] {
       override def eqv(c1: ContextElement, c2: ContextElement) = {
         c1 match {

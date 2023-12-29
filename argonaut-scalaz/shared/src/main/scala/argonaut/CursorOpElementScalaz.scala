@@ -6,7 +6,7 @@ import scalaz._
 object CursorOpElementScalaz extends CursorOpElementScalazs
 
 trait CursorOpElementScalazs {
-  implicit val CursorOpElementInstances: Show[CursorOpElement] with Equal[CursorOpElement] = {
+  implicit val CursorOpElementInstances: Show[CursorOpElement] & Equal[CursorOpElement] = {
     new Show[CursorOpElement] with Equal[CursorOpElement] {
       override def show(e: CursorOpElement) = Cord {
         e match {

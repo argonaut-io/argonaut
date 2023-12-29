@@ -73,7 +73,7 @@ trait CursorScalazs {
       case _ => None
     }
 
-  implicit val CursorInstances: Equal[Cursor] with Show[Cursor] = new Equal[Cursor] with Show[Cursor] {
+  implicit val CursorInstances: Equal[Cursor] & Show[Cursor] = new Equal[Cursor] with Show[Cursor] {
     def equal(c1: Cursor, c2: Cursor) = {
       c1 match {
         case CJson(j1) =>

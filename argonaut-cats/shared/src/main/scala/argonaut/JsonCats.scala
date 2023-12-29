@@ -9,7 +9,7 @@ import syntax.eq._
 object JsonCats extends JsonCatss {}
 
 trait JsonCatss {
-  implicit val JsonInstances: Eq[Json] with Show[Json] = {
+  implicit val JsonInstances: Eq[Json] & Show[Json] = {
     new Eq[Json] with Show[Json] {
       def eqv(a1: Json, a2: Json) = {
         a1 match {

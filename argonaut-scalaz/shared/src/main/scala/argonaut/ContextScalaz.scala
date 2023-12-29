@@ -13,7 +13,7 @@ import ContextElementScalaz._
 object ContextScalaz extends ContextScalazs
 
 trait ContextScalazs {
-  implicit val ContextInstances: Equal[Context] with Show[Context] = {
+  implicit val ContextInstances: Equal[Context] & Show[Context] = {
     new Equal[Context] with Show[Context] {
       def equal(c1: Context, c2: Context) = {
         Equal.equalBy((_: Context).toList).equal(c1, c2)
@@ -28,7 +28,7 @@ trait ContextScalazs {
 object ContextElementScalaz extends ContextElementScalazs
 
 trait ContextElementScalazs {
-  implicit val ContextElementInstances: Equal[ContextElement] with Show[ContextElement] = {
+  implicit val ContextElementInstances: Equal[ContextElement] & Show[ContextElement] = {
     new Equal[ContextElement] with Show[ContextElement] {
       override def equal(c1: ContextElement, c2: ContextElement) = {
         c1 match {
