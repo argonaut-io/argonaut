@@ -7,7 +7,7 @@ import CursorOpElementScalaz._
 object CursorOpScalaz extends CursorOpScalazs {}
 
 trait CursorOpScalazs {
-  implicit val CursorOpInstances: Show[CursorOp] with Equal[CursorOp] = {
+  implicit val CursorOpInstances: Show[CursorOp] & Equal[CursorOp] = {
     new Show[CursorOp] with Equal[CursorOp] {
       override def show(x: CursorOp) = x match {
         case Reattempt =>

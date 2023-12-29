@@ -8,7 +8,7 @@ import CursorOpScalaz._
 object CursorHistoryScalaz extends CursorHistoryScalazs
 
 trait CursorHistoryScalazs {
-  implicit val CursorHistoryInstances: Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] = {
+  implicit val CursorHistoryInstances: Show[CursorHistory] & Equal[CursorHistory] & Monoid[CursorHistory] = {
     new Show[CursorHistory] with Equal[CursorHistory] with Monoid[CursorHistory] {
       override def show(h: CursorHistory) = Show[List[CursorOp]].show(h.toList)
       def equal(h1: CursorHistory, h2: CursorHistory) = {

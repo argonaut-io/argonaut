@@ -29,7 +29,7 @@ trait DecodeResultScalazs {
   def failedResultHistoryL[A]: DecodeResult[A] @?> CursorHistory =
     ~Lens.secondLens compose failedResultL[A]
 
-  implicit def DecodeResultMonad: Monad[DecodeResult] with Traverse[DecodeResult] = new Monad[DecodeResult]
+  implicit def DecodeResultMonad: Monad[DecodeResult] & Traverse[DecodeResult] = new Monad[DecodeResult]
     with Traverse[DecodeResult] {
     def point[A](a: => A) = DecodeResult.ok(a)
     def bind[A, B](a: DecodeResult[A])(f: A => DecodeResult[B]) = a flatMap f

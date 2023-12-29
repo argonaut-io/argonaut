@@ -12,7 +12,7 @@ import syntax.show._
 object CursorCats extends CursorCatss {}
 
 trait CursorCatss {
-  implicit val CursorInstances: Eq[Cursor] with Show[Cursor] = new Eq[Cursor] with Show[Cursor] {
+  implicit val CursorInstances: Eq[Cursor] & Show[Cursor] = new Eq[Cursor] with Show[Cursor] {
     def eqv(c1: Cursor, c2: Cursor) = {
       c1 match {
         case CJson(j1) =>
