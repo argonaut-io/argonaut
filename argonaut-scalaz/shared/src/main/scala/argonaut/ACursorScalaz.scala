@@ -1,7 +1,5 @@
 package argonaut
 
-object ACursorScalaz extends ACursorScalazs {
-}
+object ACursorScalaz extends ACursorScalazs {}
 
-trait ACursorScalazs {
-}
+trait ACursorScalazs {}

@@ -3,8 +3,7 @@ package argonaut
 import scalaz._
 import Json._
 
-object EncodeJsonScalaz extends EncodeJsonScalazs {
-}
+object EncodeJsonScalaz extends EncodeJsonScalazs {}
 
 trait EncodeJsonScalazs {
   def fromFoldable[F[_], A](implicit A: EncodeJson[A], F: Foldable[F]): EncodeJson[F[A]] =
@@ -13,15 +12,20 @@ trait EncodeJsonScalazs {
   implicit def MaybeEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Maybe[A]] = EncodeJson(_.cata(e(_), jNull))
 
   implicit def DisjunctionEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[A \/ B] =
-    EncodeJson(_.fold(
-      a => jSingleObject("Left", ea(a)),
-      b => jSingleObject("Right", eb(b))
-    ))
+    EncodeJson(
+      _.fold(
+        a => jSingleObject("Left", ea(a)),
+        b => jSingleObject("Right", eb(b))
+      )
+    )
 
   implicit def ValidationEncodeJson[E, A](implicit ea: EncodeJson[E], eb: EncodeJson[A]): EncodeJson[Validation[E, A]] =
-    EncodeJson(_.fold (
-      e => jSingleObject("Failure", ea(e)), a => jSingleObject("Success", eb(a))
-    ))
+    EncodeJson(
+      _.fold(
+        e => jSingleObject("Failure", ea(e)),
+        a => jSingleObject("Success", eb(a))
+      )
+    )
 
   implicit def IListEncodeJson[A: EncodeJson]: EncodeJson[IList[A]] =
     fromFoldable[IList, A]
@@ -39,11 +43,11 @@ trait EncodeJsonScalazs {
     fromFoldable[NonEmptyList, A]
 
   implicit def IMapEncodeJson[A, B](implicit A: EncodeJsonKey[A], B: EncodeJson[B]): EncodeJson[A ==>> B] =
-    EncodeJson(x => jObjectAssocList(
-      x.foldrWithKey(Nil: List[(String, Json)])(
-        (k, v, list) => (A.toJsonKey(k), B(v)) :: list
+    EncodeJson(x =>
+      jObjectAssocList(
+        x.foldrWithKey(Nil: List[(String, Json)])((k, v, list) => (A.toJsonKey(k), B(v)) :: list)
       )
-    ))
+    )
 
   implicit val EncodeJsonContra: Contravariant[EncodeJson] = new Contravariant[EncodeJson] {
     def contramap[A, B](r: EncodeJson[A])(f: B => A) = r contramap f
@@ -53,7 +57,8 @@ trait EncodeJsonScalazs {
     def contramap[A, B](r: EncodeJsonNumber[A])(f: B => A) = r contramap f
   }
 
-  implicit val EncodePossibleJsonNumberInstance: Contravariant[EncodePossibleJsonNumber] = new Contravariant[EncodePossibleJsonNumber] {
-    def contramap[A, B](r: EncodePossibleJsonNumber[A])(f: B => A) = r contramap f
-  }
+  implicit val EncodePossibleJsonNumberInstance: Contravariant[EncodePossibleJsonNumber] =
+    new Contravariant[EncodePossibleJsonNumber] {
+      def contramap[A, B](r: EncodePossibleJsonNumber[A])(f: B => A) = r contramap f
+    }
 }

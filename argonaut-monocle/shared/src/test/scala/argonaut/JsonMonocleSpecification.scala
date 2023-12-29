@@ -6,7 +6,8 @@ import argonaut.JsonNumberCats._
 import argonaut.JsonObjectCats._
 import argonaut.JsonCats._
 import monocle.function.Plated
-import monocle.law.discipline.{PrismTests, TraversalTests}
+import monocle.law.discipline.PrismTests
+import monocle.law.discipline.TraversalTests
 
 object JsonMonocleSpecification extends ArgonautSpec {
 
@@ -30,5 +31,5 @@ object JsonMonocleSpecification extends ArgonautSpec {
   Plated
     JsonPlated      ${TraversalTests(Plated.plate[Json]).all}
   """
-  
+
 }

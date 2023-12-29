@@ -1,7 +1,5 @@
 package argonaut
 
-object CodecJsonCats extends CodecJsonCatss {
-}
+object CodecJsonCats extends CodecJsonCatss {}
 
-trait CodecJsonCatss {
-}
+trait CodecJsonCatss {}

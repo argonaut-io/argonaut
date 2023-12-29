@@ -1,6 +1,7 @@
 package argonaut.example
 
-import argonaut._, Argonaut._
+import argonaut._
+import Argonaut._
 
 object CursorExample extends ArgonautSpec {
   val json =
@@ -30,25 +31,17 @@ object CursorExample extends ArgonautSpec {
       """
 
   def is = s2"""
-  Replace '["cat", "lol"]' with 'false' ${
-    json.parseOption flatMap (k =>
+  Replace '["cat", "lol"]' with 'false' ${json.parseOption flatMap (k =>
       +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) map (-_)
-    ) must beSome
-  }
-  Visit the 'values' array ${
-    json.parseOption flatMap (k =>
-      +k --\ "values" flatMap (_.downArray) map (-_)
-    ) must beSome
-  }
-  Delete the element '"dog"' from the 'values' array. ${
-    json.parseOption flatMap (k =>
+    ) must beSome}
+  Visit the 'values' array ${json.parseOption flatMap (k => +k --\ "values" flatMap (_.downArray) map (-_)) must beSome}
+  Delete the element '"dog"' from the 'values' array. ${json.parseOption flatMap (k =>
       +k --\ "values" flatMap (_.downArray) flatMap (_.right) flatMap (!_) map (-_)
-    ) must beSome
-  }
-  Replace '["cat", "lol"]' with 'false' and '"rabbit"' with 'true' ${
-    json.parseOption flatMap (k =>
-      +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) flatMap (_.right) flatMap (_.right) map (_ := jBool(true)) map (-_)
-    ) must beSome
-  }
+    ) must beSome}
+  Replace '["cat", "lol"]' with 'false' and '"rabbit"' with 'true' ${json.parseOption flatMap (k =>
+      +k --\ "values" flatMap (_.downArray) map (_ := jBool(false)) flatMap (_.right) flatMap (_.right) map (_ := jBool(
+        true
+      )) map (-_)
+    ) must beSome}
   """
 }

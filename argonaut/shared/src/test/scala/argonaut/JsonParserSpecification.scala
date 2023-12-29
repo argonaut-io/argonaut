@@ -14,10 +14,12 @@ object JsonParserSpecification extends ArgonautSpec with DataTables with ScalaCh
   // Generates chunks of whitespace according to the not at all specified JSON specification.
   val whitespaceGen: Gen[String] = listOf(Gen.oneOf(' ', '\n', '\r', '\t')).map(_.mkString)
 
-  val whitespaceObjectGen: Gen[String] = whitespaceGen.map(whitespace => """#{#"field1"#:#12#,#"field2"#:#"test"#}#""".replace("#", whitespace))
+  val whitespaceObjectGen: Gen[String] =
+    whitespaceGen.map(whitespace => """#{#"field1"#:#12#,#"field2"#:#"test"#}#""".replace("#", whitespace))
   val whitespaceObject: Json = ("field1" := 12) ->: ("field2" := "test") ->: jEmptyObject
 
-  val whitespaceArrayGen: Gen[String] = whitespaceGen.map(whitespace => """#[#"value1"#,#12#]#""".replace("#", whitespace))
+  val whitespaceArrayGen: Gen[String] =
+    whitespaceGen.map(whitespace => """#[#"value1"#,#12#]#""".replace("#", whitespace))
   val whitespaceArray: Json = jArray(jString("value1") :: jNumberOrNull(12) :: Nil)
 
   def is = s2"""

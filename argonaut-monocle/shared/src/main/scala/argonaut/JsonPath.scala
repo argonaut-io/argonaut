@@ -2,9 +2,12 @@ package argonaut
 
 import argonaut.JsonMonocle._
 import argonaut.JsonObjectMonocle._
-import monocle.function.{At, FilterIndex, Index}
-import monocle.{Fold, Optional, Traversal}
-
+import monocle.function.At
+import monocle.function.FilterIndex
+import monocle.function.Index
+import monocle.Fold
+import monocle.Optional
+import monocle.Traversal
 import scala.language.dynamics
 import cats.Monoid
 
@@ -144,17 +147,18 @@ final case class JsonFoldPath(json: Fold[Json, Json]) extends Dynamic {
 }
 
 object OpticsHelper {
+
   /** Decode a value at the current location */
   def parse[A](implicit decode: DecodeJson[A]): Fold[Json, A] =
     new Fold[Json, A] {
       def foldMap[M](f: A => M)(json: Json)(implicit ev: Monoid[M]): M =
-        decode.decodeJson(json).fold((_,_) => ev.empty, f)
+        decode.decodeJson(json).fold((_, _) => ev.empty, f)
     }
 
   /** Select if a value matches a predicate */
   def select[A](p: A => Boolean): Fold[A, A] =
     new Fold[A, A] {
       def foldMap[M](f: A => M)(a: A)(implicit ev: Monoid[M]): M =
-        if(p(a)) f(a) else ev.empty
+        if (p(a)) f(a) else ev.empty
     }
 }

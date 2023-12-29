@@ -5,7 +5,8 @@ import sbtrelease.ReleasePlugin
 import sbtrelease.ReleasePlugin.autoImport._
 import com.typesafe.tools.mima.plugin.MimaPlugin._
 import com.typesafe.tools.mima.plugin.MimaKeys._
-import sbtcrossproject.{CrossProject, Platform}
+import sbtcrossproject.CrossProject
+import sbtcrossproject.Platform
 import sbtcrossproject.CrossPlugin.autoImport._
 import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
@@ -13,19 +14,19 @@ import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 object build {
-  type Sett = Def.Setting[_]
+  type Sett = Def.Setting[?]
 
   val isScala3 = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
   )
 
   val base = ScalaSettings.all ++ Seq[Sett](
-      organization := "io.argonaut"
+    organization := "io.argonaut"
   )
 
-  val scalazVersion              = "7.3.8"
-  val monocleVersion             = "3.2.0"
-  val catsVersion                = "2.10.0"
+  val scalazVersion = "7.3.8"
+  val monocleVersion = "3.2.0"
+  val catsVersion = "2.10.0"
 
   private def lastVersion = 9
 
@@ -42,7 +43,7 @@ object build {
   }
 
   private[this] val tagOrHash = Def.setting {
-    if(isSnapshot.value) {
+    if (isSnapshot.value) {
       sys.process.Process("git rev-parse HEAD").lineStream_!.head
     } else {
       tagName.value
@@ -97,28 +98,33 @@ object build {
         if (isScala3.value) {
           Nil
         } else {
-          Seq("-sourcepath", base, "-doc-source-url", "https://github.com/argonaut-io/argonaut/tree/" + tag + "€{FILE_PATH}.scala")
+          Seq(
+            "-sourcepath",
+            base,
+            "-doc-source-url",
+            "https://github.com/argonaut-io/argonaut/tree/" + tag + "€{FILE_PATH}.scala"
+          )
         }
-      }
-    , previousVersions := {
+      },
+      previousVersions := {
         if (isScala3.value) {
           (7 to lastVersion).map(n => s"6.3.$n")
         } else {
           (0 to lastVersion).map(n => s"6.3.$n")
         }
-      }
-    , (Compile / doc / sources) := {
+      },
+      (Compile / doc / sources) := {
         val src = (Compile / doc / sources).value
         if (isScala3.value) {
           Nil
         } else {
           src
         }
-      }
-    , releaseTagName := tagName.value
-    , libraryDependencies ++= reflect.value
-    , mimaReportSignatureProblems := (scalaBinaryVersion.value != "3")
-    /*
+      },
+      releaseTagName := tagName.value,
+      libraryDependencies ++= reflect.value,
+      mimaReportSignatureProblems := (scalaBinaryVersion.value != "3")
+      /*
     , mimaBinaryIssueFilters ++= {
       import com.typesafe.tools.mima.core._
       import com.typesafe.tools.mima.core.ProblemFilters._
@@ -126,11 +132,11 @@ object build {
       Seq(
       ) map exclude[MissingMethodProblem]
     }
-    */
-  )
+       */
+    )
 
   def argonautCrossProject(name: String, platforms: Seq[Platform]) = {
-    val p = CrossProject(name, file(name))(platforms: _*)
+    val p = CrossProject(name, file(name))(platforms*)
       .crossType(CrossType.Full)
       .settings(commonSettings)
       .jvmSettings(

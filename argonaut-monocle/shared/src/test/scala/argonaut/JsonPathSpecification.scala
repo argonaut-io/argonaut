@@ -12,7 +12,7 @@ class JsonPathSpecification extends Specification {
   }
 
   case class Car(model: String, maxSpeed: Int, automatic: Boolean)
-  object  Car {
+  object Car {
     implicit val codec: CodecJson[Car] = CodecJson.casecodec3(
       Car.apply,
       (_: Car).asTuple
@@ -21,24 +21,26 @@ class JsonPathSpecification extends Specification {
 
   val john: Json = Json.obj(
     "first_name" -> "John".asJson,
-    "last_name"  -> "Doe".asJson,
-    "age"        -> 25.asJson,
-    "address"    -> Json.obj(
+    "last_name" -> "Doe".asJson,
+    "age" -> 25.asJson,
+    "address" -> Json.obj(
       "street_number" -> 12.asJson,
-      "street_name"   -> "High Street".asJson
+      "street_name" -> "High Street".asJson
     ),
-    "cars" -> Json.array(
-      Json.obj(
-        "model"     -> "fancy".asJson,
-        "maxSpeed"  -> 120.asJson,
-        "automatic" -> false.asJson
-      ),
-      Json.obj(
-        "model"     -> "suv".asJson,
-        "maxSpeed"  -> 80.asJson,
-        "automatic" -> true.asJson
+    "cars" -> Json
+      .array(
+        Json.obj(
+          "model" -> "fancy".asJson,
+          "maxSpeed" -> 120.asJson,
+          "automatic" -> false.asJson
+        ),
+        Json.obj(
+          "model" -> "suv".asJson,
+          "maxSpeed" -> 80.asJson,
+          "automatic" -> true.asJson
+        )
       )
-    ).asJson
+      .asJson
   )
 
   "JsonPath" >> {

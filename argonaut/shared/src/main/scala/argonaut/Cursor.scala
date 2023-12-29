@@ -9,6 +9,7 @@ import ContextElement._
  * @author Tony Morris
  */
 sealed abstract class Cursor extends Product with Serializable {
+
   /** Return the current context of the focus. */
   def context: Context =
     this match {
@@ -93,20 +94,22 @@ sealed abstract class Cursor extends Product with Serializable {
   /** Move the cursor left in a JSON array. */
   def left: Option[Cursor] =
     this match {
-      case CArray(p, u, l, j, r) => l match {
-        case Nil => None
-        case h::t => Some(CArray(p, u, t, h, j::r))
-      }
+      case CArray(p, u, l, j, r) =>
+        l match {
+          case Nil => None
+          case h :: t => Some(CArray(p, u, t, h, j :: r))
+        }
       case _ => None
     }
 
   /** Move the cursor right in a JSON array. */
   def right: Option[Cursor] =
     this match {
-      case CArray(p, u, l, j, r) => r match {
-        case Nil => None
-        case h::t => Some(CArray(p, u, j::l, h, t))
-      }
+      case CArray(p, u, l, j, r) =>
+        r match {
+          case Nil => None
+          case h :: t => Some(CArray(p, u, j :: l, h, t))
+        }
       case _ => None
     }
 
@@ -114,7 +117,7 @@ sealed abstract class Cursor extends Product with Serializable {
   def first: Option[Cursor] =
     this match {
       case CArray(p, u, l, j, r) => {
-        val h::t = l reverse_::: j :: r
+        val h :: t = l reverse_::: j :: r
         Some(CArray(p, u, Nil, h, t))
       }
       case _ => None
@@ -124,7 +127,7 @@ sealed abstract class Cursor extends Product with Serializable {
   def last: Option[Cursor] =
     this match {
       case CArray(p, u, l, x, r) => {
-        val h::t = r reverse_::: x :: l
+        val h :: t = r reverse_::: x :: l
         Some(CArray(p, u, t, h, Nil))
       }
       case _ => None
@@ -136,7 +139,7 @@ sealed abstract class Cursor extends Product with Serializable {
 
   /** Move the cursor left in a JSON array the given number of times. A negative value will move the cursor right (alias for `-<-:`). */
   def leftN(n: Int): Option[Cursor] =
-    if(n < 0)
+    if (n < 0)
       :->-(-n)
     else {
       @annotation.tailrec
@@ -154,7 +157,7 @@ sealed abstract class Cursor extends Product with Serializable {
 
   /** Move the cursor right in a JSON array the given number of times. A negative value will move the cursor left (alias for `:->-`). */
   def rightN(n: Int): Option[Cursor] =
-    if(n < 0)
+    if (n < 0)
       -<-:(-n)
     else {
       @annotation.tailrec
@@ -226,7 +229,7 @@ sealed abstract class Cursor extends Product with Serializable {
   def downArray: Option[Cursor] =
     focus.array flatMap (_ match {
       case Nil => None
-      case h::t => Some(CArray(this, false, Nil, h, t))
+      case h :: t => Some(CArray(this, false, Nil, h, t))
     })
 
   /** Move the cursor down to a JSON array at the first element (alias for `downArray`). */
@@ -250,7 +253,7 @@ sealed abstract class Cursor extends Product with Serializable {
     downArray flatMap (_ :->- n)
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `deleteGoParent`). */
-  def delete : Option[Cursor] =
+  def delete: Option[Cursor] =
     deleteGoParent
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `deleteGoParent`). */
@@ -289,20 +292,22 @@ sealed abstract class Cursor extends Product with Serializable {
   /** Deletes the JSON value at focus and moves to the left in a JSON array. */
   def deleteGoLeft: Option[Cursor] =
     this match {
-      case CArray(p, _, l, _, r) => l match {
-        case Nil => None
-        case h::t => Some(CArray(p, true, t, h, r))
-      }
+      case CArray(p, _, l, _, r) =>
+        l match {
+          case Nil => None
+          case h :: t => Some(CArray(p, true, t, h, r))
+        }
       case _ => None
     }
 
   /** Deletes the JSON value at focus and moves to the right in a JSON array. */
   def deleteGoRight: Option[Cursor] =
     this match {
-      case CArray(p, _, l, _, r) => r match {
-        case Nil => None
-        case h::t => Some(CArray(p, true, l, h, t))
-      }
+      case CArray(p, _, l, _, r) =>
+        r match {
+          case Nil => None
+          case h :: t => Some(CArray(p, true, l, h, t))
+        }
       case _ => None
     }
 
@@ -310,7 +315,7 @@ sealed abstract class Cursor extends Product with Serializable {
   def deleteGoFirst: Option[Cursor] =
     this match {
       case CArray(p, _, l, _, r) => {
-        val h::t = l reverse_::: r
+        val h :: t = l reverse_::: r
         Some(CArray(p, true, Nil, h, t))
       }
       case _ => None
@@ -320,7 +325,7 @@ sealed abstract class Cursor extends Product with Serializable {
   def deleteGoLast: Option[Cursor] =
     this match {
       case CArray(p, _, l, _, r) => {
-        val h::t = r reverse_::: l
+        val h :: t = r reverse_::: l
         Some(CArray(p, true, t, h, Nil))
       }
       case _ => None
@@ -383,11 +388,11 @@ sealed abstract class Cursor extends Product with Serializable {
           case CArray(pp, v, l1, _, r1) =>
             CArray(pp, u || v, l1, q, r1)
           case CObject(pp, v, oo, (ff, _)) =>
-            CObject(pp, u || v, if(u) oo + (ff, q) else oo, (ff, q))
+            CObject(pp, u || v, if (u) oo + (ff, q) else oo, (ff, q))
         })
       }
       case CObject(p, u, o, (f, j)) => {
-        val q = jObject(if(u) o + (f, j) else o)
+        val q = jObject(if (u) o + (f, j) else o)
         Some(p match {
           case CJson(_) =>
             CJson(q)
@@ -413,16 +418,16 @@ sealed abstract class Cursor extends Product with Serializable {
         case CArray(p, u, l, j, r) => {
           val q = jArray(l reverse_::: j :: r)
           goup(p match {
-              case CJson(_) =>
-                CJson(q)
-              case CArray(pp, v, l1, _, r1) =>
-                CArray(pp, u || v, l1, q, r1)
-              case CObject(pp, v, oo, (ff, _)) =>
-                CObject(pp, u || v, if(u) oo + (ff, q) else oo, (ff, q))
-            })
+            case CJson(_) =>
+              CJson(q)
+            case CArray(pp, v, l1, _, r1) =>
+              CArray(pp, u || v, l1, q, r1)
+            case CObject(pp, v, oo, (ff, _)) =>
+              CObject(pp, u || v, if (u) oo + (ff, q) else oo, (ff, q))
+          })
         }
         case CObject(p, u, o, (f, j)) => {
-          val q = jObject(if(u) o + (f, j) else o)
+          val q = jObject(if (u) o + (f, j) else o)
           goup(p match {
             case CJson(_) =>
               CJson(q)
@@ -459,5 +464,4 @@ object Cursor extends Cursors {
   def apply(j: Json): Cursor = CJson(j)
 }
 
-trait Cursors {
-}
+trait Cursors {}

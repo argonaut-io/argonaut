@@ -4,11 +4,12 @@ import ContextCats._
 import JsonCats._
 import JsonObjectCats._
 import cats._
-import instances.list._, instances.string._
-import syntax.eq._, syntax.show._
+import instances.list._
+import instances.string._
+import syntax.eq._
+import syntax.show._
 
-object CursorCats extends CursorCatss {
-}
+object CursorCats extends CursorCatss {}
 
 trait CursorCatss {
   implicit val CursorInstances: Eq[Cursor] with Show[Cursor] = new Eq[Cursor] with Show[Cursor] {

@@ -3,12 +3,13 @@ package argonaut.benchmark
 import com.google.caliper._
 import argonaut._
 import Argonaut._
-import com.fasterxml.jackson.core.{TreeNode, JsonFactory => JacksonJsonFactory}
+import com.fasterxml.jackson.core.TreeNode
+import com.fasterxml.jackson.core.{JsonFactory => JacksonJsonFactory}
 
 // Stolen conveniently from
 // https://github.com/sirthias/scala-benchmarking-template/blob/master/src/main/scala/org/example/SimpleScalaBenchmark.scala.
 trait SimpleScalaBenchmark extends SimpleBenchmark {
-  
+
   // helper method to keep the actual benchmarking methods a bit cleaner
   // your code snippet should always return a value that cannot be "optimized away"
   def repeat[@specialized A](reps: Int)(snippet: => A) = {
@@ -16,8 +17,8 @@ trait SimpleScalaBenchmark extends SimpleBenchmark {
     var i = 0
     var result = zero
     while (i < reps) {
-      val res = snippet 
-      if (res != zero) result = res // make result depend on the benchmarking snippet result 
+      val res = snippet
+      if (res != zero) result = res // make result depend on the benchmarking snippet result
       i = i + 1
     }
     result
@@ -36,33 +37,32 @@ object CaliperJacksonBenchmarkRunner {
   }
 }
 
-
 case class CaliperArgonautBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(json.parse)
 
   val largeString = Data.largestring.parseOption.get
   val manyStrings = Data.manystrings.parseOption.get
 
-  def timelargestringnospaces(reps: Int) = repeat(reps){
+  def timelargestringnospaces(reps: Int) = repeat(reps) {
     largeString.nospaces.length
   }
 
-  def timemanystringsnospaces(reps: Int) = repeat(reps){
+  def timemanystringsnospaces(reps: Int) = repeat(reps) {
     manyStrings.nospaces.length
   }
 
   val jsonToPrint = Data.apachebuilds.parseOption.get
   val smallJsonToPrint = jSingleObject("array", jArray(jNumber(5) :: List(jTrue, jFalse)))
-  def timesmallnospaces(reps: Int) = repeat(reps){
+  def timesmallnospaces(reps: Int) = repeat(reps) {
     smallJsonToPrint.nospaces.length
   }
-  def timesmallspaces4(reps: Int) = repeat(reps){
+  def timesmallspaces4(reps: Int) = repeat(reps) {
     smallJsonToPrint.spaces4.length
   }
-  def timenospaces(reps: Int) = repeat(reps){
+  def timenospaces(reps: Int) = repeat(reps) {
     jsonToPrint.nospaces.length
   }
-  def timespaces4(reps: Int) = repeat(reps){
+  def timespaces4(reps: Int) = repeat(reps) {
     jsonToPrint.spaces4.length
   }
 }
@@ -72,7 +72,7 @@ object CaliperJacksonBenchmark {
 }
 
 case class CaliperJacksonBenchmark() extends CaliperBenchmark {
-  override def repeatParse(json: String, reps: Int): Unit = repeat(reps){
+  override def repeatParse(json: String, reps: Int): Unit = repeat(reps) {
     val parser = CaliperJacksonBenchmark.jsonFactory.createParser(json)
     if (parser.readValueAsTree[TreeNode]().asToken() == null) 0 else 1
   }
@@ -81,7 +81,7 @@ case class CaliperJacksonBenchmark() extends CaliperBenchmark {
 object ArgonautSimpleBench {
   def main(args: Array[String]): Unit = {
     Thread.sleep(10000)
-    (0 to 3000).foldLeft(0L){(left, right) => left + Data.example.parseOption.get.spaces4.length + right}
+    (0 to 3000).foldLeft(0L) { (left, right) => left + Data.example.parseOption.get.spaces4.length + right }
   }
 }
 

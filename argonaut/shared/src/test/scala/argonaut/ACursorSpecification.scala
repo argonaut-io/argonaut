@@ -1,6 +1,9 @@
 package argonaut
 
-import org.scalacheck._, Prop._, Arbitrary._, Gen._
+import org.scalacheck._
+import Prop._
+import Arbitrary._
+import Gen._
 import Data._
 import Argonaut._
 
@@ -34,14 +37,16 @@ object ACursorSpecification extends ArgonautSpec {
   def reattemptAfterFailure = prop((j: Json) => {
     forAll((op: List[TestOp]) => {
       val r = op.foldLeft(j.acursor)((acc, op) => step(acc, op))
-      r.history.toList.inits.toList.forall(paths => paths match {
-        case init :+ penultimate :+ last =>
-          last.succeeded || last.isReattempt || penultimate.isReattempt
-        case init :+ last =>
-          last.succeeded || last.isReattempt || init.isEmpty
-        case _ =>
-          true
-      })
+      r.history.toList.inits.toList.forall(paths =>
+        paths match {
+          case init :+ penultimate :+ last =>
+            last.succeeded || last.isReattempt || penultimate.isReattempt
+          case init :+ last =>
+            last.succeeded || last.isReattempt || init.isEmpty
+          case _ =>
+            true
+        }
+      )
     })
   })
 
@@ -93,9 +98,11 @@ object ACursorSpecification extends ArgonautSpec {
   case class Set(j: Json) extends TestOp
 
   implicit val ArbitraryTestOp: Arbitrary[TestOp] =
-    Arbitrary(Gen.frequency(
-      (9, Gen.oneOf(Down, Up, Left, Right, Delete)),
-      (1, arbitrary[Json] map Set)
-    ))
+    Arbitrary(
+      Gen.frequency(
+        (9, Gen.oneOf(Down, Up, Left, Right, Delete)),
+        (1, arbitrary[Json] map Set)
+      )
+    )
 
 }

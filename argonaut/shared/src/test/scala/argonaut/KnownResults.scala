@@ -4,6 +4,7 @@ import Json._
 import org.specs2.matcher.DataTables
 
 object KnownResults extends DataTables {
+  // format: off
   def validResultPairings =
     "JSON"                                                        | "Typed Result"                                                                                                        |
     """[]"""                                                      ! jEmptyArray                                                                                                           |

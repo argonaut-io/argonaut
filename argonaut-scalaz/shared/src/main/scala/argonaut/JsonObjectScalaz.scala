@@ -3,23 +3,30 @@ package argonaut
 import scalaz._
 import scalaz.syntax.foldable._
 import scalaz.syntax.functor._
-import JsonObject._, Json._
+import JsonObject._
+import Json._
 
 object JsonObjectScalaz extends JsonObjectScalazs {
   def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject = {
-    f.foldLeft(empty){ case (acc, (k, v)) => acc + (k, v) }
+    f.foldLeft(empty) { case (acc, (k, v)) => acc + (k, v) }
   }
 }
 
 trait JsonObjectScalazs {
+
   /**
    * The lens to the JSON value.
    */
   def jsonObjectL(f: JsonField): JsonObject @> Option[Json] = {
-    Lens(jsonObject => Store(_ match {
-      case None => jsonObject - f
-      case Some(v) => jsonObject + (f, v)
-    }, jsonObject(f)))
+    Lens(jsonObject =>
+      Store(
+        _ match {
+          case None => jsonObject - f
+          case Some(v) => jsonObject + (f, v)
+        },
+        jsonObject(f)
+      )
+    )
   }
 
   /**
@@ -34,10 +41,12 @@ trait JsonObjectScalazs {
   implicit val JsonObjectEqual: Equal[JsonObject] = Equal.equalA[JsonObject]
 
   def traverse[F[_]](o: JsonObject, f: Json => F[Json])(implicit FF: Applicative[F]): F[JsonObject] = {
-    o.toList.foldLeft(FF.point(List[JsonAssoc]())){case (acc, (k, v)) =>
-      FF.apply2(acc, f(v)){(elems, newV) =>
-        (k, newV) :: elems
+    o.toList
+      .foldLeft(FF.point(List[JsonAssoc]())) { case (acc, (k, v)) =>
+        FF.apply2(acc, f(v)) { (elems, newV) =>
+          (k, newV) :: elems
+        }
       }
-    }.map(elems => JsonObject.fromIterable(elems.reverse))
+      .map(elems => JsonObject.fromIterable(elems.reverse))
   }
 }

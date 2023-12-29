@@ -10,6 +10,7 @@ import EncodeJsonNumber._
  * @author Tony Morris
  */
 trait EncodeJson[A] {
+
   /**
    * Encode the given value. Alias for `encode`.
    */
@@ -57,7 +58,7 @@ trait EncodeJsons extends GeneratedEncodeJsons {
   /* TODO: Come back to this.
   def contrazip[A, B](e: EncodeJson[A \/ B]): (EncodeJson[A], EncodeJson[B]) =
     (EncodeJson(a => e(a.left)), EncodeJson(b => e(b.right)))
-  */
+   */
 
   implicit val JsonEncodeJson: EncodeJson[Json] =
     EncodeJson(q => q)
@@ -139,24 +140,26 @@ trait EncodeJsons extends GeneratedEncodeJsons {
 
   implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] = {
     EncodeJson(_ match {
-      case None    => jNull
+      case None => jNull
       case Some(a) => e(a)
     })
   }
 
   implicit def EitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Either[A, B]] = {
     EncodeJson(_ match {
-      case Left(a)  => jSingleObject("Left", ea(a))
+      case Left(a) => jSingleObject("Left", ea(a))
       case Right(b) => jSingleObject("Right", eb(b))
     })
   }
 
   implicit def MapEncodeJson[K, V](implicit K: EncodeJsonKey[K], e: EncodeJson[V]): EncodeJson[Map[K, V]] = {
-    EncodeJson(x => jObjectAssocList(
-      x.toList.map{
-        case (k, v) => (K.toJsonKey(k), e(v))
-      }
-    ))
+    EncodeJson(x =>
+      jObjectAssocList(
+        x.toList.map { case (k, v) =>
+          (K.toJsonKey(k), e(v))
+        }
+      )
+    )
   }
 
   implicit def SetEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Set[A]] = {

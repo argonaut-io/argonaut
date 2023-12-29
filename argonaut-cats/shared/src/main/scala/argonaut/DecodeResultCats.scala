@@ -3,11 +3,12 @@ package argonaut
 import CursorHistoryCats._
 import cats._
 import instances.tuple._
-import instances.either._, instances.string._, instances.eq._
+import instances.either._
+import instances.string._
+import instances.eq._
 import syntax.contravariant._
 
-object DecodeResultCats extends DecodeResultCatss {
-}
+object DecodeResultCats extends DecodeResultCatss {}
 
 trait DecodeResultCatss {
 

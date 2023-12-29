@@ -23,7 +23,8 @@ object arbitrary {
     cursorOpElementCursorOpUp
   )
   // CursorOp
-  def cursorOpEl(implicit F: Gen[CursorOpElement]): Gen[CursorOp] = zip(F, Gen.oneOf(true, false)).map((El.apply _).tupled)
+  def cursorOpEl(implicit F: Gen[CursorOpElement]): Gen[CursorOp] =
+    zip(F, Gen.oneOf(true, false)).map((El.apply _).tupled)
 
   val cursorOpReattempt: Gen[CursorOp] = Gen.const(Reattempt)
 
@@ -34,12 +35,12 @@ object arbitrary {
   implicit val cursorHistoryArb: Arbitrary[CursorHistory] = Arbitrary(cursorHistoryGen)
 
   implicit def decodeResultGen[A](implicit GenA: Gen[A]): Gen[DecodeResult[A]] =
-      for {
-        string <- alphaStr
-        cursorHistory <- cursorHistoryGen
-        a <- GenA
-        generated <- Gen.oneOf(Left((string, cursorHistory)), Right(a))
-      } yield DecodeResult(generated)
+    for {
+      string <- alphaStr
+      cursorHistory <- cursorHistoryGen
+      a <- GenA
+      generated <- Gen.oneOf(Left((string, cursorHistory)), Right(a))
+    } yield DecodeResult(generated)
 
   implicit def decodeResultArb[A](implicit GenA: Gen[A]): Arbitrary[DecodeResult[A]] = Arbitrary(decodeResultGen(GenA))
 }

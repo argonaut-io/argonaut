@@ -1,10 +1,10 @@
 package argonaut
 
 import Argonaut._
-import cats._, data._
+import cats._
+import data._
 
-object EncodeJsonCats extends EncodeJsonCatss {
-}
+object EncodeJsonCats extends EncodeJsonCatss {}
 
 trait EncodeJsonCatss {
   def fromFoldable[F[_], A](implicit A: EncodeJson[A], F: Foldable[F]): EncodeJson[F[A]] =
@@ -18,15 +18,19 @@ trait EncodeJsonCatss {
     def contramap[A, B](r: EncodeJsonNumber[A])(f: B => A) = r contramap f
   }
 
-  implicit val EncodePossibleJsonNumberInstance: Contravariant[EncodePossibleJsonNumber] = new Contravariant[EncodePossibleJsonNumber] {
-    def contramap[A, B](r: EncodePossibleJsonNumber[A])(f: B => A) = r contramap f
-  }
+  implicit val EncodePossibleJsonNumberInstance: Contravariant[EncodePossibleJsonNumber] =
+    new Contravariant[EncodePossibleJsonNumber] {
+      def contramap[A, B](r: EncodePossibleJsonNumber[A])(f: B => A) = r contramap f
+    }
 
   implicit def NonEmptyListEncodeJson[A: EncodeJson]: EncodeJson[NonEmptyList[A]] =
     fromFoldable[NonEmptyList, A]
 
   implicit def ValidatedEncodeJson[E, A](implicit EA: EncodeJson[E], EB: EncodeJson[A]): EncodeJson[Validated[E, A]] =
-    EncodeJson(_.fold (
-      e => jSingleObject("Invalid", EA(e)), a => jSingleObject("Valid", EB(a))
-    ))
+    EncodeJson(
+      _.fold(
+        e => jSingleObject("Invalid", EA(e)),
+        a => jSingleObject("Valid", EB(a))
+      )
+    )
 }

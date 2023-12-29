@@ -1,7 +1,8 @@
 package argonaut
 
 import monocle.std.either
-import monocle.{Iso, Prism}
+import monocle.Iso
+import monocle.Prism
 
 object DecodeResultMonocle extends DecodeResultMonocles
 

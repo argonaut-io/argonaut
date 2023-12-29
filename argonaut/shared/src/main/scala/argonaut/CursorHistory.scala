@@ -14,7 +14,7 @@ case class CursorHistory(toList: List[CursorOp]) {
   /**
    * Append two lists of cursor history.
    */
-  def ++(h: CursorHistory): CursorHistory  =
+  def ++(h: CursorHistory): CursorHistory =
     CursorHistory(toList ++ h.toList)
 
   def acursorElement(f: Cursor => Option[Cursor], c: Cursor, e: CursorOpElement): ACursor = {

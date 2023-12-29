@@ -6,10 +6,10 @@ import Json._
 import JsonNumberScalaz._
 import JsonObjectScalaz._
 
-object JsonScalaz extends JsonScalazs {
-}
+object JsonScalaz extends JsonScalazs {}
 
 trait JsonScalazs {
+
   /**
    * A partial lens for JSON boolean values.
    */
@@ -50,11 +50,11 @@ trait JsonScalazs {
     new Equal[Json] with Show[Json] {
       def equal(a1: Json, a2: Json) = {
         a1 match {
-          case JNull      => a2.isNull
-          case JBool(b)   => a2.bool exists (_ == b)
+          case JNull => a2.isNull
+          case JBool(b) => a2.bool exists (_ == b)
           case JNumber(n) => a2.number exists (_ === n)
           case JString(s) => a2.string exists (_ == s)
-          case JArray(a)  => a2.array exists (_ === a)
+          case JArray(a) => a2.array exists (_ === a)
           case JObject(o) => a2.obj exists (_ === o)
         }
       }
@@ -67,9 +67,10 @@ trait JsonScalazs {
     * Decode `A` based on `HCursor => ValidationNel[String, A]` function.
     */
   def asWithValidation[A](f: HCursor => ValidationNel[String, A]): DecodeJson[A] =
-    (c: HCursor) => f(c) match {
-      case Success(a) => DecodeResult.ok(a)
-      case Failure(err) => DecodeResult.fail(err.shows, c.history)
-    }
+    (c: HCursor) =>
+      f(c) match {
+        case Success(a) => DecodeResult.ok(a)
+        case Failure(err) => DecodeResult.fail(err.shows, c.history)
+      }
 
 }

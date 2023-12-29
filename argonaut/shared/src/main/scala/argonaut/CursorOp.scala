@@ -33,5 +33,5 @@ trait CursorOps {
     Reattempt
 
   def failedOp(o: CursorOpElement): CursorOp =
-      El(o, false)
+    El(o, false)
 }

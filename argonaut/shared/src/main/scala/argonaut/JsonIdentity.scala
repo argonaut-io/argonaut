@@ -20,7 +20,8 @@ class JsonIdentity[J](val j: J) extends AnyVal {
   /**
     * Encode to a JSONNumber, wrapped in a Some if it is valid, otherwise a None.
     */
-  def asPossibleJsonNumber(implicit asn: EncodePossibleJsonNumber[J]): Option[JsonNumber] = asn.possiblyEncodeJsonNumber(j)
+  def asPossibleJsonNumber(implicit asn: EncodePossibleJsonNumber[J]): Option[JsonNumber] =
+    asn.possiblyEncodeJsonNumber(j)
 }
 
 object JsonIdentity extends JsonIdentitys

@@ -3,7 +3,6 @@ package benchmark
 
 import scala.io.Source
 
-
 object Data {
   def read(n: String) = {
     val cls = getClass()
