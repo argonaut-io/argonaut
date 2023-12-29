@@ -1,7 +1,8 @@
 package argonaut.example
 
 import argonaut.TestCompat._
-import argonaut._, Argonaut._
+import argonaut._
+import Argonaut._
 
 object PrettyParamsExample extends ArgonautSpec {
 
@@ -99,20 +100,19 @@ object PrettyParamsExample extends ArgonautSpec {
   """.trim.stripMargin
 
   def is = s2"""
-  Can print default pretty params with 2 spaces ${
-    person.asJson.pretty(defaultPrettyParams2Spaces) must_== defaultPrettyParams2SpacesJson
-  }
-  Can print default pretty params with 2 spaces no space before colon ${
-    person.asJson.pretty(defaultPrettyParams2SpacesNoSpaceBeforeColon) must_== defaultPrettyParams2SpacesNoSpaceBeforeColonJson
-  }
-  Can print default pretty params with 2 spaces with no null keys ${
-    personNoFavouriteNumbers.asJson.pretty(prettyParamsDropNullKeys) must_== prettyParamsDropNullKeysJson
-  }
-  Can print default pretty params with 2 spaces with array elements on the same line ${
-    person.asJson.pretty(prettyParamsArrayElementsOnSameLine) must_== prettyParamsArrayElementsOnSameLineJson
-  }
-  Can print default pretty params with 2 spaces with no gap for empty arrays ${
-    personEmptyFavouriteNumbers.asJson.pretty(prettyParamsEmptyArray) must_== prettyParamsEmptyArrayJson
-  }
+  Can print default pretty params with 2 spaces ${person.asJson.pretty(
+      defaultPrettyParams2Spaces
+    ) must_== defaultPrettyParams2SpacesJson}
+  Can print default pretty params with 2 spaces no space before colon ${person.asJson.pretty(
+      defaultPrettyParams2SpacesNoSpaceBeforeColon
+    ) must_== defaultPrettyParams2SpacesNoSpaceBeforeColonJson}
+  Can print default pretty params with 2 spaces with no null keys ${personNoFavouriteNumbers.asJson.pretty(
+      prettyParamsDropNullKeys
+    ) must_== prettyParamsDropNullKeysJson}
+  Can print default pretty params with 2 spaces with array elements on the same line ${person.asJson.pretty(
+      prettyParamsArrayElementsOnSameLine
+    ) must_== prettyParamsArrayElementsOnSameLineJson}
+  Can print default pretty params with 2 spaces with no gap for empty arrays ${personEmptyFavouriteNumbers.asJson
+      .pretty(prettyParamsEmptyArray) must_== prettyParamsEmptyArrayJson}
   """
 }

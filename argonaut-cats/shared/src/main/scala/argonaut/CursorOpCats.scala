@@ -4,8 +4,7 @@ import CursorOpElementCats._
 import cats._
 import syntax.show._
 
-object CursorOpCats extends CursorOpCatss {
-}
+object CursorOpCats extends CursorOpCatss {}
 
 trait CursorOpCatss {
   implicit val CursorOpInstances: Show[CursorOp] with Eq[CursorOp] = {

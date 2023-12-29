@@ -1,7 +1,8 @@
 package argonaut.example
 
 import argonaut.TestCompat._
-import argonaut._, Argonaut._
+import argonaut._
+import Argonaut._
 
 object JsonExample extends ArgonautSpec {
   val json =
@@ -27,11 +28,7 @@ object JsonExample extends ArgonautSpec {
     casecodec3(Person.apply, (_: Person).asTuple)("name", "age", "wallet")
 
   def is = s2"""
-  Can decode hand crafted object ${
-    json.as[Person].toOption must beSome(value)
-  }
-  Can encode to match hand crafted object ${
-    value.asJson must_== json
-  }
+  Can decode hand crafted object ${json.as[Person].toOption must beSome(value)}
+  Can encode to match hand crafted object ${value.asJson must_== json}
   """
 }

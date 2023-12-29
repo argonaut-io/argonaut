@@ -4,6 +4,7 @@ package argonaut
  * Library functions for parsing json.
  */
 trait Parse[A] {
+
   /**
    * Parses the value and either returns a list of the failures from parsing the string
    * or an instance of the Json type if parsing succeeds.
@@ -19,7 +20,6 @@ trait Parse[A] {
   def parseWith[X](value: A, success: Json => X, failure: String => X): X = {
     parse(value).fold(failure, success)
   }
-
 
   /**
    * Parses the value and executes one of the given functions, depending on the parse outcome.
@@ -55,8 +55,14 @@ trait Parse[A] {
    * @param parsefailure Run this function if the parse produces a failure.
    * @param decodefailure Run this function if the decode produces a failure.
    */
-  def decodeWith[B, X: DecodeJson](value: A, success: X => B, parsefailure: String => B, decodefailure: (String, CursorHistory) => B): B = {
-    val handleFailure: Either[String, (String, CursorHistory)] => B = _.fold[B](parsefailure, { case (m, h) => decodefailure(m, h) })
+  def decodeWith[B, X: DecodeJson](
+    value: A,
+    success: X => B,
+    parsefailure: String => B,
+    decodefailure: (String, CursorHistory) => B
+  ): B = {
+    val handleFailure: Either[String, (String, CursorHistory)] => B =
+      _.fold[B](parsefailure, { case (m, h) => decodefailure(m, h) })
     decodeWithEither[B, X](value, success, handleFailure)
   }
 
@@ -66,7 +72,11 @@ trait Parse[A] {
    * @param success Run this function if the parse produces a success.
    * @param failure Run this function if the parse produces a failure.
    */
-  def decodeWithEither[B, X: DecodeJson](value: A, success: X => B, failure: Either[String, (String, CursorHistory)] => B): B = {
+  def decodeWithEither[B, X: DecodeJson](
+    value: A,
+    success: X => B,
+    failure: Either[String, (String, CursorHistory)] => B
+  ): B = {
     decode(value).fold(failure, success)
   }
 

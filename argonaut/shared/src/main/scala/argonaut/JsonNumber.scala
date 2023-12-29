@@ -210,7 +210,7 @@ case class JsonDecimal private[argonaut] (value: String) extends JsonNumber {
     def decScale(i: Int): Option[Int] = {
       if (i >= decStr.length) None
       else if (decStr(i) == '0') decScale(i + 1)
-      else Some(- i - 1)
+      else Some(-i - 1)
     }
 
     val rescale = {
@@ -254,6 +254,7 @@ case class JsonLong(value: Long) extends JsonNumber {
 }
 
 object JsonNumber {
+
   /**
    * Returns a `JsonNumber` whose value is the valid JSON number in `value`.
    * This value is **not** verified to be a valid JSON string. It is assumed
@@ -354,8 +355,8 @@ object JsonNumber {
     def isLong: Boolean = {
       val upperBound = if (value(0) == '-') MinLongString else MaxLongString
       (value.length < upperBound.length) ||
-        ((value.length == upperBound.length) &&
-          value.compareTo(upperBound) <= 0)
+      ((value.length == upperBound.length) &&
+        value.compareTo(upperBound) <= 0)
     }
 
     if (invalid) {

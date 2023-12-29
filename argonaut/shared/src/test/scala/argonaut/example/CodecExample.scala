@@ -1,6 +1,7 @@
 package argonaut.example
 
-import argonaut._, Argonaut._
+import argonaut._
+import Argonaut._
 import scalaz.syntax.std.option._
 
 object CodecExample extends ArgonautSpec {
@@ -15,23 +16,21 @@ object CodecExample extends ArgonautSpec {
   }
 
   def is = s2"""
-  Array codec ${
-    implicit val DecodePerson: DecodeJson[Person] =
+  Array codec ${implicit val DecodePerson: DecodeJson[Person] =
       jdecode2(Person(_: String, _: Int))
 
     implicit val EncodePerson: EncodeJson[Person] =
       jencode2((p: Person) => (p.name, p.age))
 
     encodeDecode("""["Fred",40]""")
-  }
-  Object codec ${
-    implicit val DecodePerson: DecodeJson[Person] =
+    }
+  Object codec ${implicit val DecodePerson: DecodeJson[Person] =
       jdecode2L(Person(_: String, _: Int))("name", "age")
 
     implicit val EncodePerson: EncodeJson[Person] =
       jencode2L((p: Person) => (p.name, p.age))("name", "age")
 
     encodeDecode("""{"name":"Fred","age":40}""")
-  }
+    }
   """
 }

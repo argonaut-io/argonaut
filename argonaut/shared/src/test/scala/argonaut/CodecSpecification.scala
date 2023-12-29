@@ -2,13 +2,14 @@ package argonaut
 
 import argonaut.TestCompat._
 import Data._
-import org.scalacheck._, Arbitrary._
+import org.scalacheck._
+import Arbitrary._
 import org.specs2.scalacheck.ScalaCheckFunction1
 
 object CodecSpecification extends ArgonautSpec {
   def encodedecode[A: EncodeJson: DecodeJson: Arbitrary]: ScalaCheckFunction1[A, Boolean] = {
     val aCodec = CodecJson.derived[A]
-    prop[A, Boolean]{a =>
+    prop[A, Boolean] { a =>
       CodecJson.codecLaw(aCodec)(a)
     }
   }
@@ -48,8 +49,10 @@ object CodecSpecification extends ArgonautSpec {
     Tuple2[String, Int] encode/decode ${encodedecode[Tuple2[String, Int]]}
     Tuple3[String, Int, Boolean] encode/decode ${encodedecode[Tuple3[String, Int, Boolean]]}
     Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
-    22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}
-    22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
+    22 field class with codec ${import CodecInstances._; encodedecode[TestClass]
+    }
+    22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]
+    }
     CodecJson[Person] derived ${derived.testDerivedPerson}
     CodecJson[BackTicks] derived ${derived.testDerivedBackTicks}
     CodecJson[Shape] derived ${derived.testDerivedShape}
@@ -81,7 +84,30 @@ object CodecSpecification extends ArgonautSpec {
   implicit val jCharacterArbitrary: Arbitrary[java.lang.Character] =
     mapArbitrary(implicitly[Arbitrary[Char]])(a => a)
 
-  case class TestClass(a: Int, b: Int, c: String, d: Int, e: Int, f: String, g: Int, h: Int, i: String, j: Int, k: Int, l: String, m: Int, n: Int, o: String, p: Int, q: Int, r: String, s: Int, t: Int, u: String, v: Boolean)
+  case class TestClass(
+    a: Int,
+    b: Int,
+    c: String,
+    d: Int,
+    e: Int,
+    f: String,
+    g: Int,
+    h: Int,
+    i: String,
+    j: Int,
+    k: Int,
+    l: String,
+    m: Int,
+    n: Int,
+    o: String,
+    p: Int,
+    q: Int,
+    r: String,
+    s: Int,
+    t: Int,
+    u: String,
+    v: Boolean
+  )
 
   implicit val arbTestClass: Arbitrary[TestClass] = Arbitrary(for {
     a <- arbitrary[Int]
@@ -109,14 +135,62 @@ object CodecSpecification extends ArgonautSpec {
   } yield TestClass(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v))
 
   object EncodeDecodeInstances {
-    implicit val testClassEncode: EncodeJson[TestClass] = EncodeJson.jencode22L((x: TestClass) => (x.a, x.b, x.c, x.d, x.e, x.f, x.g, x.h, x.i, x.j, x.k, x.l, x.m, x.n, x.o, x.p, x.q, x.r, x.s, x.t, x.u, x.v))("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
+    implicit val testClassEncode: EncodeJson[TestClass] = EncodeJson.jencode22L((x: TestClass) =>
+      (x.a, x.b, x.c, x.d, x.e, x.f, x.g, x.h, x.i, x.j, x.k, x.l, x.m, x.n, x.o, x.p, x.q, x.r, x.s, x.t, x.u, x.v)
+    )("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
 
-    implicit val testClassDecode: DecodeJson[TestClass] = DecodeJson.jdecode22L(TestClass.apply)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
+    implicit val testClassDecode: DecodeJson[TestClass] = DecodeJson.jdecode22L(TestClass.apply)(
+      "a",
+      "b",
+      "c",
+      "d",
+      "e",
+      "f",
+      "g",
+      "h",
+      "i",
+      "j",
+      "k",
+      "l",
+      "m",
+      "n",
+      "o",
+      "p",
+      "q",
+      "r",
+      "s",
+      "t",
+      "u",
+      "v"
+    )
   }
 
   object CodecInstances {
     implicit val testClassCodec: CodecJson[TestClass] =
-      CodecJson.casecodec22(TestClass.apply, (_: TestClass).asTuple)("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v")
+      CodecJson.casecodec22(TestClass.apply, (_: TestClass).asTuple)(
+        "a",
+        "b",
+        "c",
+        "d",
+        "e",
+        "f",
+        "g",
+        "h",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "o",
+        "p",
+        "q",
+        "r",
+        "s",
+        "t",
+        "u",
+        "v"
+      )
   }
 
   object derived {
@@ -125,7 +199,7 @@ object CodecSpecification extends ArgonautSpec {
     val shapeDecodeJson: DecodeJson[Shape] = DecodeJson.derive[Circle] ||| DecodeJson.derive[Square]
     val circleEncodeJson: EncodeJson[Circle] = EncodeJson.derive[Circle]
     val squareEncodeJson: EncodeJson[Square] = EncodeJson.derive[Square]
-    val shapeEncodeJson: EncodeJson[Shape] = EncodeJson{shape =>
+    val shapeEncodeJson: EncodeJson[Shape] = EncodeJson { shape =>
       shape match {
         case c: Circle => circleEncodeJson(c)
         case s: Square => squareEncodeJson(s)
@@ -138,7 +212,8 @@ object CodecSpecification extends ArgonautSpec {
     implicit def OrderCodecJson: CodecJson[Order] = CodecJson.derive[Order]
     implicit def PersonCodecJson: CodecJson[Person] = CodecJson.derive[Person]
     implicit def BackTicksCodecJson: CodecJson[BackTicks] = CodecJson.derive[BackTicks]
-    implicit def ParameterizedCodecJson [T: EncodeJson: DecodeJson]: CodecJson[Parameterized[T]] = CodecJson.derive[Parameterized[T]]
+    implicit def ParameterizedCodecJson[T: EncodeJson: DecodeJson]: CodecJson[Parameterized[T]] =
+      CodecJson.derive[Parameterized[T]]
 
     def testDerivedPerson = encodedecode[Person]
     def testDerivedBackTicks = encodedecode[BackTicks]

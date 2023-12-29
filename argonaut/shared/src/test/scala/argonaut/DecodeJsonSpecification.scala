@@ -2,7 +2,8 @@ package argonaut
 
 import Argonaut._
 
-object DecodeJsonSpecification extends ArgonautSpec { def is = s2"""
+object DecodeJsonSpecification extends ArgonautSpec {
+  def is = s2"""
   DecodeJson flatMapCursor
     Successful flatMap                    ${successfulFlatMapCursor}
     Failing flatMap                       ${failingFlatMapCursor}
@@ -16,7 +17,7 @@ object DecodeJsonSpecification extends ArgonautSpec { def is = s2"""
 """
 
   def successfulFlatMapCursor = {
-    prop{(key: String, n: Int) =>
+    prop { (key: String, n: Int) =>
       val json = (key, n.jencode) ->: jEmptyObject
       val decodeJson = DecodeJson.of[Int].flatMapCursor(_.get[HCursor](key))
       decodeJson.decodeJson(json) must beEqualTo(DecodeResult.ok(n))
@@ -24,10 +25,13 @@ object DecodeJsonSpecification extends ArgonautSpec { def is = s2"""
   }
 
   def failingFlatMapCursor = {
-    prop{(key: String, n: Int) =>
+    prop { (key: String, n: Int) =>
       val json = (key, n.jencode) ->: jEmptyObject
       val decodeJson = DecodeJson.of[Int].flatMapCursor(_.get[HCursor]("TOTALLYNOTLIKELYTOBERANDOMLYGENERATEDTEXT"))
-      val failure = DecodeResult.fail("Attempt to decode value on failed cursor.", CursorOp.failedOp(CursorOpDownField("TOTALLYNOTLIKELYTOBERANDOMLYGENERATEDTEXT")) +: CursorHistory.empty)
+      val failure = DecodeResult.fail(
+        "Attempt to decode value on failed cursor.",
+        CursorOp.failedOp(CursorOpDownField("TOTALLYNOTLIKELYTOBERANDOMLYGENERATEDTEXT")) +: CursorHistory.empty
+      )
       decodeJson.decodeJson(json) must beEqualTo(failure)
     }
   }

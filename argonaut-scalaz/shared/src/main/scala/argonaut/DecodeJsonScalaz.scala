@@ -1,9 +1,9 @@
 package argonaut
 
-import scalaz._, std.string._
+import scalaz._
+import std.string._
 
-object DecodeJsonScalaz extends DecodeJsonScalazs {
-}
+object DecodeJsonScalaz extends DecodeJsonScalazs {}
 
 trait DecodeJsonScalazs {
   implicit def MaybeDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Maybe[A]] = {
@@ -14,7 +14,10 @@ trait DecodeJsonScalazs {
     implicitly[DecodeJson[Either[A, B]]].map(\/.fromEither(_))
   }
 
-  implicit def ValidationDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Validation[A, B]] = {
+  implicit def ValidationDecodeJson[A, B](implicit
+    ea: DecodeJson[A],
+    eb: DecodeJson[B]
+  ): DecodeJson[Validation[A, B]] = {
     DecodeJson(a => {
       val l = (a --\ "Failure").success
       val r = (a --\ "Success").success
@@ -39,7 +42,7 @@ trait DecodeJsonScalazs {
   }
 
   implicit def EphemeralStreamDecodeJson[A: DecodeJson]: DecodeJson[EphemeralStream[A]] = {
-    implicitly[DecodeJson[List[A]]].map(list => EphemeralStream.apply(list: _*)).setName("[A]EphemeralStream[A]")
+    implicitly[DecodeJson[List[A]]].map(list => EphemeralStream.apply(list*)).setName("[A]EphemeralStream[A]")
   }
 
   implicit def ISetDecodeJson[A: DecodeJson: Order]: DecodeJson[ISet[A]] = {
@@ -48,10 +51,12 @@ trait DecodeJsonScalazs {
 
   implicit def NonEmptyListDecodeJson[A: DecodeJson]: DecodeJson[NonEmptyList[A]] = {
     implicitly[DecodeJson[List[A]]].flatMap(l =>
-      DecodeJson[NonEmptyList[A]](c => std.list.toNel(l) match {
-        case Maybe.Empty() => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
-        case Maybe.Just(n) => DecodeResult.ok(n)
-      })
+      DecodeJson[NonEmptyList[A]](c =>
+        std.list.toNel(l) match {
+          case Maybe.Empty() => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
+          case Maybe.Just(n) => DecodeResult.ok(n)
+        }
+      )
     ) setName "[A]NonEmptyList[A]"
   }
 }

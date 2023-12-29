@@ -2,7 +2,8 @@ package argonaut
 
 import argonaut.Argonaut._
 
-object OptionParserSpecification extends ArgonautSpec{  def is = s2"""
+object OptionParserSpecification extends ArgonautSpec {
+  def is = s2"""
 
   Option parsing when option is top level
      decoding empty string gives none                                    $emptyString
@@ -18,7 +19,6 @@ object OptionParserSpecification extends ArgonautSpec{  def is = s2"""
   case class AnObject(c: String)
   case class OtherObject(a: Int, b: Option[AnObject])
 
-
   implicit val codec2: CodecJson[AnObject] = CodecJson.derive[AnObject]
   implicit val codec1: CodecJson[OtherObject] = CodecJson.derive[OtherObject]
 
@@ -28,7 +28,8 @@ object OptionParserSpecification extends ArgonautSpec{  def is = s2"""
   def regular = """{"c": "Hello"}""".decodeOption[AnObject] must beSome(AnObject("Hello"))
 
   def nestedWithNone = """{"a": 1}""".decodeOption[OtherObject] must beSome(OtherObject(1, None))
-  def nestedWithSome = """{"a": 1, "b": {"c": "Hello"}}""".decodeOption[OtherObject] must beSome(OtherObject(1, Some(AnObject("Hello"))))
+  def nestedWithSome =
+    """{"a": 1, "b": {"c": "Hello"}}""".decodeOption[OtherObject] must beSome(OtherObject(1, Some(AnObject("Hello"))))
   def nestedIncorrectType = """{"a": 1, "b": {"c": 1}}""".decodeEither[OtherObject] must beLeft
   def nestedInvalidDocument = """{"a": 1, "b": {"c1": "1"}}""".decodeEither[OtherObject] must beLeft
 

@@ -1,8 +1,8 @@
 package argonaut
 
 import java.math.MathContext
-
-import monocle.{Iso, Prism}
+import monocle.Iso
+import monocle.Prism
 
 object JsonNumberMonocle extends JsonNumberMonocles
 

@@ -52,7 +52,8 @@ case class ACursor(either: Either[HCursor, HCursor]) {
 
   def reattempt: ACursor =
     either match {
-      case Left(HCursor(cursor, CursorHistory(history))) => ACursor.ok(HCursor(cursor, CursorHistory(reattemptOp +: history)))
+      case Left(HCursor(cursor, CursorHistory(history))) =>
+        ACursor.ok(HCursor(cursor, CursorHistory(reattemptOp +: history)))
       case Right(_) => this
     }
 
@@ -190,7 +191,7 @@ case class ACursor(either: Either[HCursor, HCursor]) {
     withHCursor(_.downN(n))
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `deleteGoParent`). */
-  def delete : ACursor =
+  def delete: ACursor =
     withHCursor(_.delete)
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `deleteGoParent`). */
@@ -242,7 +243,7 @@ case class ACursor(either: Either[HCursor, HCursor]) {
     withHCursor(_.up)
 
   def |||(c: => ACursor): ACursor = {
-    if(succeeded) this else c
+    if (succeeded) this else c
   }
 
   /** Unapplies the cursor to the top-level parent (alias for `undo`). */

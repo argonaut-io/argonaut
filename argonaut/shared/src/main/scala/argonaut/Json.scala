@@ -2,6 +2,7 @@ package argonaut
 
 import JsonIdentity._
 import EncodeJsonNumber._
+import Json._
 
 /**
  * A data type representing possible <a href="http://www.json.org/">JSON</a> values.
@@ -25,11 +26,11 @@ sealed abstract class Json extends Product with Serializable {
     jsonObject: JsonObject => X
   ): X =
     this match {
-      case JNull      => jsonNull
-      case JBool(b)   => jsonBool(b)
+      case JNull => jsonNull
+      case JBool(b) => jsonBool(b)
       case JNumber(n) => jsonNumber(n)
       case JString(s) => jsonString(s)
-      case JArray(a)  => jsonArray(a)
+      case JArray(a) => jsonArray(a)
       case JObject(o) => jsonObject(o)
     }
 
@@ -42,11 +43,11 @@ sealed abstract class Json extends Product with Serializable {
     jsonObject: JsonObject => X
   ): X =
     this match {
-      case JNull      => or
-      case JBool(_)   => or
+      case JNull => or
+      case JBool(_) => or
       case JNumber(_) => or
       case JString(_) => or
-      case JArray(a)  => jsonArray(a)
+      case JArray(a) => jsonArray(a)
       case JObject(o) => jsonObject(o)
     }
 
@@ -115,8 +116,8 @@ sealed abstract class Json extends Product with Serializable {
    * If this is a JSON boolean value, invert the `true` and `false` values, otherwise, leave unchanged.
    */
   def not: Json = this match {
-    case JBool(b)   => JBool(!b)
-    case _          => this
+    case JBool(b) => JBool(!b)
+    case _ => this
   }
 
   /**
@@ -124,7 +125,7 @@ sealed abstract class Json extends Product with Serializable {
    */
   def withNumber(k: JsonNumber => JsonNumber): Json = this match {
     case JNumber(n) => JNumber(k(n))
-    case _          => this
+    case _ => this
   }
 
   /**
@@ -132,15 +133,15 @@ sealed abstract class Json extends Product with Serializable {
    */
   def withString(k: JsonString => JsonString): Json = this match {
     case JString(s) => JString(k(s))
-    case _          => this
+    case _ => this
   }
 
   /**
    * If this is a JSON array value, run the given function on the value, otherwise, leave unchanged.
    */
   def withArray(k: JsonArray => JsonArray): Json = this match {
-    case JArray(a)  => JArray(k(a))
-    case _          => this
+    case JArray(a) => JArray(k(a))
+    case _ => this
   }
 
   /**
@@ -148,7 +149,7 @@ sealed abstract class Json extends Product with Serializable {
    */
   def withObject(k: JsonObject => JsonObject): Json = this match {
     case JObject(o) => JObject(k(o))
-    case _          => this
+    case _ => this
   }
 
   /**
@@ -187,7 +188,7 @@ sealed abstract class Json extends Product with Serializable {
   def -||(fs: List[JsonField]): Option[Json] =
     fs match {
       case Nil => None
-      case h::t => t.foldLeft(field(h))((a, b) => a flatMap (_ -| b))
+      case h :: t => t.foldLeft(field(h))((a, b) => a flatMap (_ -| b))
     }
 
   /**
@@ -393,11 +394,11 @@ sealed abstract class Json extends Product with Serializable {
    */
   def name: String =
     this match {
-      case JNull      => "Null"
-      case JBool(_)   => "Boolean"
+      case JNull => "Null"
+      case JBool(_) => "Boolean"
       case JNumber(_) => "Number"
       case JString(_) => "String"
-      case JArray(_)  => "Array"
+      case JArray(_) => "Array"
       case JObject(_) => "Object"
     }
 
@@ -457,15 +458,14 @@ sealed abstract class Json extends Product with Serializable {
   def deepmerge(y: Json): Json =
     (obj, y.obj) match {
       case (Some(ox), Some(oy)) =>
-        jObject(oy.toList.foldLeft(ox)({
-          case (acc, (k, v)) => acc(k) match {
+        jObject(oy.toList.foldLeft(ox) { case (acc, (k, v)) =>
+          acc(k) match {
             case None => acc + (k, v)
             case Some(l) => acc + (k, l.deepmerge(v))
           }
-        }))
+        })
       case _ => y
     }
-
 
   /**
    * Compute a `String` representation for this JSON value.
@@ -473,8 +473,6 @@ sealed abstract class Json extends Product with Serializable {
   override def toString =
     nospacesWithOrder
 }
-
-import Json._
 
 private[argonaut] case object JNull extends Json
 private[argonaut] case class JBool(b: Boolean) extends Json

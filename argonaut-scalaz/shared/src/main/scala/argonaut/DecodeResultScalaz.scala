@@ -1,10 +1,11 @@
 package argonaut
 
-import scalaz._, Isomorphism._, Scalaz._
+import scalaz._
+import Isomorphism._
+import Scalaz._
 import CursorHistoryScalaz._
 
-object DecodeResultScalaz extends DecodeResultScalazs {
-}
+object DecodeResultScalaz extends DecodeResultScalazs {}
 
 trait DecodeResultScalazs {
   @annotation.tailrec
@@ -20,7 +21,7 @@ trait DecodeResultScalazs {
   }
 
   def failedResultL[A]: DecodeResult[A] @?> (String, CursorHistory) =
-    PLens(_.result.fold(q => Some(Store(r => DecodeResult.failResult(r._1, r._2), q)),_ => None))
+    PLens(_.result.fold(q => Some(Store(r => DecodeResult.failResult(r._1, r._2), q)), _ => None))
 
   def failedResultMessageL[A]: DecodeResult[A] @?> String =
     ~Lens.firstLens compose failedResultL[A]
@@ -28,7 +29,8 @@ trait DecodeResultScalazs {
   def failedResultHistoryL[A]: DecodeResult[A] @?> CursorHistory =
     ~Lens.secondLens compose failedResultL[A]
 
-  implicit def DecodeResultMonad: Monad[DecodeResult] with Traverse[DecodeResult] = new Monad[DecodeResult] with Traverse[DecodeResult] {
+  implicit def DecodeResultMonad: Monad[DecodeResult] with Traverse[DecodeResult] = new Monad[DecodeResult]
+    with Traverse[DecodeResult] {
     def point[A](a: => A) = DecodeResult.ok(a)
     def bind[A, B](a: DecodeResult[A])(f: A => DecodeResult[B]) = a flatMap f
     override def map[A, B](a: DecodeResult[A])(f: A => B) = a map f
@@ -41,28 +43,31 @@ trait DecodeResultScalazs {
 
   type DecodeEither[A] = Either[(String, CursorHistory), A]
 
-  val decodeResultIsoFunctor: IsoFunctor[DecodeResult, DecodeEither] = new IsoFunctorTemplate[DecodeResult, DecodeEither] {
-    def to[A](decodeResult: DecodeResult[A]) = decodeResult.result
-    def from[A](either: DecodeEither[A]) = DecodeResult[A](either)
-  }
+  val decodeResultIsoFunctor: IsoFunctor[DecodeResult, DecodeEither] =
+    new IsoFunctorTemplate[DecodeResult, DecodeEither] {
+      def to[A](decodeResult: DecodeResult[A]) = decodeResult.result
+      def from[A](either: DecodeEither[A]) = DecodeResult[A](either)
+    }
 
   def decodeResultIsoSet[A]: IsoSet[DecodeResult[A], DecodeEither[A]] = new IsoSet[DecodeResult[A], DecodeEither[A]] {
     def to = decodeResultIsoFunctor.to[A]
     def from = decodeResultIsoFunctor.from[A]
   }
 
-  implicit def DecodeResultEqual[A: Equal]: Equal[DecodeResult[A]] = new IsomorphismEqual[DecodeResult[A], DecodeEither[A]] {
-    def G = eitherEqual[(String, CursorHistory), A](implicitly, implicitly)
-    def iso = decodeResultIsoSet
-  }
-
-  implicit def DecodeResultShow[A : Show]: Show[DecodeResult[A]] = new IsomorphismShow[DecodeResult[A], DecodeEither[A]] {
-    def G = (e: Either[(String, CursorHistory), A]) => {
-      e match {
-        case Left(l) => l.show
-        case Right(r) => r.show
-      }
+  implicit def DecodeResultEqual[A: Equal]: Equal[DecodeResult[A]] =
+    new IsomorphismEqual[DecodeResult[A], DecodeEither[A]] {
+      def G = eitherEqual[(String, CursorHistory), A](implicitly, implicitly)
+      def iso = decodeResultIsoSet
     }
-    def iso = decodeResultIsoSet
-  }
+
+  implicit def DecodeResultShow[A: Show]: Show[DecodeResult[A]] =
+    new IsomorphismShow[DecodeResult[A], DecodeEither[A]] {
+      def G = (e: Either[(String, CursorHistory), A]) => {
+        e match {
+          case Left(l) => l.show
+          case Right(r) => r.show
+        }
+      }
+      def iso = decodeResultIsoSet
+    }
 }

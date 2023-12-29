@@ -11,7 +11,9 @@ object CodecNumberSpecification extends ArgonautSpec {
     long always encodes to number                        $longToNumber
   """
 
-  def double =  prop { (xs: List[Double]) => xs.filter(x => !x.isNaN && !x.isInfinity).asJson.array.forall(_.forall(_.isNumber)) }
+  def double = prop { (xs: List[Double]) =>
+    xs.filter(x => !x.isNaN && !x.isInfinity).asJson.array.forall(_.forall(_.isNumber))
+  }
 
   def intToNumber = prop { (xs: List[Int]) => xs.asJson.array.forall(_.forall(_.isNumber)) }
 

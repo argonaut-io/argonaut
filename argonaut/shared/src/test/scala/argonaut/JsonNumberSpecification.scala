@@ -1,7 +1,7 @@
 package argonaut
 
-import org.scalacheck._, Arbitrary._
-
+import org.scalacheck._
+import Arbitrary._
 import Data._
 
 object JsonNumberSpecification extends ArgonautSpec {

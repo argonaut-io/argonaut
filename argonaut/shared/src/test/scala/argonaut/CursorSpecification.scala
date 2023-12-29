@@ -16,8 +16,12 @@ object CursorSpecification extends ArgonautSpec {
     >-> aliases withFocus                      ${prop((c: Cursor, f: Json => Json) => (c withFocus f) === (c >-> f))}
     set gives focus                            ${prop((c: Cursor, j: Json) => (c set j).focus === j)}
     := aliases set                             ${prop((c: Cursor, j: Json) => (c set j) === (c := j))}
-    lefts head is left                         ${prop((c: Cursor) => c.lefts forall (a => a.headOption == c.left.map(_.focus)))}
-    rights head is right                       ${prop((c: Cursor) => c.rights forall (a => a.headOption == c.right.map(_.focus)))}
+    lefts head is left                         ${prop((c: Cursor) =>
+      c.lefts forall (a => a.headOption == c.left.map(_.focus))
+    )}
+    rights head is right                       ${prop((c: Cursor) =>
+      c.rights forall (a => a.headOption == c.right.map(_.focus))
+    )}
     first has no lefts                         ${prop((c: Cursor) => c.first forall (_.left.isEmpty))}
     last has no rights                         ${prop((c: Cursor) => c.last forall (_.right.isEmpty))}
     left->right                                ${prop((c: Cursor) => c.left forall (_.right exists (_ == c)))}
@@ -42,55 +46,70 @@ object CursorSpecification extends ArgonautSpec {
 
   def downArray = prop((x: Json, xs: List[Json]) => jArray(x :: xs).cursor.downArray.map(_.focus) must_== Some(x))
 
-  def downAtConstant = prop((x: Json, xs: List[Json]) =>
-    jArray(x :: xs).cursor.downAt(_ => true).map(_.focus) must_== Some(x)
-  )
+  def downAtConstant =
+    prop((x: Json, xs: List[Json]) => jArray(x :: xs).cursor.downAt(_ => true).map(_.focus) must_== Some(x))
 
   def downAtConstantDownArray = prop((xs: List[Json]) =>
     jArray(xs).cursor.downAt(_ => true).map(_.focus) must_== jArray(xs).cursor.downArray.map(_.focus)
   )
 
   def downAt = prop((ys: List[Json], x: Json, xs: List[Json]) =>
-    jArray(ys ::: (x :: xs)).cursor.downAt(_ == x).map(_.focus) must_== Some(x))
+    jArray(ys ::: (x :: xs)).cursor.downAt(_ == x).map(_.focus) must_== Some(x)
+  )
 
   def first = prop((y: Json, ys: List[Json], x: Json, xs: List[Json]) =>
-    jArray((y :: ys) ::: (x :: xs)).cursor.downAt(_ == x).flatMap(_.first).map(_.focus) must_== Some(y))
+    jArray((y :: ys) ::: (x :: xs)).cursor.downAt(_ == x).flatMap(_.first).map(_.focus) must_== Some(y)
+  )
 
   def last = prop((ys: List[Json], x: Json, xs: List[Json], z: Json) =>
-    jArray(ys ::: (x :: xs) ::: List(z)).cursor.downAt(_ == x).flatMap(_.last).map(_.focus) must_== Some(z))
+    jArray(ys ::: (x :: xs) ::: List(z)).cursor.downAt(_ == x).flatMap(_.last).map(_.focus) must_== Some(z)
+  )
 
   def leftAt = prop((xx: Json, x: Json, xs: List[Json]) =>
-    jArray(xx :: x :: xs).cursor.downN(1).flatMap(_.leftAt(_ => true)).map(_.focus) must_== Some(xx))
+    jArray(xx :: x :: xs).cursor.downN(1).flatMap(_.leftAt(_ => true)).map(_.focus) must_== Some(xx)
+  )
 
   def left = prop((xx: Json, x: Json, xs: List[Json]) =>
-    jArray(xx :: x :: xs).cursor.downN(1).flatMap(_.left).map(_.focus) must_== Some(xx))
+    jArray(xx :: x :: xs).cursor.downN(1).flatMap(_.left).map(_.focus) must_== Some(xx)
+  )
 
   def rightAt = prop((xx: Json, x: Json, xs: List[Json]) =>
-    jArray(xx :: x :: xs).cursor.downArray.flatMap(_.rightAt(_ => true)).map(_.focus) must_== Some(x))
+    jArray(xx :: x :: xs).cursor.downArray.flatMap(_.rightAt(_ => true)).map(_.focus) must_== Some(x)
+  )
 
   def right = prop((x: Json, xs: List[Json]) =>
-    jArray(x :: xs).cursor.downArray.flatMap(_.right).map(_.focus) must_== xs.headOption)
+    jArray(x :: xs).cursor.downArray.flatMap(_.right).map(_.focus) must_== xs.headOption
+  )
 
   def rightOne = prop((x: Json, xs: List[Json]) =>
     jArray(x :: xs).cursor.downArray.flatMap(_.right).map(_.focus) must_==
-      jArray(x :: xs).cursor.downArray.flatMap(_.rightN(1)).map(_.focus))
+      jArray(x :: xs).cursor.downArray.flatMap(_.rightN(1)).map(_.focus)
+  )
 
   def rightNoOp = prop((ys: List[Json], x: Json, xs: List[Json]) =>
     jArray(x :: xs).cursor.downArray.map(_.focus) must_==
-      jArray(x :: xs).cursor.downArray.flatMap(_.rightN(0)).map(_.focus))
+      jArray(x :: xs).cursor.downArray.flatMap(_.rightN(0)).map(_.focus)
+  )
 
   def leftN = prop((ys: List[Json], x: Json, xs: List[Json]) =>
     !ys.contains(x) ==> {
-      jArray(ys ::: (x :: xs)).cursor.downAt(_ == x).flatMap(_.leftN(Math.max(ys.size, 1))).map(_.focus) must_== ys.headOption
+      jArray(ys ::: (x :: xs)).cursor
+        .downAt(_ == x)
+        .flatMap(_.leftN(Math.max(ys.size, 1)))
+        .map(_.focus) must_== ys.headOption
     }
   )
 
   def rightN = prop((ys: List[Json], x: Json, xs: List[Json]) =>
     !ys.contains(x) ==> {
-      jArray(ys ::: (x :: xs)).cursor.downAt(_ == x).flatMap(_.rightN(Math.max(xs.size, 1))).map(_.focus) must_== xs.lastOption
+      jArray(ys ::: (x :: xs)).cursor
+        .downAt(_ == x)
+        .flatMap(_.rightN(Math.max(xs.size, 1)))
+        .map(_.focus) must_== xs.lastOption
     }
   )
 
   def find = prop((x: Json, xs: List[Json]) =>
-    jArray(x :: xs).cursor.downArray.flatMap(_.find(_ => true)).map(_.focus) === Some(x))
+    jArray(x :: xs).cursor.downArray.flatMap(_.find(_ => true)).map(_.focus) === Some(x)
+  )
 }

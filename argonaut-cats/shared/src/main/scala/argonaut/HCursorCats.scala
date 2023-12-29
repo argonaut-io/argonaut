@@ -2,5 +2,4 @@ package argonaut
 
 object HCursorCats extends HCursorCatss
 
-trait HCursorCatss {
-}
+trait HCursorCatss {}

@@ -4,7 +4,9 @@ package internal
 import scala.annotation.tailrec
 import scala.collection.AbstractIterator
 import scala.deriving.Mirror
-import scala.compiletime.{constValue, erasedValue, summonFrom}
+import scala.compiletime.constValue
+import scala.compiletime.erasedValue
+import scala.compiletime.summonFrom
 
 object Macros {
   inline def summonLabels[T <: Tuple]: Array[String] =
@@ -146,7 +148,7 @@ object Macros {
           if (failed eq null) {
             Right(
               A.fromProduct(
-                new Product{
+                new Product {
                   override def canEqual(that: Any): Boolean =
                     true
                   override def productArity: Int =

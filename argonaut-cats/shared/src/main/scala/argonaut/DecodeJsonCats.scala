@@ -2,16 +2,18 @@ package argonaut
 
 import cats.data._
 
-object DecodeJsonCats extends DecodeJsonCatss {
-}
+object DecodeJsonCats extends DecodeJsonCatss {}
 
 trait DecodeJsonCatss {
   implicit def NonEmptyListDecodeJson[A: DecodeJson](implicit DL: DecodeJson[List[A]]): DecodeJson[NonEmptyList[A]] = {
     DL.flatMap(l =>
-      DecodeJson[NonEmptyList[A]](c => NonEmptyList.fromList(l) match {
-        case None => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
-        case Some(n) => DecodeResult.ok(n)
-      })) setName "[A]NonEmptyList[A]"
+      DecodeJson[NonEmptyList[A]](c =>
+        NonEmptyList.fromList(l) match {
+          case None => DecodeResult.fail("[A]NonEmptyList[A]", c.history)
+          case Some(n) => DecodeResult.ok(n)
+        }
+      )
+    ) setName "[A]NonEmptyList[A]"
   }
 
   implicit def ValidatedDecodeJson[A, B](implicit DA: DecodeJson[A], DB: DecodeJson[B]): DecodeJson[Validated[A, B]] = {

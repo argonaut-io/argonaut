@@ -8,6 +8,7 @@ import Json._
  * @author Tony Morris
  */
 sealed abstract class JsonObject {
+
   /**
    * Convert to a map.
    */
@@ -137,7 +138,9 @@ private[argonaut] case class JsonObjectInstance(
 
   def fieldSet: Set[JsonField] = orderedFields.toSet
 
-  def map(f: Json => Json): JsonObject = copy(fieldsMap = fieldsMap.foldLeft(Map.empty[JsonField, Json]){case (acc, (key, value)) => acc.updated(key, f(value))})
+  def map(f: Json => Json): JsonObject = copy(fieldsMap = fieldsMap.foldLeft(Map.empty[JsonField, Json]) {
+    case (acc, (key, value)) => acc.updated(key, f(value))
+  })
 
   def size: Int = fields.size
 
@@ -156,16 +159,19 @@ private[argonaut] case class JsonObjectInstance(
 }
 
 object JsonObject extends JsonObjects {
+
   /**
    * Construct an empty association.
    */
   def empty: JsonObject = JsonObjectInstance()
+
   /**
    * Construct with a single association.
    */
   def single(f: JsonField, j: Json): JsonObject = {
     JsonObject.empty + (f, j)
   }
+
   /**
     * Construct an object from a Iterable instance.
     */
@@ -174,5 +180,4 @@ object JsonObject extends JsonObjects {
   }
 }
 
-trait JsonObjects {
-}
+trait JsonObjects {}

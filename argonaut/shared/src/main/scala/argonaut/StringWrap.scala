@@ -1,12 +1,12 @@
 package argonaut
 
-
 /**
  * Wraps a `String` value and provides methods, particularly for parsing.
  *
  * @author Tony Morris
  */
 sealed abstract class StringWrap {
+
   /**
    * Underlying string value.
    */
@@ -35,8 +35,7 @@ sealed abstract class StringWrap {
    * }}}
    */
   def :=?[A: EncodeJson](a: Option[A]) =
-    this :?=(a)
-
+    this :?= a
 
   /*
    * Construct an optional pair of the key and JSON value.
@@ -47,7 +46,7 @@ sealed abstract class StringWrap {
    * }}}
    */
   def :?=[A: EncodeJson](a: Option[A]) =
-    a map (aa =>  (value, implicitly[EncodeJson[A]].apply(aa)))
+    a map (aa => (value, implicitly[EncodeJson[A]].apply(aa)))
 }
 
 object StringWrap extends StringWraps
@@ -58,6 +57,7 @@ object StringWrap extends StringWraps
  * @author Tony Morris
  */
 trait StringWraps {
+
   /**
    * Implicitly wraps the given string value.
    */

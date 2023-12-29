@@ -8,6 +8,7 @@ package argonaut
  * to provide an argonaut API on their types.
  */
 class ParseWrap[A](value: A, parser: Parse[A]) {
+
   /**
    * Parses the string value and either returns a list of the failures from parsing the string
    * or an instance of the Json type if parsing succeeds.
@@ -56,7 +57,11 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    * @param parsefailure Run this function if the parse produces a failure.
    * @param decodefailure Run this function if the decode produces a failure.
    */
-  def decodeWith[Y, X: DecodeJson](success: X => Y, parsefailure: String => Y, decodefailure: (String, CursorHistory) => Y): Y =
+  def decodeWith[Y, X: DecodeJson](
+    success: X => Y,
+    parsefailure: String => Y,
+    decodefailure: (String, CursorHistory) => Y
+  ): Y =
     parser.decodeWith(value, success, parsefailure, decodefailure)
 
   /**
@@ -91,7 +96,6 @@ class ParseWrap[A](value: A, parser: Parse[A]) {
    */
   def decodeOption[X: DecodeJson]: Option[X] =
     parser.decodeOption(value)
-
 
   /**
    * Parses and decodes the string value to a possible JSON value.

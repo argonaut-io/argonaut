@@ -1,7 +1,8 @@
 package argonaut
 
 import scalaz._
-import org.scalacheck._, Arbitrary._
+import org.scalacheck._
+import Arbitrary._
 
 case class Product(name: String, price: Double)
 case class OrderLine(product: Product, quantity: Int)
@@ -43,14 +44,16 @@ object TestTypes {
     af <- arbitrary[Map[String, String]]
   } yield Person(n, a, o, af))
 
-  implicit def ShapeArbitrary: Arbitrary[Shape] = Arbitrary(Gen.oneOf(
-    arbitrary[Int].map(Circle.apply)
-  , arbitrary[Int].map(Square.apply)
-  ))
+  implicit def ShapeArbitrary: Arbitrary[Shape] = Arbitrary(
+    Gen.oneOf(
+      arbitrary[Int].map(Circle.apply),
+      arbitrary[Int].map(Square.apply)
+    )
+  )
 
   implicit def BackticksArbitrary: Arbitrary[BackTicks] = Arbitrary(arbitrary[String].map(BackTicks.apply))
 
-  implicit def ParameterizedArbitrary [T:Arbitrary]: Arbitrary[Parameterized[T]] = Arbitrary(for {
+  implicit def ParameterizedArbitrary[T: Arbitrary]: Arbitrary[Parameterized[T]] = Arbitrary(for {
     v1 <- arbitrary[String]
     v2 <- arbitrary[T]
   } yield Parameterized[T](v1, v2))

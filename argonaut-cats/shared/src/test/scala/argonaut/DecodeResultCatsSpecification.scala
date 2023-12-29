@@ -18,5 +18,5 @@ class DecodeResultCatsSpecification extends ArgonautSpec with Discipline {
 
   def is =
     br ^ br ^
-    checkAll("DecodeResult[Int]", MonadTests[DecodeResult].monad[Int, Int, Int])
+      checkAll("DecodeResult[Int]", MonadTests[DecodeResult].monad[Int, Int, Int])
 }

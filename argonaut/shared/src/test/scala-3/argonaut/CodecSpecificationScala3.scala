@@ -6,7 +6,7 @@ import org.specs2.scalacheck.ScalaCheckFunction1
 object CodecSpecificationScala3 extends ArgonautSpec {
   def encodedecode[A: EncodeJson: DecodeJson: Arbitrary]: ScalaCheckFunction1[A, Boolean] = {
     val aCodec = CodecJson.derived[A]
-    prop[A, Boolean]{a =>
+    prop[A, Boolean] { a =>
       CodecJson.codecLaw(aCodec)(a)
     }
   }
@@ -42,9 +42,8 @@ object MyList {
   }
 
   implicit def arbitrary[A: Arbitrary]: Arbitrary[MyList[A]] = Arbitrary(
-    implicitly[Arbitrary[(A, List[A])]].arbitrary.map {
-      case (x, xs) =>
-        fromList(xs, MyList(x, None))
+    implicitly[Arbitrary[(A, List[A])]].arbitrary.map { case (x, xs) =>
+      fromList(xs, MyList(x, None))
     }
   )
 }

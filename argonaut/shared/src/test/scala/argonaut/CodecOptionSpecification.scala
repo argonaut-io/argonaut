@@ -17,10 +17,13 @@ object CodecOptionSpecification extends ArgonautSpec {
     handles missing nested fields using get[T]   $missingNestedGet
   """
 
-  def setField = prop { (value: String) => Json.obj("value" := value).as[Thing] must_== DecodeResult.ok(Thing(Some(value))) }
+  def setField = prop { (value: String) =>
+    Json.obj("value" := value).as[Thing] must_== DecodeResult.ok(Thing(Some(value)))
+  }
 
   def missingNestedAs = prop { (value: String) =>
-    val third = Json.obj("first" := jEmptyObject)
+    val third = Json
+      .obj("first" := jEmptyObject)
       .hcursor
       .downField("first")
       .downField("second")
@@ -30,11 +33,8 @@ object CodecOptionSpecification extends ArgonautSpec {
   }
 
   def missingNestedGet = prop { (value: String) =>
-    val third = Json.obj("first" := jEmptyObject)
-      .hcursor
-      .downField("first")
-      .downField("second")
-      .get[Option[String]]("third")
+    val third =
+      Json.obj("first" := jEmptyObject).hcursor.downField("first").downField("second").get[Option[String]]("third")
     third must_== DecodeResult.ok(None)
   }
 }

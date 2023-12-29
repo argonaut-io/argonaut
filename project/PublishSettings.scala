@@ -5,35 +5,36 @@ import sbtrelease.ReleasePlugin.autoImport._
 import xerial.sbt.Sonatype.autoImport._
 
 object PublishSettings {
-  type Sett = Def.Setting[_]
+  type Sett = Def.Setting[?]
 
   lazy val all = Seq[Sett](
-    pom
-  , publish
-  , publishMavenStyle := true
-  , Test / publishArtifact := false
-  , pomIncludeRepository := { _ => false }
-  , releasePublishArtifactsAction := publishSigned.value
-  , releaseProcess := {
-     import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
-     Seq[ReleaseStep](
-       checkSnapshotDependencies,
-       inquireVersions,
-       runTest,
-       setReleaseVersion,
-       commitReleaseVersion,
-       tagRelease,
-       publishArtifacts,
-       releaseStepCommandAndRemaining("sonatypeBundleRelease"),
-       setNextVersion,
-       commitNextVersion,
-       pushChanges
-    )}
-  , releaseCrossBuild := true
-  , licenses := Seq("BSD-3-Clause" -> url("http://www.opensource.org/licenses/BSD-3-Clause"))
-  , homepage := Some(url("https://github.com/argonaut-io/argonaut"))
-  , autoAPIMappings := true
-  , apiURL := Some(url("https://javadoc.io/doc/io.argonaut/argonaut_2.13/latest/argonaut/index.html"))
+    pom,
+    publish,
+    publishMavenStyle := true,
+    Test / publishArtifact := false,
+    pomIncludeRepository := { _ => false },
+    releasePublishArtifactsAction := publishSigned.value,
+    releaseProcess := {
+      import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+      Seq[ReleaseStep](
+        checkSnapshotDependencies,
+        inquireVersions,
+        runTest,
+        setReleaseVersion,
+        commitReleaseVersion,
+        tagRelease,
+        publishArtifacts,
+        releaseStepCommandAndRemaining("sonatypeBundleRelease"),
+        setNextVersion,
+        commitNextVersion,
+        pushChanges
+      )
+    },
+    releaseCrossBuild := true,
+    licenses := Seq("BSD-3-Clause" -> url("http://www.opensource.org/licenses/BSD-3-Clause")),
+    homepage := Some(url("https://github.com/argonaut-io/argonaut")),
+    autoAPIMappings := true,
+    apiURL := Some(url("https://javadoc.io/doc/io.argonaut/argonaut_2.13/latest/argonaut/index.html"))
   )
 
   lazy val pom: Sett =

@@ -2,8 +2,10 @@ package argonaut
 
 import ContextElementCats._
 import JsonCats._
-import cats._, instances.all._
-import syntax.eq._, syntax.show._
+import cats._
+import instances.all._
+import syntax.eq._
+import syntax.show._
 
 object ContextCats extends ContextCatss
 
@@ -27,14 +29,16 @@ trait ContextElementCatss {
     new Eq[ContextElement] with Show[ContextElement] {
       override def eqv(c1: ContextElement, c2: ContextElement) = {
         c1 match {
-          case ArrayContext(n1, j1) => c2 match {
-            case ArrayContext(n2, j2) => n1 === n2 && j1 === j2
-            case ObjectContext(_, _) => false
-          }
-          case ObjectContext(f1, j1) => c2 match {
-            case ObjectContext(f2, j2) => f1 === f2 && j1 === j2
-            case ArrayContext(_, _) => false
-          }
+          case ArrayContext(n1, j1) =>
+            c2 match {
+              case ArrayContext(n2, j2) => n1 === n2 && j1 === j2
+              case ObjectContext(_, _) => false
+            }
+          case ObjectContext(f1, j1) =>
+            c2 match {
+              case ObjectContext(f2, j2) => f1 === f2 && j1 === j2
+              case ArrayContext(_, _) => false
+            }
         }
       }
 

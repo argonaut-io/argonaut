@@ -17,28 +17,30 @@ object Macros extends MacrosCompat {
     import c.universe._
     val tpe = weakTypeOf[T]
 
-    val primaryConstructor = getDeclarations(c)(tpe).collectFirst{
+    val primaryConstructor = getDeclarations(c)(tpe).collectFirst {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }
     primaryConstructor match {
       case Some(constructor) => {
-        val fieldNames: List[c.universe.Name] = getParameterLists(c)(constructor).flatten.map{field => 
+        val fieldNames: List[c.universe.Name] = getParameterLists(c)(constructor).flatten.map { field =>
           field.name
         }
         val decodedNames: List[String] = fieldNames.map(_.decodedName.toString)
-        val fieldTypes: List[c.universe.Type] = getParameterLists(c)(constructor).flatten.map{field =>
+        val fieldTypes: List[c.universe.Type] = getParameterLists(c)(constructor).flatten.map { field =>
           getDeclaration(c)(tpe, field.name).infoIn(tpe)
         }
         val fieldCount = fieldNames.size
-        val invocations = fieldNames.map{fieldName => 
+        val invocations = fieldNames.map { fieldName =>
           val termName = createTermName(c)(fieldName.toString)
           q"toEncode.$termName"
         }
         val methodName = createTermName(c)(s"jencode${fieldCount}L")
-        val expr = c.Expr[EncodeJson[T]]{q"""
+        val expr = c.Expr[EncodeJson[T]] {
+          q"""
           _root_.argonaut.EncodeJson.$methodName[$tpe, ..$fieldTypes](toEncode => (..$invocations))(..$decodedNames)
-        """}
-        //println(expr)
+        """
+        }
+        // println(expr)
         expr
       }
       case None => c.abort(c.enclosingPosition, "Could not identify primary constructor for " + tpe)
@@ -49,32 +51,34 @@ object Macros extends MacrosCompat {
     import c.universe._
     val tpe = weakTypeOf[T]
 
-    val primaryConstructor = getDeclarations(c)(tpe).collectFirst{
+    val primaryConstructor = getDeclarations(c)(tpe).collectFirst {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }
     primaryConstructor match {
       case Some(constructor) => {
-        val fieldNames: List[c.universe.Name] = getParameterLists(c)(constructor).flatten.map{field => 
+        val fieldNames: List[c.universe.Name] = getParameterLists(c)(constructor).flatten.map { field =>
           field.name
         }
         val decodedNames: List[String] = fieldNames.map(_.decodedName.toString)
-        val fieldTypes: List[c.universe.Type] = getParameterLists(c)(constructor).flatten.map{field =>
+        val fieldTypes: List[c.universe.Type] = getParameterLists(c)(constructor).flatten.map { field =>
           getDeclaration(c)(tpe, field.name).infoIn(tpe)
         }
         val fieldCount = fieldNames.size
-        val functionParameters = fieldNames.zip(fieldTypes).map{case (fieldName, fieldType) =>
+        val functionParameters = fieldNames.zip(fieldTypes).map { case (fieldName, fieldType) =>
           val termName = createTermName(c)(fieldName.toString)
           q"$termName: $fieldType"
         }
-        val parameters = fieldNames.map{fieldName =>
+        val parameters = fieldNames.map { fieldName =>
           val termName = createTermName(c)(fieldName.toString)
           q"$termName"
         }
         val methodName = createTermName(c)("jdecode" + fieldCount.toString + "L")
-        val expr = c.Expr[DecodeJson[T]]{q"""
+        val expr = c.Expr[DecodeJson[T]] {
+          q"""
           _root_.argonaut.DecodeJson.$methodName[..$fieldTypes, $tpe]((..$functionParameters) => new $tpe(..$parameters))(..$decodedNames)
-        """}
-        //println(expr)
+        """
+        }
+        // println(expr)
         expr
       }
       case None => c.abort(c.enclosingPosition, "Could not identify primary constructor for " + tpe)

@@ -6,8 +6,7 @@ import cats._
 import instances.list._
 import syntax.eq._
 
-object JsonCats extends JsonCatss {
-}
+object JsonCats extends JsonCatss {}
 
 trait JsonCatss {
   implicit val JsonInstances: Eq[Json] with Show[Json] = {

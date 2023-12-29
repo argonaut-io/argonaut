@@ -35,15 +35,17 @@ object JsonSpecification extends ArgonautSpec {
 
   def modString = prop((j: JString) => j.withString(_ + "test") != j)
 
-  def modNumber = prop((j: JNumber) => j.withNumber { number =>
-    JsonLong(number.toInt.map(n =>
-      if (n == 0) (n + 1) else (n * 2)
-    ).getOrElse(0).toLong)
-  } != j)
+  def modNumber = prop((j: JNumber) =>
+    j.withNumber { number =>
+      JsonLong(number.toInt.map(n => if (n == 0) n + 1 else n * 2).getOrElse(0).toLong)
+    } != j
+  )
 
   def modArray = prop((j: JArray) => j.withArray(jEmptyArray :: _) != j)
 
-  def modObject = prop((j: JObject) => j.withObject(_ + ("veryunlikelytoberandomlygeneratedkey", jString("veryunlikelytoberandomlygeneratedvalue"))) != j)
+  def modObject = prop((j: JObject) =>
+    j.withObject(_ + ("veryunlikelytoberandomlygeneratedkey", jString("veryunlikelytoberandomlygeneratedvalue"))) != j
+  )
 
   def modBoolean = prop((j: JBool) => j.not != j)
 
@@ -75,5 +77,6 @@ object JsonSpecification extends ArgonautSpec {
 
   def isSingleObject = prop((f: JsonField, j: Json) => (jSingleObject(f, j).obj map (_.toList)) == List((f, j)).some)
 
-  def toStringPreservesOrder = prop((j: Json) => PrettyParams.nospace.copy(preserveOrder = true).pretty(j) === j.toString)
+  def toStringPreservesOrder =
+    prop((j: Json) => PrettyParams.nospace.copy(preserveOrder = true).pretty(j) === j.toString)
 }

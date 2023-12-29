@@ -3,7 +3,7 @@ import Keys._
 import org.ensime.EnsimeKeys._
 
 object ScalaSettings {
-  type Sett = Def.Setting[_]
+  type Sett = Def.Setting[?]
 
   private[this] val unusedWarnings = Def.setting {
     Seq("-Ywarn-unused:imports")
@@ -14,10 +14,10 @@ object ScalaSettings {
   def Scala3 = "3.3.1"
 
   lazy val all: Seq[Sett] = Def.settings(
-    scalaVersion := Scala213
-  , crossScalaVersions := Seq(Scala212, Scala213, Scala3)
-  , ensimeScalaVersion := Scala212
-  , scalacOptions ++= {
+    scalaVersion := Scala213,
+    crossScalaVersions := Seq(Scala212, Scala213, Scala3),
+    ensimeScalaVersion := Scala212,
+    scalacOptions ++= {
       if (build.isScala3.value) {
         Seq(
         )
@@ -29,29 +29,29 @@ object ScalaSettings {
           )
         ).flatten
       }
-    }
-  , scalacOptions ++= Seq(
-      "-deprecation"
-    , "-unchecked"
-    , "-feature"
-    , "-language:implicitConversions,higherKinds"
-    )
-  , scalacOptions ++= {
+    },
+    scalacOptions ++= Seq(
+      "-deprecation",
+      "-unchecked",
+      "-feature",
+      "-language:implicitConversions,higherKinds"
+    ),
+    scalacOptions ++= {
       if (scalaBinaryVersion.value == "2.13") {
         Seq("-Wconf:msg=constructor modifiers are assumed by synthetic:info")
       } else {
         Nil
       }
-    }
-  , scalacOptions ++= {
+    },
+    scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, _)) =>
           Seq("-Xsource:3")
         case _ =>
           Nil
       }
-    }
-  , scalacOptions ++= {
+    },
+    scalacOptions ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, 11 | 12)) =>
           Seq("-Xfuture")
@@ -59,7 +59,5 @@ object ScalaSettings {
           Nil
       }
     }
-  ) ++ Seq(Compile, Test).flatMap(c =>
-    (c / console / scalacOptions) --= unusedWarnings.value
-  )
+  ) ++ Seq(Compile, Test).flatMap(c => (c / console / scalacOptions) --= unusedWarnings.value)
 }

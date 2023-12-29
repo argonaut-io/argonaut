@@ -1,16 +1,19 @@
 package argonaut
 
-import scalaz._, syntax.show._, syntax.equal._
-import std.string._, std.list._
+import scalaz._
+import syntax.show._
+import syntax.equal._
+import std.string._
+import std.list._
 import Json._
 import JsonScalaz._
 import JsonObjectScalaz._
 import ContextScalaz._
 
-object CursorScalaz extends CursorScalazs {
-}
+object CursorScalaz extends CursorScalazs {}
 
 trait CursorScalazs {
+
   /**
    * A lens of a cursor's focus.
    */
@@ -42,7 +45,7 @@ trait CursorScalazs {
       case CArray(p, _, l, j, r) =>
         l match {
           case Nil => None
-          case h::t => Some(Store(q => CArray(p, true, q::t, j, r), h))
+          case h :: t => Some(Store(q => CArray(p, true, q :: t, j, r), h))
         }
       case _ => None
     }
@@ -65,7 +68,7 @@ trait CursorScalazs {
       case CArray(p, _, l, j, r) =>
         l match {
           case Nil => None
-          case h::t => Some(Store(q => CArray(p, true, q::t, j, r), h))
+          case h :: t => Some(Store(q => CArray(p, true, q :: t, j, r), h))
         }
       case _ => None
     }
@@ -73,23 +76,23 @@ trait CursorScalazs {
   implicit val CursorInstances: Equal[Cursor] with Show[Cursor] = new Equal[Cursor] with Show[Cursor] {
     def equal(c1: Cursor, c2: Cursor) = {
       c1 match {
-       case CJson(j1) =>
-         c2 match {
-           case CJson(j2) => j1 === j2
-           case _ => false
-         }
-       case CArray(p1, _, l1, j1, r1) =>
-         c2 match {
-           case CArray(p2, _, l2, j2, r2) => p1 === p2 && l1 === l2 && j1 === j2 && r1 === r2
-           case _ => false
-         }
-       case CObject(p1, _, x1, (f1, j1)) =>
-         c2 match {
-           case CObject(p2, _, x2, (f2, j2)) => p1 === p2 && x1 === x2 && f1 === f2 && j1 === j2
-           case _ => false
-         }
-       }
-     }
+        case CJson(j1) =>
+          c2 match {
+            case CJson(j2) => j1 === j2
+            case _ => false
+          }
+        case CArray(p1, _, l1, j1, r1) =>
+          c2 match {
+            case CArray(p2, _, l2, j2, r2) => p1 === p2 && l1 === l2 && j1 === j2 && r1 === r2
+            case _ => false
+          }
+        case CObject(p1, _, x1, (f1, j1)) =>
+          c2 match {
+            case CObject(p2, _, x2, (f2, j2)) => p1 === p2 && x1 === x2 && f1 === f2 && j1 === j2
+            case _ => false
+          }
+      }
+    }
 
     override def show(c: Cursor): Cord = {
       Cord(z"${c.context} ==> ${c.focus}")

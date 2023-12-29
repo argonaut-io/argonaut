@@ -68,5 +68,4 @@ case class CursorOpSetRights(x: List[Json]) extends CursorOpElement
 
 object CursorOpElement extends CursorOpElements
 
-trait CursorOpElements {
-}
+trait CursorOpElements {}

@@ -2,7 +2,8 @@ package argonaut
 
 import Argonaut._
 
-object EncodeJsonSpecification extends ArgonautSpec { def is = s2"""
+object EncodeJsonSpecification extends ArgonautSpec {
+  def is = s2"""
   EncodeJson mapJson
     Normal invocation                     ${mapJson}
   EncodeJson Witness Compilation
@@ -15,7 +16,7 @@ object EncodeJsonSpecification extends ArgonautSpec { def is = s2"""
 """
 
   def mapJson = {
-    prop{(key: String, n: Int) =>
+    prop { (key: String, n: Int) =>
       val json = (key, n.jencode) ->: jEmptyObject
       val encodeJson = EncodeJson.of[Int].mapJson(j => (key, j) ->: jEmptyObject)
       encodeJson.encode(n) must beEqualTo(json)

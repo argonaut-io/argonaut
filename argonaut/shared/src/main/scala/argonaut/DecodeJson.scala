@@ -3,10 +3,10 @@ package argonaut
 import scala.collection.mutable.Builder
 import scala.util.control.Exception.catching
 import Json._
-
 import scala.annotation.tailrec
 
 trait DecodeJson[A] {
+
   /**
    * Decode the given hcursor. Alias for `decode`.
    */
@@ -35,10 +35,11 @@ trait DecodeJson[A] {
     */
   def flatMapCursor(f: HCursor => DecodeResult[HCursor]): DecodeJson[A] = {
     val original = this
-    (c: HCursor) => for {
-      fr <- f(c)
-      result <- original.decode(fr)
-    } yield result
+    (c: HCursor) =>
+      for {
+        fr <- f(c)
+        result <- original.decode(fr)
+      } yield result
   }
 
   /**
@@ -79,10 +80,12 @@ trait DecodeJson[A] {
    * Build a new DecodeJson codec with the specified name.
    */
   def setName(n: String): DecodeJson[A] = {
-    DecodeJson[A](c => apply(c).result.fold(
-      { case (_, h) => DecodeResult.fail(n, h) },
-      a => DecodeResult.ok(a)
-    ))
+    DecodeJson[A](c =>
+      apply(c).result.fold(
+        { case (_, h) => DecodeResult.fail(n, h) },
+        a => DecodeResult.ok(a)
+      )
+    )
   }
 
   /**
@@ -103,10 +106,12 @@ trait DecodeJson[A] {
    * Combine two decoders.
    */
   def &&&[B](x: DecodeJson[B]): DecodeJson[(A, B)] = {
-    DecodeJson(j => for {
-      a <- this(j)
-      b <- x(j)
-    } yield (a, b))
+    DecodeJson(j =>
+      for {
+        a <- this(j)
+        b <- x(j)
+      } yield (a, b)
+    )
   }
 
   /**
@@ -122,15 +127,15 @@ trait DecodeJson[A] {
   /**
    * Run one or another decoder.
    */
-  def split[B](x: DecodeJson[B]): Either[HCursor, HCursor] => DecodeResult[Either[A, B]] = {
-    c => c.fold(a => this(a).map(Left.apply), a => x(a).map(Right.apply))
+  def split[B](x: DecodeJson[B]): Either[HCursor, HCursor] => DecodeResult[Either[A, B]] = { c =>
+    c.fold(a => this(a).map(Left.apply), a => x(a).map(Right.apply))
   }
 
   /**
    * Run two decoders.
    */
-  def product[B](x: DecodeJson[B]): (HCursor, HCursor) => DecodeResult[(A, B)] = {
-    case (a1, a2) => for {
+  def product[B](x: DecodeJson[B]): (HCursor, HCursor) => DecodeResult[(A, B)] = { case (a1, a2) =>
+    for {
       a <- this(a1)
       b <- x(a2)
     } yield (a, b)
@@ -144,8 +149,8 @@ trait DecodeJson[A] {
 }
 
 object DecodeJson extends DecodeJsons with DecodeJsonMacro {
-  def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] = {
-    (c: HCursor) => r(c)
+  def apply[A](r: HCursor => DecodeResult[A]): DecodeJson[A] = { (c: HCursor) =>
+    r(c)
   }
 
   def withReattempt[A](r: ACursor => DecodeResult[A]): DecodeJson[A] = {
@@ -162,10 +167,12 @@ object DecodeJson extends DecodeJsons with DecodeJsonMacro {
 trait DecodeJsons extends GeneratedDecodeJsons {
 
   def optionDecoder[A](k: Json => Option[A], e: String): DecodeJson[A] = {
-    DecodeJson[A](a => k(a.focus) match {
-      case None => DecodeResult.fail(e, a.history)
-      case Some(w) => DecodeResult.ok(w)
-    })
+    DecodeJson[A](a =>
+      k(a.focus) match {
+        case None => DecodeResult.fail(e, a.history)
+        case Some(w) => DecodeResult.ok(w)
+      }
+    )
   }
 
   /**
@@ -192,12 +199,14 @@ trait DecodeJsons extends GeneratedDecodeJsons {
         case Some(hcursor) => {
           hcursor.rights match {
             case Some(elements) => {
-              (hcursor.focus :: elements).foldLeft(DecodeResult.ok(newBuilder.apply())){(working, elem) =>
-                for {
-                  w <- working
-                  e <- elem.jdecode[A]
-                } yield w += e
-              }.map(_.result())
+              (hcursor.focus :: elements)
+                .foldLeft(DecodeResult.ok(newBuilder.apply())) { (working, elem) =>
+                  for {
+                    w <- working
+                    e <- elem.jdecode[A]
+                  } yield w += e
+                }
+                .map(_.result())
             }
             case _ => {
               DecodeResult.fail("[A]", a.history)
@@ -209,8 +218,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit val UUIDDecodeJson: DecodeJson[java.util.UUID] = {
-    optionDecoder(_.string.flatMap(s =>
-      tryTo(java.util.UUID.fromString(s))), "UUID")
+    optionDecoder(_.string.flatMap(s => tryTo(java.util.UUID.fromString(s))), "UUID")
   }
 
   implicit def ListDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[List[A]] =
@@ -226,69 +234,71 @@ trait DecodeJsons extends GeneratedDecodeJsons {
     BuilderDecodeJson[A, Set](() => Set.newBuilder)
 
   implicit def UnitDecodeJson: DecodeJson[Unit] = {
-    DecodeJson.apply[Unit](a => if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray) {
-      DecodeResult.ok(())
-    } else {
-      DecodeResult.fail("Unit", a.history)
-    })
+    DecodeJson.apply[Unit](a =>
+      if (a.focus.isNull || a.focus == jEmptyObject || a.focus == jEmptyArray) {
+        DecodeResult.ok(())
+      } else {
+        DecodeResult.fail("Unit", a.history)
+      }
+    )
   }
 
   implicit def StringDecodeJson: DecodeJson[String] = optionDecoder(_.string, "String")
 
   implicit def DoubleDecodeJson: DecodeJson[Double] = {
-    optionDecoder[Double](x => {
-      if (x.isNull) {
-        Some(Double.NaN)
-      } else {
-        x.number.flatMap(n => tryTo(n.truncateToDouble)).orElse(x.string.flatMap(s => tryTo(s.toDouble)))
-      }
-    }, "Double")
+    optionDecoder[Double](
+      x => {
+        if (x.isNull) {
+          Some(Double.NaN)
+        } else {
+          x.number.flatMap(n => tryTo(n.truncateToDouble)).orElse(x.string.flatMap(s => tryTo(s.toDouble)))
+        }
+      },
+      "Double"
+    )
   }
 
   implicit def FloatDecodeJson: DecodeJson[Float] = {
-    optionDecoder[Float](x => {
-      if (x.isNull) {
-        Some(Float.NaN)
-      } else {
-        x.number.flatMap(n => tryTo(n.truncateToFloat)).orElse(x.string.flatMap(s => tryTo(s.toFloat)))
-      }
-    }, "Float")
+    optionDecoder[Float](
+      x => {
+        if (x.isNull) {
+          Some(Float.NaN)
+        } else {
+          x.number.flatMap(n => tryTo(n.truncateToFloat)).orElse(x.string.flatMap(s => tryTo(s.toFloat)))
+        }
+      },
+      "Float"
+    )
   }
 
   implicit def IntDecodeJson: DecodeJson[Int] = {
-    optionDecoder(x =>
-      (x.number map (_.truncateToInt)).orElse(
-      x.string flatMap (s => tryTo(s.toInt))), "Int")
+    optionDecoder(x => (x.number map (_.truncateToInt)).orElse(x.string flatMap (s => tryTo(s.toInt))), "Int")
   }
 
   implicit def LongDecodeJson: DecodeJson[Long] = {
-    optionDecoder(x =>
-      (x.number map (_.truncateToLong)).orElse(
-      x.string flatMap (s => tryTo(s.toLong))), "Long")
+    optionDecoder(x => (x.number map (_.truncateToLong)).orElse(x.string flatMap (s => tryTo(s.toLong))), "Long")
   }
 
   implicit def ShortDecodeJson: DecodeJson[Short] = {
-    optionDecoder(x =>
-      (x.number map (_.truncateToShort)).orElse(
-      x.string flatMap (s => tryTo(s.toShort))), "Short")
+    optionDecoder(x => (x.number map (_.truncateToShort)).orElse(x.string flatMap (s => tryTo(s.toShort))), "Short")
   }
 
   implicit def ByteDecodeJson: DecodeJson[Byte] = {
-    optionDecoder(x =>
-      (x.number map (_.truncateToByte)).orElse(
-      x.string flatMap (s => tryTo(s.toByte))), "Byte")
+    optionDecoder(x => (x.number map (_.truncateToByte)).orElse(x.string flatMap (s => tryTo(s.toByte))), "Byte")
   }
 
   implicit def BigIntDecodeJson: DecodeJson[BigInt] = {
-    optionDecoder(x =>
-      (x.number flatMap (_.truncateToBigInt)).orElse(
-      x.string flatMap (s => tryTo(BigInt(s)))), "BigInt")
+    optionDecoder(
+      x => (x.number flatMap (_.truncateToBigInt)).orElse(x.string flatMap (s => tryTo(BigInt(s)))),
+      "BigInt"
+    )
   }
 
   implicit def BigDecimalDecodeJson: DecodeJson[BigDecimal] = {
-    optionDecoder(x =>
-      (x.number map (_.toBigDecimal)).orElse(
-      x.string flatMap (s => tryTo(BigDecimal(s)))), "BigDecimal")
+    optionDecoder(
+      x => (x.number map (_.toBigDecimal)).orElse(x.string flatMap (s => tryTo(BigDecimal(s)))),
+      "BigDecimal"
+    )
   }
 
   implicit def BooleanDecodeJson: DecodeJson[Boolean] = {
@@ -296,7 +306,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def CharDecodeJson: DecodeJson[Char] = {
-    optionDecoder(_.string.flatMap(s => if(s.length == 1) Some(s(0)) else None), "Char")
+    optionDecoder(_.string.flatMap(s => if (s.length == 1) Some(s(0)) else None), "Char")
   }
 
   implicit def JDoubleDecodeJson: DecodeJson[java.lang.Double] = {
@@ -328,20 +338,22 @@ trait DecodeJsons extends GeneratedDecodeJsons {
   }
 
   implicit def JCharacterDecodeJson: DecodeJson[java.lang.Character] = {
-    optionDecoder(_.string.flatMap(s => if(s.length == 1) Some(s(0)) else None), "java.lang.Character")
+    optionDecoder(_.string.flatMap(s => if (s.length == 1) Some(s(0)) else None), "java.lang.Character")
   }
 
   implicit def OptionDecodeJson[A](implicit e: DecodeJson[A]): DecodeJson[Option[A]] = {
-    DecodeJson.withReattempt[Option[A]](a => a.success match {
-      case None => DecodeResult.ok(None)
-      case Some(valid) => {
-        if (valid.focus.isNull) {
-          DecodeResult.ok(None)
-        } else {
-          e(valid).option
+    DecodeJson.withReattempt[Option[A]](a =>
+      a.success match {
+        case None => DecodeResult.ok(None)
+        case Some(valid) => {
+          if (valid.focus.isNull) {
+            DecodeResult.ok(None)
+          } else {
+            e(valid).option
+          }
         }
       }
-    })
+    )
   }
 
   implicit def EitherDecodeJson[A, B](implicit ea: DecodeJson[A], eb: DecodeJson[B]): DecodeJson[Either[A, B]] = {
@@ -365,12 +377,15 @@ trait DecodeJsons extends GeneratedDecodeJsons {
           def spin(x: List[JsonField], m: DecodeResult[Map[K, V]]): DecodeResult[Map[K, V]] = {
             x match {
               case Nil => m
-              case h::t => {
-                spin(t, for {
-                  mm <- m
-                  k <- dk.decodeJson(jString(h))
-                  v <- a.get(h)(dv)
-                } yield mm + ((k, v)))
+              case h :: t => {
+                spin(
+                  t,
+                  for {
+                    mm <- m
+                    k <- dk.decodeJson(jString(h))
+                    v <- a.get(h)(dv)
+                  } yield mm + ((k, v))
+                )
               }
             }
           }

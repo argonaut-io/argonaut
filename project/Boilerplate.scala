@@ -1,8 +1,8 @@
 import sbt._
 
 object Boilerplate {
-  val arities = (1 to 22)
-  val aritiesExceptOne = (2 to 22)
+  val arities = 1 to 22
+  val aritiesExceptOne = 2 to 22
   val arityChars: Map[Int, String] = arities.map(n => (n, ('A' + n - 1).toChar.toString)).toMap
 
   def write(path: File, fileContents: String): File = {
@@ -10,7 +10,7 @@ object Boilerplate {
     path
   }
 
-  def gen(dir : File) = {
+  def gen(dir: File) = {
     val generatedDecodeJson = write(dir / "argonaut" / "GeneratedDecodeJsons.scala", genDecodeJsons)
 
     val generatedEncodeJson = write(dir / "argonaut" / "GeneratedEncodeJsons.scala", genEncodeJsons)
@@ -31,24 +31,25 @@ object Boilerplate {
 
   def tupleFields(arity: Int): String = (1 to arity).map(n => "x._" + n).mkString(", ")
 
-  def listPatternMatch(arity: Int): String = ((1 to arity).map(n => "c" + arityChars(n).toLowerCase).toList ::: "Nil" :: Nil).mkString(" :: ")
+  def listPatternMatch(arity: Int): String =
+    ((1 to arity).map(n => "c" + arityChars(n).toLowerCase).toList ::: "Nil" :: Nil).mkString(" :: ")
 
-  def jsonStringParams(arity: Int): String = (1 to arity).map(n => s"${arityChars(n).toLowerCase}n: JsonString").mkString(", ")
+  def jsonStringParams(arity: Int): String =
+    (1 to arity).map(n => s"${arityChars(n).toLowerCase}n: JsonString").mkString(", ")
 
   def jsonStringParamNames(arity: Int): String = (1 to arity).map(n => s"${arityChars(n).toLowerCase}n").mkString(", ")
-
 
   def genDecodeJsons = {
     def decodeJsonContextArities(n: Int): String = (1 to n).map(n => s"${arityChars(n)}: DecodeJson").mkString(", ")
 
-    def decodeJsonParams(n: Int): String = (1 to n).map{n =>
+    def decodeJsonParams(n: Int): String = (1 to n).map { n =>
       val char = arityChars(n)
       s"decode${char.toLowerCase}: DecodeJson[${char}]"
     }.mkString(", ")
 
     def content = {
-      val tupleDecodes = aritiesExceptOne.map{arity =>
-        val forComprehensionLines: String = (1 to arity).map{n =>
+      val tupleDecodes = aritiesExceptOne.map { arity =>
+        val forComprehensionLines: String = (1 to arity).map { n =>
           val char = arityChars(n)
           s"          x${char.toLowerCase} <- decode${char.toLowerCase}(c${char.toLowerCase})"
         }.mkString("\n")
@@ -56,13 +57,17 @@ object Boilerplate {
         val yieldResult = (1 to arity).map(n => "x" + arityChars(n).toLowerCase).mkString(", ")
 
         s"""|
-            |  implicit def Tuple${arity}DecodeJson[${functionTypeParameters(arity)}](implicit ${decodeJsonParams(arity)}): DecodeJson[(${functionTypeParameters(arity)})] =
+            |  implicit def Tuple${arity}DecodeJson[${functionTypeParameters(arity)}](implicit ${decodeJsonParams(
+            arity
+          )}): DecodeJson[(${functionTypeParameters(arity)})] =
             |    DecodeJson(c =>
             |      c.jdecode[List[HCursor]] flatMap {
             |        case ${listPatternMatch(arity)} => for {
             |${forComprehensionLines}
             |        } yield (${yieldResult})
-            |       case _ => DecodeResult.fail("[${functionTypeParameters(arity)}]Tuple${arity}[${functionTypeParameters(arity)}]", c.history)
+            |       case _ => DecodeResult.fail("[${functionTypeParameters(
+            arity
+          )}]Tuple${arity}[${functionTypeParameters(arity)}]", c.history)
             |      })
             |""".stripMargin
       }
@@ -71,9 +76,11 @@ object Boilerplate {
                         |  def jdecode1[A, X](f: A => X)(implicit decodea: DecodeJson[A]): DecodeJson[X] =
                         |    decodea.map(f)
                         |""".stripMargin
-      val jdecodes = aritiesExceptOne.map{arity =>
+      val jdecodes = aritiesExceptOne.map { arity =>
         s"""|
-            |  def jdecode${arity}[${functionTypeParameters(arity)}, X](f: (${functionTypeParameters(arity)}) => X)(implicit dx: DecodeJson[(${functionTypeParameters(arity)})]): DecodeJson[X] =
+            |  def jdecode${arity}[${functionTypeParameters(arity)}, X](f: (${functionTypeParameters(
+            arity
+          )}) => X)(implicit dx: DecodeJson[(${functionTypeParameters(arity)})]): DecodeJson[X] =
             |    dx.map(x => f(${tupleFields(arity)}))
             |""".stripMargin
       }
@@ -86,21 +93,22 @@ object Boilerplate {
            |    } yield f(aa))
            |""".stripMargin
 
-
-      val jdecodeLs = aritiesExceptOne.map{arity =>
-        val forComprehensionLines: String = (1 to arity).map{n =>
+      val jdecodeLs = aritiesExceptOne.map { arity =>
+        val forComprehensionLines: String = (1 to arity).map { n =>
           val upperChar = arityChars(n)
           val lowerChar = upperChar.toLowerCase
           s"       ${lowerChar}${lowerChar} <- x.get[${upperChar}](${lowerChar}n)"
         }.mkString("\n")
 
-        val yieldExpression: String = (1 to arity).map{n =>
+        val yieldExpression: String = (1 to arity).map { n =>
           val lowerChar = arityChars(n).toLowerCase
           s"${lowerChar}${lowerChar}"
         }.mkString(", ")
 
         s"""|
-            |  def jdecode${arity}L[${decodeJsonContextArities(arity)}, X](f: (${functionTypeParameters(arity)}) => X)(${jsonStringParams(arity)}): DecodeJson[X] =
+            |  def jdecode${arity}L[${decodeJsonContextArities(arity)}, X](f: (${functionTypeParameters(
+            arity
+          )}) => X)(${jsonStringParams(arity)}): DecodeJson[X] =
             |    DecodeJson(x => for {
             |${forComprehensionLines}
             |    } yield f(${yieldExpression}))
@@ -122,20 +130,22 @@ object Boilerplate {
   def genEncodeJsons = {
     def encodeJsonContextArities(n: Int): String = (1 to n).map(n => s"${arityChars(n)}: EncodeJson").mkString(", ")
 
-    def encodeJsonParams(n: Int): String = (1 to n).map{n =>
+    def encodeJsonParams(n: Int): String = (1 to n).map { n =>
       val char = arityChars(n)
       s"encode${char.toLowerCase}: EncodeJson[${char}]"
     }.mkString(", ")
 
-    def invokeEncodeJsonParams(n: Int): String = (1 to n).map{n =>
+    def invokeEncodeJsonParams(n: Int): String = (1 to n).map { n =>
       val char = arityChars(n).toLowerCase
       s"encode${char}(${char})"
     }.mkString(", ")
 
     def content = {
-      val tupleEncodes = aritiesExceptOne.map{arity =>
+      val tupleEncodes = aritiesExceptOne.map { arity =>
         s"""|
-            |  implicit def Tuple${arity}EncodeJson[${functionTypeParameters(arity)}](implicit ${encodeJsonParams(arity)}): EncodeJson[(${functionTypeParameters(arity)})] =
+            |  implicit def Tuple${arity}EncodeJson[${functionTypeParameters(arity)}](implicit ${encodeJsonParams(
+            arity
+          )}): EncodeJson[(${functionTypeParameters(arity)})] =
             |    EncodeJson({
             |     case (${functionTypeParameters(arity).toLowerCase}) => jArray(List(${invokeEncodeJsonParams(arity)}))
             |    })
@@ -147,9 +157,11 @@ object Boilerplate {
                         |    encodea.contramap(f)
                         |""".stripMargin
 
-      val jencodes = aritiesExceptOne.map{arity =>
+      val jencodes = aritiesExceptOne.map { arity =>
         s"""|
-            |  def jencode${arity}[X, ${functionTypeParameters(arity)}](f: X => (${functionTypeParameters(arity)}))(implicit encodex: EncodeJson[(${functionTypeParameters(arity)})]): EncodeJson[X] =
+            |  def jencode${arity}[X, ${functionTypeParameters(arity)}](f: X => (${functionTypeParameters(
+            arity
+          )}))(implicit encodex: EncodeJson[(${functionTypeParameters(arity)})]): EncodeJson[X] =
             |    encodex.contramap(f)
             |""".stripMargin
       }
@@ -160,15 +172,17 @@ object Boilerplate {
            |    EncodeJson(x => jSingleObject(an, encodea.apply(f(x))))
            |""".stripMargin
 
-      val jencodeLs = aritiesExceptOne.map{arity =>
-        val encodePairs = (1 to arity).map{n =>
+      val jencodeLs = aritiesExceptOne.map { arity =>
+        val encodePairs = (1 to arity).map { n =>
           val upperChar = arityChars(n)
           val lowerChar = upperChar.toLowerCase
           s"(${lowerChar}n, encode${lowerChar}.apply(${lowerChar}))"
         }.mkString(", ")
 
         s"""|
-            |  def jencode${arity}L[X, ${functionTypeParameters(arity)}](fxn: X => (${functionTypeParameters(arity)}))(${jsonStringParams(arity)})(implicit ${encodeJsonParams(arity)}): EncodeJson[X] =
+            |  def jencode${arity}L[X, ${functionTypeParameters(arity)}](fxn: X => (${functionTypeParameters(
+            arity
+          )}))(${jsonStringParams(arity)})(implicit ${encodeJsonParams(arity)}): EncodeJson[X] =
             |    EncodeJson(x => jObjectAssocList({
             |      val (${functionTypeParameters(arity).toLowerCase}) = fxn(x)
             |      List(${encodePairs})
@@ -190,7 +204,8 @@ object Boilerplate {
   }
 
   def genCodecJsons = {
-    def codecJsonContextArities(n: Int): String = (1 to n).map(n => s"${arityChars(n)}: EncodeJson: DecodeJson").mkString(", ")
+    def codecJsonContextArities(n: Int): String =
+      (1 to n).map(n => s"${arityChars(n)}: EncodeJson: DecodeJson").mkString(", ")
 
     def content = {
 
@@ -200,11 +215,14 @@ object Boilerplate {
            |    CodecJson(jencode1L(g)(an).encode, jdecode1L(f)(an).decode)
            |""".stripMargin
 
-
-      val codecs = aritiesExceptOne.map{arity =>
+      val codecs = aritiesExceptOne.map { arity =>
         s"""|
-            |  def codec${arity}[${codecJsonContextArities(arity)}, X](f: (${functionTypeParameters(arity)}) => X, g: X => (${functionTypeParameters(arity)}))(${jsonStringParams(arity)}): CodecJson[X] =
-            |    CodecJson(jencode${arity}L(g)(${jsonStringParamNames(arity)}).encode, jdecode${arity}L(f)(${jsonStringParamNames(arity)}).decode)
+            |  def codec${arity}[${codecJsonContextArities(arity)}, X](f: (${functionTypeParameters(
+            arity
+          )}) => X, g: X => (${functionTypeParameters(arity)}))(${jsonStringParams(arity)}): CodecJson[X] =
+            |    CodecJson(jencode${arity}L(g)(${jsonStringParamNames(
+            arity
+          )}).encode, jdecode${arity}L(f)(${jsonStringParamNames(arity)}).decode)
             |""".stripMargin
       }
 
@@ -214,11 +232,14 @@ object Boilerplate {
            |    CodecJson(jencode1L(g)(an).encode, jdecode1L(f)(an).decode)
            |""".stripMargin
 
-
-      val casecodecs = aritiesExceptOne.map{arity =>
+      val casecodecs = aritiesExceptOne.map { arity =>
         s"""|
-            |  def casecodec${arity}[${codecJsonContextArities(arity)}, X](f: (${functionTypeParameters(arity)}) => X, g: X => Option[(${functionTypeParameters(arity)})])(${jsonStringParams(arity)}): CodecJson[X] =
-            |    CodecJson(jencode${arity}L(g andThen (_.get))(${jsonStringParamNames(arity)}).encode, jdecode${arity}L(f)(${jsonStringParamNames(arity)}).decode)
+            |  def casecodec${arity}[${codecJsonContextArities(arity)}, X](f: (${functionTypeParameters(
+            arity
+          )}) => X, g: X => Option[(${functionTypeParameters(arity)})])(${jsonStringParams(arity)}): CodecJson[X] =
+            |    CodecJson(jencode${arity}L(g andThen (_.get))(${jsonStringParamNames(
+            arity
+          )}).encode, jdecode${arity}L(f)(${jsonStringParamNames(arity)}).decode)
             |""".stripMargin
       }
 

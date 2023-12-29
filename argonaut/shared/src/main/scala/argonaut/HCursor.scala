@@ -165,7 +165,7 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
     history.acursorElement(_.downN(n), cursor, CursorOpDownN(n))
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `deleteGoParent`). */
-  def delete : ACursor =
+  def delete: ACursor =
     deleteGoParent
 
   /** Deletes the JSON value at focus and moves up to parent (alias for `deleteGoParent`). */
@@ -227,5 +227,4 @@ case class HCursor(cursor: Cursor, history: CursorHistory) {
 
 object HCursor extends HCursors
 
-trait HCursors {
-}
+trait HCursors {}

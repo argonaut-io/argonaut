@@ -27,24 +27,24 @@ import scala.annotation._
  * @param dropNullKeys Determines if object fields with values of null are dropped from the output.
  */
 case class PrettyParams(
-    indent: String
-  , lbraceLeft: String
-  , lbraceRight: String
-  , rbraceLeft: String
-  , rbraceRight: String
-  , lbracketLeft: String
-  , lbracketRight: String
-  , rbracketLeft: String
-  , rbracketRight: String
-  , lrbracketsEmpty: String
-  , arrayCommaLeft: String
-  , arrayCommaRight: String
-  , objectCommaLeft: String
-  , objectCommaRight: String
-  , colonLeft: String
-  , colonRight: String
-  , preserveOrder: Boolean
-  , dropNullKeys: Boolean
+  indent: String,
+  lbraceLeft: String,
+  lbraceRight: String,
+  rbraceLeft: String,
+  rbraceRight: String,
+  lbracketLeft: String,
+  lbracketRight: String,
+  rbracketLeft: String,
+  rbracketRight: String,
+  lrbracketsEmpty: String,
+  arrayCommaLeft: String,
+  arrayCommaRight: String,
+  objectCommaLeft: String,
+  objectCommaRight: String,
+  colonLeft: String,
+  colonRight: String,
+  preserveOrder: Boolean,
+  dropNullKeys: Boolean
 ) {
 
   private[this] final val openBraceText = "{"
@@ -76,8 +76,8 @@ case class PrettyParams(
 
   private[this] def addIndentation(s: String): Int => String = {
     val lastNewLineIndex = s.lastIndexOf("\n")
-    if (lastNewLineIndex < 0) {
-      _ => s
+    if (lastNewLineIndex < 0) { _ =>
+      s
     } else {
       val afterLastNewLineIndex = lastNewLineIndex + 1
       val start = s.substring(0, afterLastNewLineIndex)
@@ -87,14 +87,30 @@ case class PrettyParams(
   }
 
   // TODO: Vector based memoisation.
-  private[this] final val lbraceMemo = PrettyParams.vectorMemo{depth => _lbraceLeft(depth) + openBraceText + _lbraceRight(depth + 1)}
-  private[this] final val rbraceMemo = PrettyParams.vectorMemo{depth => _rbraceLeft(depth) + closeBraceText + _rbraceRight(depth + 1)}
-  private[this] final val lbracketMemo = PrettyParams.vectorMemo{depth => _lbracketLeft(depth) + openArrayText + _lbracketRight(depth + 1)}
-  private[this] final val rbracketMemo = PrettyParams.vectorMemo{depth => _rbracketLeft(depth) + closeArrayText + _rbracketRight(depth)}
-  private[this] final val lrbracketsEmptyMemo = PrettyParams.vectorMemo{depth => openArrayText + _lrbracketsEmpty(depth) + closeArrayText}
-  private[this] final val arrayCommaMemo = PrettyParams.vectorMemo{depth => _arrayCommaLeft(depth + 1) + commaText + _arrayCommaRight(depth + 1)}
-  private[this] final val objectCommaMemo = PrettyParams.vectorMemo{depth => _objectCommaLeft(depth + 1) + commaText + _objectCommaRight(depth + 1)}
-  private[this] final val colonMemo = PrettyParams.vectorMemo{depth => _colonLeft(depth + 1) + colonText + _colonRight(depth + 1)}
+  private[this] final val lbraceMemo = PrettyParams.vectorMemo { depth =>
+    _lbraceLeft(depth) + openBraceText + _lbraceRight(depth + 1)
+  }
+  private[this] final val rbraceMemo = PrettyParams.vectorMemo { depth =>
+    _rbraceLeft(depth) + closeBraceText + _rbraceRight(depth + 1)
+  }
+  private[this] final val lbracketMemo = PrettyParams.vectorMemo { depth =>
+    _lbracketLeft(depth) + openArrayText + _lbracketRight(depth + 1)
+  }
+  private[this] final val rbracketMemo = PrettyParams.vectorMemo { depth =>
+    _rbracketLeft(depth) + closeArrayText + _rbracketRight(depth)
+  }
+  private[this] final val lrbracketsEmptyMemo = PrettyParams.vectorMemo { depth =>
+    openArrayText + _lrbracketsEmpty(depth) + closeArrayText
+  }
+  private[this] final val arrayCommaMemo = PrettyParams.vectorMemo { depth =>
+    _arrayCommaLeft(depth + 1) + commaText + _arrayCommaRight(depth + 1)
+  }
+  private[this] final val objectCommaMemo = PrettyParams.vectorMemo { depth =>
+    _objectCommaLeft(depth + 1) + commaText + _objectCommaRight(depth + 1)
+  }
+  private[this] final val colonMemo = PrettyParams.vectorMemo { depth =>
+    _colonLeft(depth + 1) + colonText + _colonRight(depth + 1)
+  }
 
   /**
    * Returns a string representation of a pretty-printed JSON value.
@@ -146,33 +162,41 @@ case class PrettyParams(
       }
 
       k.fold[StringBuilder](
-        builder.append(nullText)
-        , bool => builder.append(if (bool) trueText else falseText)
-        , n => n match {
-          case JsonLong(x) => builder.append(x.toString)
-          case JsonDecimal(x) => builder.append(x)
-          case JsonBigDecimal(x) => builder.append(x.toString)
-        }
-        , s => encloseJsonString(builder, s)
-        , e => if (e.isEmpty) {
-          lrbracketsEmpty(builder)
-        } else {
-          rbracket(e.foldLeft((true, lbracket(builder))){case ((firstElement, builder), subElement) =>
-            val withComma = if (firstElement) builder else arrayComma(builder)
-            val updatedBuilder = trav(withComma, depth + 1, subElement)
-            (false, updatedBuilder)
-          }._2)
-        }
-        , o => {
-          rbrace((if (preserveOrder) o.toList else o.toMap).foldLeft((true, lbrace(builder))){case ((firstElement, builder), (key, value)) =>
-            val ignoreKey = dropNullKeys && value.isNull
-            if (ignoreKey) {
-              (firstElement, builder)
-            } else {
-              val withComma = if (firstElement) builder else objectComma(builder)
-              (false, trav(colon(encloseJsonString(withComma, key)), depth + 1, value))
-            }
-          }._2)
+        builder.append(nullText),
+        bool => builder.append(if (bool) trueText else falseText),
+        n =>
+          n match {
+            case JsonLong(x) => builder.append(x.toString)
+            case JsonDecimal(x) => builder.append(x)
+            case JsonBigDecimal(x) => builder.append(x.toString)
+          },
+        s => encloseJsonString(builder, s),
+        e =>
+          if (e.isEmpty) {
+            lrbracketsEmpty(builder)
+          } else {
+            rbracket(
+              e.foldLeft((true, lbracket(builder))) { case ((firstElement, builder), subElement) =>
+                val withComma = if (firstElement) builder else arrayComma(builder)
+                val updatedBuilder = trav(withComma, depth + 1, subElement)
+                (false, updatedBuilder)
+              }._2
+            )
+          },
+        o => {
+          rbrace(
+            (if (preserveOrder) o.toList else o.toMap)
+              .foldLeft((true, lbrace(builder))) { case ((firstElement, builder), (key, value)) =>
+                val ignoreKey = dropNullKeys && value.isNull
+                if (ignoreKey) {
+                  (firstElement, builder)
+                } else {
+                  val withComma = if (firstElement) builder else objectComma(builder)
+                  (false, trav(colon(encloseJsonString(withComma, key)), depth + 1, value))
+                }
+              }
+              ._2
+          )
         }
       )
     }
@@ -195,18 +219,20 @@ object StringEscaping {
     case '\n' => "\\n"
     case '\r' => "\\r"
     case '\t' => "\\t"
-    case possibleUnicode => if (Character.isISOControl(possibleUnicode)) "\\u%04x".format(possibleUnicode.toInt) else possibleUnicode.toString
+    case possibleUnicode =>
+      if (Character.isISOControl(possibleUnicode)) "\\u%04x".format(possibleUnicode.toInt) else possibleUnicode.toString
   }
-  final val isNormalChar: Char => Boolean = char => (char: @switch) match {
-    case '\\' => false
-    case '"' => false
-    case '\b' => false
-    case '\f' => false
-    case '\n' => false
-    case '\r' => false
-    case '\t' => false
-    case possibleUnicode => !Character.isISOControl(possibleUnicode)
-  }
+  final val isNormalChar: Char => Boolean = char =>
+    (char: @switch) match {
+      case '\\' => false
+      case '"' => false
+      case '\b' => false
+      case '\f' => false
+      case '\n' => false
+      case '\r' => false
+      case '\t' => false
+      case possibleUnicode => !Character.isISOControl(possibleUnicode)
+    }
 }
 
 object PrettyParams extends PrettyParamss {
@@ -240,24 +266,24 @@ trait PrettyParamss {
    */
   final val nospace: PrettyParams =
     PrettyParams(
-      indent = ""
-    , lbraceLeft = ""
-    , lbraceRight = ""
-    , rbraceLeft = ""
-    , rbraceRight = ""
-    , lbracketLeft = ""
-    , lbracketRight = ""
-    , rbracketLeft = ""
-    , rbracketRight = ""
-    , lrbracketsEmpty = ""
-    , arrayCommaLeft = ""
-    , arrayCommaRight = ""
-    , objectCommaLeft = ""
-    , objectCommaRight = ""
-    , colonLeft = ""
-    , colonRight = ""
-    , preserveOrder = false
-    , dropNullKeys = false
+      indent = "",
+      lbraceLeft = "",
+      lbraceRight = "",
+      rbraceLeft = "",
+      rbraceRight = "",
+      lbracketLeft = "",
+      lbracketRight = "",
+      rbracketLeft = "",
+      rbracketRight = "",
+      lrbracketsEmpty = "",
+      arrayCommaLeft = "",
+      arrayCommaRight = "",
+      objectCommaLeft = "",
+      objectCommaRight = "",
+      colonLeft = "",
+      colonRight = "",
+      preserveOrder = false,
+      dropNullKeys = false
     )
 
   /**
@@ -265,24 +291,24 @@ trait PrettyParamss {
    */
   final def pretty(indent: String): PrettyParams =
     PrettyParams(
-      indent = indent
-    , lbraceLeft = ""
-    , lbraceRight = "\n"
-    , rbraceLeft = "\n"
-    , rbraceRight = ""
-    , lbracketLeft = ""
-    , lbracketRight = "\n"
-    , rbracketLeft = "\n"
-    , rbracketRight = ""
-    , lrbracketsEmpty = ""
-    , arrayCommaLeft = ""
-    , arrayCommaRight = "\n"
-    , objectCommaLeft = ""
-    , objectCommaRight = "\n"
-    , colonLeft = " "
-    , colonRight = " "
-    , preserveOrder = false
-    , dropNullKeys = false
+      indent = indent,
+      lbraceLeft = "",
+      lbraceRight = "\n",
+      rbraceLeft = "\n",
+      rbraceRight = "",
+      lbracketLeft = "",
+      lbracketRight = "\n",
+      rbracketLeft = "\n",
+      rbracketRight = "",
+      lrbracketsEmpty = "",
+      arrayCommaLeft = "",
+      arrayCommaRight = "\n",
+      objectCommaLeft = "",
+      objectCommaRight = "\n",
+      colonLeft = " ",
+      colonRight = " ",
+      preserveOrder = false,
+      dropNullKeys = false
     )
 
   /**

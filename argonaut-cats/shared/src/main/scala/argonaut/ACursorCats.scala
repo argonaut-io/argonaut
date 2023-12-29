@@ -1,7 +1,5 @@
 package argonaut
 
-object ACursorCats extends ACursorCatss {
-}
+object ACursorCats extends ACursorCatss {}
 
-trait ACursorCatss {
-}
+trait ACursorCatss {}

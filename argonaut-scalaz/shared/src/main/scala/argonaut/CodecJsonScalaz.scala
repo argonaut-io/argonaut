@@ -1,7 +1,5 @@
 package argonaut
 
-object CodecJsonScalaz extends CodecJsonScalazs {
-}
+object CodecJsonScalaz extends CodecJsonScalazs {}
 
-trait CodecJsonScalazs {
-}
+trait CodecJsonScalazs {}
