@@ -9,9 +9,9 @@ object ScalaSettings {
     Seq("-Ywarn-unused:imports")
   }
 
-  def Scala212 = "2.12.18"
-  def Scala213 = "2.13.12"
-  def Scala3 = "3.3.1"
+  def Scala212 = "2.12.19"
+  def Scala213 = "2.13.13"
+  def Scala3 = "3.3.2"
 
   lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala213,
@@ -38,7 +38,7 @@ object ScalaSettings {
     ),
     scalacOptions ++= {
       if (scalaBinaryVersion.value == "2.13") {
-        Seq("-Wconf:msg=constructor modifiers are assumed by synthetic:info")
+        Seq("-Wconf:msg=method are copied from the case class constructor:silent")
       } else {
         Nil
       }
