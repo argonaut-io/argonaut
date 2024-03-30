@@ -179,7 +179,7 @@ val nativeParent = Project(
   noPublish,
   nativeSettings
 ).aggregate(
-  nativeProjects*
+  nativeProjects *
 )
 
 val jvmParent = project
@@ -188,7 +188,7 @@ val jvmParent = project
     noPublish
   )
   .aggregate(
-    jvmProjects.map(p => p: ProjectReference)*
+    jvmProjects.map(p => p: ProjectReference) *
   )
 
 val jsParent = project
@@ -204,7 +204,7 @@ val jsParent = project
     }
   )
   .aggregate(
-    jsProjects.map(p => p: ProjectReference)*
+    jsProjects.map(p => p: ProjectReference) *
   )
 
 base
