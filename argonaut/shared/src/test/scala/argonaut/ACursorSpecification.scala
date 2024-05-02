@@ -101,7 +101,7 @@ object ACursorSpecification extends ArgonautSpec {
     Arbitrary(
       Gen.frequency(
         (9, Gen.oneOf(Down, Up, Left, Right, Delete)),
-        (1, arbitrary[Json] map Set)
+        (1, arbitrary[Json].map(Set.apply))
       )
     )
 
