@@ -158,7 +158,7 @@ object build {
           if (isScala3.value) {
             Nil
           } else {
-            Seq("com.chuusai" %%% "shapeless" % "2.3.10" % "test")
+            Seq("com.chuusai" %%% "shapeless" % "2.3.11" % "test")
           }
         },
         libraryDependencies ++= Seq(
