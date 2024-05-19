@@ -26,7 +26,7 @@ object build {
 
   val scalazVersion = "7.3.8"
   val monocleVersion = "3.2.0"
-  val catsVersion = "2.10.0"
+  val catsVersion = "2.12.0"
 
   private def lastVersion = 9
 
@@ -53,6 +53,10 @@ object build {
   val previousVersions = settingKey[Seq[String]]("")
 
   val nativeSettings = Seq(
+    Test / sources := {
+      // https://github.com/etorreborre/specs2/issues/1239
+      Nil
+    },
     Compile / doc / scalacOptions --= {
       // TODO remove this workaround
       // https://github.com/scala-native/scala-native/issues/2503
@@ -63,27 +67,11 @@ object build {
       }
     },
     previousVersions --= {
-      val last = {
-        if (scalaBinaryVersion.value == "3") {
-          if (name.value == "argonaut") {
-            6
-          } else if (name.value == "argonaut-scalaz") {
-            7
-          } else {
-            lastVersion
-          }
-        } else if (name.value == "argonaut-jawn") {
-          6
-        } else if (name.value == "argonaut-cats") {
-          7
-        } else {
-          2
-        }
-      }
+      val last = 9
       (0 to last).map("6.3." + _),
     },
     mimaPreviousArtifacts := previousVersions.value.map { n =>
-      organization.value %% s"${Keys.name.value}_native0.4" % n
+      organization.value %% s"${Keys.name.value}_native0.5" % n
     }.toSet,
   )
 
@@ -150,15 +138,17 @@ object build {
           }.toSet
         },
       )
-      .settings(
+      .platformsSettings(JVMPlatform, JSPlatform)(
         libraryDependencies += {
           "org.specs2" %%% "specs2-scalacheck" % "4.20.5" % "test"
         },
+      )
+      .settings(
         libraryDependencies ++= {
           if (isScala3.value) {
             Nil
           } else {
-            Seq("com.chuusai" %%% "shapeless" % "2.3.11" % "test")
+            Seq("com.chuusai" %%% "shapeless" % "2.3.12" % "test")
           }
         },
         libraryDependencies ++= Seq(
