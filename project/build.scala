@@ -53,10 +53,6 @@ object build {
   val previousVersions = settingKey[Seq[String]]("")
 
   val nativeSettings = Seq(
-    Test / sources := {
-      // https://github.com/etorreborre/specs2/issues/1239
-      Nil
-    },
     Compile / doc / scalacOptions --= {
       // TODO remove this workaround
       // https://github.com/scala-native/scala-native/issues/2503
@@ -138,9 +134,14 @@ object build {
           }.toSet
         },
       )
-      .platformsSettings(JVMPlatform, JSPlatform)(
+      .settings(
         libraryDependencies += {
-          "org.specs2" %%% "specs2-scalacheck" % "4.20.5" % "test"
+          scalaBinaryVersion.value match {
+            case "3" =>
+              "org.specs2" %%% "specs2-scalacheck" % "4.20.7" % "test"
+            case _ =>
+              "org.specs2" %%% "specs2-scalacheck" % "4.20.6" % "test"
+          }
         },
       )
       .settings(
