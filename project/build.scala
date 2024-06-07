@@ -28,7 +28,7 @@ object build {
   val monocleVersion = "3.2.0"
   val catsVersion = "2.12.0"
 
-  private def lastVersion = 9
+  private def lastVersion = 10
 
   val reflect = Def.setting(
     if (isScala3.value) {
