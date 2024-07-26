@@ -406,7 +406,7 @@ sealed abstract class Json extends Product with Serializable {
    * Attempts to decode this JSON value to another data type.
    */
   def jdecode[A](implicit e: DecodeJson[A]): DecodeResult[A] =
-    e((+this).hcursor)
+    e(+this.hcursor)
 
   /**
    * Attempts to decode this JSON value to another data type, alias for `jdecode`.

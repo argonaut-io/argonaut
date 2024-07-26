@@ -9,8 +9,8 @@ import Scalaz._
 object CursorSpecification extends ArgonautSpec {
   def is = s2"""
   Cursor
-    Json->Cursor->Json                         ${prop((j: Json) => (-(+j)) === j)}
-    Json->Cursor->withFocus                    ${prop((j: Json) => (+j).focus === j)}
+    Json->Cursor->Json                         ${prop((j: Json) => (- +j) === j)}
+    Json->Cursor->withFocus                    ${prop((j: Json) => +j.focus === j)}
     withFocus on focus changes nothing         ${prop((c: Cursor) => c.withFocus(_ => c.focus) === c)}
     withFocus identity changes nothing         ${prop((c: Cursor) => c.withFocus(j => j) === c)}
     >-> aliases withFocus                      ${prop((c: Cursor, f: Json => Json) => (c withFocus f) === (c >-> f))}
