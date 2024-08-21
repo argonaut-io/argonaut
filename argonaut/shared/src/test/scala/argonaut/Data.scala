@@ -182,7 +182,7 @@ object Data {
     Arbitrary(Gen.listOf(arbTuple2[T, U].arbitrary).map(_.toMap))
 
   def jsonObjectGenerator(depth: Int = maxJsonStructureDepth): Gen[JObject] =
-    arbImmutableMap(Arbitrary(arbitrary[String]), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary.map { map =>
+    arbImmutableMap(using Arbitrary(arbitrary[String]), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary.map { map =>
       JObject(JsonObject.fromIterable(map.toList))
     }
 
