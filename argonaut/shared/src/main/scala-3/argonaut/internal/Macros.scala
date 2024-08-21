@@ -70,7 +70,7 @@ object Macros {
     new EncodeJson[A] {
       implicit def self: EncodeJson[A] = this // for recursive type
 
-      private[this] val elemEncoders: Array[EncodeJson[?]] =
+      private val elemEncoders: Array[EncodeJson[?]] =
         Macros.summonEncoders[A.MirroredElemTypes]
 
       override def encode(a: A): Json =
@@ -78,7 +78,7 @@ object Macros {
           createJsonObject(a.asInstanceOf[Product])
         )
 
-      private[this] def createJsonObject(value: Product): JsonObject = {
+      private def createJsonObject(value: Product): JsonObject = {
         def encodeWith(index: Int)(p: Any): (String, Json) = {
           (value.productElementName(index), elemEncoders(index).asInstanceOf[EncodeJson[Any]].apply(p))
         }
@@ -105,12 +105,12 @@ object Macros {
     new DecodeJson[A] {
       implicit def self: DecodeJson[A] = this // for recursive type
 
-      private[this] def decodeWith(index: Int)(c: HCursor): DecodeResult[AnyRef] =
+      private def decodeWith(index: Int)(c: HCursor): DecodeResult[AnyRef] =
         elemDecoders(index).asInstanceOf[DecodeJson[AnyRef]].tryDecode(c.downField(elemLabels(index)))
 
-      private[this] def resultIterator(c: HCursor): Iterator[DecodeResult[AnyRef]] =
+      private def resultIterator(c: HCursor): Iterator[DecodeResult[AnyRef]] =
         new AbstractIterator[DecodeResult[AnyRef]] {
-          private[this] var i: Int = 0
+          private var i: Int = 0
 
           def hasNext: Boolean = i < elemCount
 
@@ -121,12 +121,12 @@ object Macros {
           }
         }
 
-      private[this] val elemLabels = Macros.summonLabels[A.MirroredElemLabels]
+      private val elemLabels = Macros.summonLabels[A.MirroredElemLabels]
 
-      private[this] val elemDecoders: Array[DecodeJson[?]] =
+      private val elemDecoders: Array[DecodeJson[?]] =
         Macros.summonDecoders[A.MirroredElemTypes]
 
-      private[this] val elemCount = elemDecoders.size
+      private val elemCount = elemDecoders.size
 
       override def decode(c: HCursor): DecodeResult[A] = {
         DecodeResult[A] {
