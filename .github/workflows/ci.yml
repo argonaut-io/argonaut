@@ -32,3 +32,22 @@ jobs:
            "+nativeParent/test"
            "project jsParent"
            testSequentialCross
+  latest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/setup-java@6a0805fcefea3d4657a47ac4c165951e33482018 # v4.2.2
+      with:
+        java-version: 21
+        distribution: temurin
+    - uses: coursier/cache-action@142d2738bd29f0eb9d44610828acb3a19809feab # v6.4.6
+    - run: ./sbt -v
+           -jvm-opts .github/workflows/.jvmopts
+           "++ 3.5.1-RC1!"
+           scalafmtCheckAll
+           Test/compile
+           jvmParent/test
+           nativeParent/test
+           "project jsParent"
+           testSequential
