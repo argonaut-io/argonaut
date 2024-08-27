@@ -1,10 +1,10 @@
 package argonaut
 
-import scalaz._
-import scalaz.syntax.foldable._
-import scalaz.syntax.functor._
-import JsonObject._
-import Json._
+import scalaz.*
+import scalaz.syntax.foldable.*
+import scalaz.syntax.functor.*
+import JsonObject.*
+import Json.*
 
 object JsonObjectScalaz extends JsonObjectScalazs {
   def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject = {

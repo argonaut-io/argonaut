@@ -1,6 +1,6 @@
 package argonaut
 
-import cats._
+import cats.*
 
 object JsonNumberCats {
   implicit val JsonNumberEq: Eq[JsonNumber] =

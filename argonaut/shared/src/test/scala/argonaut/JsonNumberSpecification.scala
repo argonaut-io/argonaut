@@ -1,8 +1,8 @@
 package argonaut
 
-import org.scalacheck._
-import Arbitrary._
-import Data._
+import org.scalacheck.*
+import Arbitrary.*
+import Data.*
 
 object JsonNumberSpecification extends ArgonautSpec {
   def is = s2"""

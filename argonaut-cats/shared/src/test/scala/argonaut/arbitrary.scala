@@ -1,7 +1,7 @@
 package argonaut
 
-import org.scalacheck._
-import org.scalacheck.Gen._
+import org.scalacheck.*
+import org.scalacheck.Gen.*
 
 /**
   * Created by luissanchez on 27/01/2016.

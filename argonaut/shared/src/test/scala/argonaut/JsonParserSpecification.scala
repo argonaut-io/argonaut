@@ -1,14 +1,14 @@
 package argonaut
 
-import org.scalacheck.Gen._
+import org.scalacheck.Gen.*
 import org.scalacheck.Gen
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Prop._
-import org.scalacheck.Shrink._
-import org.specs2._
-import org.specs2.matcher._
-import Data._
-import Argonaut._
+import org.scalacheck.Arbitrary.*
+import org.scalacheck.Prop.*
+import org.scalacheck.Shrink.*
+import org.specs2.*
+import org.specs2.matcher.*
+import Data.*
+import Argonaut.*
 
 object JsonParserSpecification extends ArgonautSpec with DataTables with ScalaCheck {
   // Generates chunks of whitespace according to the not at all specified JSON specification.

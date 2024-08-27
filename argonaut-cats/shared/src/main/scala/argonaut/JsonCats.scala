@@ -1,10 +1,10 @@
 package argonaut
 
-import JsonNumberCats._
-import JsonObjectCats._
-import cats._
-import instances.list._
-import syntax.eq._
+import JsonNumberCats.*
+import JsonObjectCats.*
+import cats.*
+import instances.list.*
+import syntax.eq.*
 
 object JsonCats extends JsonCatss {}
 

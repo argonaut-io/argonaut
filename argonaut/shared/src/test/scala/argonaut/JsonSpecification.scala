@@ -1,8 +1,8 @@
 package argonaut
 
-import Data._
-import Json._
-import scalaz.syntax.std.option._
+import Data.*
+import Json.*
+import scalaz.syntax.std.option.*
 
 object JsonSpecification extends ArgonautSpec {
 

@@ -1,9 +1,9 @@
 package argonaut
 
-import argonaut.Argonaut._
+import argonaut.Argonaut.*
 import org.specs2.mutable.Specification
 import argonaut.JsonPath.root
-import argonaut.TestCompat._
+import argonaut.TestCompat.*
 
 class JsonPathSpecification extends Specification {
 

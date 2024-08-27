@@ -1,8 +1,8 @@
 package argonaut
 
 import cats.kernel.laws.discipline.MonoidTests
-import arbitrary._
-import CursorHistoryCats._
+import arbitrary.*
+import CursorHistoryCats.*
 import org.typelevel.discipline.specs2.Discipline
 
 /**

@@ -1,12 +1,12 @@
 package argonaut
 
-import scalaz._
-import org.scalacheck.Arbitrary._
+import scalaz.*
+import org.scalacheck.Arbitrary.*
 import org.scalacheck.Gen.frequency
 import org.scalacheck.Gen.listOfN
-import org.scalacheck.Gen.{const => value}
+import org.scalacheck.Gen.const as value
 import org.scalacheck.Gen.oneOf
-import Json._
+import Json.*
 import org.scalacheck.rng.Seed
 import org.scalacheck.Arbitrary
 import org.scalacheck.Cogen

@@ -1,8 +1,8 @@
-import sbt._
-import Keys._
-import com.jsuereth.sbtpgp.PgpKeys._
-import sbtrelease.ReleasePlugin.autoImport._
-import xerial.sbt.Sonatype.autoImport._
+import sbt.*
+import Keys.*
+import com.jsuereth.sbtpgp.PgpKeys.*
+import sbtrelease.ReleasePlugin.autoImport.*
+import xerial.sbt.Sonatype.autoImport.*
 
 object PublishSettings {
   type Sett = Def.Setting[?]
@@ -15,7 +15,7 @@ object PublishSettings {
     pomIncludeRepository := { _ => false },
     releasePublishArtifactsAction := publishSigned.value,
     releaseProcess := {
-      import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+      import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations.*
       Seq[ReleaseStep](
         checkSnapshotDependencies,
         inquireVersions,

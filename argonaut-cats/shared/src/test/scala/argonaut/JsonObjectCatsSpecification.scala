@@ -1,8 +1,8 @@
 package argonaut
 
-import argonaut.Data._
-import argonaut.JsonObjectCats._
-import cats.syntax.show._
+import argonaut.Data.*
+import argonaut.JsonObjectCats.*
+import cats.syntax.show.*
 
 object JsonObjectCatsSpecification extends ArgonautSpec {
   def is = s2"""

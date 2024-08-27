@@ -1,8 +1,8 @@
 package argonaut
 
-import JsonIdentity._
-import EncodeJsonNumber._
-import Json._
+import JsonIdentity.*
+import EncodeJsonNumber.*
+import Json.*
 
 /**
  * A data type representing possible <a href="http://www.json.org/">JSON</a> values.
@@ -12,7 +12,7 @@ import Json._
  * @author Mark Hibberd
  */
 sealed abstract class Json extends Product with Serializable {
-  import Json._
+  import Json.*
 
   /**
    * The catamorphism for the JSON value data type.

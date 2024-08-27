@@ -1,5 +1,5 @@
-import sbt._
-import Keys._
+import sbt.*
+import Keys.*
 
 object InfoSettings {
   type Sett = Def.Setting[?]

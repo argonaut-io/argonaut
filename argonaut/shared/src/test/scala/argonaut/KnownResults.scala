@@ -1,6 +1,6 @@
 package argonaut
 
-import Json._
+import Json.*
 import org.specs2.matcher.DataTables
 
 object KnownResults extends DataTables {

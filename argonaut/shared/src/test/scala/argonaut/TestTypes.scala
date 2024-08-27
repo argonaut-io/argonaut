@@ -1,8 +1,8 @@
 package argonaut
 
-import scalaz._
-import org.scalacheck._
-import Arbitrary._
+import scalaz.*
+import org.scalacheck.*
+import Arbitrary.*
 
 case class Product(name: String, price: Double)
 case class OrderLine(product: Product, quantity: Int)

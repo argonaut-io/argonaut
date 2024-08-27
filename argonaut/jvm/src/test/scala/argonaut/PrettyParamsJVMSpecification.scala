@@ -1,10 +1,10 @@
 package argonaut
 
-import org.scalacheck.Prop._
+import org.scalacheck.Prop.*
 import org.scalacheck.Gen
 import scala.concurrent.Await
 import scala.concurrent.Future
-import scala.concurrent.duration._
+import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext.Implicits.global
 
 object PrettyParamsJVMSpecification extends ArgonautSpec {

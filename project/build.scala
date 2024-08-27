@@ -1,17 +1,17 @@
-import sbt._
-import Keys._
-import com.jsuereth.sbtpgp.PgpKeys._
+import sbt.*
+import Keys.*
+import com.jsuereth.sbtpgp.PgpKeys.*
 import sbtrelease.ReleasePlugin
-import sbtrelease.ReleasePlugin.autoImport._
-import com.typesafe.tools.mima.plugin.MimaPlugin._
-import com.typesafe.tools.mima.plugin.MimaKeys._
+import sbtrelease.ReleasePlugin.autoImport.*
+import com.typesafe.tools.mima.plugin.MimaPlugin.*
+import com.typesafe.tools.mima.plugin.MimaKeys.*
 import sbtcrossproject.CrossProject
 import sbtcrossproject.Platform
-import sbtcrossproject.CrossPlugin.autoImport._
-import scalajscrossproject.ScalaJSCrossPlugin.autoImport._
-import scalanative.sbtplugin.ScalaNativePlugin.autoImport._
-import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport._
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
+import sbtcrossproject.CrossPlugin.autoImport.*
+import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
+import scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
+import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 
 object build {
   type Sett = Def.Setting[?]

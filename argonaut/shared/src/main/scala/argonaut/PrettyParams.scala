@@ -1,6 +1,6 @@
 package argonaut
 
-import scala.annotation._
+import scala.annotation.*
 
 /**
  * Parameters for pretty-printing a JSON value.
@@ -116,8 +116,8 @@ case class PrettyParams(
    * Returns a string representation of a pretty-printed JSON value.
    */
   final def pretty(j: Json): String = {
-    import Json._
-    import StringEscaping._
+    import Json.*
+    import StringEscaping.*
 
     def appendJsonString(builder: StringBuilder, jsonString: String): StringBuilder = {
       for (ch <- jsonString) {

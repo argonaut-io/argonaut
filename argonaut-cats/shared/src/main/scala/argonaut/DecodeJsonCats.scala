@@ -1,6 +1,6 @@
 package argonaut
 
-import cats.data._
+import cats.data.*
 
 object DecodeJsonCats extends DecodeJsonCatss {}
 

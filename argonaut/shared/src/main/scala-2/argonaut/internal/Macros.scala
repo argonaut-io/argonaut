@@ -1,10 +1,10 @@
 package argonaut.internal
 
-import argonaut._
+import argonaut.*
 
 object Macros extends MacrosCompat {
   def materializeCodecImpl[T: c.WeakTypeTag](c: Context): c.Expr[CodecJson[T]] = {
-    import c.universe._
+    import c.universe.*
     val tpe = weakTypeOf[T]
     val encode = materializeEncodeImpl[T](c)
     val decode = materializeDecodeImpl[T](c)
@@ -14,7 +14,7 @@ object Macros extends MacrosCompat {
   }
 
   def materializeEncodeImpl[T: c.WeakTypeTag](c: Context): c.Expr[EncodeJson[T]] = {
-    import c.universe._
+    import c.universe.*
     val tpe = weakTypeOf[T]
 
     val primaryConstructor = getDeclarations(c)(tpe).collectFirst {
@@ -48,7 +48,7 @@ object Macros extends MacrosCompat {
   }
 
   def materializeDecodeImpl[T: c.WeakTypeTag](c: Context): c.Expr[DecodeJson[T]] = {
-    import c.universe._
+    import c.universe.*
     val tpe = weakTypeOf[T]
 
     val primaryConstructor = getDeclarations(c)(tpe).collectFirst {

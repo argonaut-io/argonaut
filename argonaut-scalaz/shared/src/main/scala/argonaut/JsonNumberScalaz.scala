@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._
+import scalaz.*
 
 object JsonNumberScalaz {
   implicit val JsonNumberEqual: Equal[JsonNumber] =

@@ -1,9 +1,9 @@
 package argonaut
 
-import Data._
-import scalaz._
-import Scalaz._
-import JsonObjectScalaz._
+import Data.*
+import scalaz.*
+import Scalaz.*
+import JsonObjectScalaz.*
 
 object JsonObjectScalazSpecification extends ArgonautSpec {
   def is = s2"""

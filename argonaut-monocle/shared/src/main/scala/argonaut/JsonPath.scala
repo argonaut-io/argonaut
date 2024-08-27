@@ -1,7 +1,7 @@
 package argonaut
 
-import argonaut.JsonMonocle._
-import argonaut.JsonObjectMonocle._
+import argonaut.JsonMonocle.*
+import argonaut.JsonObjectMonocle.*
 import monocle.function.At
 import monocle.function.FilterIndex
 import monocle.function.Index

@@ -2,7 +2,7 @@ package argonaut
 
 import scala.collection.mutable.Builder
 import scala.util.control.Exception.catching
-import Json._
+import Json.*
 import scala.annotation.tailrec
 
 trait DecodeJson[A] {

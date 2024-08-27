@@ -1,10 +1,10 @@
 package argonaut
 
-import argonaut.Argonaut._
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Gen._
-import org.scalacheck.Prop._
-import Data._
+import argonaut.Argonaut.*
+import org.scalacheck.Arbitrary.*
+import org.scalacheck.Gen.*
+import org.scalacheck.Prop.*
+import Data.*
 
 object StringWrapSpecification extends ArgonautSpec {
   case class Person(name: String, age: Int)

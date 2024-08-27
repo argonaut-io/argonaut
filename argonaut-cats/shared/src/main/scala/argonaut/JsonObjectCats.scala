@@ -1,10 +1,10 @@
 package argonaut
 
-import Json._
-import JsonObject._
-import cats._
-import syntax.foldable._
-import syntax.functor._
+import Json.*
+import JsonObject.*
+import cats.*
+import syntax.foldable.*
+import syntax.functor.*
 
 object JsonObjectCats extends JsonObjectCatss {
   def from[F[_]: Foldable](f: F[(JsonField, Json)]): JsonObject = {

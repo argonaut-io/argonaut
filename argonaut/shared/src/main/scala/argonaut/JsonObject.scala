@@ -1,6 +1,6 @@
 package argonaut
 
-import Json._
+import Json.*
 
 /**
  * A mapping from field to JSON value that maintains insertion order.

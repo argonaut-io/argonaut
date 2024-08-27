@@ -1,6 +1,6 @@
 package argonaut
 
-import org.specs2._
+import org.specs2.*
 
 trait ArgonautSpec extends Specification with ScalaCheck {
 

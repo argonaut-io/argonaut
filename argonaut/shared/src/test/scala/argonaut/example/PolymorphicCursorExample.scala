@@ -1,7 +1,7 @@
 package argonaut.example
 
-import argonaut._
-import Argonaut._
+import argonaut.*
+import Argonaut.*
 
 object PolymorphicCursorExample extends ArgonautSpec {
 

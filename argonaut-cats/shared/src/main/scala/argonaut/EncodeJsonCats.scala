@@ -1,8 +1,8 @@
 package argonaut
 
-import Argonaut._
-import cats._
-import data._
+import Argonaut.*
+import cats.*
+import data.*
 
 object EncodeJsonCats extends EncodeJsonCatss {}
 

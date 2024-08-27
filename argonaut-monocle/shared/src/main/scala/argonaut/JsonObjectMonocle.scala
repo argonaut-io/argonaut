@@ -1,6 +1,6 @@
 package argonaut
 
-import argonaut.Json._
+import argonaut.Json.*
 import monocle.function.At
 import monocle.function.Each
 import monocle.function.FilterIndex
@@ -8,7 +8,7 @@ import monocle.function.Index
 import monocle.Lens
 import monocle.Traversal
 import cats.Applicative
-import cats.syntax.all._
+import cats.syntax.all.*
 
 object JsonObjectMonocle extends JsonObjectMonocles
 

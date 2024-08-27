@@ -1,8 +1,8 @@
 package argonaut
 
-import CursorOpElementCats._
-import cats._
-import syntax.show._
+import CursorOpElementCats.*
+import cats.*
+import syntax.show.*
 
 object CursorOpCats extends CursorOpCatss {}
 

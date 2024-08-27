@@ -1,14 +1,14 @@
 package argonaut
 
-import scalaz._
-import std.anyVal._
-import std.list._
-import std.string._
-import syntax.show._
-import syntax.equal._
-import syntax.std.list._
-import JsonScalaz._
-import ContextElementScalaz._
+import scalaz.*
+import std.anyVal.*
+import std.list.*
+import std.string.*
+import syntax.show.*
+import syntax.equal.*
+import syntax.std.list.*
+import JsonScalaz.*
+import ContextElementScalaz.*
 
 object ContextScalaz extends ContextScalazs
 

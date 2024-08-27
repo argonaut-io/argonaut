@@ -1,7 +1,7 @@
 package argonaut
 
-import scalaz._
-import std.string._
+import scalaz.*
+import std.string.*
 
 object DecodeJsonScalaz extends DecodeJsonScalazs {}
 

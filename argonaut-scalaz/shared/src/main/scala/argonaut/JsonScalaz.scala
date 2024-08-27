@@ -1,10 +1,10 @@
 package argonaut
 
-import scalaz._
-import Scalaz._
-import Json._
-import JsonNumberScalaz._
-import JsonObjectScalaz._
+import scalaz.*
+import Scalaz.*
+import Json.*
+import JsonNumberScalaz.*
+import JsonObjectScalaz.*
 
 object JsonScalaz extends JsonScalazs {}
 

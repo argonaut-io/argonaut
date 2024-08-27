@@ -1,6 +1,6 @@
 package argonaut
 
-import scalaz._
+import scalaz.*
 
 object PrettyParamsScalaz extends PrettyParamsScalazs
 
