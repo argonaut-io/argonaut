@@ -1,8 +1,8 @@
 package argonaut
 
 case class ACursor(either: Either[HCursor, HCursor]) {
-  import CursorOp._
-  import Json._
+  import CursorOp.*
+  import Json.*
 
   /** Get the current hcursor if we are in an succeeded state. Alias for `success`. */
   def hcursor: Option[HCursor] =

@@ -1,7 +1,7 @@
 package argonaut
 
-import Json._
-import scalaz._
+import Json.*
+import scalaz.*
 
 object CursorOpElementScalaz extends CursorOpElementScalazs
 

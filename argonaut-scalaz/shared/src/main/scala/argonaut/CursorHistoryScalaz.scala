@@ -1,9 +1,9 @@
 package argonaut
 
-import scalaz._
-import std.list._
-import syntax.equal._
-import CursorOpScalaz._
+import scalaz.*
+import std.list.*
+import syntax.equal.*
+import CursorOpScalaz.*
 
 object CursorHistoryScalaz extends CursorHistoryScalazs
 

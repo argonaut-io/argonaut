@@ -1,9 +1,9 @@
 package argonaut
 
-import argonaut.Data._
-import argonaut.PrettyParamsCats._
+import argonaut.Data.*
+import argonaut.PrettyParamsCats.*
 import monocle.law.discipline.LensTests
-import org.scalacheck.Arbitrary._
+import org.scalacheck.Arbitrary.*
 
 object PrettyParamsMonocleSpecification extends ArgonautSpec {
   def is = s2"""

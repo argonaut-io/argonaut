@@ -1,8 +1,8 @@
 package argonaut
 
-import scalaz._
-import syntax.show._
-import CursorOpElementScalaz._
+import scalaz.*
+import syntax.show.*
+import CursorOpElementScalaz.*
 
 object CursorOpScalaz extends CursorOpScalazs {}
 

@@ -1,6 +1,6 @@
 package argonaut
 
-import Data._
+import Data.*
 
 object JsonObjectSpecification extends ArgonautSpec {
   def is = s2"""

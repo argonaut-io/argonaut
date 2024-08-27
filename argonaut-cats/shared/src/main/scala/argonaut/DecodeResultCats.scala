@@ -1,12 +1,12 @@
 package argonaut
 
-import CursorHistoryCats._
-import cats._
-import instances.tuple._
-import instances.either._
-import instances.string._
-import instances.eq._
-import syntax.contravariant._
+import CursorHistoryCats.*
+import cats.*
+import instances.tuple.*
+import instances.either.*
+import instances.string.*
+import instances.eq.*
+import syntax.contravariant.*
 
 object DecodeResultCats extends DecodeResultCatss {}
 

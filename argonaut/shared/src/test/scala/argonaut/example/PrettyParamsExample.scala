@@ -1,8 +1,8 @@
 package argonaut.example
 
-import argonaut.TestCompat._
-import argonaut._
-import Argonaut._
+import argonaut.TestCompat.*
+import argonaut.*
+import Argonaut.*
 
 object PrettyParamsExample extends ArgonautSpec {
 

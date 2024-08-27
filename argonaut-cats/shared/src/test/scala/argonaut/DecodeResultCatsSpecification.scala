@@ -1,10 +1,10 @@
 package argonaut
 
-import arbitrary._
-import DecodeResultCats._
+import arbitrary.*
+import DecodeResultCats.*
 import cats.laws.discipline.MonadTests
-import org.scalacheck._
-import org.scalacheck.Arbitrary._
+import org.scalacheck.*
+import org.scalacheck.Arbitrary.*
 import org.typelevel.discipline.specs2.Discipline
 
 /**

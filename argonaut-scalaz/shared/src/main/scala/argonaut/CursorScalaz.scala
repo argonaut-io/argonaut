@@ -1,14 +1,14 @@
 package argonaut
 
-import scalaz._
-import syntax.show._
-import syntax.equal._
-import std.string._
-import std.list._
-import Json._
-import JsonScalaz._
-import JsonObjectScalaz._
-import ContextScalaz._
+import scalaz.*
+import syntax.show.*
+import syntax.equal.*
+import std.string.*
+import std.list.*
+import Json.*
+import JsonScalaz.*
+import JsonObjectScalaz.*
+import ContextScalaz.*
 
 object CursorScalaz extends CursorScalazs {}
 

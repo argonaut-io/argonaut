@@ -1,6 +1,6 @@
 package argonaut
 
-import argonaut.Argonaut._
+import argonaut.Argonaut.*
 import org.specs2.specification.core.Fragments
 import JsonFilesSpecBase.TestData
 

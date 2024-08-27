@@ -1,9 +1,9 @@
 package argonaut
 
-import argonaut.TestCompat._
-import Data._
-import org.scalacheck._
-import Arbitrary._
+import argonaut.TestCompat.*
+import Data.*
+import org.scalacheck.*
+import Arbitrary.*
 import org.specs2.scalacheck.ScalaCheckFunction1
 
 object CodecSpecification extends ArgonautSpec {
@@ -49,8 +49,8 @@ object CodecSpecification extends ArgonautSpec {
     Tuple2[String, Int] encode/decode ${encodedecode[Tuple2[String, Int]]}
     Tuple3[String, Int, Boolean] encode/decode ${encodedecode[Tuple3[String, Int, Boolean]]}
     Tuple4[String, Int, Boolean, Long] encode/decode ${encodedecode[Tuple4[String, Int, Boolean, Long]]}
-    22 field class with codec ${import CodecInstances._; encodedecode[TestClass]}
-    22 field class with codec derived ${import EncodeDecodeInstances._; encodedecode[TestClass]}
+    22 field class with codec ${import CodecInstances.*; encodedecode[TestClass]}
+    22 field class with codec derived ${import EncodeDecodeInstances.*; encodedecode[TestClass]}
     CodecJson[Person] derived ${derived.testDerivedPerson}
     CodecJson[BackTicks] derived ${derived.testDerivedBackTicks}
     CodecJson[Shape] derived ${derived.testDerivedShape}
@@ -192,7 +192,7 @@ object CodecSpecification extends ArgonautSpec {
   }
 
   object derived {
-    import TestTypes._
+    import TestTypes.*
 
     val shapeDecodeJson: DecodeJson[Shape] = DecodeJson.derive[Circle] ||| DecodeJson.derive[Square]
     val circleEncodeJson: EncodeJson[Circle] = EncodeJson.derive[Circle]

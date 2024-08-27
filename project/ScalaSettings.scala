@@ -1,6 +1,6 @@
-import sbt._
-import Keys._
-import org.ensime.EnsimeKeys._
+import sbt.*
+import Keys.*
+import org.ensime.EnsimeKeys.*
 
 object ScalaSettings {
   type Sett = Def.Setting[?]

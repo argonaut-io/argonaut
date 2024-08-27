@@ -1,11 +1,11 @@
 package argonaut
 
-import ContextElementCats._
-import JsonCats._
-import cats._
-import instances.all._
-import syntax.eq._
-import syntax.show._
+import ContextElementCats.*
+import JsonCats.*
+import cats.*
+import instances.all.*
+import syntax.eq.*
+import syntax.show.*
 
 object ContextCats extends ContextCatss
 

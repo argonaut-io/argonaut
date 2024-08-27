@@ -1,10 +1,10 @@
 package argonaut
 
-import argonaut.TestCompat._
+import argonaut.TestCompat.*
 import scala.util.Try
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
-import Argonaut._
+import Argonaut.*
 
 object JawnParserSpecification {
   case class Example(a: Int, b: Long, c: Double)
@@ -22,7 +22,7 @@ object JawnParserSpecification {
 }
 
 class JawnParserSpecification extends ArgonautSpec {
-  import JawnParserSpecification._
+  import JawnParserSpecification.*
   import JawnParser.facade
 
   def is = s2"""

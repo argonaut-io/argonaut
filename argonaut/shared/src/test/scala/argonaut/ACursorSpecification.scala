@@ -1,11 +1,11 @@
 package argonaut
 
-import org.scalacheck._
-import Prop._
-import Arbitrary._
-import Gen._
-import Data._
-import Argonaut._
+import org.scalacheck.*
+import Prop.*
+import Arbitrary.*
+import Gen.*
+import Data.*
+import Argonaut.*
 
 object ACursorSpecification extends ArgonautSpec {
   def is = s2"""

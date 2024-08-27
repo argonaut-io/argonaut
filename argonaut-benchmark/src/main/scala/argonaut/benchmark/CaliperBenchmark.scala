@@ -1,10 +1,10 @@
 package argonaut.benchmark
 
-import com.google.caliper._
-import argonaut._
-import Argonaut._
+import com.google.caliper.*
+import argonaut.*
+import Argonaut.*
 import com.fasterxml.jackson.core.TreeNode
-import com.fasterxml.jackson.core.{JsonFactory => JacksonJsonFactory}
+import com.fasterxml.jackson.core.JsonFactory as JacksonJsonFactory
 
 // Stolen conveniently from
 // https://github.com/sirthias/scala-benchmarking-template/blob/master/src/main/scala/org/example/SimpleScalaBenchmark.scala.

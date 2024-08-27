@@ -1,7 +1,7 @@
 package argonaut
 
 import scala.annotation.tailrec
-import Json._
+import Json.*
 import java.lang.StringBuilder
 import scala.collection.mutable.Builder
 

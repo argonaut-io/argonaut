@@ -1,9 +1,9 @@
 package argonaut
 
-import argonaut.JsonScalaz._
-import org.scalacheck._
-import scalaz.Scalaz._
-import scalaz._
+import argonaut.JsonScalaz.*
+import org.scalacheck.*
+import scalaz.Scalaz.*
+import scalaz.*
 import Data.ArbitraryJson
 
 object JsonScalazSpecification extends ArgonautSpec {

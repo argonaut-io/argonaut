@@ -1,10 +1,10 @@
 package argonaut
 
-import argonaut.Data._
-import argonaut.JsonMonocle._
-import argonaut.JsonNumberCats._
-import argonaut.JsonObjectCats._
-import argonaut.JsonCats._
+import argonaut.Data.*
+import argonaut.JsonMonocle.*
+import argonaut.JsonNumberCats.*
+import argonaut.JsonObjectCats.*
+import argonaut.JsonCats.*
 import monocle.function.Plated
 import monocle.law.discipline.PrismTests
 import monocle.law.discipline.TraversalTests

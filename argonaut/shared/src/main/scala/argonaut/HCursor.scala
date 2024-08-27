@@ -1,7 +1,7 @@
 package argonaut
 
 case class HCursor(cursor: Cursor, history: CursorHistory) {
-  import Json._
+  import Json.*
 
   def acursor: ACursor =
     ACursor.ok(this)

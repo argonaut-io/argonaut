@@ -1,8 +1,8 @@
 package argonaut
 
-import Json._
-import JsonIdentity._
-import EncodeJsonNumber._
+import Json.*
+import JsonIdentity.*
+import EncodeJsonNumber.*
 
 /**
  * Encode an arbitrary value as a JSON value.

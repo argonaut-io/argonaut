@@ -1,13 +1,13 @@
 package argonaut
 
-import ContextCats._
-import JsonCats._
-import JsonObjectCats._
-import cats._
-import instances.list._
-import instances.string._
-import syntax.eq._
-import syntax.show._
+import ContextCats.*
+import JsonCats.*
+import JsonObjectCats.*
+import cats.*
+import instances.list.*
+import instances.string.*
+import syntax.eq.*
+import syntax.show.*
 
 object CursorCats extends CursorCatss {}
 

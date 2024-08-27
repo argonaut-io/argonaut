@@ -1,9 +1,9 @@
 package argonaut
 
-import scalaz._
-import Isomorphism._
-import Scalaz._
-import CursorHistoryScalaz._
+import scalaz.*
+import Isomorphism.*
+import Scalaz.*
+import CursorHistoryScalaz.*
 
 object DecodeResultScalaz extends DecodeResultScalazs {}
 

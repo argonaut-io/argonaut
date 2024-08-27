@@ -1,6 +1,6 @@
 package argonaut
 
-import Json._
+import Json.*
 
 sealed abstract class Context {
   val toList: List[ContextElement]

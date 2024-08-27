@@ -1,8 +1,8 @@
 package argonaut.example
 
-import argonaut._
-import Argonaut._
-import scalaz.syntax.std.option._
+import argonaut.*
+import Argonaut.*
+import scalaz.syntax.std.option.*
 
 object CodecExample extends ArgonautSpec {
   case class Person(name: String, age: Int)

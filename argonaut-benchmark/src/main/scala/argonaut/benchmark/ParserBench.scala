@@ -1,7 +1,7 @@
 package argonaut
 package benchmark
 
-import Argonaut._
+import Argonaut.*
 
 object ParserBench {
   def parse(json: String, count: Int) = {

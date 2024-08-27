@@ -1,8 +1,8 @@
 package argonaut
 
-import org.scalacheck._
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Prop._
+import org.scalacheck.*
+import org.scalacheck.Arbitrary.*
+import org.scalacheck.Prop.*
 
 /**
   * Created by luissanchez on 27/01/2016.

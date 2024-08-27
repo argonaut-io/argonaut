@@ -1,13 +1,13 @@
 package argonaut
 
-import argonaut.Json._
-import argonaut.JsonObjectMonocle._
+import argonaut.Json.*
+import argonaut.JsonObjectMonocle.*
 import monocle.function.Each
 import monocle.function.Plated
 import monocle.Prism
 import monocle.Traversal
 import cats.Applicative
-import cats.syntax.all._
+import cats.syntax.all.*
 
 object JsonMonocle extends JsonMonocles
 

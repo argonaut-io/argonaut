@@ -1,6 +1,6 @@
 package argonaut
 
-import Argonaut._
+import Argonaut.*
 
 object CodecOptionSpecification extends ArgonautSpec {
   case class Thing(value: Option[String])

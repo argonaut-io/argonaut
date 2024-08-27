@@ -1,6 +1,6 @@
 package argonaut
 
-import Argonaut._
+import Argonaut.*
 
 object CodecNumberSpecification extends ArgonautSpec {
 

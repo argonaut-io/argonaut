@@ -1,4 +1,4 @@
-import sbt._
+import sbt.*
 
 object Boilerplate {
   val arities = 1 to 22

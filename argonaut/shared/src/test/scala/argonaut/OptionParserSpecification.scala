@@ -1,6 +1,6 @@
 package argonaut
 
-import argonaut.Argonaut._
+import argonaut.Argonaut.*
 
 object OptionParserSpecification extends ArgonautSpec {
   def is = s2"""
