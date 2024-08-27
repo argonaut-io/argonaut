@@ -2,7 +2,6 @@ package argonaut
 
 import arbitrary._
 import DecodeResultCats._
-import cats.instances.all._
 import cats.laws.discipline.MonadTests
 import org.scalacheck._
 import org.scalacheck.Arbitrary._
