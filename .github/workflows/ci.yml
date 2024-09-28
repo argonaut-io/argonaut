@@ -51,3 +51,21 @@ jobs:
            nativeParent/test
            "project jsParent"
            testSequential
+  wasm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+    - uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88 # v4.3.0
+      with:
+        java-version: 21
+        distribution: temurin
+    - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+      with:
+        node-version: 22
+    - uses: coursier/cache-action@142d2738bd29f0eb9d44610828acb3a19809feab # v6.4.6
+    - run: ./sbt -v
+           -jvm-opts .github/workflows/.jvmopts
+           -Dscala_js_wasm
+           "project jsParent"
+           testSequential

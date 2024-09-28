@@ -12,6 +12,7 @@ import scalajscrossproject.ScalaJSCrossPlugin.autoImport.*
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
 import scalanativecrossproject.ScalaNativeCrossPlugin.autoImport.*
 import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 
 object build {
   type Sett = Def.Setting[?]
@@ -161,6 +162,26 @@ object build {
         mimaPreviousArtifacts := previousVersions.value.map { n =>
           organization.value %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
+        if (sys.props.isDefinedAt("scala_js_wasm")) {
+          Def.settings(
+            scalaJSLinkerConfig ~= (_.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)),
+            jsEnv := {
+              import org.scalajs.jsenv.nodejs.NodeJSEnv
+              val config = NodeJSEnv
+                .Config()
+                .withArgs(
+                  List(
+                    "--experimental-wasm-exnref",
+                    "--experimental-wasm-imported-strings",
+                    "--turboshaft-wasm",
+                  )
+                )
+              new NodeJSEnv(config)
+            },
+          )
+        } else {
+          Def.settings()
+        },
         scalacOptions += {
           val a = (LocalRootProject / baseDirectory).value.toURI.toString
           val g = "https://raw.githubusercontent.com/argonaut-io/argonaut/" + tagOrHash.value
