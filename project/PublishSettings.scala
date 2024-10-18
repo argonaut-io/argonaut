@@ -23,7 +23,7 @@ object PublishSettings {
         setReleaseVersion,
         commitReleaseVersion,
         tagRelease,
-        publishArtifacts,
+        releaseStepCommandAndRemaining("+ publishSigned"),
         releaseStepCommandAndRemaining("sonatypeBundleRelease"),
         setNextVersion,
         commitNextVersion,

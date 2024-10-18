@@ -112,7 +112,7 @@ val argonautJawnJVM = argonautJawn.jvm
 val argonautJawnJS = argonautJawn.js.settings(
   mimaPreviousArtifacts := {
     mimaPreviousArtifacts.value -- (0 to 5).map { n =>
-      organization.value %% s"${Keys.name.value}_sjs1" % s"6.3.${n}"
+      oldGroupId %% s"${Keys.name.value}_sjs1" % s"6.3.${n}"
     }
   }
 )
@@ -214,3 +214,4 @@ PublishSettings.all
 noPublish
 name := "argonaut-parent"
 run / fork := true
+ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeCentralHost

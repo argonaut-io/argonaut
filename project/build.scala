@@ -17,12 +17,14 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 object build {
   type Sett = Def.Setting[?]
 
+  def oldGroupId: String = "io.argonaut"
+
   val isScala3 = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
   )
 
   val base = ScalaSettings.all ++ Seq[Sett](
-    organization := "io.argonaut"
+    organization := "io.github.argonaut-io"
   )
 
   val scalazVersion = "7.3.8"
@@ -68,7 +70,7 @@ object build {
       (0 to last).map("6.3." + _),
     },
     mimaPreviousArtifacts := previousVersions.value.map { n =>
-      organization.value %% s"${Keys.name.value}_native0.5" % n
+      oldGroupId %% s"${Keys.name.value}_native0.5" % n
     }.toSet,
   )
 
@@ -131,7 +133,7 @@ object build {
         (Test / baseDirectory) := (LocalRootProject / baseDirectory).value,
         mimaPreviousArtifacts := {
           previousVersions.value.map { n =>
-            organization.value %% Keys.name.value % n
+            oldGroupId %% Keys.name.value % n
           }.toSet
         },
       )
@@ -160,7 +162,7 @@ object build {
       .jsSettings(
         Test / parallelExecution := false,
         mimaPreviousArtifacts := previousVersions.value.map { n =>
-          organization.value %% s"${Keys.name.value}_sjs1" % n
+          oldGroupId %% s"${Keys.name.value}_sjs1" % n
         }.toSet,
         if (sys.props.isDefinedAt("scala_js_wasm")) {
           Def.settings(
