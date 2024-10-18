@@ -1,6 +1,6 @@
 # Argonaut
 
-[![Join the chat at https://gitter.im/argonaut-io/argonaut](https://badges.gitter.im/argonaut-io/argonaut.svg)](https://gitter.im/argonaut-io/argonaut?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![argonaut Scala version support](https://index.scala-lang.org/argonaut-io/argonaut/argonaut/latest-by-scala-version.svg)](https://index.scala-lang.org/argonaut-io/argonaut/argonaut)
+[![argonaut Scala version support](https://index.scala-lang.org/argonaut-io/argonaut/argonaut/latest-by-scala-version.svg)](https://index.scala-lang.org/argonaut-io/argonaut/argonaut)
 
 
 ### What is Argonaut?
