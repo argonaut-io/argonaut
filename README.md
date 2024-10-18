@@ -13,7 +13,7 @@ Argonaut is licenced under BSD3 (see `LICENCE`). See more at [http://argonaut.io
 ### Documentation
 
 * [User Docs](http://argonaut.io/doc/)
-* [Scala Docs](https://javadoc.io/doc/io.argonaut/argonaut_2.13/latest/index.html)
+* [Scala Docs](https://javadoc.io/doc/io.github.argonaut-io/argonaut_2.13/latest/index.html)
 * [Examples](https://github.com/argonaut-io/argonaut/tree/master/argonaut/shared/src/test/scala/argonaut/example)
 
 
@@ -24,7 +24,7 @@ Just add argonaut as a dependency.
 Stable:
 
 ```scala
-libraryDependencies += "io.argonaut" %% "argonaut" % "6.3.9"
+libraryDependencies += "io.github.argonaut-io" %% "argonaut" % "6.3.11"
 ```
 
 Note that the 6.2.x releases supports scala `2.11.*`, `2.12.*` and `2.13.*` with scalaz `7.2.*`.
