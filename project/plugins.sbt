@@ -18,4 +18,4 @@ addSbtPlugin("org.ensime" % "sbt-ensime" % "2.6.1")
 
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.12.2")
 
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.2")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.5.3")
