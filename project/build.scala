@@ -29,7 +29,7 @@ object build {
 
   val scalazVersion = "7.3.8"
   val monocleVersion = "3.3.0"
-  val catsVersion = "2.12.0"
+  val catsVersion = "2.13.0"
 
   private def lastVersion = 10
 
