@@ -4,7 +4,6 @@ import org.scalacheck.Prop.*
 import Data.*
 import Argonaut.*
 import scalaz.*
-import Scalaz.*
 
 object CursorSpecification extends ArgonautSpec {
   def is = s2"""

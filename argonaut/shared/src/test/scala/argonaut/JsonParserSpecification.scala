@@ -2,7 +2,6 @@ package argonaut
 
 import org.scalacheck.Gen.*
 import org.scalacheck.Gen
-import org.scalacheck.Arbitrary.*
 import org.scalacheck.Prop.*
 import org.scalacheck.Shrink.*
 import org.specs2.*
