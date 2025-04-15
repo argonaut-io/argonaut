@@ -18,7 +18,7 @@ jobs:
           - java: 11
     steps:
     - uses: actions/checkout@v4
-    - uses: olafurpg/setup-scala@v10
+    - uses: olafurpg/setup-scala@v14
       with:
         java-version: "adopt@1.${{ matrix.java }}"
     - uses: coursier/cache-action@v6
