@@ -33,7 +33,7 @@ jobs:
           *)
             sbt -v \
             "+mimaReportBinaryIssues" \
-            "+test:compile" \
+            "+Test/compile" \
             "+jvmParent/test" \
             "project jsParent" \
             testSequentialCross
