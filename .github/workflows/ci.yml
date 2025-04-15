@@ -3,8 +3,6 @@ on:
   pull_request:
   push:
     branches: [ "series/6.2.x" ]
-  schedule:
-  - cron: '0 13 * * 4'
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -23,6 +21,7 @@ jobs:
         java-version: ${{matrix.java}}
         distribution: temurin
     - uses: coursier/cache-action@v6
+    - uses: sbt/setup-sbt@v1
     - run: |
         case "${{ matrix.name }}" in
           "scala-native")
