@@ -18,9 +18,10 @@ jobs:
           - java: 11
     steps:
     - uses: actions/checkout@v4
-    - uses: olafurpg/setup-scala@v10
+    - uses: actions/setup-java@v4
       with:
-        java-version: "adopt@1.${{ matrix.java }}"
+        java-version: ${{matrix.java}}
+        distribution: temurin
     - uses: coursier/cache-action@v6
     - run: |
         case "${{ matrix.name }}" in
