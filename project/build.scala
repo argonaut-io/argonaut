@@ -111,7 +111,7 @@ object build {
         libraryDependencies += {
           scalaBinaryVersion.value match {
             case "3" =>
-              "org.specs2" %%% "specs2-scalacheck" % "5.6.1" % "test"
+              "org.specs2" %%% "specs2-scalacheck" % "5.6.2" % "test"
             case _ =>
               "org.specs2" %%% "specs2-scalacheck" % "4.21.0" % "test"
           }
