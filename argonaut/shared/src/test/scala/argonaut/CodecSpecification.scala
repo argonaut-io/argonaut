@@ -203,7 +203,7 @@ object CodecSpecification extends ArgonautSpec {
         case s: Square => squareEncodeJson(s)
       }
     }
-    implicit val shapeCodecJson: CodecJson[Shape] = CodecJson.derived(shapeEncodeJson, shapeDecodeJson)
+    implicit val shapeCodecJson: CodecJson[Shape] = CodecJson.derived(using shapeEncodeJson, shapeDecodeJson)
 
     implicit def ProductCodecJson: CodecJson[Product] = CodecJson.derive[Product]
     implicit def OrderLineCodecJson: CodecJson[OrderLine] = CodecJson.derive[OrderLine]

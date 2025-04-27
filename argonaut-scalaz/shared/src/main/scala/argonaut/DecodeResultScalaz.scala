@@ -56,7 +56,7 @@ trait DecodeResultScalazs {
 
   implicit def DecodeResultEqual[A: Equal]: Equal[DecodeResult[A]] =
     new IsomorphismEqual[DecodeResult[A], DecodeEither[A]] {
-      def G = eitherEqual[(String, CursorHistory), A](implicitly, implicitly)
+      def G = eitherEqual[(String, CursorHistory), A]
       def iso = decodeResultIsoSet
     }
 
