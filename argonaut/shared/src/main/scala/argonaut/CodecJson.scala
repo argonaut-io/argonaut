@@ -16,16 +16,16 @@ sealed abstract class CodecJson[A] extends EncodeJson[A] with DecodeJson[A] { ou
   override def tryDecode(c: ACursor) = Decoder.tryDecode(c)
 
   def xmap[B](f: A => B)(g: B => A): CodecJson[B] = {
-    CodecJson.derived(Encoder.contramap(g), Decoder.map(f))
+    CodecJson.derived(using Encoder.contramap(g), Decoder.map(f))
   }
 }
 
 object CodecJson extends CodecJsons with CodecJsonMacro {
   def apply[A](encoder: A => Json, decoder: HCursor => DecodeResult[A]): CodecJson[A] =
-    derived(EncodeJson(encoder), DecodeJson(decoder))
+    derived(using EncodeJson(encoder), DecodeJson(decoder))
 
   def withReattempt[A](encoder: A => Json, decoder: ACursor => DecodeResult[A]): CodecJson[A] =
-    derived(EncodeJson(encoder), DecodeJson.withReattempt(decoder))
+    derived(using EncodeJson(encoder), DecodeJson.withReattempt(decoder))
 
   def derived[A](implicit E: EncodeJson[A], D: DecodeJson[A]): CodecJson[A] = {
     new CodecJson[A] {

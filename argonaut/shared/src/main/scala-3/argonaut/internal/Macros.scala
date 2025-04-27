@@ -96,7 +96,7 @@ object Macros {
     }
 
   inline def derivedCodec[A](using A: Mirror.ProductOf[A]): CodecJson[A] =
-    CodecJson.derived[A](
+    CodecJson.derived[A](using
       E = derivedEncoder[A],
       D = derivedDecoder[A],
     )
