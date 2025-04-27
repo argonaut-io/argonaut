@@ -37,16 +37,14 @@ object ACursorSpecification extends ArgonautSpec {
   def reattemptAfterFailure = prop((j: Json) => {
     forAll((op: List[TestOp]) => {
       val r = op.foldLeft(j.acursor)((acc, op) => step(acc, op))
-      r.history.toList.inits.toList.forall(paths =>
-        paths match {
-          case init :+ penultimate :+ last =>
-            last.succeeded || last.isReattempt || penultimate.isReattempt
-          case init :+ last =>
-            last.succeeded || last.isReattempt || init.isEmpty
-          case _ =>
-            true
-        }
-      )
+      r.history.toList.inits.toList.forall {
+        case init :+ penultimate :+ last =>
+          last.succeeded || last.isReattempt || penultimate.isReattempt
+        case init :+ last =>
+          last.succeeded || last.isReattempt || init.isEmpty
+        case _ =>
+          true
+      }
     })
   })
 
