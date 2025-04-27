@@ -197,11 +197,9 @@ object CodecSpecification extends ArgonautSpec {
     val shapeDecodeJson: DecodeJson[Shape] = DecodeJson.derive[Circle] ||| DecodeJson.derive[Square]
     val circleEncodeJson: EncodeJson[Circle] = EncodeJson.derive[Circle]
     val squareEncodeJson: EncodeJson[Square] = EncodeJson.derive[Square]
-    val shapeEncodeJson: EncodeJson[Shape] = EncodeJson { shape =>
-      shape match {
-        case c: Circle => circleEncodeJson(c)
-        case s: Square => squareEncodeJson(s)
-      }
+    val shapeEncodeJson: EncodeJson[Shape] = EncodeJson {
+      case c: Circle => circleEncodeJson(c)
+      case s: Square => squareEncodeJson(s)
     }
     implicit val shapeCodecJson: CodecJson[Shape] = CodecJson.derived(using shapeEncodeJson, shapeDecodeJson)
 
