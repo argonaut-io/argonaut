@@ -214,4 +214,3 @@ PublishSettings.all
 noPublish
 name := "argonaut-parent"
 run / fork := true
-ThisBuild / sonatypeCredentialHost := Sonatype.sonatypeCentralHost
