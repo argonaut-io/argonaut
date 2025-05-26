@@ -33,15 +33,6 @@ Note that the 6.3.x releases supports scala `2.12.*`, `2.13.*` and `3.x` with sc
 
 ### Release
 
-Add to `~/.sbt/1.0/sonatype.sbt`
-
-
-    credentials += Credentials("Sonatype Nexus Repository Manager",
-                               "oss.sonatype.org",
-                               "<username>",
-                               "<password>")
-
-
 For a snapshot build run:
     ./sbt +publish
 
