@@ -23,7 +23,6 @@ object PublishSettings {
         commitReleaseVersion,
         tagRelease,
         releaseStepCommandAndRemaining("+ publishSigned"),
-        releaseStepCommandAndRemaining("sonaUpload"),
         releaseStepCommandAndRemaining("sonaRelease"),
         setNextVersion,
         commitNextVersion,
