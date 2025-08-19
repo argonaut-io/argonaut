@@ -1,6 +1,5 @@
 import sbt.*
 import Keys.*
-import org.ensime.EnsimeKeys.*
 
 object ScalaSettings {
   type Sett = Def.Setting[?]
@@ -16,7 +15,6 @@ object ScalaSettings {
   lazy val all: Seq[Sett] = Def.settings(
     scalaVersion := Scala213,
     crossScalaVersions := Seq(Scala212, Scala213, Scala3),
-    ensimeScalaVersion := Scala212,
     scalacOptions ++= {
       if (build.isScala3.value) {
         Seq(
