@@ -20,7 +20,7 @@ jobs:
       with:
         java-version: ${{matrix.java}}
         distribution: temurin
-    - uses: coursier/cache-action@v6
+    - uses: coursier/cache-action@v7
     - uses: sbt/setup-sbt@v1
     - run: |
         case "${{ matrix.name }}" in
