@@ -18,6 +18,7 @@ object ScalaSettings {
     scalacOptions ++= {
       if (build.isScala3.value) {
         Seq(
+          "-Wconf:msg=Implicit parameters should be provided with a `using` clause:error"
         )
       } else {
         Seq(

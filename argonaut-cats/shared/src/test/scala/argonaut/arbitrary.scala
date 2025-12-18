@@ -42,5 +42,8 @@ object arbitrary {
       generated <- Gen.oneOf(Left((string, cursorHistory)), Right(a))
     } yield DecodeResult(generated)
 
-  implicit def decodeResultArb[A](implicit GenA: Gen[A]): Arbitrary[DecodeResult[A]] = Arbitrary(decodeResultGen(GenA))
+  implicit def decodeResultArb[A](implicit GenA: Gen[A]): Arbitrary[DecodeResult[A]] =
+    Arbitrary(
+      decodeResultGen(using GenA)
+    )
 }

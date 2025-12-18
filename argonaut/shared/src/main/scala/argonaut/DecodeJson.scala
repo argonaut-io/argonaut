@@ -383,7 +383,7 @@ trait DecodeJsons extends GeneratedDecodeJsons {
                   for {
                     mm <- m
                     k <- dk.decodeJson(jString(h))
-                    v <- a.get(h)(dv)
+                    v <- a.get(h)(using dv)
                   } yield mm + ((k, v))
                 )
               }

@@ -16,15 +16,15 @@ object PolymorphicHibridExample extends ArgonautSpec {
     CodecJson(
       (a: Animal) =>
         a match {
-          case dog @ Dog(_) => Json("type" -> jString("dog"), "value" -> dog.asJson(CodecDog.Encoder))
-          case cat @ Cat(_) => Json("type" -> jString("cat"), "value" -> cat.asJson(CodecCat.Encoder))
+          case dog @ Dog(_) => Json("type" -> jString("dog"), "value" -> dog.asJson(using CodecDog.Encoder))
+          case cat @ Cat(_) => Json("type" -> jString("cat"), "value" -> cat.asJson(using CodecCat.Encoder))
         },
       c =>
         for {
           klass <- (c --\ "type").as[String]
           result <- klass match {
-            case "dog" => for { value <- (c --\ "value").jdecode(CodecDog.Decoder) } yield value
-            case "cat" => for { value <- (c --\ "value").jdecode(CodecCat.Decoder) } yield value
+            case "dog" => for { value <- (c --\ "value").jdecode(using CodecDog.Decoder) } yield value
+            case "cat" => for { value <- (c --\ "value").jdecode(using CodecCat.Decoder) } yield value
           }
         } yield result
     )
