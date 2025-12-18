@@ -176,7 +176,7 @@ object Data {
   }
 
   def jsonObjectFieldsGenerator(depth: Int = maxJsonStructureDepth): Gen[Seq[(JString, Json)]] =
-    listOfN(5, arbTuple2(Arbitrary(jsonStringGenerator), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary)
+    listOfN(5, arbTuple2(using Arbitrary(jsonStringGenerator), Arbitrary(jsonValueGenerator(depth - 1))).arbitrary)
 
   private def arbImmutableMap[T: Arbitrary, U: Arbitrary]: Arbitrary[Map[T, U]] =
     Arbitrary(Gen.listOf(arbTuple2[T, U].arbitrary).map(_.toMap))
@@ -208,8 +208,10 @@ object Data {
 
   def objectsOfObjectsGenerator(depth: Int = maxJsonStructureDepth): Gen[Json] = {
     if (depth > 1) {
-      listOfN(2, arbTuple2(Arbitrary(arbitrary[String]), Arbitrary(objectsOfObjectsGenerator(depth - 1))).arbitrary)
-        .map(fields => JObject(JsonObject.fromIterable(fields)))
+      listOfN(
+        2,
+        arbTuple2(using Arbitrary(arbitrary[String]), Arbitrary(objectsOfObjectsGenerator(depth - 1))).arbitrary
+      ).map(fields => JObject(JsonObject.fromIterable(fields)))
     } else {
       oneOf(jsonNumberGenerator, jsonStringGenerator, jsonBoolGenerator, jsonNothingGenerator)
     }
