@@ -5,7 +5,7 @@ import scala.util.control.Exception.catching
 import Json.*
 import scala.annotation.tailrec
 
-trait DecodeJson[A] {
+trait DecodeJson[A] { self =>
 
   /**
    * Decode the given hcursor. Alias for `decode`.
@@ -33,28 +33,24 @@ trait DecodeJson[A] {
   /**
     * Transform the incoming HCursor to produce another DecodeJson instance.
     */
-  def flatMapCursor(f: HCursor => DecodeResult[HCursor]): DecodeJson[A] = {
-    val original = this
-    (c: HCursor) =>
-      for {
-        fr <- f(c)
-        result <- original.decode(fr)
-      } yield result
+  def flatMapCursor(f: HCursor => DecodeResult[HCursor]): DecodeJson[A] = { (c: HCursor) =>
+    for {
+      fr <- f(c)
+      result <- self.decode(fr)
+    } yield result
   }
 
   /**
    * Covariant functor.
    */
   def map[B](f: A => B): DecodeJson[B] = {
-    def thisDecode = decode(_)
-    def thisTryDecode = tryDecode(_)
     new DecodeJson[B] {
       override def decode(c: HCursor): DecodeResult[B] = {
-        thisDecode(c).map(f)
+        self.decode(c).map(f)
       }
 
       override def tryDecode(c: ACursor): DecodeResult[B] = {
-        thisTryDecode(c).map(f)
+        self.tryDecode(c).map(f)
       }
     }
   }
@@ -63,15 +59,13 @@ trait DecodeJson[A] {
    * Monad.
    */
   def flatMap[B](f: A => DecodeJson[B]): DecodeJson[B] = {
-    def thisDecode = decode(_)
-    def thisTryDecode = tryDecode(_)
     new DecodeJson[B] {
       override def decode(c: HCursor): DecodeResult[B] = {
-        thisDecode(c).flatMap(a => f(a).decode(c))
+        self.decode(c).flatMap(a => f(a).decode(c))
       }
 
       override def tryDecode(c: ACursor): DecodeResult[B] = {
-        thisTryDecode(c).flatMap(a => f(a).tryDecode(c))
+        self.tryDecode(c).flatMap(a => f(a).tryDecode(c))
       }
     }
   }
