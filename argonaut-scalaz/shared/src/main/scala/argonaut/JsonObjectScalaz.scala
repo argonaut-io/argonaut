@@ -20,7 +20,7 @@ trait JsonObjectScalazs {
   def jsonObjectL(f: JsonField): JsonObject @> Option[Json] = {
     Lens(jsonObject =>
       Store(
-        _ match {
+        {
           case None => jsonObject - f
           case Some(v) => jsonObject + (f, v)
         },
