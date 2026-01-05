@@ -14,11 +14,10 @@ object PolymorphicHibridExample extends ArgonautSpec {
 
   implicit def AnimalsCodecJson: CodecJson[Animal] =
     CodecJson(
-      (a: Animal) =>
-        a match {
-          case dog @ Dog(_) => Json("type" -> jString("dog"), "value" -> dog.asJson(using CodecDog.Encoder))
-          case cat @ Cat(_) => Json("type" -> jString("cat"), "value" -> cat.asJson(using CodecCat.Encoder))
-        },
+      {
+        case dog @ Dog(_) => Json("type" -> jString("dog"), "value" -> dog.asJson(using CodecDog.Encoder))
+        case cat @ Cat(_) => Json("type" -> jString("cat"), "value" -> cat.asJson(using CodecCat.Encoder))
+      },
       c =>
         for {
           klass <- (c --\ "type").as[String]

@@ -11,11 +11,10 @@ object PolymorphicCursorExample extends ArgonautSpec {
 
   implicit def AnimalsCodecJson: CodecJson[Animal] =
     CodecJson(
-      (a: Animal) =>
-        a match {
-          case Dog(name) => ("type" := "dog") ->: ("name" := name) ->: jEmptyObject
-          case Cat(age) => ("type" := "cat") ->: ("age" := age) ->: jEmptyObject
-        },
+      {
+        case Dog(name) => ("type" := "dog") ->: ("name" := name) ->: jEmptyObject
+        case Cat(age) => ("type" := "cat") ->: ("age" := age) ->: jEmptyObject
+      },
       c =>
         for {
           klass <- (c --\ "type").as[String]
