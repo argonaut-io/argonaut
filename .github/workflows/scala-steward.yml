@@ -17,7 +17,7 @@ jobs:
         app-id: 89628
         private-key: ${{ secrets.ARGONAUT_BOT_KEY }}
     - name: Launch Scala Steward
-      uses: scala-steward-org/scala-steward-action@e47786bae0a964b4202df1d66b65c581a53257b0 # v2.83.0
+      uses: scala-steward-org/scala-steward-action@df2a4cec1721d0b48be3e1d1f0acdf7543ea0fb4 # v2.84.0
       with:
         github-token: ${{ steps.generate_token.outputs.token }}
         author-email: "74832392+argonaut-bot[bot]@users.noreply.github.com"
