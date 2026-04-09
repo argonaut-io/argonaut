@@ -227,10 +227,10 @@ sealed abstract class Cursor extends Product with Serializable {
 
   /** Move the cursor down to a JSON array at the first element (alias for `\\`). */
   def downArray: Option[Cursor] =
-    focus.array flatMap (_ match {
+    focus.array.flatMap {
       case Nil => None
       case h :: t => Some(CArray(this, false, Nil, h, t))
-    })
+    }
 
   /** Move the cursor down to a JSON array at the first element (alias for `downArray`). */
   def \\ : Option[Cursor] =
