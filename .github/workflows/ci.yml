@@ -43,7 +43,7 @@ jobs:
     - uses: coursier/cache-action@90c37294538be80a558fd665531fcdc2b467b475 # v8.1.0
     - run: ./sbt -v
            -jvm-opts .github/workflows/.jvmopts
-           "++ 3.8.2!"
+           "++ 3.8.3!"
            scalafmtCheckAll
            "all jvmParent/Test/compile jsParent/Test/compile"
            jvmParent/test
