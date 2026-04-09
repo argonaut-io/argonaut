@@ -40,8 +40,8 @@ object CaliperJacksonBenchmarkRunner {
 case class CaliperArgonautBenchmark() extends CaliperBenchmark {
   override def repeatParse(json: String, reps: Int): Unit = repeat(reps)(json.parse)
 
-  val largeString = Data.largestring.parseOption.get
-  val manyStrings = Data.manystrings.parseOption.get
+  private val largeString = Data.largestring.parseOption.get
+  private val manyStrings = Data.manystrings.parseOption.get
 
   def timelargestringnospaces(reps: Int) = repeat(reps) {
     largeString.nospaces.length
@@ -51,8 +51,8 @@ case class CaliperArgonautBenchmark() extends CaliperBenchmark {
     manyStrings.nospaces.length
   }
 
-  val jsonToPrint = Data.apachebuilds.parseOption.get
-  val smallJsonToPrint = jSingleObject("array", jArray(jNumber(5) :: List(jTrue, jFalse)))
+  private val jsonToPrint = Data.apachebuilds.parseOption.get
+  private val smallJsonToPrint = jSingleObject("array", jArray(jNumber(5) :: List(jTrue, jFalse)))
   def timesmallnospaces(reps: Int) = repeat(reps) {
     smallJsonToPrint.nospaces.length
   }
@@ -68,7 +68,7 @@ case class CaliperArgonautBenchmark() extends CaliperBenchmark {
 }
 
 object CaliperJacksonBenchmark {
-  val jsonFactory = new JacksonJsonFactory()
+  private val jsonFactory = new JacksonJsonFactory()
 }
 
 case class CaliperJacksonBenchmark() extends CaliperBenchmark {
