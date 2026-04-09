@@ -139,17 +139,17 @@ trait EncodeJsons extends GeneratedEncodeJsons {
     EncodeJson(a => jString(a.toString))
 
   implicit def OptionEncodeJson[A](implicit e: EncodeJson[A]): EncodeJson[Option[A]] = {
-    EncodeJson(_ match {
+    EncodeJson {
       case None => jNull
       case Some(a) => e(a)
-    })
+    }
   }
 
   implicit def EitherEncodeJson[A, B](implicit ea: EncodeJson[A], eb: EncodeJson[B]): EncodeJson[Either[A, B]] = {
-    EncodeJson(_ match {
+    EncodeJson {
       case Left(a) => jSingleObject("Left", ea(a))
       case Right(b) => jSingleObject("Right", eb(b))
-    })
+    }
   }
 
   implicit def MapEncodeJson[K, V](implicit K: EncodeJsonKey[K], e: EncodeJson[V]): EncodeJson[Map[K, V]] = {
