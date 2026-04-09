@@ -545,7 +545,7 @@ trait Jsons {
    *
    * Note: NaN, +Infinity and -Infinity are not valid json.
    */
-  def jNumber(n: Double): Option[Json] = n.asPossibleJsonNumber.map(JNumber.apply _)
+  def jNumber(n: Double): Option[Json] = n.asPossibleJsonNumber.map(JNumber)
 
   /**
    * Construct a JSON value that is a number. Transforming
