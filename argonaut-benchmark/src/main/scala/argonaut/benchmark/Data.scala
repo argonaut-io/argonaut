@@ -4,7 +4,7 @@ package benchmark
 import scala.io.Source
 
 object Data {
-  def read(n: String) = {
+  private def read(n: String) = {
     val cls = getClass()
     val cl = cls.getClassLoader()
     val is = cl.getResourceAsStream("json-data/" + n + ".json")
