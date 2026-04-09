@@ -31,6 +31,7 @@ jobs:
            "+nativeParent/test"
            "project jsParent"
            testSequentialCross
+           "+publishLocal"
   latest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -49,6 +50,7 @@ jobs:
            jvmParent/test
            "project jsParent"
            testSequential
+           publishLocal
   wasm:
     runs-on: ubuntu-latest
     timeout-minutes: 30
