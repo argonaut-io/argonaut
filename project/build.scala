@@ -56,15 +56,6 @@ object build {
   val previousVersions = settingKey[Seq[String]]("")
 
   val nativeSettings = Seq(
-    Compile / doc / scalacOptions --= {
-      // TODO remove this workaround
-      // https://github.com/scala-native/scala-native/issues/2503
-      if (scalaBinaryVersion.value == "3") {
-        (Compile / doc / scalacOptions).value.filter(_.contains("-Xplugin"))
-      } else {
-        Nil
-      }
-    },
     previousVersions --= {
       val last = 9
       (0 to last).map("6.3." + _)
@@ -98,14 +89,6 @@ object build {
           (7 to lastVersion).map(n => s"6.3.$n")
         } else {
           (0 to lastVersion).map(n => s"6.3.$n")
-        }
-      },
-      (Compile / doc / sources) := {
-        val src = (Compile / doc / sources).value
-        if (isScala3.value) {
-          Nil
-        } else {
-          src
         }
       },
       releaseTagName := tagName.value,
