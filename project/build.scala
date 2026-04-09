@@ -67,7 +67,7 @@ object build {
     },
     previousVersions --= {
       val last = 9
-      (0 to last).map("6.3." + _),
+      (0 to last).map("6.3." + _)
     },
     mimaPreviousArtifacts := previousVersions.value.map { n =>
       oldGroupId %% s"${Keys.name.value}_native0.5" % n
