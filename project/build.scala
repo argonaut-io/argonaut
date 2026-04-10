@@ -74,7 +74,11 @@ object build {
         val tag = tagOrHash.value
         val base = (LocalRootProject / baseDirectory).value.getAbsolutePath
         if (isScala3.value) {
-          Nil
+          Seq(
+            "-source-links:github://argonaut-io/argonaut",
+            "-revision",
+            tag
+          )
         } else {
           Seq(
             "-sourcepath",
