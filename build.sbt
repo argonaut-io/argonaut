@@ -71,7 +71,6 @@ val argonautMonocle = argonautCrossProject(
   Seq(JVMPlatform, JSPlatform)
 ).settings(
   name := "argonaut-monocle3",
-  previousVersions --= (0 to 6).map(n => s"6.3.$n"),
   libraryDependencies ++= Seq(
     "dev.optics" %%% "monocle-core" % monocleVersion,
     "dev.optics" %%% "monocle-macro" % monocleVersion,
@@ -109,13 +108,7 @@ val argonautJawn = argonautCrossProject(
 ).dependsOn(argonaut % "compile->compile;test->test")
 
 val argonautJawnJVM = argonautJawn.jvm
-val argonautJawnJS = argonautJawn.js.settings(
-  mimaPreviousArtifacts := {
-    mimaPreviousArtifacts.value -- (0 to 5).map { n =>
-      oldGroupId %% s"${Keys.name.value}_sjs1" % s"6.3.${n}"
-    }
-  }
-)
+val argonautJawnJS = argonautJawn.js
 val argonautJawnNative = argonautJawn.native
 
 val argonautBenchmark = Project(
@@ -166,7 +159,6 @@ lazy val noPublish = Seq(
   PgpKeys.publishSigned := {},
   PgpKeys.publishLocalSigned := {},
   publishLocal := {},
-  previousVersions := Nil,
   Compile / publishArtifact := false,
   publish := {}
 )
@@ -177,7 +169,8 @@ val nativeParent = Project(
 ).settings(
   base,
   noPublish,
-  nativeSettings
+  nativeSettings,
+  mimaPreviousArtifacts := Set.empty,
 ).aggregate(
   nativeProjects *
 )

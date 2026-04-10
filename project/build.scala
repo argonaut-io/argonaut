@@ -17,8 +17,6 @@ import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 object build {
   type Sett = Def.Setting[?]
 
-  def oldGroupId: String = "io.argonaut"
-
   val isScala3 = Def.setting(
     CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3)
   )
@@ -31,7 +29,7 @@ object build {
   val monocleVersion = "3.3.0"
   val catsVersion = "2.13.0"
 
-  private def lastVersion = 10
+  private def lastVersion: String = "6.3.12"
 
   val reflect = Def.setting(
     if (isScala3.value) {
@@ -53,16 +51,10 @@ object build {
     }
   }
 
-  val previousVersions = settingKey[Seq[String]]("")
-
   val nativeSettings = Seq(
-    previousVersions --= {
-      val last = 9
-      (0 to last).map("6.3." + _)
-    },
-    mimaPreviousArtifacts := previousVersions.value.map { n =>
-      oldGroupId %% s"${Keys.name.value}_native0.5" % n
-    }.toSet,
+    mimaPreviousArtifacts := Set(
+      organization.value %% s"${Keys.name.value}_native0.5" % lastVersion
+    ),
   )
 
   val commonSettings = base ++
@@ -88,13 +80,6 @@ object build {
           )
         }
       },
-      previousVersions := {
-        if (isScala3.value) {
-          (7 to lastVersion).map(n => s"6.3.$n")
-        } else {
-          (0 to lastVersion).map(n => s"6.3.$n")
-        }
-      },
       releaseTagName := tagName.value,
       libraryDependencies ++= reflect.value,
       mimaReportSignatureProblems := (scalaBinaryVersion.value != "3")
@@ -118,11 +103,9 @@ object build {
         // https://github.com/sbt/sbt/issues/4609
         Test / fork := true,
         (Test / baseDirectory) := (LocalRootProject / baseDirectory).value,
-        mimaPreviousArtifacts := {
-          previousVersions.value.map { n =>
-            oldGroupId %% Keys.name.value % n
-          }.toSet
-        },
+        mimaPreviousArtifacts := Set(
+          organization.value %% Keys.name.value % lastVersion
+        ),
       )
       .settings(
         libraryDependencies += {
@@ -148,9 +131,9 @@ object build {
       )
       .jsSettings(
         Test / parallelExecution := false,
-        mimaPreviousArtifacts := previousVersions.value.map { n =>
-          oldGroupId %% s"${Keys.name.value}_sjs1" % n
-        }.toSet,
+        mimaPreviousArtifacts := Set(
+          organization.value %% s"${Keys.name.value}_sjs1" % lastVersion
+        ),
         if (sys.props.isDefinedAt("scala_js_wasm")) {
           Def.settings(
             scalaJSLinkerConfig ~= (_.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)),
