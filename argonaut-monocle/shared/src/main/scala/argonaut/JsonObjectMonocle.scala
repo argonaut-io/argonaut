@@ -5,7 +5,6 @@ import monocle.function.At
 import monocle.function.Each
 import monocle.function.FilterIndex
 import monocle.function.Index
-import monocle.Lens
 import monocle.Traversal
 import cats.Applicative
 import cats.syntax.all.*
