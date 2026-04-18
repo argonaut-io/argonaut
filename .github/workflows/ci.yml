@@ -24,14 +24,11 @@ jobs:
     - run: ./sbt -v
            -jvm-opts .github/workflows/.jvmopts
            scalafmtSbtCheck
-           "+scalafmtCheckAll"
-           "+mimaReportBinaryIssues"
-           "+Test/compile"
-           "+jvmParent/test"
-           "+nativeParent/test"
-           "project jsParent"
-           testSequentialCross
-           "+publishLocal"
+           scalafmtCheckAll
+           mimaReportBinaryIssues
+           Test/compile
+           test
+           publishLocal
   latest:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -44,12 +41,10 @@ jobs:
     - uses: coursier/cache-action@90c37294538be80a558fd665531fcdc2b467b475 # v8.1.0
     - run: ./sbt -v
            -jvm-opts .github/workflows/.jvmopts
-           "++ 3.8.3!"
+           -Dargonaut_scala_3_version=3.8.3
            scalafmtCheckAll
-           "all jvmParent/Test/compile jsParent/Test/compile"
-           jvmParent/test
-           "project jsParent"
-           testSequential
+           Test/compile
+           test
            publishLocal
   wasm:
     runs-on: ubuntu-latest
@@ -67,5 +62,8 @@ jobs:
     - run: ./sbt -v
            -jvm-opts .github/workflows/.jvmopts
            -Dscala_js_wasm
-           "project jsParent"
-           testSequential
+           argonautJS3/test
+           argonautJawnJS3/test
+           argonautCatsJS3/test
+           argonautScalazJS3/test
+           argonautMonocleJS3/test

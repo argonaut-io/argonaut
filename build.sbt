@@ -1,127 +1,140 @@
 import build._
+import ScalaSettings.scalaVersions
 
-def disableScala2_12 = disableScala("2.12")
-
-def disableScala(v: String) = Def.settings(
-  mimaPreviousArtifacts := {
-    if (scalaBinaryVersion.value == v) {
-      Set.empty
-    } else {
-      mimaPreviousArtifacts.value
-    }
-  },
-  libraryDependencies := {
-    if (scalaBinaryVersion.value == v) {
-      Nil
-    } else {
-      libraryDependencies.value
-    }
-  },
-  Seq(Compile, Test).map { x =>
-    (x / sources) := {
-      if (scalaBinaryVersion.value == v) {
-        Nil
-      } else {
-        (x / sources).value
-      }
-    }
-  },
-  Test / test := {
-    if (scalaBinaryVersion.value == v) {
-      ()
-    } else {
-      (Test / test).value
-    }
-  },
-  publish / skip := (scalaBinaryVersion.value == v)
-)
-
-val argonaut = argonautCrossProject(
-  "argonaut",
-  Seq(JVMPlatform, JSPlatform, NativePlatform)
-).settings(
-  InfoSettings.all ++ Seq[Sett](
+val argonaut = projectMatrix
+  .in(file("argonaut"))
+  .defaultAxes()
+  .settings(
+    build.commonSettings,
+    InfoSettings.all,
     name := "argonaut",
-    (Compile / sourceGenerators) += ((Compile / sourceManaged) map Boilerplate.gen).taskValue
+    Compile / sourceGenerators += (Compile / sourceManaged).map(Boilerplate.gen).taskValue
   )
-)
-
-val argonautJVM = argonaut.jvm
-val argonautJS = argonaut.js
-val argonautNative = argonaut.native
-
-val argonautScalaz = argonautCrossProject(
-  "argonaut-scalaz",
-  Seq(JVMPlatform, JSPlatform, NativePlatform)
-).settings(
-  name := "argonaut-scalaz",
-  libraryDependencies ++= Seq(
-    "org.scalaz" %%% "scalaz-core" % scalazVersion
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
   )
-).platformsSettings(JVMPlatform, JSPlatform, NativePlatform)(
-  libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
-).dependsOn(argonaut % "compile->compile;test->test")
-
-val argonautScalazJVM = argonautScalaz.jvm
-val argonautScalazJS = argonautScalaz.js
-val argonautScalazNative = argonautScalaz.native
-
-val argonautMonocle = argonautCrossProject(
-  "argonaut-monocle",
-  Seq(JVMPlatform, JSPlatform, NativePlatform)
-).settings(
-  name := "argonaut-monocle3",
-  libraryDependencies ++= Seq(
-    "dev.optics" %%% "monocle-core" % monocleVersion,
-    "dev.optics" %%% "monocle-macro" % monocleVersion,
-    "dev.optics" %%% "monocle-law" % monocleVersion % "test"
-  ),
-  disableScala2_12
-).nativeSettings(
-  mimaPreviousArtifacts := Set.empty
-).dependsOn(argonaut % "compile->compile;test->test", argonautCats % "compile->compile;test->test")
-
-val argonautMonocleJVM = argonautMonocle.jvm
-val argonautMonocleJS = argonautMonocle.js
-
-lazy val argonautCats = argonautCrossProject(
-  "argonaut-cats",
-  Seq(JVMPlatform, JSPlatform, NativePlatform)
-).settings(
-  name := "argonaut-cats",
-  libraryDependencies ++= Seq(
-    "org.typelevel" %%% "cats-core" % catsVersion,
-    "org.typelevel" %%% "cats-laws" % catsVersion % "test"
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings
   )
-).dependsOn(argonaut % "compile->compile;test->test")
-
-val argonautCatsJVM = argonautCats.jvm
-val argonautCatsJS = argonautCats.js
-val argonautCatsNative = argonautCats.native
-
-val argonautJawn = argonautCrossProject(
-  "argonaut-jawn",
-  Seq(JVMPlatform, JSPlatform, NativePlatform)
-).settings(
-  name := "argonaut-jawn",
-  libraryDependencies ++= Seq(
-    "org.typelevel" %%% "jawn-parser" % "1.6.0"
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
   )
-).dependsOn(argonaut % "compile->compile;test->test")
 
-val argonautJawnJVM = argonautJawn.jvm
-val argonautJawnJS = argonautJawn.js
-val argonautJawnNative = argonautJawn.native
+val argonautScalaz = projectMatrix
+  .in(file("argonaut-scalaz"))
+  .defaultAxes()
+  .settings(
+    build.commonSettings,
+    name := "argonaut-scalaz",
+    libraryDependencies ++= Seq(
+      "org.scalaz" %%% "scalaz-core" % scalazVersion
+    ),
+    libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings
+  )
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
+  )
+  .dependsOn(argonaut % "compile->compile;test->test")
 
-val argonautBenchmark = Project(
-  id = "argonaut-benchmark",
-  base = file("argonaut-benchmark")
-).settings(
-  base ++ ReleasePlugin.projectSettings ++ PublishSettings.all ++ Seq[Sett](
+val argonautMonocle = projectMatrix
+  .in(file("argonaut-monocle"))
+  .defaultAxes()
+  .settings(
+    build.commonSettings,
+    name := "argonaut-monocle3",
+    libraryDependencies ++= Seq(
+      "dev.optics" %%% "monocle-core" % monocleVersion,
+      "dev.optics" %%% "monocle-macro" % monocleVersion,
+      "dev.optics" %%% "monocle-law" % monocleVersion % "test"
+    )
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions.filterNot(ScalaSettings.Scala212 == _),
+    settings = jvmSettings,
+  )
+  .nativePlatform(
+    scalaVersions = scalaVersions.filterNot(ScalaSettings.Scala212 == _),
+    settings = Def.settings(
+      nativeSettings,
+      mimaPreviousArtifacts := Set.empty
+    )
+  )
+  .jsPlatform(
+    scalaVersions = scalaVersions.filterNot(ScalaSettings.Scala212 == _),
+    settings = jsSettings
+  )
+  .dependsOn(argonaut % "compile->compile;test->test", argonautCats % "compile->compile;test->test")
+
+lazy val argonautCats = projectMatrix
+  .in(file("argonaut-cats"))
+  .defaultAxes()
+  .settings(
+    build.commonSettings,
+    name := "argonaut-cats",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core" % catsVersion,
+      "org.typelevel" %%% "cats-laws" % catsVersion % "test"
+    )
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings
+  )
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
+  )
+  .dependsOn(argonaut % "compile->compile;test->test")
+
+val argonautJawn = projectMatrix
+  .in(file("argonaut-jawn"))
+  .defaultAxes()
+  .settings(
+    build.commonSettings,
+    name := "argonaut-jawn",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "jawn-parser" % "1.6.0"
+    )
+  )
+  .jvmPlatform(
+    scalaVersions = scalaVersions,
+    settings = jvmSettings,
+  )
+  .nativePlatform(
+    scalaVersions = scalaVersions,
+    settings = nativeSettings
+  )
+  .jsPlatform(
+    scalaVersions = scalaVersions,
+    settings = jsSettings
+  )
+  .dependsOn(argonaut % "compile->compile;test->test")
+
+val argonautBenchmark = projectMatrix
+  .defaultAxes()
+  .settings(
+    base,
+    ReleasePlugin.projectSettings,
+    PublishSettings.all,
     name := "argonaut-benchmark",
     run / fork := true,
-    publishArtifact := false,
-    mimaFailOnNoPrevious := false,
+    noPublish,
     libraryDependencies ++= Seq(
       "com.google.caliper" % "caliper" % "0.5-rc1",
       "com.fasterxml.jackson.core" % "jackson-core" % "2.21.2"
@@ -130,77 +143,22 @@ val argonautBenchmark = Project(
       Seq("-cp", sbt.Attributed.data(cp).mkString(":"))
     }).value
   )
-).dependsOn(argonautJVM)
-
-lazy val nativeProjects = Seq[ProjectReference](
-  argonautNative,
-  argonautScalazNative,
-  argonautJawnNative,
-  argonautCatsNative
-)
-
-val jsProjects = Seq(
-  argonautJS,
-  argonautScalazJS,
-  argonautMonocleJS,
-  argonautCatsJS,
-  argonautJawnJS
-)
-
-val jvmProjects = Seq(
-  argonautJVM,
-  argonautScalazJVM,
-  argonautMonocleJVM,
-  argonautCatsJVM,
-  argonautJawnJVM,
-  argonautBenchmark
-)
+  .jvmPlatform(
+    scalaVersions = Seq(ScalaSettings.Scala3),
+    settings = jvmSettings ++ noPublish,
+  )
+  .dependsOn(argonaut)
 
 lazy val noPublish = Seq(
+  publish / skip := true,
   mimaFailOnNoPrevious := false,
+  mimaPreviousArtifacts := Set.empty,
   PgpKeys.publishSigned := {},
   PgpKeys.publishLocalSigned := {},
   publishLocal := {},
   Compile / publishArtifact := false,
   publish := {}
 )
-
-val nativeParent = Project(
-  "nativeParent",
-  file("native-parent")
-).settings(
-  base,
-  noPublish,
-  nativeSettings,
-  mimaPreviousArtifacts := Set.empty,
-).aggregate(
-  nativeProjects *
-)
-
-val jvmParent = project
-  .settings(
-    base,
-    noPublish
-  )
-  .aggregate(
-    jvmProjects.map(p => p: ProjectReference) *
-  )
-
-val jsParent = project
-  .settings(
-    base,
-    noPublish,
-    commands += Command.command("testSequential") {
-      // avoid "org.scalajs.jsenv.ComJSEnv$ComClosedException: Node.js isn't connected" error in CI
-      jsProjects.map(_.id + "/test").sorted.toList ::: _
-    },
-    commands += Command.command("testSequentialCross") {
-      jsProjects.map(x => s"+${x.id}/test").sorted.toList ::: _
-    }
-  )
-  .aggregate(
-    jsProjects.map(p => p: ProjectReference) *
-  )
 
 base
 ReleasePlugin.projectSettings
