@@ -1,14 +1,11 @@
 import sbt.*
 import Keys.*
 import com.jsuereth.sbtpgp.PgpKeys.*
-import sbtprojectmatrix.ProjectMatrixKeys.*
 import sbtrelease.ReleasePlugin
 import sbtrelease.ReleasePlugin.autoImport.*
 import com.typesafe.tools.mima.plugin.MimaPlugin.*
 import com.typesafe.tools.mima.plugin.MimaKeys.*
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
-import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 
 object build {
   type Sett = Def.Setting[?]
@@ -68,22 +65,7 @@ object build {
       organization.value %% s"${Keys.name.value}_sjs1" % lastVersion
     ),
     if (sys.props.isDefinedAt("scala_js_wasm")) {
-      Def.settings(
-        scalaJSLinkerConfig ~= (_.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)),
-        jsEnv := {
-          import org.scalajs.jsenv.nodejs.NodeJSEnv
-          val config = NodeJSEnv
-            .Config()
-            .withArgs(
-              List(
-                "--experimental-wasm-exnref",
-                "--experimental-wasm-imported-strings",
-                "--turboshaft-wasm",
-              )
-            )
-          new NodeJSEnv(config)
-        },
-      )
+      Def.settings()
     } else {
       Def.settings()
     },
@@ -123,6 +105,7 @@ object build {
   )
 
   val nativeSettings = Def.settings(
+    evictionErrorLevel := Level.Warn,
     mimaPreviousArtifacts := Set(
       organization.value %% s"${Keys.name.value}_native0.5" % lastVersion
     ),
@@ -209,20 +192,20 @@ object build {
     libraryDependencies += {
       scalaBinaryVersion.value match {
         case "3" =>
-          "org.specs2" %%% "specs2-scalacheck" % "4.23.0" % "test"
+          "org.specs2" %% "specs2-scalacheck" % "4.23.0" % "test"
         case _ =>
-          "org.specs2" %%% "specs2-scalacheck" % "4.23.0" % "test"
+          "org.specs2" %% "specs2-scalacheck" % "4.23.0" % "test"
       }
     },
     libraryDependencies ++= {
       if (isScala3.value) {
         Nil
       } else {
-        Seq("com.chuusai" %%% "shapeless" % "2.3.13" % "test")
+        Seq("com.chuusai" %% "shapeless" % "2.3.13" % "test")
       }
     },
     libraryDependencies ++= Seq(
-      "org.scalaz" %%% "scalaz-core" % scalazVersion % "test"
+      "org.scalaz" %% "scalaz-core" % scalazVersion % "test"
     )
   )
 }
