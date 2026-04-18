@@ -68,7 +68,7 @@ val argonautScalazNative = argonautScalaz.native
 
 val argonautMonocle = argonautCrossProject(
   "argonaut-monocle",
-  Seq(JVMPlatform, JSPlatform)
+  Seq(JVMPlatform, JSPlatform, NativePlatform)
 ).settings(
   name := "argonaut-monocle3",
   libraryDependencies ++= Seq(
@@ -77,6 +77,8 @@ val argonautMonocle = argonautCrossProject(
     "dev.optics" %%% "monocle-law" % monocleVersion % "test"
   ),
   disableScala2_12
+).nativeSettings(
+  mimaPreviousArtifacts := Set.empty
 ).dependsOn(argonaut % "compile->compile;test->test", argonautCats % "compile->compile;test->test")
 
 val argonautMonocleJVM = argonautMonocle.jvm
