@@ -10,11 +10,11 @@ object ScalaSettings {
 
   def Scala212 = "2.12.21"
   def Scala213 = "2.13.18"
-  def Scala3 = "3.3.7"
+  def Scala3 = sys.props.getOrElse("argonaut_scala_3_version", "3.3.7")
+
+  val scalaVersions = Seq(Scala212, Scala213, Scala3)
 
   lazy val all: Seq[Sett] = Def.settings(
-    scalaVersion := Scala213,
-    crossScalaVersions := Seq(Scala212, Scala213, Scala3),
     scalacOptions ++= {
       if (build.isScala3.value) {
         Seq(
