@@ -6,10 +6,6 @@ addSbtPlugin("com.github.sbt" % "sbt-release" % "1.4.0")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.5")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.21.0")
-
-addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.11.0")
-
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.11")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.0")

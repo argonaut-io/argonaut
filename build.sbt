@@ -18,10 +18,6 @@ val argonaut = projectMatrix
     scalaVersions = scalaVersions,
     settings = nativeSettings
   )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
-  )
 
 val argonautScalaz = projectMatrix
   .in(file("argonaut-scalaz"))
@@ -30,9 +26,9 @@ val argonautScalaz = projectMatrix
     build.commonSettings,
     name := "argonaut-scalaz",
     libraryDependencies ++= Seq(
-      "org.scalaz" %%% "scalaz-core" % scalazVersion
+      "org.scalaz" %% "scalaz-core" % scalazVersion
     ),
-    libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
+    libraryDependencies += "org.scalaz" %% "scalaz-scalacheck-binding" % scalazVersion % "test",
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
@@ -41,10 +37,6 @@ val argonautScalaz = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
   .dependsOn(argonaut % "compile->compile;test->test")
 
@@ -55,9 +47,9 @@ val argonautMonocle = projectMatrix
     build.commonSettings,
     name := "argonaut-monocle3",
     libraryDependencies ++= Seq(
-      "dev.optics" %%% "monocle-core" % monocleVersion,
-      "dev.optics" %%% "monocle-macro" % monocleVersion,
-      "dev.optics" %%% "monocle-law" % monocleVersion % "test"
+      "dev.optics" %% "monocle-core" % monocleVersion,
+      "dev.optics" %% "monocle-macro" % monocleVersion,
+      "dev.optics" %% "monocle-law" % monocleVersion % "test"
     )
   )
   .jvmPlatform(
@@ -71,10 +63,6 @@ val argonautMonocle = projectMatrix
       mimaPreviousArtifacts := Set.empty
     )
   )
-  .jsPlatform(
-    scalaVersions = scalaVersions.filterNot(ScalaSettings.Scala212 == _),
-    settings = jsSettings
-  )
   .dependsOn(argonaut % "compile->compile;test->test", argonautCats % "compile->compile;test->test")
 
 lazy val argonautCats = projectMatrix
@@ -84,8 +72,8 @@ lazy val argonautCats = projectMatrix
     build.commonSettings,
     name := "argonaut-cats",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % catsVersion,
-      "org.typelevel" %%% "cats-laws" % catsVersion % "test"
+      "org.typelevel" %% "cats-core" % catsVersion,
+      "org.typelevel" %% "cats-laws" % catsVersion % "test"
     )
   )
   .jvmPlatform(
@@ -95,10 +83,6 @@ lazy val argonautCats = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
   .dependsOn(argonaut % "compile->compile;test->test")
 
@@ -109,7 +93,7 @@ val argonautJawn = projectMatrix
     build.commonSettings,
     name := "argonaut-jawn",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "jawn-parser" % "1.6.0"
+      "org.typelevel" %% "jawn-parser" % "1.6.0"
     )
   )
   .jvmPlatform(
@@ -119,10 +103,6 @@ val argonautJawn = projectMatrix
   .nativePlatform(
     scalaVersions = scalaVersions,
     settings = nativeSettings
-  )
-  .jsPlatform(
-    scalaVersions = scalaVersions,
-    settings = jsSettings
   )
   .dependsOn(argonaut % "compile->compile;test->test")
 
@@ -160,10 +140,12 @@ lazy val noPublish = Seq(
   publish := {}
 )
 
-base
-ReleasePlugin.projectSettings
-mimaFailOnNoPrevious := false
-PublishSettings.all
-noPublish
-name := "argonaut-parent"
-run / fork := true
+val root = rootProject.autoAggregate.settings(
+  base,
+  ReleasePlugin.projectSettings,
+  mimaFailOnNoPrevious := false,
+  PublishSettings.all,
+  noPublish,
+  name := "argonaut-parent",
+  run / fork := true
+)
