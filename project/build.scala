@@ -123,6 +123,7 @@ object build {
   )
 
   val nativeSettings = Def.settings(
+    evictionErrorLevel := Level.Warn,
     mimaPreviousArtifacts := Set(
       organization.value %% s"${Keys.name.value}_native0.5" % lastVersion
     ),
