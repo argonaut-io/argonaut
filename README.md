@@ -12,7 +12,7 @@ Argonaut is licenced under BSD3 (see `LICENCE`).
 
 ### Documentation
 
-* [Scala Docs](https://javadoc.io/doc/io.github.argonaut-io/argonaut_2.13/latest/index.html)
+* [Scala Docs](https://javadoc.io/doc/io.github.argonaut-io/argonaut_3/latest/argonaut.html)
 * [Examples](https://github.com/argonaut-io/argonaut/tree/master/argonaut/shared/src/test/scala/argonaut/example)
 
 
