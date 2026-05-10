@@ -12,4 +12,4 @@ addSbtPlugin("com.eed3si9n" % "sbt-projectmatrix" % "0.11.0")
 
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % "0.5.11")
 
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.0")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.1")
