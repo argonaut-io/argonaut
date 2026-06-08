@@ -41,7 +41,7 @@ jobs:
     - uses: coursier/cache-action@95e5b1029b6b86e7bac033ee44a0697d8a527d2d # v8.1.1
     - run: ./sbt -v
            -jvm-opts .github/workflows/.jvmopts
-           -Dargonaut_scala_3_version=3.8.4
+           -Dargonaut_scala_3_version=3.9.0-RC1
            scalafmtCheckAll
            Test/compile
            test
