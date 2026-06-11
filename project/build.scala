@@ -55,6 +55,16 @@ object build {
     mimaPreviousArtifacts := Set(
       organization.value %% Keys.name.value % lastVersion
     ),
+    scalacOptions ++= {
+      if (scalaVersion.value.startsWith("3.3.")) {
+        Seq(
+          "-Yfuture-lazy-vals",
+          "-release:11",
+        )
+      } else {
+        Nil
+      }
+    },
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories ++= Seq(
         projectMatrixBaseDirectory.value.getAbsoluteFile / "jvm" / "src" / Defaults.nameForSrc(c.name) / "scala",
