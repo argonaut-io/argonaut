@@ -136,7 +136,7 @@ object Macros {
           var i: Int = 0
 
           while (iter.hasNext && (failed eq null)) {
-            iter.next.result match {
+            iter.next().result match {
               case Right(value) =>
                 res(i) = value
               case Left(l) =>
