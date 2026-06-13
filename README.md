@@ -1,7 +1,6 @@
 # Argonaut
 
-[![argonaut Scala version support](https://index.scala-lang.org/argonaut-io/argonaut/argonaut/latest-by-scala-version.svg)](https://index.scala-lang.org/argonaut-io/argonaut/argonaut)
-
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.argonaut-io/argonaut_3)](https://central.sonatype.com/artifact/io.github.argonaut-io/argonaut_3)
 
 ### What is Argonaut?
 
@@ -23,7 +22,7 @@ Just add argonaut as a dependency.
 Stable:
 
 ```scala
-libraryDependencies += "io.github.argonaut-io" %% "argonaut" % "6.3.12"
+libraryDependencies += "io.github.argonaut-io" %% "argonaut" % "6.3.13"
 ```
 
 Note that the 6.2.x releases supports scala `2.11.*`, `2.12.*` and `2.13.*` with scalaz `7.2.*`.
