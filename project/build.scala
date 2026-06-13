@@ -21,7 +21,7 @@ object build {
     organization := "io.github.argonaut-io"
   )
 
-  val scalazVersion = "7.3.8"
+  val scalazVersion = "7.3.9"
   val monocleVersion = "3.3.0"
   val catsVersion = "2.13.0"
 
