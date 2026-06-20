@@ -87,7 +87,6 @@ object build {
             .withArgs(
               List(
                 "--experimental-wasm-exnref",
-                "--experimental-wasm-imported-strings",
               )
             )
           new NodeJSEnv(config)
