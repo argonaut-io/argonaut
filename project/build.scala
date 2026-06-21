@@ -79,7 +79,9 @@ object build {
     ),
     if (sys.props.isDefinedAt("scala_js_wasm")) {
       Def.settings(
-        scalaJSLinkerConfig ~= (_.withExperimentalUseWebAssembly(true).withModuleKind(ModuleKind.ESModule)),
+        scalaJSLinkerConfig ~= (_.withESFeatures(
+          _.withUseWebAssembly(true).withESVersion(org.scalajs.linker.interface.ESVersion.ES2022)
+        ).withModuleKind(ModuleKind.ESModule)),
         jsEnv := {
           import org.scalajs.jsenv.nodejs.NodeJSEnv
           val config = NodeJSEnv
