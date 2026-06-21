@@ -1,13 +1,11 @@
 import sbt.*
 import Keys.*
 import com.jsuereth.sbtpgp.PgpKeys.*
-import sbtprojectmatrix.ProjectMatrixKeys.*
 import sbtrelease.ReleasePlugin
 import sbtrelease.ReleasePlugin.autoImport.*
 import com.typesafe.tools.mima.plugin.MimaPlugin.*
 import com.typesafe.tools.mima.plugin.MimaKeys.*
 import scalanative.sbtplugin.ScalaNativePlugin.autoImport.*
-import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport.*
 import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.*
 
 object build {
@@ -35,13 +33,13 @@ object build {
     }
   )
 
-  private[this] val tagName = Def.setting {
+  private val tagName = Def.setting {
     s"v${if (releaseUseGlobalVersion.value) (ThisBuild / version).value else version.value}"
   }
 
-  private[this] val tagOrHash = Def.setting {
+  private val tagOrHash = Def.setting {
     if (isSnapshot.value) {
-      sys.process.Process("git rev-parse HEAD").lineStream_!.head
+      sys.process.Process("git rev-parse HEAD").lazyLines_!.head
     } else {
       tagName.value
     }
@@ -82,7 +80,7 @@ object build {
         scalaJSLinkerConfig ~= (_.withESFeatures(
           _.withUseWebAssembly(true).withESVersion(org.scalajs.linker.interface.ESVersion.ES2022)
         ).withModuleKind(ModuleKind.ESModule)),
-        jsEnv := {
+        jsEnv := Def.uncached {
           import org.scalajs.jsenv.nodejs.NodeJSEnv
           val config = NodeJSEnv
             .Config()
@@ -163,9 +161,11 @@ object build {
   )
 
   val commonSettings = Def.settings(
-    TaskKey[(Int, Int)]("checkSourceEmpty") := (
-      (Compile / sources).value.size,
-      (Test / sources).value.size
+    TaskKey[(Int, Int)]("checkSourceEmpty") := Def.uncached(
+      (
+        (Compile / sources).value.size,
+        (Test / sources).value.size
+      )
     ),
     base,
     ReplSettings.all,
@@ -220,20 +220,20 @@ object build {
     libraryDependencies += {
       scalaBinaryVersion.value match {
         case "3" =>
-          "org.specs2" %%% "specs2-scalacheck" % "4.23.0" % "test"
+          "org.specs2" %% "specs2-scalacheck" % "4.23.0" % "test"
         case _ =>
-          "org.specs2" %%% "specs2-scalacheck" % "4.23.0" % "test"
+          "org.specs2" %% "specs2-scalacheck" % "4.23.0" % "test"
       }
     },
     libraryDependencies ++= {
       if (isScala3.value) {
         Nil
       } else {
-        Seq("com.chuusai" %%% "shapeless" % "2.3.13" % "test")
+        Seq("com.chuusai" %% "shapeless" % "2.3.13" % "test")
       }
     },
     libraryDependencies ++= Seq(
-      "org.scalaz" %%% "scalaz-core" % scalazVersion % "test"
+      "org.scalaz" %% "scalaz-core" % scalazVersion % "test"
     )
   )
 }

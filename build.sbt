@@ -30,9 +30,9 @@ val argonautScalaz = projectMatrix
     build.commonSettings,
     name := "argonaut-scalaz",
     libraryDependencies ++= Seq(
-      "org.scalaz" %%% "scalaz-core" % scalazVersion
+      "org.scalaz" %% "scalaz-core" % scalazVersion
     ),
-    libraryDependencies += "org.scalaz" %%% "scalaz-scalacheck-binding" % scalazVersion % "test",
+    libraryDependencies += "org.scalaz" %% "scalaz-scalacheck-binding" % scalazVersion % "test",
   )
   .jvmPlatform(
     scalaVersions = scalaVersions,
@@ -55,9 +55,9 @@ val argonautMonocle = projectMatrix
     build.commonSettings,
     name := "argonaut-monocle3",
     libraryDependencies ++= Seq(
-      "dev.optics" %%% "monocle-core" % monocleVersion,
-      "dev.optics" %%% "monocle-macro" % monocleVersion,
-      "dev.optics" %%% "monocle-law" % monocleVersion % "test"
+      "dev.optics" %% "monocle-core" % monocleVersion,
+      "dev.optics" %% "monocle-macro" % monocleVersion,
+      "dev.optics" %% "monocle-law" % monocleVersion % "test"
     )
   )
   .jvmPlatform(
@@ -84,8 +84,8 @@ lazy val argonautCats = projectMatrix
     build.commonSettings,
     name := "argonaut-cats",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % catsVersion,
-      "org.typelevel" %%% "cats-laws" % catsVersion % "test"
+      "org.typelevel" %% "cats-core" % catsVersion,
+      "org.typelevel" %% "cats-laws" % catsVersion % "test"
     )
   )
   .jvmPlatform(
@@ -109,7 +109,7 @@ val argonautJawn = projectMatrix
     build.commonSettings,
     name := "argonaut-jawn",
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "jawn-parser" % "1.6.0"
+      "org.typelevel" %% "jawn-parser" % "1.6.0"
     )
   )
   .jvmPlatform(
@@ -160,10 +160,12 @@ lazy val noPublish = Seq(
   publish := {}
 )
 
-base
-ReleasePlugin.projectSettings
-mimaFailOnNoPrevious := false
-PublishSettings.all
-noPublish
-name := "argonaut-parent"
-run / fork := true
+val argonautRoot = rootProject.autoAggregate.settings(
+  base,
+  ReleasePlugin.projectSettings,
+  mimaFailOnNoPrevious := false,
+  PublishSettings.all,
+  noPublish,
+  name := "argonaut-parent",
+  run / fork := true
+)
