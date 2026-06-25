@@ -109,7 +109,7 @@ val argonautJawn = projectMatrix
     build.commonSettings,
     name := "argonaut-jawn",
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "jawn-parser" % "1.6.0"
+      "org.typelevel" %% "jawn-parser" % "1.7.0"
     )
   )
   .jvmPlatform(
