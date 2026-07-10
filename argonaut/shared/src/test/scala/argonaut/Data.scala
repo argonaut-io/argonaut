@@ -258,24 +258,26 @@ object Data {
     Arbitrary(arbitrary[List[(JsonField, Json)]] map { JsonObject.fromIterable(_) })
 
   implicit def ArbitraryCursor: Arbitrary[Cursor] = {
-    Arbitrary(arbitrary[Json] flatMap (j => {
-      val c = +j
-      j.arrayOrObject(
-        Gen.const(c),
-        _ =>
-          for {
-            r <- frequency((90, arbitrary[Cursor]), (10, c))
-          } yield c.right getOrElse r,
-        o =>
-          for {
-            r <- frequency((90, arbitrary[Cursor]), (10, c))
-            q <- frequency(
-              (90, if (o.fields.nonEmpty) oneOf(o.fields) else arbitrary[JsonField]),
-              (10, arbitrary[JsonField])
-            )
-          } yield c downField q getOrElse r
-      )
-    }))
+    Arbitrary(
+      arbitrary[Json] flatMap (j => {
+        val c = +j
+        j.arrayOrObject(
+          Gen.const(c),
+          _ =>
+            for {
+              r <- frequency((90, arbitrary[Cursor]), (10, c))
+            } yield c.right getOrElse r,
+          o =>
+            for {
+              r <- frequency((90, arbitrary[Cursor]), (10, c))
+              q <- frequency(
+                (90, if (o.fields.nonEmpty) oneOf(o.fields) else arbitrary[JsonField]),
+                (10, arbitrary[JsonField])
+              )
+            } yield c downField q getOrElse r
+        )
+      })
+    )
   }
 
   implicit def ArbitraryVector[A: Arbitrary]: Arbitrary[Vector[A]] =
