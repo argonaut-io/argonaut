@@ -29,10 +29,10 @@ object PublishSettings {
         pushChanges
       )
     },
-    licenses := Seq(License("BSD-3-Clause", url("http://www.opensource.org/licenses/BSD-3-Clause"))),
-    homepage := Some(url("https://github.com/argonaut-io/argonaut")),
+    licenses := Seq(License("BSD-3-Clause", uri("http://www.opensource.org/licenses/BSD-3-Clause"))),
+    homepage := Some(uri("https://github.com/argonaut-io/argonaut")),
     autoAPIMappings := true,
-    apiURL := Some(url("https://javadoc.io/doc/io.github.argonaut-io/argonaut_2.13/latest/argonaut/index.html"))
+    apiURL := Some(uri("https://javadoc.io/doc/io.github.argonaut-io/argonaut_2.13/latest/argonaut/index.html"))
   )
 
   lazy val pom: Sett =
