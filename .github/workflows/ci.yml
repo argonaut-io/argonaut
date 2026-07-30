@@ -43,7 +43,7 @@ jobs:
     - run: ./sbt -v
            --server
            -jvm-opts .github/workflows/.jvmopts
-           -Dargonaut_scala_3_version=3.9.0-RC1
+           -Dargonaut_scala_3_version=3.9.0-RC4
            scalafmtCheckAll
            Test/compile
            test
@@ -65,8 +65,4 @@ jobs:
            --server
            -jvm-opts .github/workflows/.jvmopts
            -Dscala_js_wasm
-           argonautJS3/test
-           argonautJawnJS3/test
-           argonautCatsJS3/test
-           argonautScalazJS3/test
-           argonautMonocleJS3/test
+           "...JS3/test"
