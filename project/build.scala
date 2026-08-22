@@ -73,7 +73,7 @@ object build {
 
   val jsSettings = Def.settings(
     mimaPreviousArtifacts := Set(
-      organization.value %% s"${Keys.name.value}_sjs1" % lastVersion
+      (organization.value %% Keys.name.value % lastVersion).platform(Platform.sjs1)
     ),
     if (sys.props.isDefinedAt("scala_js_wasm")) {
       Def.settings(
@@ -133,7 +133,7 @@ object build {
   val nativeSettings = Def.settings(
     evictionErrorLevel := Level.Warn,
     mimaPreviousArtifacts := Set(
-      organization.value %% s"${Keys.name.value}_native0.5" % lastVersion
+      (organization.value %% Keys.name.value % lastVersion).platform("native0.5")
     ),
     Seq(Compile, Test).map(c =>
       c / unmanagedSourceDirectories ++= {
