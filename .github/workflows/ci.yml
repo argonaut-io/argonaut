@@ -43,7 +43,7 @@ jobs:
     - run: ./sbt -v
            --server
            -jvm-opts .github/workflows/.jvmopts
-           -Dargonaut_scala_3_version=3.9.0
+           -Dargonaut_scala_3_version=3.10.0-RC1
            scalafmtCheckAll
            Test/compile
            test
