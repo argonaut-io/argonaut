@@ -20,7 +20,7 @@ jobs:
       with:
         java-version: ${{matrix.java}}
         distribution: zulu
-    - uses: coursier/cache-action@95e5b1029b6b86e7bac033ee44a0697d8a527d2d # v8.1.1
+    - uses: coursier/cache-action@057d08c2f9a2c4e7a4d33df3aae657b7db88b8cc # v8.2.0
     - run: ./sbt -v
            --server
            -jvm-opts .github/workflows/.jvmopts
@@ -39,7 +39,7 @@ jobs:
       with:
         java-version: 21
         distribution: temurin
-    - uses: coursier/cache-action@95e5b1029b6b86e7bac033ee44a0697d8a527d2d # v8.1.1
+    - uses: coursier/cache-action@057d08c2f9a2c4e7a4d33df3aae657b7db88b8cc # v8.2.0
     - run: ./sbt -v
            --server
            -jvm-opts .github/workflows/.jvmopts
@@ -60,7 +60,7 @@ jobs:
     - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: 26
-    - uses: coursier/cache-action@95e5b1029b6b86e7bac033ee44a0697d8a527d2d # v8.1.1
+    - uses: coursier/cache-action@057d08c2f9a2c4e7a4d33df3aae657b7db88b8cc # v8.2.0
     - run: ./sbt -v
            --server
            -jvm-opts .github/workflows/.jvmopts
