@@ -255,6 +255,7 @@ object JsonParser {
             }
           } else unexpectedContent(stream, position)
         }
+        case control if control < ' ' => Left("Unexpected unescaped control character in JSON string.")
         case other => {
           val normalCharEnd = safeNormalCharIndex(position)
           collectStringParts(stream, normalCharEnd, workingString.append(stream, position, normalCharEnd))

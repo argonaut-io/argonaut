@@ -27,6 +27,7 @@ object JsonParserSpecification extends ArgonautSpec with DataTables with ScalaCh
     Whitespace is handled correctly for an array               $whitespaceForArray
     Valid JSON parses into expected values                     $validJson
     Invalid JSON parses into expected failures                 $invalidJson
+    Unescaped control characters are rejected                  $unescapedControlCharacters
     Printed and then parsed again generates the same structure $printParse
   """
 
@@ -56,6 +57,11 @@ object JsonParserSpecification extends ArgonautSpec with DataTables with ScalaCh
       val actualParseResult = JsonParser.parse(json)
       actualParseResult == parseResult
     }
+
+  def unescapedControlCharacters =
+    (0 until 0x20).forall { code =>
+      JsonParser.parse("\"" + code.toChar + "\"").isLeft
+    } must_== true
 
   def printParse =
     prop { (json: Json) =>
