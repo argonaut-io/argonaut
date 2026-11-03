@@ -450,6 +450,8 @@ private case class CArray(p: Cursor, u: Boolean, ls: List[Json], x: Json, rs: Li
       case _ => false
     }
   }
+
+  override def hashCode: Int = (p, ls, x, rs).##
 }
 private case class CObject(p: Cursor, u: Boolean, o: JsonObject, x: (JsonField, Json)) extends Cursor {
   override def equals(other: Any): Boolean = {
@@ -458,6 +460,8 @@ private case class CObject(p: Cursor, u: Boolean, o: JsonObject, x: (JsonField, 
       case _ => false
     }
   }
+
+  override def hashCode: Int = (p, o, x).##
 }
 
 object Cursor extends Cursors {
